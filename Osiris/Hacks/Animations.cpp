@@ -1,0 +1,256 @@
+#include "Animations.h"
+#include "EnginePrediction.h"
+
+#include "../Memory.h"
+#include "../Interfaces.h"
+
+#include "../SDK/LocalPlayer.h"
+#include "../SDK/Cvar.h"
+#include "../SDK/GlobalVars.h"
+#include "../SDK/Entity.h"
+#include "../SDK/UserCmd.h"
+#include "../SDK/ConVar.h"
+#include "../SDK/MemAlloc.h"
+#include "../SDK/Input.h"
+
+Animations::Datas Animations::data;
+
+void Animations::init() noexcept
+{
+    static auto jiggleBones = interfaces->cvar->findVar("r_jiggle_bones");
+    if (jiggleBones->getInt() >= 1)
+        jiggleBones->setValue(0);
+
+    static auto extrapolate = interfaces->cvar->findVar("cl_extrapolate");
+    if (extrapolate->getInt() >= 1)
+        extrapolate->setValue(0);
+}
+
+void Animations::update(UserCmd* cmd, bool& sendPacket) noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    data.viewangles = cmd->viewangles;
+    data.sendPacket = sendPacket;
+
+    
+    //Do before copying layers
+    /*
+    *     if (EnginePrediction::getFlags() & 1 && cmd->buttons & UserCmd::IN_JUMP)
+        Animations::doAnimationEvent(PLAYERANIMEVENT_JUMP);
+    */
+    
+}
+
+void Animations::fake() noexcept
+{
+    static AnimState* fakeanimstate = nullptr;
+    static bool updatefakeanim = true;
+    static bool initfakeanim = true;
+    static float spawnTime = 0.f;
+
+    if (!localPlayer || !localPlayer.get()->isAlive() || !localPlayer.get()->getAnimstate())
+        return;
+
+    if (spawnTime != localPlayer.get()->spawnTime() || updatefakeanim)
+    {
+        spawnTime = localPlayer.get()->spawnTime();
+        initfakeanim = false;
+        updatefakeanim = false;
+    }
+
+    if (!initfakeanim)
+    {
+        fakeanimstate = static_cast<AnimState*>(memory->memalloc->Alloc(sizeof(AnimState)));
+
+        if (fakeanimstate != nullptr)
+            localPlayer.get()->createState(fakeanimstate);
+
+        initfakeanim = true;
+    }
+
+    if (!fakeanimstate)
+        return;
+
+    if (data.sendPacket)
+    {
+        std::array<AnimationLayer, 13> layers;
+
+        std::memcpy(&layers, localPlayer.get()->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+
+        auto backupAbs = localPlayer.get()->getAbsAngle();
+        auto backupPoses = localPlayer.get()->poseParameters();
+
+        localPlayer.get()->updateState(fakeanimstate, data.viewangles);
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeanimstate->m_flFootYaw, 0 });
+        std::memcpy(localPlayer.get()->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        localPlayer.get()->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
+        data.gotMatrix = localPlayer.get()->setupBones(data.fakematrix, MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
+        const auto origin = localPlayer.get()->getRenderOrigin();
+        if (data.gotMatrix)
+        {
+            for (auto& i : data.fakematrix)
+            {
+                i[0][3] -= origin.x;
+                i[1][3] -= origin.y;
+                i[2][3] -= origin.z;
+            }
+        }
+        std::memcpy(localPlayer.get()->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        localPlayer.get()->poseParameters() = backupPoses;
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
+    }
+}
+
+void Animations::real(FrameStage stage) noexcept
+{
+    if (stage != FrameStage::RENDER_START)
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+    
+    static auto backupPoses = localPlayer.get()->poseParameters();
+    static auto backupAbs = localPlayer.get()->getAnimstate()->m_flFootYaw;
+
+    static std::array<AnimationLayer, 13> layers;
+
+    if (stage == FrameStage::RENDER_START)
+    {
+        static int oldTick = 0;
+
+        if (oldTick != memory->globalVars->tickCount)
+        {
+            oldTick = memory->globalVars->tickCount;
+            Animations::data.updating = true;
+
+            //localPlayer->getEFlags() &= ~0x1000;
+            //localPlayer->getAbsVelocity() = localPlayer->velocity();
+
+            std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+            //std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount()); //
+            localPlayer.get()->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
+
+            localPlayer->updateState(localPlayer->getAnimstate(), Animations::data.viewangles);
+            localPlayer->updateClientSideAnimation();
+
+            //std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount()); //
+
+            if (data.sendPacket)
+            {
+                backupPoses = localPlayer->poseParameters();
+                backupAbs = localPlayer->getAnimstate()->m_flFootYaw;
+            }
+            Animations::data.updating = false;
+        }
+
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs,0 });
+        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        localPlayer->poseParameters() = backupPoses;
+    }
+}
+
+void Animations::players(FrameStage stage) noexcept
+{
+    if (stage != FrameStage::NET_UPDATE_END)
+        return;
+
+    if (!localPlayer)
+    {
+        for (auto& record : data.player)
+            record.clear();
+        return;
+    }
+    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
+    {
+        auto entity = interfaces->entityList->getEntity(i);
+        auto& player = data.player[i];
+        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive())
+        {
+            player.clear();
+            continue;
+        }
+
+        std::memcpy(&player.layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayerCount());
+
+        const auto frameTime = memory->globalVars->frametime;
+        const auto currentTime = memory->globalVars->currenttime;
+
+        memory->globalVars->frametime = memory->globalVars->intervalPerTick;
+        memory->globalVars->currenttime = entity->simulationTime();
+
+        if (player.oldSimtime != entity->simulationTime())
+        {
+            if (player.lastOrigin.notNull())
+                player.velocity = (entity->origin() - player.lastOrigin) * (1.0f / fabsf(entity->simulationTime() - player.oldSimtime));
+            player.lastOrigin = entity->origin();
+
+            if (entity->flags() & 1
+                && player.layers[ANIMATION_LAYER_ALIVELOOP].weight > 0.f
+                && player.layers[ANIMATION_LAYER_ALIVELOOP].weight < 1.f)
+            {
+                float m_flVelocityLengthXY = 0.f;
+                auto weapon = entity->getActiveWeapon();
+                float flMaxSpeedRun = 260.f;
+                if (weapon)
+                {
+                    if (auto weaponData = weapon->getWeaponData(); weaponData)
+                    {
+                        const float maxSpeed = (entity->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed);
+                        flMaxSpeedRun = std::fmax(maxSpeed, 0.001f);
+                    }
+                }
+                auto modifier = 0.35f * (1.0f - player.layers[ANIMATION_LAYER_ALIVELOOP].weight);
+
+                if (modifier > 0.f && modifier < 1.0f)
+                    m_flVelocityLengthXY = flMaxSpeedRun * (modifier + 0.55f);
+
+                if (m_flVelocityLengthXY != 0.f)
+                {
+                    m_flVelocityLengthXY = entity->velocity().length2D() / m_flVelocityLengthXY;
+
+                    player.velocity.x *= m_flVelocityLengthXY;
+                    player.velocity.y *= m_flVelocityLengthXY;
+                }
+            }
+
+            if (player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].playbackRate <= 0.f 
+                || player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].weight <= 0.f 
+                && entity->flags() & 1)
+            {
+                player.velocity.x = 0.f;
+                player.velocity.y = 0.f;
+            }
+
+            if (entity->getAnimstate()->getLayerActivity(ANIMATION_LAYER_ADJUST) == ACT_CSGO_IDLE_ADJUST_STOPPEDMOVING ||
+                entity->getAnimstate()->getLayerActivity(ANIMATION_LAYER_ADJUST) == ACT_CSGO_IDLE_TURN_BALANCEADJUST)
+            {
+                player.velocity.x = std::clamp(entity->velocity().x, -1.f, 1.f);
+                player.velocity.y = std::clamp(entity->velocity().y, -1.f, 1.f);
+            }
+        }
+
+        entity->getEFlags() &= ~0x1000;
+        entity->getAbsVelocity() = player.velocity;
+
+        data.update = true;
+        entity->updateClientSideAnimation();
+        data.update = false;
+
+        std::memcpy(entity->animOverlays(), &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayerCount());
+
+        memory->globalVars->frametime = frameTime;
+        memory->globalVars->currenttime = currentTime;
+
+        if (player.oldSimtime != entity->simulationTime())
+        {
+            player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.oldSimtime) / memory->globalVars->intervalPerTick) - 1;
+            player.oldSimtime = entity->simulationTime();
+            player.currentSimtime = entity->simulationTime();
+            player.gotMatrix = entity->setupBones(player.matrix.data(), 256, 0x7FF00, memory->globalVars->currenttime);
+            player.mins = entity->getCollideable()->obbMins();
+            player.maxs = entity->getCollideable()->obbMaxs();
+        }
+    }
+}

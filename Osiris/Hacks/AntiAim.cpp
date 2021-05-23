@@ -1,0 +1,335 @@
+#include "Aimbot.h"
+#include "AntiAim.h"
+#include "../Interfaces.h"
+#include "../SDK/Engine.h"
+#include "../SDK/Entity.h"
+#include "../SDK/EntityList.h"
+#include "../SDK/NetworkChannel.h"
+#include "../SDK/UserCmd.h"
+#include "../GUI.h"
+
+bool updateLby(bool update = false) noexcept
+{
+    static float timer = 0.f;
+    static bool lastValue = false;
+
+    if (!update)
+        return lastValue;
+
+    if (!(localPlayer->flags() & 1) || !localPlayer->getAnimstate())
+    {
+        lastValue = false;
+        return false;
+    }
+
+    if (localPlayer->getAnimstate()->m_flVelocityLengthXY > 0.1f || fabsf(localPlayer->getAnimstate()->m_flVelocityLengthZ) > 100.f)
+        timer = memory->globalVars->serverTime() + 0.22f;
+
+    if (timer < memory->globalVars->serverTime())
+    {
+        timer = memory->globalVars->serverTime() + 1.1f;
+        lastValue = true;
+        return true;
+    }
+    lastValue = false;
+    return false;
+}
+
+bool autoDirection(Vector eyeAngle) noexcept
+{
+    constexpr float maxRange{ 8192.0f };
+
+    Vector eye = eyeAngle;
+    eye.x = 0.f;
+    Vector eyeAnglesLeft45 = eye;
+    Vector eyeAnglesRight45 = eye;
+    eyeAnglesLeft45.y += 45.f;
+    eyeAnglesRight45.y -= 45.f;
+
+
+    eyeAnglesLeft45.toAngle();
+
+    Vector viewAnglesLeft45 = {};
+    viewAnglesLeft45 = viewAnglesLeft45.fromAngle(eyeAnglesLeft45) * maxRange;
+
+    Vector viewAnglesRight45 = {};
+    viewAnglesRight45 = viewAnglesRight45.fromAngle(eyeAnglesRight45) * maxRange;
+
+    static Trace traceLeft45;
+    static Trace traceRight45;
+
+    Vector startPosition{ localPlayer->getEyePosition() };
+
+    interfaces->engineTrace->traceRay({ startPosition, startPosition + viewAnglesLeft45 }, 0x4600400B, { localPlayer.get() }, traceLeft45);
+    interfaces->engineTrace->traceRay({ startPosition, startPosition + viewAnglesRight45 }, 0x4600400B, { localPlayer.get() }, traceRight45);
+
+    float distanceLeft45 = sqrtf(powf(startPosition.x - traceRight45.endpos.x, 2) + powf(startPosition.y - traceRight45.endpos.y, 2) + powf(startPosition.z - traceRight45.endpos.z, 2));
+    float distanceRight45 = sqrtf(powf(startPosition.x - traceLeft45.endpos.x, 2) + powf(startPosition.y - traceLeft45.endpos.y, 2) + powf(startPosition.z - traceLeft45.endpos.z, 2));
+
+    float mindistance = min(distanceLeft45, distanceRight45);
+
+    if (distanceLeft45 == mindistance)
+        return false;
+    return true;
+}
+
+void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
+{
+    if (cmd->viewangles.x == currentViewAngles.x && config->rageAntiAim.enabled)
+    {
+        switch (config->rageAntiAim.pitch)
+        {
+        case 0: //None
+            break;
+        case 1: //Down
+            cmd->viewangles.x = 89.f;
+            break;
+        case 2: //Zero
+            cmd->viewangles.x = 0.f;
+            break;
+        case 3: //Up
+            cmd->viewangles.x = -89.f;
+            break;
+        default:
+            break;
+        }
+    }
+    if (cmd->viewangles.y == currentViewAngles.y)
+    {
+        if (config->rageAntiAim.yawBase != 0 
+            && config->rageAntiAim.enabled)   //AntiAim
+        {
+            float yaw = 0.f;
+            if (config->rageAntiAim.atTargets)
+            {
+                Vector localPlayerEyePosition = localPlayer->getEyePosition();
+                const auto aimPunch = localPlayer->getAimPunch();
+                float bestFov = 255.f;
+                float yawAngle = 0.f;
+                for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i) {
+                    const auto entity{ interfaces->entityList->getEntity(i) };
+                    if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
+                        || !entity->isOtherEnemy(localPlayer.get()) || entity->gunGameImmunity())
+                        continue;
+
+                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, entity->getAbsOrigin(), cmd->viewangles + aimPunch) };
+                    const auto fov{ angle.length2D() };
+                    if (fov < bestFov)
+                    {
+                        yawAngle = angle.y;
+                        bestFov = fov;
+                    }
+                }
+                yaw = yawAngle;
+            }
+
+            switch (config->rageAntiAim.yawBase)
+            {
+            case 1: //Forward
+                yaw += 0.f;
+                break;
+            case 2: //Back
+                yaw += 180.f;
+                break;
+            case 3: //Right
+                yaw += -90.f;
+                break;
+            case 4: //Left
+                yaw += 90.f;
+                break;
+            default:
+                break;
+            }
+            yaw += config->rageAntiAim.yawAdd;
+            cmd->viewangles.y += yaw;
+        }
+        if (config->fakeAngle.enabled) //Fakeangle
+        {
+            bool isInvertToggled = config->fakeAngle.invert.isToggled();
+            bool invert = isInvertToggled;
+            float leftDesyncAngle = config->fakeAngle.leftLimit * 2.f;
+            float rightDesyncAngle = config->fakeAngle.rightLimit * 2.f;
+
+            switch (config->fakeAngle.peekMode)
+            {
+            case 0:
+                break;
+            case 1: // Peek real
+                if(!isInvertToggled)
+                    invert = !autoDirection(cmd->viewangles);
+                else
+                    invert = autoDirection(cmd->viewangles);
+                break;
+            case 2: // Peek fake
+                if (isInvertToggled)
+                    invert = !autoDirection(cmd->viewangles);
+                else
+                    invert = autoDirection(cmd->viewangles);
+                break;
+            default:
+                break;
+            }
+
+            switch (config->fakeAngle.lbyMode)
+            {
+            case 0: // Normal(sidemove)
+                if (fabsf(cmd->sidemove) < 5.0f)
+                {
+                    if (cmd->buttons & UserCmd::IN_DUCK)
+                        cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
+                    else
+                        cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
+                }
+                break;
+            case 1: // Opposite (Lby break)
+                if (updateLby())
+                {
+                    cmd->viewangles.y += !invert ? leftDesyncAngle : -rightDesyncAngle;
+                    sendPacket = false;
+                    if (fabsf(cmd->sidemove) < 5.0f)
+                    {
+                        if (cmd->buttons & UserCmd::IN_DUCK)
+                            cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
+                        else
+                            cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
+                    }
+                    return;
+                }
+                break;
+            case 2: //Sway (flip every lby update)
+                static bool flip = false;
+                if (updateLby())
+                {
+                    cmd->viewangles.y += !flip ? leftDesyncAngle : -rightDesyncAngle;
+                    sendPacket = false;
+                    if (fabsf(cmd->sidemove) < 5.0f)
+                    {
+                        if (cmd->buttons & UserCmd::IN_DUCK)
+                            cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
+                        else
+                            cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
+                    }
+                    flip = !flip;
+                    return;
+                }
+                if (!sendPacket)
+                    cmd->viewangles.y += flip ? leftDesyncAngle : -rightDesyncAngle;
+                return;
+            }
+
+            if (sendPacket)
+                return;
+
+            cmd->viewangles.y += invert ? leftDesyncAngle : -rightDesyncAngle;
+        }
+    }
+}
+
+void AntiAim::legit(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
+{
+    if (cmd->viewangles.y == currentViewAngles.y) 
+    {
+        bool invert = config->legitAntiAim.invert.isToggled();
+        float desyncAngle = localPlayer->getMaxDesyncAngle() * 2.f;
+        if (updateLby() && config->legitAntiAim.extend) //Add pre lby flicking to prevent 979 from triggering
+        {
+            cmd->viewangles.y += !invert ? desyncAngle : -desyncAngle;
+            sendPacket = false;
+            if (fabsf(cmd->sidemove) < 5.0f)
+            {
+                if (cmd->buttons & UserCmd::IN_DUCK)
+                    cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
+                else
+                    cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
+            }
+            return;
+        }
+
+        if (fabsf(cmd->sidemove) < 5.0f && !config->legitAntiAim.extend)
+        {
+            if (cmd->buttons & UserCmd::IN_DUCK)
+                cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
+            else
+                cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
+        }
+
+        if (sendPacket)
+            return;
+
+        cmd->viewangles.y += invert ? desyncAngle : -desyncAngle;
+    }
+}
+
+void AntiAim::updateInput() noexcept
+{
+    config->legitAntiAim.invert.handleToggle();
+    config->fakeAngle.invert.handleToggle();
+}
+
+void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
+{
+    if (config->legitAntiAim.enabled)
+        AntiAim::legit(cmd, previousViewAngles, currentViewAngles, sendPacket);
+    else if (config->rageAntiAim.enabled || config->fakeAngle.enabled)
+        AntiAim::rage(cmd, previousViewAngles, currentViewAngles, sendPacket);
+}
+
+bool AntiAim::canRun(UserCmd* cmd) noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return false;
+    
+    updateLby(true); //Update lby timer
+    
+    if (cmd->buttons & (UserCmd::IN_USE))
+        return false;
+
+    if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
+        return false;
+
+    if ((*memory->gameRules)->freezePeriod())
+        return false;
+
+    auto activeWeapon = localPlayer.get()->getActiveWeapon();
+    if (!activeWeapon || !activeWeapon->clip())
+        return true;
+
+    if (activeWeapon->isThrowing())
+        return false;
+
+    if (activeWeapon->isGrenade())
+        return true;
+
+    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto() || localPlayer->waitForNoAttack())
+        return true;
+
+    if (localPlayer.get()->nextAttack() > memory->globalVars->serverTime())
+        return true;
+
+    if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+        return true;
+
+    if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
+        return true;
+
+    if (localPlayer.get()->nextAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
+        return false;
+
+    if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
+        return false;
+    
+    if (activeWeapon->isKnife())
+    {
+        if (activeWeapon->nextSecondaryAttack() <= memory->globalVars->serverTime() && cmd->buttons & (UserCmd::IN_ATTACK2))
+            return false;
+    }
+
+    if (activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver && activeWeapon->readyTime() <= memory->globalVars->serverTime() && cmd->buttons & (UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2))
+        return false;
+
+    auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
+    if (!weaponIndex)
+        return true;
+
+    return true;
+}

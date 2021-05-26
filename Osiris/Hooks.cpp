@@ -144,14 +144,18 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
     return hooks->originalReset(device, params);
 }
 
-static bool __fastcall sendNetMsg(void* networkchannel, void* edx, NetworkMessage& msg, bool bForceReliable, bool bVoice)
+int __stdcall getUnverifiedFileHashes(void* thisPointer, void* someclass, int maxFiles)
 {
-    static auto original = hooks->networkChannel.getOriginal<bool, 40, NetworkMessage&, bool, bool>(msg, bForceReliable, bVoice);
+    if (config->misc.svPureBypass)
+        return 0;
+    return hooks->fileSystem.callOriginal<int, 101>(thisPointer, someclass, maxFiles);
+}
 
-    if (msg.getType() == 14 && config->misc.svPureBypass) // Return and don't send messsage if its FileCRCCheck
-        return false;
-
-    return original(networkchannel, msg, bForceReliable, bVoice);
+int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexcept
+{
+    if (config->misc.svPureBypass)
+        return 1;
+    return hooks->fileSystem.callOriginal<int, 127>(thisPointer);
 }
 
 static int __fastcall sendDatagram(NetworkChannel* network, void* edx, void* datagram)
@@ -187,11 +191,10 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     bool& sendPacket = *reinterpret_cast<bool*>(*framePointer - 0x1C);
 
     static void* oldPointer = nullptr;
-    if (auto network = memory->clientState->netChannel; network && oldPointer != network && localPlayer)
+    if (auto network = memory->clientState->netChannel; network && oldPointer != network)
     {
         oldPointer = network;
         hooks->networkChannel.init(network);
-        hooks->networkChannel.hookAt(40, sendNetMsg);
         hooks->networkChannel.hookAt(46, sendDatagram);
     }
 
@@ -759,6 +762,10 @@ void Hooks::install() noexcept
     modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
     calculateView.detour(memory->calculateView, calculateViewHook);
     updateState.detour(memory->updateState, updateStateHook);
+
+    fileSystem.init(memory->fileSystem);
+    fileSystem.hookAt(127, canLoadThirdPartyFiles);
+    fileSystem.hookAt(101, getUnverifiedFileHashes);
 
     //Finish rebuilding
 

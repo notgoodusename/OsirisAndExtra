@@ -52,6 +52,7 @@ public:
 
     VmtSwap networkChannel; //TODO: use minhook
 
+    HookType fileSystem;
     HookType bspQuery;
     HookType client;
     HookType clientMode;

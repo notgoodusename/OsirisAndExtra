@@ -175,6 +175,9 @@ public:
     std::uintptr_t notifyOnLayerChangeCycle;
     void(__thiscall* calcAbsoluteVelocity)(void*);
 
+    void* writeUsercmdDeltaToBufferReturn;
+    std::uintptr_t writeUsercmd;
+    std::uintptr_t clMove;
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

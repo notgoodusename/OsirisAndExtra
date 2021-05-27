@@ -35,6 +35,7 @@
 #include "Hacks/Ragebot.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
+#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
@@ -236,7 +237,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
         Fakelag::run(sendPacket);
         AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
     }
-
+    Tickbase::run(cmd);
     Misc::autoStrafe(cmd, currentViewAngles);
     Misc::moonwalk(cmd);
 
@@ -516,6 +517,120 @@ static void __stdcall renderSmokeOverlay(bool update) noexcept
         hooks->viewRender.callOriginal<void, 41>(update);
 }
 
+void writeUsercmd(void* buf, UserCmd* in, UserCmd* out) noexcept
+{
+    static auto writeUsercmdF = memory->writeUsercmd;
+
+    __asm
+    {
+        mov ecx, buf
+        mov edx, in
+        push out
+        call writeUsercmdF
+        add esp, 4
+    }
+}
+
+static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, int slot, void* buffer, int from, int to, bool isNewCommand) noexcept
+{
+    auto original = hooks->client.getOriginal<bool, 24, int, void*, int, int, bool>(slot, buffer, from, to, isNewCommand);
+    if (_ReturnAddress() == memory->writeUsercmdDeltaToBufferReturn || Tickbase::tick.tickshift <= 0 || !memory->clientState)
+        return original(thisPointer, slot, buffer, from, to, isNewCommand);
+
+    if(!localPlayer || !localPlayer->isAlive())
+        return original(thisPointer, slot, buffer, from, to, isNewCommand);
+
+    if (from != -1)
+        return true;
+
+    int* numBackupCommands = (int*)(reinterpret_cast <uintptr_t> (buffer) - 0x30);
+    int* numNewCommands = (int*)(reinterpret_cast <uintptr_t> (buffer) - 0x2C);
+
+    int32_t newcommands = *numNewCommands;
+
+    int nextcommmand = memory->clientState->lastOutgoingCommand + memory->clientState->chokedCommands + 1;
+    int totalcommands = min(Tickbase::tick.tickshift, Tickbase::tick.maxUsercmdProcessticks);
+    Tickbase::tick.recharge = totalcommands;
+    Tickbase::tick.lastTime = memory->globalVars->realtime;
+    Tickbase::tick.tickshift = 0;
+
+    from = -1;
+    *numNewCommands = totalcommands;
+    *numBackupCommands = 0;
+
+    for (to = nextcommmand - newcommands + 1; to <= nextcommmand; to++)
+    {
+        if (!(original(thisPointer, slot, buffer, from, to, true)))
+            return false;
+
+        from = to;
+    }
+
+    UserCmd* lastRealCmd = memory->input->getUserCmd(slot, from);
+    UserCmd fromcmd;
+
+    if (lastRealCmd)
+        fromcmd = *lastRealCmd;
+
+    UserCmd tocmd = fromcmd;
+    tocmd.commandNumber++;
+
+    for (int i = newcommands; i <= totalcommands; i++)
+    {
+        writeUsercmd(buffer, &tocmd, &fromcmd);
+        fromcmd = tocmd;
+        tocmd.commandNumber++;
+        tocmd.tickCount++;
+    }
+
+    return true;
+}
+
+void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
+{
+    using clMovefn = void(__cdecl*)(float, bool);
+    static auto original = (clMovefn)hooks->clMove.getDetour();
+
+    if (Tickbase::tick.recharge > 0 && (memory->globalVars->realtime - Tickbase::tick.lastTime) >= 1.5f && localPlayer && localPlayer->isAlive())
+    {
+        Tickbase::tick.recharge--;
+        Tickbase::tick.chokedCommands--;
+        Tickbase::tick.chokedCommands = max(Tickbase::tick.chokedCommands, 0); //clamp
+    }
+    else
+    {
+        original(accumulatedExtraSamples, finalTick);
+    }
+}
+
+static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper) noexcept
+{
+    auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
+
+    if (!entity || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, entity, cmd, moveHelper);
+
+    if ((1 / memory->globalVars->intervalPerTick) + Tickbase::tick.tickCount + 8 <= cmd->tickCount)
+    {
+        cmd->hasbeenpredicted = true;
+        return;
+    }
+
+    int tickbase = entity->tickBase();
+    auto currentime = memory->globalVars->currenttime;
+
+    if (cmd->commandNumber == Tickbase::tick.commandNumber)
+        entity->tickBase() = Tickbase::tick.tickBase - Tickbase::tick.lastTickShift + 1;
+
+    original(thisPointer, entity, cmd, moveHelper);
+
+    if (cmd->commandNumber == Tickbase::tick.commandNumber)
+    {
+        entity->tickBase() = tickbase;
+        memory->globalVars->currenttime = currentime;
+    }
+}
+
 void __fastcall doExtraBoneProcessingHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, const matrix3x4& matrix, uint8_t* bone_list, void* context) noexcept
 {
     return;
@@ -631,10 +746,6 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
     auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
-
-    return;
-
-    static std::array<AnimationLayer, 13> layers{};
 
     const auto angle = Animations::data.viewangles;
 
@@ -828,10 +939,13 @@ void Hooks::install() noexcept
 
     //preDataUpdate.detour(memory->preDataUpdate, preDataUpdateHook);
     //postDataUpdate.detour(memory->postDataUpdate, postDataUpdateHook);
+
+    clMove.detour(memory->clMove, clMoveHook);
     
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 
     client.init(interfaces->client);
+    client.hookAt(24, writeUsercmdDeltaToBuffer);
     client.hookAt(37, frameStageNotify);
 
     clientMode.init(memory->clientMode);
@@ -864,6 +978,9 @@ void Hooks::install() noexcept
     viewRender.init(memory->viewRender);
     viewRender.hookAt(39, render2dEffectsPreHud);
     viewRender.hookAt(41, renderSmokeOverlay);
+
+    prediction.init(interfaces->prediction);
+    prediction.hookAt(19, runCommand);
 
     if (DWORD oldProtection; VirtualProtect(memory->dispatchSound, 4, PAGE_EXECUTE_READWRITE, &oldProtection)) {
         originalDispatchSound = decltype(originalDispatchSound)(uintptr_t(memory->dispatchSound + 1) + *memory->dispatchSound);

@@ -662,6 +662,20 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::Columns(1);
 }
 
+void GUI::renderExploitsWindow() noexcept
+{
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 300.f);
+    ImGui::Checkbox("Enabled", &config->tickBase.enabled);
+
+    ImGui::PushItemWidth(220.0f);
+    ImGui::SliderInt("Tick shift", &config->tickBase.tickShift, 0, 16, "%d");
+    ImGui::PopItemWidth();
+
+    ImGui::NextColumn();
+    ImGui::Columns(1);
+}
+
 void GUI::renderFakeAngleWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
@@ -1757,7 +1771,7 @@ void GUI::renderConfigWindow() noexcept
             ImGui::OpenPopup("Config to reset");
 
         if (ImGui::BeginPopup("Config to reset")) {
-            static constexpr const char* names[]{ "Whole", "Legitbot", "Legit Anti Aim", "Ragebot", "Rage Anti aim", "Fake angle", "Fakelag", "Backtrack", "Triggerbot", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Misc" };
+            static constexpr const char* names[]{ "Whole", "Legitbot", "Legit Anti Aim", "Ragebot", "Rage Anti aim", "Fake angle", "Fakelag", "Exploits", "Backtrack", "Triggerbot", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Misc" };
             for (int i = 0; i < IM_ARRAYSIZE(names); i++) {
                 if (i == 1) ImGui::Separator();
 
@@ -1770,15 +1784,16 @@ void GUI::renderConfigWindow() noexcept
                     case 4: config->rageAntiAim = { };  break;
                     case 5: config->fakeAngle = { }; break;
                     case 6: config->fakelag = { }; break;
-                    case 7: config->backtrack = { }; break;
-                    case 8: config->triggerbot = { }; break;
-                    case 9: Glow::resetConfig(); break;
-                    case 10: config->chams = { }; break;
-                    case 11: config->streamProofESP = { }; break;
-                    case 12: config->visuals = { }; break;
-                    case 13: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
-                    case 14: Sound::resetConfig(); break;
-                    case 15: config->misc = { };  Misc::updateClanTag(true); break;
+                    case 7: config->tickBase = { }; break;
+                    case 8: config->backtrack = { }; break;
+                    case 9: config->triggerbot = { }; break;
+                    case 10: Glow::resetConfig(); break;
+                    case 11: config->chams = { }; break;
+                    case 12: config->streamProofESP = { }; break;
+                    case 13: config->visuals = { }; break;
+                    case 14: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
+                    case 15: Sound::resetConfig(); break;
+                    case 16: config->misc = { };  Misc::updateClanTag(true); break;
                     }
                 }
             }
@@ -1916,6 +1931,7 @@ void GUI::renderGuiStyle() noexcept
                             if (ImGui::Button("AntiAim                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 3;
                             if (ImGui::Button("Fake Angle              ", ImVec2{ 80, 20 })) activeSubTabRagebot = 4;
                             if (ImGui::Button("FakeLag                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 5;
+                            if (ImGui::Button("Exploits                ", ImVec2{ 80, 20 })) activeSubTabRagebot = 6;
                             break;
                         case 3: //Visuals
                             ImGui::SetCursorPosY(10);
@@ -1990,6 +2006,9 @@ void GUI::renderGuiStyle() noexcept
                                     //FakeLag
                                     renderFakelagWindow();
                                     break;
+                                case 6:
+                                     //Exploits
+                                    renderExploitsWindow();
                                 default:
                                     break;
                                 }

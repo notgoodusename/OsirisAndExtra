@@ -50,6 +50,8 @@ public:
     MinHook preDataUpdate;
     MinHook postDataUpdate;
 
+    MinHook clMove;
+
     VmtSwap networkChannel; //TODO: use minhook
 
     HookType fileSystem;
@@ -58,6 +60,7 @@ public:
     HookType clientMode;
     HookType engine;
     HookType modelRender;
+    HookType prediction;
     HookType sound;
     HookType surface;
     HookType viewRender;

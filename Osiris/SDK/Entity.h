@@ -181,10 +181,15 @@ public:
     {
         Vector v{};
 
-        memory->getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), &v); //TODO: fix crashing while loading cfg
-        __asm add esp, 8
+        getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), &v);
 
         return v.length();
+    }
+
+    void getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, float* poseParameters, Vector* v) noexcept
+    {
+        memory->getSequenceLinearMotion(studioHdr, sequence, poseParameters, v);
+        __asm add esp, 8
     }
 
     CStudioHdr* getModelPtr() noexcept

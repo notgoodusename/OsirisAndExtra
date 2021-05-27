@@ -172,13 +172,6 @@ public:
         return value;
     }
 
-    /////////////Mostly likely will crash, no idea why, patterns are ok
-
-    void updateAnimLayer(size_t layer, int sequence, float playbackRate, float weight, float cycle) noexcept
-    {
-        memory->updateAnimLayer(this, playbackRate, layer, sequence, weight, cycle);
-    }
-
     int lookupSequence(const char* sequence) noexcept
     {
         return memory->lookUpSequence(this, sequence);
@@ -188,13 +181,11 @@ public:
     {
         Vector v{};
 
-        memory->getSequenceLinearMotion(this, sequence, studioHdr, (uintptr_t)this + netvars->operator[](fnv::hash("CBaseAnimating->m_flPoseParameter")), &v);
+        memory->getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), &v); //TODO: fix crashing while loading cfg
+        __asm add esp, 8
 
-        if (v.notNull())
-            return v.length();
-        return 0.f;
+        return v.length();
     }
-    /////////////
 
     CStudioHdr* getModelPtr() noexcept
     {
@@ -219,9 +210,9 @@ public:
         return *reinterpret_cast<int*>(this + 0x298C);
     }
 
-    AnimationLayer* animOverlays()
+    AnimationLayer* animOverlays() noexcept
     {
-        return *reinterpret_cast<AnimationLayer**>(uintptr_t(this) + 0x2980);
+        return *reinterpret_cast<AnimationLayer**>(reinterpret_cast<uintptr_t>(this) + 0x2980);
     }
 
     AnimationLayer* getAnimationLayer(int overlay) noexcept
@@ -229,7 +220,7 @@ public:
         return &animOverlays()[overlay];
     }
 
-    inline float* getPoseParameter() noexcept
+    float* getPoseParameter() noexcept
     {
         static auto m_flPoseParameter = netvars->operator[](fnv::hash("CBaseAnimating->m_flPoseParameter"));
         return reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + m_flPoseParameter);
@@ -527,7 +518,7 @@ public:
     NETVAR(shotsFired, "CCSPlayer", "m_iShotsFired", int)
     NETVAR(waitForNoAttack, "CCSPlayer", "m_bWaitForNoAttack", bool)
     NETVAR(isStrafing, "CCSPlayer", "m_bStrafing", bool)
-    NETVAR(moveState, "CCSPlayer", "m_iMoveState", bool)
+    NETVAR(moveState, "CCSPlayer", "m_iMoveState", int)
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)
     NETVAR(worldModelIndex, "CBaseCombatWeapon", "m_iWorldModelIndex", int)

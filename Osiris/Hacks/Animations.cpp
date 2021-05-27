@@ -33,14 +33,8 @@ void Animations::update(UserCmd* cmd, bool& sendPacket) noexcept
 
     data.viewangles = cmd->viewangles;
     data.sendPacket = sendPacket;
+    localPlayer->getAnimstate()->m_nButtons = cmd->buttons;
 
-    
-    //Do before copying layers
-    /*
-    *     if (EnginePrediction::getFlags() & 1 && cmd->buttons & UserCmd::IN_JUMP)
-        Animations::doAnimationEvent(PLAYERANIMEVENT_JUMP);
-    */
-    
 }
 
 void Animations::fake() noexcept
@@ -108,16 +102,16 @@ void Animations::real(FrameStage stage) noexcept
     if (stage != FrameStage::RENDER_START)
         return;
 
+    static std::array<AnimationLayer, 13> layers{};
+
     if (!localPlayer || !localPlayer->isAlive())
         return;
-    
-    static auto backupPoses = localPlayer.get()->poseParameters();
-    static auto backupAbs = localPlayer.get()->getAnimstate()->m_flFootYaw;
 
-    static std::array<AnimationLayer, 13> layers;
-
-    if (stage == FrameStage::RENDER_START)
+    if(stage == FrameStage::RENDER_START)
     {
+        static auto backupPoses = localPlayer.get()->poseParameters();
+        static auto backupAbs = localPlayer.get()->getAnimstate()->m_flFootYaw;
+
         static int oldTick = 0;
 
         if (oldTick != memory->globalVars->tickCount)
@@ -125,26 +119,19 @@ void Animations::real(FrameStage stage) noexcept
             oldTick = memory->globalVars->tickCount;
             Animations::data.updating = true;
 
-            //localPlayer->getEFlags() &= ~0x1000;
-            //localPlayer->getAbsVelocity() = localPlayer->velocity();
-
-            std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
-            //std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount()); //
             localPlayer.get()->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
 
             localPlayer->updateState(localPlayer->getAnimstate(), Animations::data.viewangles);
             localPlayer->updateClientSideAnimation();
 
-            //std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount()); //
-
             if (data.sendPacket)
             {
+                std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
                 backupPoses = localPlayer->poseParameters();
                 backupAbs = localPlayer->getAnimstate()->m_flFootYaw;
             }
             Animations::data.updating = false;
         }
-
         memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs,0 });
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
         localPlayer->poseParameters() = backupPoses;
@@ -192,15 +179,8 @@ void Animations::players(FrameStage stage) noexcept
             {
                 float m_flVelocityLengthXY = 0.f;
                 auto weapon = entity->getActiveWeapon();
-                float flMaxSpeedRun = 260.f;
-                if (weapon)
-                {
-                    if (auto weaponData = weapon->getWeaponData(); weaponData)
-                    {
-                        const float maxSpeed = (entity->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed);
-                        flMaxSpeedRun = std::fmax(maxSpeed, 0.001f);
-                    }
-                }
+                float flMaxSpeedRun = weapon ? std::fmaxf(weapon->getMaxSpeed(), 0.001f) : CS_PLAYER_SPEED_RUN;
+
                 auto modifier = 0.35f * (1.0f - player.layers[ANIMATION_LAYER_ALIVELOOP].weight);
 
                 if (modifier > 0.f && modifier < 1.0f)

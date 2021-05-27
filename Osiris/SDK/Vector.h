@@ -197,7 +197,7 @@ struct Vector {
                       -std::sin(Helpers::deg2rad(angle.x)) };
     }
 
-    static auto fromAngle(const Vector& angle, Vector& forward, Vector& right, Vector& up) noexcept
+    static auto fromAngleAll(const Vector& angle, Vector& forward, Vector& right, Vector& up) noexcept
     {
         float sr = std::sin(Helpers::deg2rad(angle.z))
             , sp = std::sin(Helpers::deg2rad(angle.x))

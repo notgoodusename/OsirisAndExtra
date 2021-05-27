@@ -144,11 +144,11 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
     return hooks->originalReset(device, params);
 }
 
-int __stdcall getUnverifiedFileHashes(void* thisPointer, void* someclass, int maxFiles)
+int __stdcall getUnverifiedFileHashes(void* thisPointer, int maxFiles)
 {
     if (config->misc.svPureBypass)
         return 0;
-    return hooks->fileSystem.callOriginal<int, 101>(thisPointer, someclass, maxFiles);
+    return hooks->fileSystem.callOriginal<int, 101>(thisPointer, maxFiles);
 }
 
 int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexcept
@@ -632,10 +632,16 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
 
+    return;
+
+    static std::array<AnimationLayer, 13> layers{};
+
     const auto angle = Animations::data.viewangles;
 
-    return original(thisPointer, unknown, z, angle.y, angle.x, unknown1);
+    return original(thisPointer, unknown, z, angle.y, angle.x, unknown1);;
 }
+
+static std::array<AnimationLayer, 13> layers{};
 
 //TODO: find a way to ignore networked data
 void __fastcall preDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
@@ -645,6 +651,8 @@ void __fastcall preDataUpdateHook(void* thisPointer, void* edx, int updateType) 
     auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, updateType);
+
+    std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
 
     return original(thisPointer, updateType);
 }
@@ -656,6 +664,31 @@ void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int updateType)
     auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, updateType);
+
+    std::array<AnimationLayer, 13> currentLayers{};
+
+    std::memcpy(&currentLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+
+    for (int i = 0; i < 13; i++)
+    {
+        AnimationLayer _curLayer = currentLayers.at(i);
+        AnimationLayer _prevLayer = layers.at(i);
+        if (
+            _curLayer.sequence != _prevLayer.sequence
+            || _curLayer.weightDeltaRate!= _prevLayer.weightDeltaRate
+            || _curLayer.cycle != _prevLayer.cycle
+            || _curLayer.weight != _prevLayer.weight
+            || _curLayer.playbackRate != _prevLayer.playbackRate
+            )
+        {
+
+            {
+                auto a = _curLayer;
+                auto b = _prevLayer;
+                auto c = 1;
+            }
+        }
+    }
 
     return original(thisPointer, updateType);
 }
@@ -673,7 +706,9 @@ void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
     animState->m_flLowerBodyRealignTimer = 0.f;
     animState->m_bDeployRateLimiting = false;
     animState->m_bJumping = false;
-    entity->lby() = 0.f;
+    animState->m_nButtons = 0;
+    if(localPlayer && entity == localPlayer.get())
+        entity->lby() = 0.f;
 
     return original(thisPointer);
 }
@@ -689,6 +724,19 @@ void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
         return original(thisPointer);
 
     animState->setupVelocity();
+}
+
+void __fastcall setupMovementHook(void* thisPointer, void* edx) noexcept
+{
+    static auto original = hooks->setupMovement.getOriginalDetour<void>();
+
+    auto animState = reinterpret_cast<AnimState*>(thisPointer);
+
+    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer);
+
+    animState->setupMovement();
 }
 
 void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
@@ -772,7 +820,7 @@ void Hooks::install() noexcept
     resetState.detour(memory->resetState, resetStateHook);
     
     setupVelocity.detour(memory->setupVelocity, setupVelocityHook); //done
-    //setupMovement.detour(memory->setupMovement, setupMovementHook);
+    setupMovement.detour(memory->setupMovement, setupMovementHook); //done
     setupAliveloop.detour(memory->setupAliveloop, setupAliveloopHook); // done
 
     notifyOnLayerChangeWeight.detour(memory->notifyOnLayerChangeWeight, notifyOnLayerChangeWeightHook);
@@ -867,6 +915,7 @@ void Hooks::uninstall() noexcept
     svCheats.restore();
     viewRender.restore();
     networkChannel.restore();
+    fileSystem.restore();
 
     netvars->restore();
 

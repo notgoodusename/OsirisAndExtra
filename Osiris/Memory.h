@@ -165,10 +165,9 @@ public:
     int(__thiscall* selectWeightedSequenceFromModifiers)(void*, void*, int, const void*, int);
 
     int(__thiscall* lookUpSequence)(void*, const char*);
-    void(__thiscall* updateAnimLayer)(void*, float playbackRate, size_t layer, int sequence, float weight, float cycle); //__userpurge
     int(__thiscall* seqdesc)(void*, int);
     float(__thiscall* getFirstSequenceAnimTag)(void*, int, int, int);
-    void(__thiscall* getSequenceLinearMotion)(void*, int, void*, int, Vector*); //int sequence@<edx>, _DWORD *studioHdr@<ecx>, int poseParameter, _DWORD *vectorReturn
+    void(__fastcall* getSequenceLinearMotion)(void*, int, float*, Vector*); // void __fastcall GetSequenceLinearMotion(_DWORD *studioHdr@<ecx>, int sequence@<edx>, int poseParameter, _DWORD *vectorReturn)
     
     bool(__thiscall* initPoseParameter)(void*, void*, const char*); //char __thiscall InitPoseParameter(_DWORD *poseParameter, int player, int name)
     std::uintptr_t studioSetPoseParameter;

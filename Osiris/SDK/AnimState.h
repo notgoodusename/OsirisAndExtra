@@ -237,13 +237,18 @@ struct AnimState //This is the client one
 	float m_flLowerBodyRealignTimer;
 	bool m_bDeployRateLimiting;
 	bool m_bJumping;
+	int m_nButtons;
 
 	void setupVelocity() noexcept;
+	void setupMovement() noexcept;
 	void setupAliveLoop() noexcept;
 
 	void doAnimationEvent(int animationEvent) noexcept;
 	void updateActivityModifiers() noexcept;
 	void addActivityModifier(const char* name) noexcept;
+
+	void updateLayerOrderPreset(float weight, int layerIndex, int sequence) noexcept;
+	void updateAnimLayer(size_t layerIndex, int sequence, float playbackRate, float weight, float cycle) noexcept;
 
 	void incrementLayerCycleWeightRateGeneric(size_t layer) noexcept;
 	void incrementLayerCycle(size_t layer, bool allowLoop) noexcept;

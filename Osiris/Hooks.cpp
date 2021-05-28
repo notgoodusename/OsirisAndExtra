@@ -516,15 +516,15 @@ static void __stdcall renderSmokeOverlay(bool update) noexcept
         hooks->viewRender.callOriginal<void, 41>(update);
 }
 
-void writeUsercmd(void* buf, UserCmd* in, UserCmd* out) noexcept
+void writeUsercmd(void* buf, UserCmd* cmdIn, UserCmd* cmdOut) noexcept
 {
     static auto writeUsercmdF = memory->writeUsercmd;
 
     __asm
     {
         mov ecx, buf
-        mov edx, in
-        push out
+        mov edx, cmdIn
+        push cmdOut
         call writeUsercmdF
         add esp, 4
     }

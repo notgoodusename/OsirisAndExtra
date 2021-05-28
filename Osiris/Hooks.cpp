@@ -215,7 +215,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Misc::updateClanTag();
     Misc::fakeBan();
     Misc::stealNames();
-    Misc::deathmatchGod();
     Misc::revealRanks(cmd);
     Misc::quickReload(cmd);
     Misc::fixTabletSignal();
@@ -631,6 +630,14 @@ static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, 
     }
 }
 
+static void __stdcall onJump(float stamina) noexcept
+{
+    hooks->gameMovement.callOriginal<void, 32>(stamina);
+
+    if (localPlayer && localPlayer->isAlive() && localPlayer->getAnimstate())
+        localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_JUMP);
+}
+
 void __fastcall doExtraBoneProcessingHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, const matrix3x4& matrix, uint8_t* bone_list, void* context) noexcept
 {
     return;
@@ -746,7 +753,10 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
     auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
-
+	
+    if (!localPlayer->getModelPtr())
+        return;
+	
     const auto angle = Animations::data.viewangles;
 
     return original(thisPointer, unknown, z, angle.y, angle.x, unknown1);;
@@ -963,6 +973,9 @@ void Hooks::install() noexcept
     engine.hookAt(101, getScreenAspectRatio);
     engine.hookAt(218, getDemoPlaybackParameters);
 
+    gameMovement.init(interfaces->gameMovement);
+    gameMovement.hookAt(32, onJump);
+
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);
 
@@ -1026,6 +1039,7 @@ void Hooks::uninstall() noexcept
     client.restore();
     clientMode.restore();
     engine.restore();
+    gameMovement.restore();
     modelRender.restore();
     sound.restore();
     surface.restore();

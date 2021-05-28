@@ -34,7 +34,7 @@ void Animations::update(UserCmd* cmd, bool& sendPacket) noexcept
     data.viewangles = cmd->viewangles;
     data.sendPacket = sendPacket;
     localPlayer->getAnimstate()->m_nButtons = cmd->buttons;
-
+    localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
 }
 
 void Animations::fake() noexcept
@@ -118,8 +118,6 @@ void Animations::real(FrameStage stage) noexcept
         {
             oldTick = memory->globalVars->tickCount;
             Animations::data.updating = true;
-
-            localPlayer.get()->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
 
             localPlayer->updateState(localPlayer->getAnimstate(), Animations::data.viewangles);
             localPlayer->updateClientSideAnimation();

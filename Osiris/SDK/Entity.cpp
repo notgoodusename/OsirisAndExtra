@@ -74,3 +74,21 @@ bool Entity::visibleTo(Entity* other) noexcept
 
     return false;
 }
+
+#pragma optimize( "", off)
+#pragma runtime_checks("", off) //Disable runtime checks to prevent ESP error
+void Entity::getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector& v) noexcept
+{
+    memory->getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), &v);
+}
+#pragma runtime_checks("", restore) //Restore runtime checks
+#pragma optimize( "", on )
+
+float Entity::getSequenceMoveDist(CStudioHdr* studioHdr, int sequence) noexcept
+{
+    Vector v{};
+
+    getSequenceLinearMotion(studioHdr, sequence, v);
+
+    return v.length();
+}

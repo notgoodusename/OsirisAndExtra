@@ -176,24 +176,10 @@ public:
     {
         return memory->lookUpSequence(this, sequence);
     }
-#pragma optimize( "", off)
-#pragma runtime_checks("", off) //Disable runtime checks to prevent ESP error
-    inline float getSequenceMoveDist(CStudioHdr* studioHdr, int sequence) noexcept
-    {
-        Vector v{};
 
-        getSequenceLinearMotion(studioHdr, sequence, v);
+    void getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector& v) noexcept;
 
-        return v.length();
-    }
-
-    void getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector& v) noexcept
-    {
-        memory->getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), &v);
-        __asm add esp, 8
-    }
-#pragma runtime_checks("", restore) //Restor runtime checks
-#pragma optimize( "", on )
+    float getSequenceMoveDist(CStudioHdr* studioHdr, int sequence) noexcept;
 
     CStudioHdr* getModelPtr() noexcept
     {

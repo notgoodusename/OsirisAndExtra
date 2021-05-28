@@ -639,6 +639,9 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
 
+    if (!localPlayer->getModelPtr())
+        return;
+
     const auto angle = Animations::data.viewangles;
 
     return original(thisPointer, unknown, z, angle.y, angle.x, unknown1);;

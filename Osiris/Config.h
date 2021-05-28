@@ -252,7 +252,6 @@ public:
         bool quickReload{ false };
         bool prepareRevolver{ false };
         bool oppositeHandKnife = false;
-        bool deathmatchGod = false;
         bool svPureBypass{ false };
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];

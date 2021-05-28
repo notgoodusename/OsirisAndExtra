@@ -57,6 +57,7 @@ public:
     HookType client;
     HookType clientMode;
     HookType engine;
+    HookType gameMovement;
     HookType modelRender;
     HookType sound;
     HookType surface;

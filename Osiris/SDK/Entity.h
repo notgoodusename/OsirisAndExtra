@@ -186,11 +186,13 @@ public:
         return v.length();
     }
 
+#pragma runtime_checks("", off) //Disable runtime checks to prevent ESP error, (getSequenceLinearMotion sucks ass)
     void getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, float* poseParameters, Vector* v) noexcept
     {
         memory->getSequenceLinearMotion(studioHdr, sequence, poseParameters, v);
         __asm add esp, 8
     }
+#pragma runtime_checks("", restore) //Restor runtime checks
 
     CStudioHdr* getModelPtr() noexcept
     {

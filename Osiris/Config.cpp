@@ -518,7 +518,6 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Reportbot", m.reportbot);
     read(j, "Opposite Hand Knife", m.oppositeHandKnife);
     read<value_t::object>(j, "Preserve Killfeed", m.preserveKillfeed);
-    read(j, "Deathmatch godmode", m.deathmatchGod);
     read(j, "Sv pure bypass", m.svPureBypass);
     read<value_t::object>(j, "Autobuy", m.autoBuy);
 }
@@ -962,7 +961,6 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Reportbot", reportbot);
     WRITE("Opposite Hand Knife", oppositeHandKnife);
     WRITE("Preserve Killfeed", preserveKillfeed);
-    WRITE("Deathmatch godmode", deathmatchGod);
     WRITE("Sv pure bypass", svPureBypass);
     WRITE("Autobuy", autoBuy);
 }

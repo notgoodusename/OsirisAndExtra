@@ -182,14 +182,14 @@ public:
     {
         Vector v{};
 
-        getSequenceLinearMotion(studioHdr, sequence, &v);
+        getSequenceLinearMotion(studioHdr, sequence, v);
 
         return v.length();
     }
 
-    void getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector* v) noexcept
+    void getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector& v) noexcept
     {
-        memory->getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), v);
+        memory->getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), &v);
         __asm add esp, 8
     }
 #pragma runtime_checks("", restore) //Restor runtime checks

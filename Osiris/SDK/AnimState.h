@@ -55,7 +55,7 @@ private:
 public:
 	activityModifiersWrapper() = default;
 
-	explicit activityModifiersWrapper(UtlVector<uint16_t> currentModifiers)
+	explicit activityModifiersWrapper(UtlVector<uint16_t> currentModifiers) noexcept
 	{
 		modifiers.removeAll();
 		modifiers.growVector(currentModifiers.size);
@@ -64,12 +64,12 @@ public:
 			modifiers[i] = currentModifiers[i];
 	}
 
-	void addModifier(const char* name)
+	void addModifier(const char* name) noexcept
 	{
 		memory->addActivityModifier(this, name);
 	}
 
-	UtlVector<uint16_t> get() const
+	UtlVector<uint16_t> get() noexcept
 	{
 		return modifiers;
 	}
@@ -177,7 +177,7 @@ struct AnimState //This is the client one
 	bool					adjustStarted;//T 312
 	PAD(3); //T 313
 
-	UtlVector<uint16_t>	m_ActivityModifiers;//T 316 (size 20)
+	UtlVector<uint16_t>	activityModifiers;//T 316 (size 20)
 	
 	float					nextTwitchTime;//T 336
 

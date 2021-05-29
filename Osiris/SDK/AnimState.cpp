@@ -370,9 +370,8 @@ void AnimState::setupMovement() noexcept
 
     Vector vecForward;
     Vector vecRight;
-    Vector vecUp;
-    Vector::fromAngleAll(Vector{ 0.f, footYaw, 0.f }, vecForward, vecRight, vecUp);
-    vecRight.normalize();
+    Vector::fromAngleAll(Vector{ 0.f, footYaw, 0.f }, &vecForward, &vecRight, nullptr);
+    vecRight = vecRight.normalized();
     float velToRightDot = vecVelocityNormalizedNonZero.dotProduct(vecRight);
     float velToForwardDot = vecVelocityNormalizedNonZero.dotProduct(vecForward);
 
@@ -536,7 +535,10 @@ void AnimState::setupMovement() noexcept
     {
         if (!landing && (landedOnGroundThisFrame || stoppedLadderingThisFrame))
         {
-            setLayerSequence(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, (durationInAir > 1.f) ? static_cast<int>(ACT_CSGO_LAND_HEAVY) : static_cast<int>(ACT_CSGO_LAND_LIGHT));
+            if(durationInAir > 1.f)
+                setLayerSequence(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, ACT_CSGO_LAND_HEAVY);
+            else
+                setLayerSequence(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, ACT_CSGO_LAND_LIGHT);
             setLayerCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, 0.f);
             landing = true;
         }
@@ -698,7 +700,7 @@ void AnimState::updateActivityModifiers() noexcept
     if (animDuckAmount > .55f)
         modifierWrapper.addModifier("crouch");
 
-    m_ActivityModifiers = modifierWrapper.get();
+    activityModifiers = modifierWrapper.get();
 }
 
 void AnimState::doAnimationEvent(int animationEvent) noexcept
@@ -898,7 +900,7 @@ void AnimState::setLayerSequence(size_t layer, int32_t activity) noexcept
         return;
 
     const auto mapping = memory->findMapping(hdr);
-    const auto sequence = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &m_ActivityModifiers[0], m_ActivityModifiers.size);
+    const auto sequence = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &activityModifiers[0], activityModifiers.size);
 
     if (sequence < 2)
         return;

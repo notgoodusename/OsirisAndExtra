@@ -197,7 +197,7 @@ struct Vector {
                       -std::sin(Helpers::deg2rad(angle.x)) };
     }
 
-    static auto fromAngleAll(const Vector& angle, Vector& forward, Vector& right, Vector& up) noexcept
+    static auto fromAngleAll(const Vector& angle, Vector* forward, Vector* right, Vector* up) noexcept
     {
         float sr = std::sin(Helpers::deg2rad(angle.z))
             , sp = std::sin(Helpers::deg2rad(angle.x))
@@ -206,9 +206,26 @@ struct Vector {
             , cp = std::cos(Helpers::deg2rad(angle.x))
             , cy = std::cos(Helpers::deg2rad(angle.y));
 
-        forward = Vector{ cp * cy,  cp * sy, -sp };
-        right = Vector{ (-1 * sr * sp * cy + -1 * cr * -sy), (-1 * sr * sp * sy + -1 * cr * cy), -1 * sr * cp };
-        up = Vector{ (cr * sp * cy + -sr * -sy), (cr * sp * sy + -sr * cy), cr * cp };
+        if (forward)
+        {
+            forward->x = cp * cy;
+            forward->y = cp * sy;
+            forward->z = -sp;
+        }
+
+        if (right)
+        {
+            right->x = (-1 * sr * sp * cy + -1 * cr * -sy);
+            right->y = (-1 * sr * sp * sy + -1 * cr * cy);
+            right->z = -1 * sr * cp;
+        }
+
+        if (up)
+        {
+            up->x = (cr * sp * cy + -sr * -sy);
+            up->y = (cr * sp * sy + -sr * cy);
+            up->z = cr * cp;
+        }
     }
 
     void vectorCrossProduct(const Vector& a, const Vector& b, Vector& result)

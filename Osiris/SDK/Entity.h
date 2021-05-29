@@ -34,7 +34,8 @@ struct AnimState;
 struct AnimationLayer
 {
 public:
-    PAD(8);
+    float animationTime;
+    float fadeOut;
     CStudioHdr* dispatchedStudioHdr;
     int dispatchedSrc;
     int dispatchedDst;
@@ -46,7 +47,7 @@ public:
     float playbackRate;
     float cycle;
     void* owner;
-    PAD(4);
+    int invalidatePhysicsBits;
 };
 
 enum class MoveType {
@@ -427,12 +428,12 @@ public:
         if (!animState)
             return 0.0f;
 
-        float yawModifier = (animState->m_flWalkToRunTransition * -0.3f - 0.2f) * std::clamp(animState->m_flSpeedAsPortionOfWalkTopSpeed, 0.0f, 1.0f) + 1.0f;
+        float yawModifier = (animState->walkToRunTransition * -0.3f - 0.2f) * std::clamp(animState->speedAsPortionOfWalkTopSpeed, 0.0f, 1.0f) + 1.0f;
 
-        if (animState->m_flAnimDuckAmount > 0.0f)
-            yawModifier += (animState->m_flAnimDuckAmount * std::clamp(animState->m_flSpeedAsPortionOfCrouchTopSpeed, 0.0f, 1.0f) * (0.5f - yawModifier));
+        if (animState->animDuckAmount > 0.0f)
+            yawModifier += (animState->animDuckAmount * std::clamp(animState->speedAsPortionOfCrouchTopSpeed, 0.0f, 1.0f) * (0.5f - yawModifier));
 
-        return animState->m_flAimYawMax * yawModifier;
+        return animState->aimYawMax * yawModifier;
     }
 
     bool isInReload() noexcept

@@ -33,7 +33,7 @@ void Animations::update(UserCmd* cmd, bool& sendPacket) noexcept
 
     data.viewangles = cmd->viewangles;
     data.sendPacket = sendPacket;
-    localPlayer->getAnimstate()->m_nButtons = cmd->buttons;
+    localPlayer->getAnimstate()->buttons = cmd->buttons;
     localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
 }
 
@@ -77,7 +77,7 @@ void Animations::fake() noexcept
         auto backupPoses = localPlayer.get()->poseParameters();
 
         localPlayer.get()->updateState(fakeanimstate, data.viewangles);
-        memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeanimstate->m_flFootYaw, 0 });
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeanimstate->footYaw, 0 });
         std::memcpy(localPlayer.get()->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
         localPlayer.get()->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
         data.gotMatrix = localPlayer.get()->setupBones(data.fakematrix, MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
@@ -110,7 +110,7 @@ void Animations::real(FrameStage stage) noexcept
     if(stage == FrameStage::RENDER_START)
     {
         static auto backupPoses = localPlayer.get()->poseParameters();
-        static auto backupAbs = localPlayer.get()->getAnimstate()->m_flFootYaw;
+        static auto backupAbs = localPlayer.get()->getAnimstate()->footYaw;
 
         static int oldTick = 0;
 
@@ -126,7 +126,7 @@ void Animations::real(FrameStage stage) noexcept
             {
                 std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
                 backupPoses = localPlayer->poseParameters();
-                backupAbs = localPlayer->getAnimstate()->m_flFootYaw;
+                backupAbs = localPlayer->getAnimstate()->footYaw;
             }
             Animations::data.updating = false;
         }
@@ -175,21 +175,21 @@ void Animations::players(FrameStage stage) noexcept
                 && player.layers[ANIMATION_LAYER_ALIVELOOP].weight > 0.f
                 && player.layers[ANIMATION_LAYER_ALIVELOOP].weight < 1.f)
             {
-                float m_flVelocityLengthXY = 0.f;
+                float velocityLengthXY = 0.f;
                 auto weapon = entity->getActiveWeapon();
                 float flMaxSpeedRun = weapon ? std::fmaxf(weapon->getMaxSpeed(), 0.001f) : CS_PLAYER_SPEED_RUN;
 
                 auto modifier = 0.35f * (1.0f - player.layers[ANIMATION_LAYER_ALIVELOOP].weight);
 
                 if (modifier > 0.f && modifier < 1.0f)
-                    m_flVelocityLengthXY = flMaxSpeedRun * (modifier + 0.55f);
+                    velocityLengthXY = flMaxSpeedRun * (modifier + 0.55f);
 
-                if (m_flVelocityLengthXY != 0.f)
+                if (velocityLengthXY != 0.f)
                 {
-                    m_flVelocityLengthXY = entity->velocity().length2D() / m_flVelocityLengthXY;
+                    velocityLengthXY = entity->velocity().length2D() / velocityLengthXY;
 
-                    player.velocity.x *= m_flVelocityLengthXY;
-                    player.velocity.y *= m_flVelocityLengthXY;
+                    player.velocity.x *= velocityLengthXY;
+                    player.velocity.y *= velocityLengthXY;
                 }
             }
 

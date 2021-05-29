@@ -127,10 +127,10 @@ public:
     std::uintptr_t updateState;
     std::uintptr_t createState;
     std::uintptr_t resetState;
-    std::uintptr_t InvalidateBoneCache;
+    std::uintptr_t invalidateBoneCache;
     void* isLoadOutAvailable;
-    void* SetupVelocityAddress;
-    void* AccumulateLayersAddress;
+    void* setupVelocityAddress;
+    void* accumulateLayersAddress;
 
     std::uintptr_t doExtraBoneProcessing;
     std::uintptr_t standardBlendingRules;

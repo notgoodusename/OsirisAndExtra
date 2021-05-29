@@ -477,7 +477,7 @@ static bool __stdcall isPlayingDemo() noexcept
 
 static bool __fastcall isHltv() noexcept
 {
-    if (_ReturnAddress() == memory->SetupVelocityAddress || _ReturnAddress() == memory->AccumulateLayersAddress)
+    if (_ReturnAddress() == memory->setupVelocityAddress || _ReturnAddress() == memory->accumulateLayersAddress)
         return true;
     return hooks->engine.callOriginal<bool, 93>();
 }

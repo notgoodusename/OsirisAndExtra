@@ -317,7 +317,7 @@ public:
 
     uint32_t& mostRecentModelBoneCounter() noexcept
     {
-        static auto invalidateBoneCache = memory->InvalidateBoneCache;
+        static auto invalidateBoneCache = memory->invalidateBoneCache;
         static auto mostRecentModelBoneCounter = *reinterpret_cast<uintptr_t*>(invalidateBoneCache + 0x1B);
 
         return *reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(this) + mostRecentModelBoneCounter);
@@ -325,7 +325,7 @@ public:
 
     float& lastBoneSetupTime() noexcept
     {
-        static auto invalidateBoneCache = memory->InvalidateBoneCache;
+        static auto invalidateBoneCache = memory->invalidateBoneCache;
         static auto lastBoneSetupTime = *reinterpret_cast<uintptr_t*>(invalidateBoneCache + 0x11);
 
         return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + lastBoneSetupTime);

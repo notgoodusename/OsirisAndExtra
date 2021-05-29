@@ -6,7 +6,7 @@ void AnimState::setupVelocity() noexcept
 {
     interfaces->mdlCache->beginLock();
 
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     Vector vecAbsVelocity = entity->getAbsVelocity();
 
@@ -15,128 +15,128 @@ void AnimState::setupVelocity() noexcept
         vecAbsVelocity = vecAbsVelocity.normalized() * (CS_PLAYER_SPEED_RUN * CSGO_ANIM_MAX_VEL_LIMIT);
 
     // save vertical velocity component
-    m_flVelocityLengthZ = vecAbsVelocity.z;
+    velocityLengthZ = vecAbsVelocity.z;
 
     // discard z component
     vecAbsVelocity.z = 0.f;
 
     // remember if the player is accelerating.
-    m_bPlayerIsAccelerating = (m_vecVelocityLast.squareLength() < vecAbsVelocity.squareLength());
+    playerIsAccelerating = (vecVelocityLast.squareLength() < vecAbsVelocity.squareLength());
 
     // rapidly approach ideal velocity instead of instantly adopt it. This helps smooth out instant velocity changes, like
     // when the player runs headlong into a wall and their velocity instantly becomes zero.
-    m_vecVelocity = Helpers::approach(vecAbsVelocity, m_vecVelocity, m_flLastUpdateIncrement * 2000.f);
-    m_vecVelocityNormalized = m_vecVelocity.normalized();
+    vecVelocity = Helpers::approach(vecAbsVelocity, vecVelocity, lastUpdateIncrement * 2000.f);
+    vecVelocityNormalized = vecVelocity.normalized();
 
     // save horizontal velocity length
-    m_flVelocityLengthXY = std::fminf(m_vecVelocity.length(), CS_PLAYER_SPEED_RUN);
+    velocityLengthXY = std::fminf(vecVelocity.length(), CS_PLAYER_SPEED_RUN);
 
-    if (m_flVelocityLengthXY > 0.f)
-        m_vecVelocityNormalizedNonZero = m_vecVelocityNormalized;
+    if (velocityLengthXY > 0.f)
+        vecVelocityNormalizedNonZero = vecVelocityNormalized;
 
-    auto weapon = reinterpret_cast<Entity*>(m_pWeapon);
-    float flMaxSpeedRun = weapon ? std::fmaxf(weapon->getMaxSpeed(), 0.001f) : CS_PLAYER_SPEED_RUN;
+    auto currentWeapon = reinterpret_cast<Entity*>(weapon);
+    float maxSpeedRun = currentWeapon ? std::fmaxf(currentWeapon->getMaxSpeed(), 0.001f) : CS_PLAYER_SPEED_RUN;
 
     //compute speed in various normalized forms
-    m_flSpeedAsPortionOfRunTopSpeed = std::clamp(m_flVelocityLengthXY / flMaxSpeedRun, 0.f, 1.f);
-    m_flSpeedAsPortionOfWalkTopSpeed = m_flVelocityLengthXY / (flMaxSpeedRun * CS_PLAYER_SPEED_WALK_MODIFIER);
-    m_flSpeedAsPortionOfCrouchTopSpeed = m_flVelocityLengthXY / (flMaxSpeedRun * CS_PLAYER_SPEED_DUCK_MODIFIER);
+    speedAsPortionOfRunTopSpeed = std::clamp(velocityLengthXY / maxSpeedRun, 0.f, 1.f);
+    speedAsPortionOfWalkTopSpeed = velocityLengthXY / (maxSpeedRun * CS_PLAYER_SPEED_WALK_MODIFIER);
+    speedAsPortionOfCrouchTopSpeed = velocityLengthXY / (maxSpeedRun * CS_PLAYER_SPEED_DUCK_MODIFIER);
 
-    if (m_flSpeedAsPortionOfWalkTopSpeed >= 1.f)
+    if (speedAsPortionOfWalkTopSpeed >= 1.f)
     {
-        m_flStaticApproachSpeed = m_flVelocityLengthXY;
+        staticApproachSpeed = velocityLengthXY;
     }
-    else if (m_flSpeedAsPortionOfWalkTopSpeed < 0.5f)
+    else if (speedAsPortionOfWalkTopSpeed < 0.5f)
     {
-        m_flStaticApproachSpeed = Helpers::approach(80.f, m_flStaticApproachSpeed, m_flLastUpdateIncrement * 60.f);
+        staticApproachSpeed = Helpers::approach(80.f, staticApproachSpeed, lastUpdateIncrement * 60.f);
     }
 
-    bool bStartedMovingThisFrame = false;
-    bool bStoppedMovingThisFrame = false;
+    bool startedMovingThisFrame = false;
+    bool stoppedMovingThisFrame = false;
 
-    if (m_flVelocityLengthXY > 0.f)
+    if (velocityLengthXY > 0.f)
     {
-        bStartedMovingThisFrame = (m_flDurationMoving <= 0.f);
-        m_flDurationStill = 0.f;
-        m_flDurationMoving += m_flLastUpdateIncrement;
+        startedMovingThisFrame = (durationMoving <= 0.f);
+        durationStill = 0.f;
+        durationMoving += lastUpdateIncrement;
     }
     else
     {
-        bStoppedMovingThisFrame = (m_flDurationStill <= 0.f);
-        m_flDurationMoving = 0.f;
-        m_flDurationStill += m_flLastUpdateIncrement;
+        stoppedMovingThisFrame = (durationStill <= 0.f);
+        durationMoving = 0.f;
+        durationStill += lastUpdateIncrement;
     }
 
-    if (!m_bAdjustStarted && bStoppedMovingThisFrame && m_bOnGround && !m_bOnLadder && !m_bLanding && m_flStutterStep < 50)
+    if (!adjustStarted && stoppedMovingThisFrame && onGround && !onLadder && !landing && stutterStep < 50)
     {
         setLayerSequence(ANIMATION_LAYER_ADJUST, ACT_CSGO_IDLE_ADJUST_STOPPEDMOVING);
-        m_bAdjustStarted = true;
+        adjustStarted = true;
     }
 
     if (getLayerActivity(ANIMATION_LAYER_ADJUST) == ACT_CSGO_IDLE_ADJUST_STOPPEDMOVING ||
         getLayerActivity(ANIMATION_LAYER_ADJUST) == ACT_CSGO_IDLE_TURN_BALANCEADJUST)
     {
-        if (m_bAdjustStarted && m_flSpeedAsPortionOfCrouchTopSpeed <= 0.25f)
+        if (adjustStarted && speedAsPortionOfCrouchTopSpeed <= 0.25f)
         {
             incrementLayerCycleWeightRateGeneric(ANIMATION_LAYER_ADJUST);
-            m_bAdjustStarted = !(isLayerSequenceCompleted(ANIMATION_LAYER_ADJUST));
+            adjustStarted = !(isLayerSequenceCompleted(ANIMATION_LAYER_ADJUST));
         }
         else
         {
-            m_bAdjustStarted = false;
-            float flWeight = getLayerWeight(ANIMATION_LAYER_ADJUST);
-            setLayerWeight(ANIMATION_LAYER_ADJUST, Helpers::approach(0.f, flWeight, m_flLastUpdateIncrement * 5.f));
-            setLayerWeightRate(ANIMATION_LAYER_ADJUST, flWeight);
+            adjustStarted = false;
+            float weight = getLayerWeight(ANIMATION_LAYER_ADJUST);
+            setLayerWeight(ANIMATION_LAYER_ADJUST, Helpers::approach(0.f, weight, lastUpdateIncrement * 5.f));
+            setLayerWeightRate(ANIMATION_LAYER_ADJUST, weight);
         }
     }
 
-    m_flFootYawLast = m_flFootYaw;
-    m_flFootYaw = std::clamp(m_flFootYaw, -360.0f, 360.0f);
-    float flEyeFootDelta = Helpers::angleDiff(m_flEyeYaw, m_flFootYaw);
+    footYawLast = footYaw;
+    footYaw = std::clamp(footYaw, -360.0f, 360.0f);
+    float eyeFootDelta = Helpers::angleDiff(eyeYaw, footYaw);
 
-    float flAimMatrixWidthRange = Helpers::lerp(std::clamp(m_flSpeedAsPortionOfWalkTopSpeed, 0.f, 1.f), 1.0f, Helpers::lerp(m_flWalkToRunTransition, CSGO_ANIM_AIM_NARROW_WALK, CSGO_ANIM_AIM_NARROW_RUN));
+    float aimMatrixWidthRange = Helpers::lerp(std::clamp(speedAsPortionOfWalkTopSpeed, 0.f, 1.f), 1.0f, Helpers::lerp(walkToRunTransition, CSGO_ANIM_AIM_NARROW_WALK, CSGO_ANIM_AIM_NARROW_RUN));
 
-    if (m_flAnimDuckAmount > 0.f)
+    if (animDuckAmount > 0.f)
     {
-        flAimMatrixWidthRange = Helpers::lerp(m_flAnimDuckAmount * std::clamp(m_flSpeedAsPortionOfCrouchTopSpeed, 0.f, 1.f), flAimMatrixWidthRange, CSGO_ANIM_AIM_NARROW_CROUCHMOVING);
+        aimMatrixWidthRange = Helpers::lerp(animDuckAmount * std::clamp(speedAsPortionOfCrouchTopSpeed, 0.f, 1.f), aimMatrixWidthRange, CSGO_ANIM_AIM_NARROW_CROUCHMOVING);
     }
 
-    float flTempYawMax = m_flAimYawMax * flAimMatrixWidthRange;
-    float flTempYawMin = m_flAimYawMin * flAimMatrixWidthRange;
+    float tempYawMax = aimYawMax * aimMatrixWidthRange;
+    float tempYawMin = aimYawMin * aimMatrixWidthRange;
 
-    if (flEyeFootDelta > flTempYawMax)
+    if (eyeFootDelta > tempYawMax)
     {
-        m_flFootYaw = m_flEyeYaw - fabs(flTempYawMax);
+        footYaw = eyeYaw - fabs(tempYawMax);
     }
-    else if (flEyeFootDelta < flTempYawMin)
+    else if (eyeFootDelta < tempYawMin)
     {
-        m_flFootYaw = m_flEyeYaw + fabs(flTempYawMin);
+        footYaw = eyeYaw + fabs(tempYawMin);
     }
-    m_flFootYaw = Helpers::angleNormalize(m_flFootYaw);
+    footYaw = Helpers::angleNormalize(footYaw);
 
-    if (m_flVelocityLengthXY > 0.1f || fabs(m_flVelocityLengthZ) > 100.0f)
+    if (velocityLengthXY > 0.1f || fabs(velocityLengthZ) > 100.0f)
     {
-        m_flFootYaw = Helpers::approachAngle(m_flEyeYaw, m_flFootYaw, m_flLastUpdateIncrement * (30.0f + 20.0f * m_flWalkToRunTransition));
-        m_flLowerBodyRealignTimer = m_flLastUpdateTime + (CSGO_ANIM_LOWER_REALIGN_DELAY * 0.2f);
-        if (entity->lby() != m_flEyeYaw)
-            entity->lby() = m_flEyeYaw;
+        footYaw = Helpers::approachAngle(eyeYaw, footYaw, lastUpdateIncrement * (30.0f + 20.0f * walkToRunTransition));
+        lowerBodyRealignTimer = lastUpdateTime + (CSGO_ANIM_LOWER_REALIGN_DELAY * 0.2f);
+        if (entity->lby() != eyeYaw)
+            entity->lby() = eyeYaw;
     }
     else
     {
-        m_flFootYaw = Helpers::approachAngle(entity->lby(), m_flFootYaw, m_flLastUpdateIncrement * CSGO_ANIM_LOWER_CATCHUP_IDLE);
+        footYaw = Helpers::approachAngle(entity->lby(), footYaw, lastUpdateIncrement * CSGO_ANIM_LOWER_CATCHUP_IDLE);
 
-        if (m_flLastUpdateTime > m_flLowerBodyRealignTimer && fabsf(Helpers::angleDiff(m_flFootYaw, m_flEyeYaw)) > 35.0f)
+        if (lastUpdateTime > lowerBodyRealignTimer && fabsf(Helpers::angleDiff(footYaw, eyeYaw)) > 35.0f)
         {
-            m_flLowerBodyRealignTimer = m_flLastUpdateTime + CSGO_ANIM_LOWER_REALIGN_DELAY;
-            if (entity->lby() != m_flEyeYaw)
-                entity->lby() = m_flEyeYaw;
+            lowerBodyRealignTimer = lastUpdateTime + CSGO_ANIM_LOWER_REALIGN_DELAY;
+            if (entity->lby() != eyeYaw)
+                entity->lby() = eyeYaw;
         }
     }
 
-    if (m_flVelocityLengthXY <= CS_PLAYER_SPEED_STOPPED && m_bOnGround && !m_bOnLadder && !m_bLanding && m_flLastUpdateIncrement > 0.f && std::fabsf(Helpers::angleDiff(m_flFootYawLast, m_flFootYaw) / m_flLastUpdateIncrement > 120.f))
+    if (velocityLengthXY <= CS_PLAYER_SPEED_STOPPED && onGround && !onLadder && !landing && lastUpdateIncrement > 0.f && std::fabsf(Helpers::angleDiff(footYawLast, footYaw) / lastUpdateIncrement > 120.f))
     {
         setLayerSequence(ANIMATION_LAYER_ADJUST, ACT_CSGO_IDLE_TURN_BALANCEADJUST);
-        m_bAdjustStarted = true;
+        adjustStarted = true;
     }
 
     if (getLayerWeight(ANIMATION_LAYER_ADJUST) > 0.f)
@@ -146,22 +146,22 @@ void AnimState::setupVelocity() noexcept
     }
 
     // the final model render yaw is aligned to the foot yaw
-    if (m_flVelocityLengthXY > 0.f)
+    if (velocityLengthXY > 0.f)
     {
         // convert horizontal velocity vec to angular yaw
-        float flRawYawIdeal = (std::atan2(-m_vecVelocity.y, -m_vecVelocity.x) * 180 / 3.141592654f);
-        if (flRawYawIdeal < 0.f)
-            flRawYawIdeal += 360.f;
+        float rawYawIdeal = (std::atan2(-vecVelocity.y, -vecVelocity.x) * 180 / 3.141592654f);
+        if (rawYawIdeal < 0.f)
+            rawYawIdeal += 360.f;
 
-        m_flMoveYawIdeal = Helpers::angleNormalize(Helpers::angleDiff(flRawYawIdeal, m_flFootYaw));
+        moveYawIdeal = Helpers::angleNormalize(Helpers::angleDiff(rawYawIdeal, footYaw));
     }
 
     // delta between current yaw and ideal velocity derived target (possibly negative!)
-    m_flMoveYawCurrentToIdeal = Helpers::angleNormalize(Helpers::angleDiff(m_flMoveYawIdeal, m_flMoveYaw));
+    moveYawCurrentToIdeal = Helpers::angleNormalize(Helpers::angleDiff(moveYawIdeal, moveYaw));
 
-    if (bStartedMovingThisFrame && m_flMoveWeight <= 0.f)
+    if (startedMovingThisFrame && moveWeight <= 0.f)
     {
-        m_flMoveYaw = m_flMoveYawIdeal;
+        moveYaw = moveYawIdeal;
 
         // select a special starting cycle that's set by the animator in content
         int nMoveSeq = getLayerSequence(ANIMATION_LAYER_MOVEMENT_MOVE);
@@ -170,43 +170,43 @@ void AnimState::setupVelocity() noexcept
             StudioSeqdesc seqdesc = entity->getModelPtr()->seqdesc(nMoveSeq);
             if (seqdesc.numAnimTags > 0)
             {
-                if (fabsf(Helpers::angleDiff(m_flMoveYaw, 180)) <= EIGHT_WAY_WIDTH) //N
+                if (fabsf(Helpers::angleDiff(moveYaw, 180)) <= EIGHT_WAY_WIDTH) //N
                 {
-                    m_flPrimaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_N);
+                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_N);
                 }
-                else if (fabsf(Helpers::angleDiff(m_flMoveYaw, 135)) <= EIGHT_WAY_WIDTH) //NE
+                else if (fabsf(Helpers::angleDiff(moveYaw, 135)) <= EIGHT_WAY_WIDTH) //NE
                 {
-                    m_flPrimaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_NE);
+                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_NE);
                 }
-                else if (fabsf(Helpers::angleDiff(m_flMoveYaw, 90)) <= EIGHT_WAY_WIDTH) //E
+                else if (fabsf(Helpers::angleDiff(moveYaw, 90)) <= EIGHT_WAY_WIDTH) //E
                 {
-                    m_flPrimaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_E);
+                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_E);
                 }
-                else if (fabsf(Helpers::angleDiff(m_flMoveYaw, 45)) <= EIGHT_WAY_WIDTH) //SE
+                else if (fabsf(Helpers::angleDiff(moveYaw, 45)) <= EIGHT_WAY_WIDTH) //SE
                 {
-                    m_flPrimaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_SE);
+                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_SE);
                 }
-                else if (fabsf(Helpers::angleDiff(m_flMoveYaw, 0)) <= EIGHT_WAY_WIDTH) //S
+                else if (fabsf(Helpers::angleDiff(moveYaw, 0)) <= EIGHT_WAY_WIDTH) //S
                 {
-                    m_flPrimaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_S);
+                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_S);
                 }
-                else if (fabsf(Helpers::angleDiff(m_flMoveYaw, -45)) <= EIGHT_WAY_WIDTH) //SW
+                else if (fabsf(Helpers::angleDiff(moveYaw, -45)) <= EIGHT_WAY_WIDTH) //SW
                 {
-                    m_flPrimaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_SW);
+                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_SW);
                 }
-                else if (fabsf(Helpers::angleDiff(m_flMoveYaw, -90)) <= EIGHT_WAY_WIDTH) //W
+                else if (fabsf(Helpers::angleDiff(moveYaw, -90)) <= EIGHT_WAY_WIDTH) //W
                 {
-                    m_flPrimaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_W);
+                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_W);
                 }
-                else if (fabsf(Helpers::angleDiff(m_flMoveYaw, -135)) <= EIGHT_WAY_WIDTH) //NW
+                else if (fabsf(Helpers::angleDiff(moveYaw, -135)) <= EIGHT_WAY_WIDTH) //NW
                 {
-                    m_flPrimaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_NW);
+                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_NW);
                 }
             }
         }
 
         /*
-        if (m_flInAirSmoothValue >= 1 && !m_bFirstRunSinceInit && abs(m_flMoveYawCurrentToIdeal) > 45 && m_bOnGround && entity->m_boneSnapshots[BONESNAPSHOT_ENTIRE_BODY].GetCurrentWeight() <= 0)
+        if (inAirSmoothValue >= 1 && !firstRunSinceInit && abs(moveYawCurrentToIdeal) > 45 && onGround && entity->m_boneSnapshots[BONESNAPSHOT_ENTIRE_BODY].GetCurrentWeight() <= 0)
         {
             entity->m_boneSnapshots[BONESNAPSHOT_ENTIRE_BODY].SetShouldCapture(bonesnapshot_get(cl_bonesnapshot_speed_movebegin));
         }
@@ -216,50 +216,50 @@ void AnimState::setupVelocity() noexcept
     {
         if (getLayerWeight(ANIMATION_LAYER_MOVEMENT_STRAFECHANGE) >= 1.f)
         {
-            m_flMoveYaw = m_flMoveYawIdeal;
+            moveYaw = moveYawIdeal;
         }
         else
         {
             /*
-            if (m_flInAirSmoothValue >= 1 && !m_bFirstRunSinceInit && abs(m_flMoveYawCurrentToIdeal) > 100 && m_bOnGround && entity->m_boneSnapshots[BONESNAPSHOT_ENTIRE_BODY].GetCurrentWeight() <= 0)
+            if (inAirSmoothValue >= 1 && !firstRunSinceInit && abs(moveYawCurrentToIdeal) > 100 && onGround && entity->m_boneSnapshots[BONESNAPSHOT_ENTIRE_BODY].GetCurrentWeight() <= 0)
             {
                 entity->m_boneSnapshots[BONESNAPSHOT_ENTIRE_BODY].SetShouldCapture(bonesnapshot_get(cl_bonesnapshot_speed_movebegin));
             }
             */
-            float flMoveWeight = Helpers::lerp(m_flAnimDuckAmount, std::clamp(m_flSpeedAsPortionOfWalkTopSpeed, 0.f, 1.f), std::clamp(m_flSpeedAsPortionOfCrouchTopSpeed, 0.f, 1.f));
-            float flRatio = Helpers::bias(flMoveWeight, 0.18f) + 0.1f;
+            float moveWeight = Helpers::lerp(animDuckAmount, std::clamp(speedAsPortionOfWalkTopSpeed, 0.f, 1.f), std::clamp(speedAsPortionOfCrouchTopSpeed, 0.f, 1.f));
+            float ratio = Helpers::bias(moveWeight, 0.18f) + 0.1f;
 
-            m_flMoveYaw = Helpers::angleNormalize(m_flMoveYaw + (m_flMoveYawCurrentToIdeal * flRatio));
+            moveYaw = Helpers::angleNormalize(moveYaw + (moveYawCurrentToIdeal * ratio));
         }
     }
-    m_tPoseParamMappings[PLAYER_POSE_PARAM_MOVE_YAW].setValue(entity, m_flMoveYaw);
+    poseParamMappings[PLAYER_POSE_PARAM_MOVE_YAW].setValue(entity, moveYaw);
 
-    float flAimYaw = Helpers::angleDiff(m_flEyeYaw, m_flFootYaw);
-    if (flAimYaw >= 0.f && m_flAimYawMax != 0.f)
+    float aimYaw = Helpers::angleDiff(eyeYaw, footYaw);
+    if (aimYaw >= 0.f && aimYawMax != 0.f)
     {
-        flAimYaw = (flAimYaw / m_flAimYawMax) * 60.0f;
+        aimYaw = (aimYaw / aimYawMax) * 60.0f;
     }
-    else if (m_flAimYawMin != 0.f)
+    else if (aimYawMin != 0.f)
     {
-        flAimYaw = (flAimYaw / m_flAimYawMin) * -60.0f;
+        aimYaw = (aimYaw / aimYawMin) * -60.0f;
     }
 
-    m_tPoseParamMappings[PLAYER_POSE_PARAM_BODY_YAW].setValue(entity, flAimYaw);
+    poseParamMappings[PLAYER_POSE_PARAM_BODY_YAW].setValue(entity, aimYaw);
 
     // we need non-symmetrical arbitrary min/max bounds for vertical aim (pitch) too
-    float flPitch = Helpers::angleDiff(m_flEyePitch, 0.f);
-    if (flPitch > 0.f)
+    float pitch = Helpers::angleDiff(eyePitch, 0.f);
+    if (pitch > 0.f)
     {
-        flPitch = (flPitch / m_flAimPitchMax) * CSGO_ANIM_AIMMATRIX_DEFAULT_PITCH_MAX;
+        pitch = (pitch / aimPitchMax) * CSGO_ANIM_AIMMATRIX_DEFAULT_PITCH_MAX;
     }
     else
     {
-        flPitch = (flPitch / m_flAimPitchMin) * CSGO_ANIM_AIMMATRIX_DEFAULT_PITCH_MIN;
+        pitch = (pitch / aimPitchMin) * CSGO_ANIM_AIMMATRIX_DEFAULT_PITCH_MIN;
     }
 
-    m_tPoseParamMappings[PLAYER_POSE_PARAM_BODY_PITCH].setValue(entity, flPitch);
-    m_tPoseParamMappings[PLAYER_POSE_PARAM_SPEED].setValue(entity, m_flSpeedAsPortionOfWalkTopSpeed);
-    m_tPoseParamMappings[PLAYER_POSE_PARAM_STAND].setValue(entity, 1.0f - (m_flAnimDuckAmount * m_flInAirSmoothValue));
+    poseParamMappings[PLAYER_POSE_PARAM_BODY_PITCH].setValue(entity, pitch);
+    poseParamMappings[PLAYER_POSE_PARAM_SPEED].setValue(entity, speedAsPortionOfWalkTopSpeed);
+    poseParamMappings[PLAYER_POSE_PARAM_STAND].setValue(entity, 1.0f - (animDuckAmount * inAirSmoothValue));
 
     interfaces->mdlCache->endLock();
 }
@@ -268,369 +268,371 @@ void AnimState::setupMovement() noexcept
 {
     interfaces->mdlCache->beginLock();
 
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
-    if (m_flWalkToRunTransition > 0.f && m_flWalkToRunTransition < 1.f)
+    if (walkToRunTransition > 0.f && walkToRunTransition < 1.f)
     {
         //currently transitioning between walk and run
-        if (m_bWalkToRunTransitionState == ANIM_TRANSITION_WALK_TO_RUN)
+        if (walkToRunTransitionState == ANIM_TRANSITION_WALK_TO_RUN)
         {
-            m_flWalkToRunTransition += m_flLastUpdateIncrement * CSGO_ANIM_WALK_TO_RUN_TRANSITION_SPEED;
+            walkToRunTransition += lastUpdateIncrement * CSGO_ANIM_WALK_TO_RUN_TRANSITION_SPEED;
         }
-        else // m_bWalkToRunTransitionState == ANIM_TRANSITION_RUN_TO_WALK
+        else // walkToRunTransitionState == ANIM_TRANSITION_RUN_TO_WALK
         {
-            m_flWalkToRunTransition -= m_flLastUpdateIncrement * CSGO_ANIM_WALK_TO_RUN_TRANSITION_SPEED;
+            walkToRunTransition -= lastUpdateIncrement * CSGO_ANIM_WALK_TO_RUN_TRANSITION_SPEED;
         }
-        m_flWalkToRunTransition = std::clamp(m_flWalkToRunTransition, 0.f, 1.f);
+        walkToRunTransition = std::clamp(walkToRunTransition, 0.f, 1.f);
     }
 
-    if (m_flVelocityLengthXY > (CS_PLAYER_SPEED_RUN * CS_PLAYER_SPEED_WALK_MODIFIER) && m_bWalkToRunTransitionState == ANIM_TRANSITION_RUN_TO_WALK)
+    if (velocityLengthXY > (CS_PLAYER_SPEED_RUN * CS_PLAYER_SPEED_WALK_MODIFIER) && walkToRunTransitionState == ANIM_TRANSITION_RUN_TO_WALK)
     {
         //crossed the walk to run threshold
-        m_bWalkToRunTransitionState = ANIM_TRANSITION_WALK_TO_RUN;
-        m_flWalkToRunTransition = std::fmaxf(0.01f, m_flWalkToRunTransition);
+        walkToRunTransitionState = ANIM_TRANSITION_WALK_TO_RUN;
+        walkToRunTransition = std::fmaxf(0.01f, walkToRunTransition);
     }
-    else if (m_flVelocityLengthXY < (CS_PLAYER_SPEED_RUN * CS_PLAYER_SPEED_WALK_MODIFIER) && m_bWalkToRunTransitionState == ANIM_TRANSITION_WALK_TO_RUN)
+    else if (velocityLengthXY < (CS_PLAYER_SPEED_RUN * CS_PLAYER_SPEED_WALK_MODIFIER) && walkToRunTransitionState == ANIM_TRANSITION_WALK_TO_RUN)
     {
         //crossed the run to walk threshold
-        m_bWalkToRunTransitionState = ANIM_TRANSITION_RUN_TO_WALK;
-        m_flWalkToRunTransition = std::fmaxf(0.99f, m_flWalkToRunTransition);
+        walkToRunTransitionState = ANIM_TRANSITION_RUN_TO_WALK;
+        walkToRunTransition = std::fmaxf(0.99f, walkToRunTransition);
     }
 
-    if (m_nAnimstateModelVersion < 2)
+    if (animstateModelVersion < 2)
     {
-        m_tPoseParamMappings[PLAYER_POSE_PARAM_RUN].setValue(entity, m_flWalkToRunTransition);
+        poseParamMappings[PLAYER_POSE_PARAM_RUN].setValue(entity, walkToRunTransition);
     }
     else
     {
-        m_tPoseParamMappings[PLAYER_POSE_PARAM_MOVE_BLEND_WALK].setValue(entity, (1.0f - m_flWalkToRunTransition) * (1.0f - m_flAnimDuckAmount));
-        m_tPoseParamMappings[PLAYER_POSE_PARAM_MOVE_BLEND_RUN].setValue(entity, (m_flWalkToRunTransition) * (1.0f - m_flAnimDuckAmount));
-        m_tPoseParamMappings[PLAYER_POSE_PARAM_MOVE_BLEND_CROUCH_WALK].setValue(entity, m_flAnimDuckAmount);
+        poseParamMappings[PLAYER_POSE_PARAM_MOVE_BLEND_WALK].setValue(entity, (1.0f - walkToRunTransition) * (1.0f - animDuckAmount));
+        poseParamMappings[PLAYER_POSE_PARAM_MOVE_BLEND_RUN].setValue(entity, (walkToRunTransition) * (1.0f - animDuckAmount));
+        poseParamMappings[PLAYER_POSE_PARAM_MOVE_BLEND_CROUCH_WALK].setValue(entity, animDuckAmount);
     }
 
-    char szWeaponMoveSeq[MAX_ANIMSTATE_ANIMNAME_CHARS];
-    sprintf(szWeaponMoveSeq, "move_%s", memory->getWeaponPrefix(this));
+    char weaponMoveSequenceString[MAX_ANIMSTATE_ANIMNAME_CHARS];
+    sprintf(weaponMoveSequenceString, "move_%s", memory->getWeaponPrefix(this));
 
-    int nWeaponMoveSeq = entity->lookupSequence(szWeaponMoveSeq);
-    if (nWeaponMoveSeq == -1)
-        nWeaponMoveSeq = entity->lookupSequence("move");
+    int weaponMoveSeq = entity->lookupSequence(weaponMoveSequenceString);
+    if (weaponMoveSeq == -1)
+        weaponMoveSeq = entity->lookupSequence("move");
 
-    if (entity->moveState() != m_nPreviousMoveState)
-        m_flStutterStep += 10.f;
+    if (entity->moveState() != previousMoveState)
+        stutterStep += 10.f;
 
-    m_nPreviousMoveState = entity->moveState();
-    m_flStutterStep = std::clamp(Helpers::approach(0.f, m_flStutterStep, m_flLastUpdateIncrement * 40.f), 0.f, 100.f);
+    previousMoveState = entity->moveState();
+    stutterStep = std::clamp(Helpers::approach(0.f, stutterStep, lastUpdateIncrement * 40.f), 0.f, 100.f);
 
     // recompute moveweight
-    float flTargetMoveWeight = Helpers::lerp(m_flAnimDuckAmount, std::clamp(m_flSpeedAsPortionOfWalkTopSpeed, 0.f, 1.f), std::clamp(m_flSpeedAsPortionOfCrouchTopSpeed, 0.f, 1.f));
+    float targetMoveWeight = Helpers::lerp(animDuckAmount, std::clamp(speedAsPortionOfWalkTopSpeed, 0.f, 1.f), std::clamp(speedAsPortionOfCrouchTopSpeed, 0.f, 1.f));
 
-    if (m_flMoveWeight <= flTargetMoveWeight)
+    if (moveWeight <= targetMoveWeight)
     {
-        m_flMoveWeight = flTargetMoveWeight;
+        moveWeight = targetMoveWeight;
     }
     else
     {
-        m_flMoveWeight = Helpers::approach(flTargetMoveWeight, m_flMoveWeight, m_flLastUpdateIncrement * Helpers::remapValClamped(m_flStutterStep, 0.0f, 100.0f, 2, 20));
+        moveWeight = Helpers::approach(targetMoveWeight, moveWeight, lastUpdateIncrement * Helpers::remapValClamped(stutterStep, 0.0f, 100.0f, 2, 20));
     }
 
     Vector vecMoveYawDir;
-    vecMoveYawDir = Vector::fromAngle(Vector{ 0.f, Helpers::angleNormalize(m_flFootYaw + m_flMoveYaw + 180), 0.f });
-    float flYawDeltaAbsDot = std::abs(m_vecVelocityNormalizedNonZero.dotProduct(vecMoveYawDir));
-    m_flMoveWeight *= Helpers::bias(flYawDeltaAbsDot, 0.2f);
+    vecMoveYawDir = Vector::fromAngle(Vector{ 0.f, Helpers::angleNormalize(footYaw + moveYaw + 180), 0.f });
+    float yawDeltaAbsDot = std::abs(vecVelocityNormalizedNonZero.dotProduct(vecMoveYawDir));
+    moveWeight *= Helpers::bias(yawDeltaAbsDot, 0.2f);
 
-    float flMoveWeightWithAirSmooth = m_flMoveWeight * m_flInAirSmoothValue;
+    float moveWeightWithAirSmooth = moveWeight * inAirSmoothValue;
 
     // dampen move weight for landings
-    flMoveWeightWithAirSmooth *= std::fmaxf((1.0f - getLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB)), 0.55f);
+    moveWeightWithAirSmooth *= std::fmaxf((1.0f - getLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB)), 0.55f);
 
-    float flMoveCycleRate = 0.f;
-    if (m_flVelocityLengthXY > 0.f)
+    float moveCycleRate = 0.f;
+    if (velocityLengthXY > 0.f)
     {
-        flMoveCycleRate = entity->getSequenceCycleRate(entity->getModelPtr(), nWeaponMoveSeq);
-        float flSequenceGroundSpeed = std::fmaxf(entity->getSequenceMoveDist(entity->getModelPtr(), nWeaponMoveSeq) / (1.0f / flMoveCycleRate), 0.001f);
-        flMoveCycleRate *= m_flVelocityLengthXY / flSequenceGroundSpeed;
+        moveCycleRate = entity->getSequenceCycleRate(entity->getModelPtr(), weaponMoveSeq);
+        float flSequenceGroundSpeed = std::fmaxf(entity->getSequenceMoveDist(entity->getModelPtr(), weaponMoveSeq) / (1.0f / moveCycleRate), 0.001f);
+        moveCycleRate *= velocityLengthXY / flSequenceGroundSpeed;
 
-        flMoveCycleRate *= Helpers::lerp(m_flWalkToRunTransition, 1.0f, CSGO_ANIM_RUN_ANIM_PLAYBACK_MULTIPLIER);
+        moveCycleRate *= Helpers::lerp(walkToRunTransition, 1.0f, CSGO_ANIM_RUN_ANIM_PLAYBACK_MULTIPLIER);
     }
 
-    float flLocalCycleIncrement = (flMoveCycleRate * m_flLastUpdateIncrement);
+    float flLocalCycleIncrement = (moveCycleRate * lastUpdateIncrement);
 
-    m_flPrimaryCycle = Helpers::clampCycle(m_flPrimaryCycle + flLocalCycleIncrement);
+    primaryCycle = Helpers::clampCycle(primaryCycle + flLocalCycleIncrement);
 
-    flMoveWeightWithAirSmooth = std::clamp(flMoveWeightWithAirSmooth, 0.f, 1.f);
-    updateAnimLayer(ANIMATION_LAYER_MOVEMENT_MOVE, nWeaponMoveSeq, flLocalCycleIncrement, flMoveWeightWithAirSmooth, m_flPrimaryCycle);
+    moveWeightWithAirSmooth = std::clamp(moveWeightWithAirSmooth, 0.f, 1.f);
+    updateAnimLayer(ANIMATION_LAYER_MOVEMENT_MOVE, weaponMoveSeq, flLocalCycleIncrement, moveWeightWithAirSmooth, primaryCycle);
 
     // blend in a strafe direction-change pose when the player changes strafe dir
 
     // get the user's left and right button pressed states
-    bool moveRight = (m_nButtons & (UserCmd::IN_MOVERIGHT)) != 0;
-    bool moveLeft = (m_nButtons & (UserCmd::IN_MOVELEFT)) != 0;
-    bool moveForward = (m_nButtons & (UserCmd::IN_FORWARD)) != 0;
-    bool moveBackward = (m_nButtons & (UserCmd::IN_BACK)) != 0;
+    bool moveRight = (buttons & (UserCmd::IN_MOVERIGHT)) != 0;
+    bool moveLeft = (buttons & (UserCmd::IN_MOVELEFT)) != 0;
+    bool moveForward = (buttons & (UserCmd::IN_FORWARD)) != 0;
+    bool moveBackward = (buttons & (UserCmd::IN_BACK)) != 0;
 
     Vector vecForward;
     Vector vecRight;
-    Vector vecUp;
-    Vector::fromAngleAll(Vector{ 0.f, m_flFootYaw, 0.f }, vecForward, vecRight, vecUp);
-    vecRight.normalize();
-    float flVelToRightDot = m_vecVelocityNormalizedNonZero.dotProduct(vecRight);
-    float flVelToForwardDot = m_vecVelocityNormalizedNonZero.dotProduct(vecForward);
+    Vector::fromAngleAll(Vector{ 0.f, footYaw, 0.f }, &vecForward, &vecRight, nullptr);
+    vecRight = vecRight.normalized();
+    float velToRightDot = vecVelocityNormalizedNonZero.dotProduct(vecRight);
+    float velToForwardDot = vecVelocityNormalizedNonZero.dotProduct(vecForward);
 
     // We're interested in if the player's desired direction (indicated by their held buttons) is opposite their current velocity.
     // This indicates a strafing direction change in progress.
 
-    bool bStrafeRight = (m_flSpeedAsPortionOfWalkTopSpeed >= 0.73f && moveRight && !moveLeft && flVelToRightDot < -0.63f);
-    bool bStrafeLeft = (m_flSpeedAsPortionOfWalkTopSpeed >= 0.73f && moveLeft && !moveRight && flVelToRightDot > 0.63f);
-    bool bStrafeForward = (m_flSpeedAsPortionOfWalkTopSpeed >= 0.65f && moveForward && !moveBackward && flVelToForwardDot < -0.55f);
-    bool bStrafeBackward = (m_flSpeedAsPortionOfWalkTopSpeed >= 0.65f && moveBackward && !moveForward && flVelToForwardDot > 0.55f);
+    bool bStrafeRight = (speedAsPortionOfWalkTopSpeed >= 0.73f && moveRight && !moveLeft && velToRightDot < -0.63f);
+    bool bStrafeLeft = (speedAsPortionOfWalkTopSpeed >= 0.73f && moveLeft && !moveRight && velToRightDot > 0.63f);
+    bool bStrafeForward = (speedAsPortionOfWalkTopSpeed >= 0.65f && moveForward && !moveBackward && velToForwardDot < -0.55f);
+    bool bStrafeBackward = (speedAsPortionOfWalkTopSpeed >= 0.65f && moveBackward && !moveForward && velToForwardDot > 0.55f);
 
     entity->isStrafing() = (bStrafeRight || bStrafeLeft || bStrafeForward || bStrafeBackward);
 
     if (entity->isStrafing())
     {
-        if (!m_bStrafeChanging)
+        if (!strafeChanging)
         {
-            m_flDurationStrafing = 0.f;
+            durationStrafing = 0.f;
 
             /*
-            if (!m_bFirstRunSinceInit && !m_bStrafeChanging && m_bOnGround && entity->m_boneSnapshots[BONESNAPSHOT_UPPER_BODY].GetCurrentWeight() <= 0)
+            if (!firstRunSinceInit && !strafeChanging && onGround && entity->m_boneSnapshots[BONESNAPSHOT_UPPER_BODY].GetCurrentWeight() <= 0)
             {
                 entity->m_boneSnapshots[BONESNAPSHOT_UPPER_BODY].SetShouldCapture(bonesnapshot_get(cl_bonesnapshot_speed_strafestart));
             }
             */
         }
 
-        m_bStrafeChanging = true;
+        strafeChanging = true;
 
-        m_flStrafeChangeWeight = Helpers::approach(1.f, m_flStrafeChangeWeight, m_flLastUpdateIncrement * 20.f);
-        m_flStrafeChangeCycle = Helpers::approach(0.f, m_flStrafeChangeCycle, m_flLastUpdateIncrement * 10.f);
+        strafeChangeWeight = Helpers::approach(1.f, strafeChangeWeight, lastUpdateIncrement * 20.f);
+        strafeChangeCycle = Helpers::approach(0.f, strafeChangeCycle, lastUpdateIncrement * 10.f);
 
-        m_tPoseParamMappings[PLAYER_POSE_PARAM_STRAFE_DIR].setValue(entity, Helpers::angleNormalize(m_flMoveYaw));
+        poseParamMappings[PLAYER_POSE_PARAM_STRAFE_DIR].setValue(entity, Helpers::angleNormalize(moveYaw));
 
     }
-    else if (m_flStrafeChangeWeight > 0.f)
+    else if (strafeChangeWeight > 0.f)
     {
-        m_flDurationStrafing += m_flLastUpdateIncrement;
+        durationStrafing += lastUpdateIncrement;
 
-        if (m_flDurationStrafing > 0.08f)
-            m_flStrafeChangeWeight = Helpers::approach(0.f, m_flStrafeChangeWeight, m_flLastUpdateIncrement * 5.f);
+        if (durationStrafing > 0.08f)
+            strafeChangeWeight = Helpers::approach(0.f, strafeChangeWeight, lastUpdateIncrement * 5.f);
 
-        m_nStrafeSequence = entity->lookupSequence("strafe");
-        float flRate = entity->getSequenceCycleRate(entity->getModelPtr(), m_nStrafeSequence);
-        m_flStrafeChangeCycle = std::clamp(m_flStrafeChangeCycle + m_flLastUpdateIncrement * flRate, 0.f, 1.f);
+        strafeSequence = entity->lookupSequence("strafe");
+        float rate = entity->getSequenceCycleRate(entity->getModelPtr(), strafeSequence);
+        strafeChangeCycle = std::clamp(strafeChangeCycle + lastUpdateIncrement * rate, 0.f, 1.f);
     }
 
-    if (m_flStrafeChangeWeight <= 0.f)
+    if (strafeChangeWeight <= 0.f)
     {
-        m_bStrafeChanging = false;
+        strafeChanging = false;
     }
 
     // keep track of if the player is on the ground, and if the player has just touched or left the ground since the last check
-    bool bPreviousGroundState = m_bOnGround;
-    m_bOnGround = (entity->flags() & 1);
+    bool previousGroundState = onGround;
+    onGround = (entity->flags() & 1);
 
-    m_bLandedOnGroundThisFrame = (!m_bFirstRunSinceInit && bPreviousGroundState != m_bOnGround && m_bOnGround);
-    m_bLeftTheGroundThisFrame = (bPreviousGroundState != m_bOnGround && !m_bOnGround);
+    landedOnGroundThisFrame = (!firstRunSinceInit && previousGroundState != onGround && onGround);
+    leftTheGroundThisFrame = (previousGroundState != onGround && !onGround);
 
-    float flDistanceFell = 0.f;
-    if (m_bLeftTheGroundThisFrame)
+    float distanceFell = 0.f;
+    if (leftTheGroundThisFrame)
     {
-        m_flLeftGroundHeight = m_vecPositionCurrent.z;
+        leftGroundHeight = vecPositionCurrent.z;
     }
 
-    if (m_bLandedOnGroundThisFrame)
+    if (landedOnGroundThisFrame)
     {
-        flDistanceFell = fabs(m_flLeftGroundHeight - m_vecPositionCurrent.z);
-        float flDistanceFallNormalizedBiasRange = Helpers::bias(Helpers::remapValClamped(flDistanceFell, 12.0f, 72.0f, 0.0f, 1.0f), 0.4f);
+        distanceFell = fabs(leftGroundHeight - vecPositionCurrent.z);
+        float distanceFallNormalizedBiasRange = Helpers::bias(Helpers::remapValClamped(distanceFell, 12.0f, 72.0f, 0.0f, 1.0f), 0.4f);
 
-        m_flLandAnimMultiplier = std::clamp(Helpers::bias(m_flDurationInAir, 0.3f), 0.1f, 1.0f);
-        m_flDuckAdditional = std::fmax(m_flLandAnimMultiplier, flDistanceFallNormalizedBiasRange);
+        landAnimMultiplier = std::clamp(Helpers::bias(durationInAir, 0.3f), 0.1f, 1.0f);
+        duckAdditional = std::fmax(landAnimMultiplier, distanceFallNormalizedBiasRange);
 
     }
     else
     {
-        m_flDuckAdditional = Helpers::approach(0.f, m_flDuckAdditional, m_flLastUpdateIncrement * 2.f);
+        duckAdditional = Helpers::approach(0.f, duckAdditional, lastUpdateIncrement * 2.f);
     }
 
     // the in-air smooth value is a fuzzier representation of if the player is on the ground or not.
     // It will approach 1 when the player is on the ground and 0 when in the air. Useful for blending jump animations.
-    m_flInAirSmoothValue = Helpers::approach(m_bOnGround ? 1.f : 0.f, m_flInAirSmoothValue, Helpers::lerp(m_flAnimDuckAmount, CSGO_ANIM_ONGROUND_FUZZY_APPROACH, CSGO_ANIM_ONGROUND_FUZZY_APPROACH_CROUCH) * m_flLastUpdateIncrement);
-    m_flInAirSmoothValue = std::clamp(m_flInAirSmoothValue, 0.f, 1.f);
+    inAirSmoothValue = Helpers::approach(onGround ? 1.f : 0.f, inAirSmoothValue, Helpers::lerp(animDuckAmount, CSGO_ANIM_ONGROUND_FUZZY_APPROACH, CSGO_ANIM_ONGROUND_FUZZY_APPROACH_CROUCH) * lastUpdateIncrement);
+    inAirSmoothValue = std::clamp(inAirSmoothValue, 0.f, 1.f);
 
 
 
-    m_flStrafeChangeWeight *= (1.0f - m_flAnimDuckAmount);
-    m_flStrafeChangeWeight *= m_flInAirSmoothValue;
-    m_flStrafeChangeWeight = std::clamp(m_flStrafeChangeWeight, 0.f, 1.f);
+    strafeChangeWeight *= (1.0f - animDuckAmount);
+    strafeChangeWeight *= inAirSmoothValue;
+    strafeChangeWeight = std::clamp(strafeChangeWeight, 0.f, 1.f);
 
-    if (m_nStrafeSequence != -1)
-        updateAnimLayer(ANIMATION_LAYER_MOVEMENT_STRAFECHANGE, m_nStrafeSequence, 0.f, m_flStrafeChangeWeight, m_flStrafeChangeCycle);
+    if (strafeSequence != -1)
+        updateAnimLayer(ANIMATION_LAYER_MOVEMENT_STRAFECHANGE, strafeSequence, 0.f, strafeChangeWeight, strafeChangeCycle);
 
     //ladders
-    bool bPreviouslyOnLadder = m_bOnLadder;
-    m_bOnLadder = !m_bOnGround && entity->moveType() == MoveType::LADDER;
-    bool bStartedLadderingThisFrame = (!bPreviouslyOnLadder && m_bOnLadder);
-    bool bStoppedLadderingThisFrame = (bPreviouslyOnLadder && !m_bOnLadder);
+    bool previouslyOnLadder = onLadder;
+    onLadder = !onGround && entity->moveType() == MoveType::LADDER;
+    bool startedLadderingThisFrame = (!previouslyOnLadder && onLadder);
+    bool stoppedLadderingThisFrame = (previouslyOnLadder && !onLadder);
 
-    if (m_flLadderWeight > 0.f || m_bOnLadder)
+    if (ladderWeight > 0.f || onLadder)
     {
-        if (bStartedLadderingThisFrame)
+        if (startedLadderingThisFrame)
         {
             setLayerSequence(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, ACT_CSGO_CLIMB_LADDER);
         }
 
-        if (std::abs(m_flVelocityLengthZ) > 100.f)
+        if (std::abs(velocityLengthZ) > 100.f)
         {
-            m_flLadderSpeed = Helpers::approach(1, m_flLadderSpeed, m_flLastUpdateIncrement * 10.0f);
+            ladderSpeed = Helpers::approach(1, ladderSpeed, lastUpdateIncrement * 10.0f);
         }
         else
         {
-            m_flLadderSpeed = Helpers::approach(0.f, m_flLadderSpeed, m_flLastUpdateIncrement * 10.0f);
+            ladderSpeed = Helpers::approach(0.f, ladderSpeed, lastUpdateIncrement * 10.0f);
         }
-        m_flLadderSpeed = std::clamp(m_flLadderSpeed, 0.f, 1.f);
+        ladderSpeed = std::clamp(ladderSpeed, 0.f, 1.f);
 
-        if (m_bOnLadder)
+        if (onLadder)
         {
-            m_flLadderWeight = Helpers::approach(1.f, m_flLadderWeight, m_flLastUpdateIncrement * 5.0f);
+            ladderWeight = Helpers::approach(1.f, ladderWeight, lastUpdateIncrement * 5.0f);
         }
         else
         {
-            m_flLadderWeight = Helpers::approach(0.f, m_flLadderWeight, m_flLastUpdateIncrement * 10.0f);
+            ladderWeight = Helpers::approach(0.f, ladderWeight, lastUpdateIncrement * 10.0f);
         }
-        m_flLadderWeight = std::clamp(m_flLadderWeight, 0.f, 1.f);
+        ladderWeight = std::clamp(ladderWeight, 0.f, 1.f);
 
         Vector vecLadderNormal = entity->getLadderNormal();
         Vector angLadder;
         angLadder = vecLadderNormal.toAngle();
-        float flLadderYaw = Helpers::angleDiff(angLadder.y, m_flFootYaw);
-        m_tPoseParamMappings[PLAYER_POSE_PARAM_LADDER_YAW].setValue(entity, flLadderYaw);
+        float ladderYaw = Helpers::angleDiff(angLadder.y, footYaw);
+        poseParamMappings[PLAYER_POSE_PARAM_LADDER_YAW].setValue(entity, ladderYaw);
 
-        float flLadderClimbCycle = getLayerCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB);
-        flLadderClimbCycle += (m_vecPositionCurrent.z - m_vecPositionLast.z) * Helpers::lerp(m_flLadderSpeed, 0.010f, 0.004f);
+        float ladderClimbCycle = getLayerCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB);
+        ladderClimbCycle += (vecPositionCurrent.z - vecPositionLast.z) * Helpers::lerp(ladderSpeed, 0.010f, 0.004f);
 
-        m_tPoseParamMappings[PLAYER_POSE_PARAM_LADDER_SPEED].setValue(entity, m_flLadderSpeed);
+        poseParamMappings[PLAYER_POSE_PARAM_LADDER_SPEED].setValue(entity, ladderSpeed);
 
         if (getLayerActivity(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB) == ACT_CSGO_CLIMB_LADDER)
         {
-            setLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, m_flLadderWeight);
+            setLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, ladderWeight);
         }
 
-        setLayerCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, flLadderClimbCycle);
+        setLayerCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, ladderClimbCycle);
 
         // fade out jump if we're climbing
-        if (m_bOnLadder)
+        if (onLadder)
         {
-            float flIdealJumpWeight = 1.0f - m_flLadderWeight;
-            if (getLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL) > flIdealJumpWeight)
+            float idealJumpWeight = 1.0f - ladderWeight;
+            if (getLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL) > idealJumpWeight)
             {
-                setLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, flIdealJumpWeight);
+                setLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, idealJumpWeight);
             }
         }
     }
     else
     {
-        m_flLadderSpeed = 0.f;
+        ladderSpeed = 0.f;
     }
 
-    if (m_bOnGround)
+    if (onGround)
     {
-        if (!m_bLanding && (m_bLandedOnGroundThisFrame || bStoppedLadderingThisFrame))
+        if (!landing && (landedOnGroundThisFrame || stoppedLadderingThisFrame))
         {
-            setLayerSequence(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, (m_flDurationInAir > 1.f) ? static_cast<int>(ACT_CSGO_LAND_HEAVY) : static_cast<int>(ACT_CSGO_LAND_LIGHT));
+            if(durationInAir > 1.f)
+                setLayerSequence(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, ACT_CSGO_LAND_HEAVY);
+            else
+                setLayerSequence(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, ACT_CSGO_LAND_LIGHT);
             setLayerCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, 0.f);
-            m_bLanding = true;
+            landing = true;
         }
-        m_flDurationInAir = 0.f;
+        durationInAir = 0.f;
 
-        if (m_bLanding && getLayerActivity(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB) != ACT_CSGO_CLIMB_LADDER)
+        if (landing && getLayerActivity(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB) != ACT_CSGO_CLIMB_LADDER)
         {
-            m_bJumping = false;
+            jumping = false;
 
             incrementLayerCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, false);
             incrementLayerCycle(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, false);
 
-            m_tPoseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, 0.f);
+            poseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, 0.f);
 
             if (isLayerSequenceCompleted(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB))
             {
-                m_bLanding = false;
+                landing = false;
                 setLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, 0.f);
                 setLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, 0.f);
-                m_flLandAnimMultiplier = 1.0f;
+                landAnimMultiplier = 1.0f;
             }
             else
             {
 
-                float flLandWeight = getLayerIdealWeightFromSeqCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB) * m_flLandAnimMultiplier;
+                float landWeight = getLayerIdealWeightFromSeqCycle(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB) * landAnimMultiplier;
 
                 // if we hit the ground crouched, reduce the land animation as a function of crouch, since the land animations move the head up a bit ( and this is undesirable )
-                flLandWeight *= std::clamp((1.0f - m_flAnimDuckAmount), 0.2f, 1.0f);
+                landWeight *= std::clamp((1.0f - animDuckAmount), 0.2f, 1.0f);
 
-                setLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, flLandWeight);
+                setLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, landWeight);
 
                 // fade out jump because land is taking over
-                float flCurrentJumpFallWeight = getLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
-                if (flCurrentJumpFallWeight > 0.f)
+                float currentJumpFallWeight = getLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
+                if (currentJumpFallWeight > 0.f)
                 {
-                    flCurrentJumpFallWeight = Helpers::approach(0.f, flCurrentJumpFallWeight, m_flLastUpdateIncrement * 10.0f);
-                    setLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, flCurrentJumpFallWeight);
+                    currentJumpFallWeight = Helpers::approach(0.f, currentJumpFallWeight, lastUpdateIncrement * 10.0f);
+                    setLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, currentJumpFallWeight);
                 }
 
             }
         }
 
-        if (!m_bLanding && !m_bJumping && m_flLadderWeight <= 0.f)
+        if (!landing && !jumping && ladderWeight <= 0.f)
         {
             setLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, 0.f);
         }
     }
-    else if (!m_bOnLadder)
+    else if (!onLadder)
     {
-        m_bLanding = false;
+        landing = false;
 
         // we're in the air
-        if (m_bLeftTheGroundThisFrame || bStoppedLadderingThisFrame)
+        if (leftTheGroundThisFrame || stoppedLadderingThisFrame)
         {
             // If entered the air by jumping, then we already set the jump activity.
             // But if we're in the air because we strolled off a ledge or the floor collapsed or something,
             // we need to set the fall activity here.
-            if (!m_bJumping)
+            if (!jumping)
             {
                 setLayerSequence(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, ACT_CSGO_FALL);
             }
 
-            m_flDurationInAir = 0.f;
+            durationInAir = 0.f;
         }
 
-        m_flDurationInAir += m_flLastUpdateIncrement;
+        durationInAir += lastUpdateIncrement;
 
         incrementLayerCycle(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, false);
 
         // increase jump weight
-        float flJumpWeight = getLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
-        float flNextJumpWeight = getLayerIdealWeightFromSeqCycle(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
-        if (flNextJumpWeight > flJumpWeight)
+        float jumpWeight = getLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
+        float nextJumpWeight = getLayerIdealWeightFromSeqCycle(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
+        if (nextJumpWeight > jumpWeight)
         {
-            setLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, flNextJumpWeight);
+            setLayerWeight(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, nextJumpWeight);
         }
 
         // bash any lingering land weight to zero
-        float flLingeringLandWeight = getLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB);
-        if (flLingeringLandWeight > 0)
+        float lingeringLandWeight = getLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB);
+        if (lingeringLandWeight > 0)
         {
-            flLingeringLandWeight *= Helpers::smoothStepBounds(0.2f, 0.0f, m_flDurationInAir);
-            setLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, flLingeringLandWeight);
+            lingeringLandWeight *= Helpers::smoothStepBounds(0.2f, 0.0f, durationInAir);
+            setLayerWeight(ANIMATION_LAYER_MOVEMENT_LAND_OR_CLIMB, lingeringLandWeight);
         }
 
         // blend jump into fall. This is a no-op if we're playing a fall anim.
-        m_tPoseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, std::clamp(Helpers::smoothStepBounds(0.72f, 1.52f, m_flDurationInAir), 0.f, 1.f));
+        poseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, std::clamp(Helpers::smoothStepBounds(0.72f, 1.52f, durationInAir), 0.f, 1.f));
     }
     interfaces->mdlCache->endLock();
 }
 
 void AnimState::setupAliveLoop() noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     if (getLayerActivity(ANIMATION_LAYER_ALIVELOOP) != ACT_CSGO_ALIVE_LOOP)
     {
@@ -640,21 +642,21 @@ void AnimState::setupAliveLoop() noexcept
         auto layer = entity->getAnimationLayer(ANIMATION_LAYER_ALIVELOOP);
         if (layer)
         {
-            float flNewRate = entity->getSequenceCycleRate(entity->getModelPtr(), layer->sequence);
-            flNewRate *= memory->randomFloat(0.8f, 1.1f);
-            setLayerRate(ANIMATION_LAYER_ALIVELOOP, flNewRate);
+            float newRate = entity->getSequenceCycleRate(entity->getModelPtr(), layer->sequence);
+            newRate *= memory->randomFloat(0.8f, 1.1f);
+            setLayerRate(ANIMATION_LAYER_ALIVELOOP, newRate);
         }
         interfaces->mdlCache->endLock();
         incrementLayerCycle(ANIMATION_LAYER_ALIVELOOP, true);
     }
     else
     {
-        if (m_pWeapon && m_pWeapon != m_pWeaponLast)
+        if (weapon && weapon != weaponLast)
         {
             //re-roll act on weapon change
-            float flRetainCycle = getLayerCycle(ANIMATION_LAYER_ALIVELOOP);
+            float retainCycle = getLayerCycle(ANIMATION_LAYER_ALIVELOOP);
             setLayerSequence(ANIMATION_LAYER_ALIVELOOP, ACT_CSGO_ALIVE_LOOP);
-            setLayerCycle(ANIMATION_LAYER_ALIVELOOP, flRetainCycle);
+            setLayerCycle(ANIMATION_LAYER_ALIVELOOP, retainCycle);
             incrementLayerCycle(ANIMATION_LAYER_ALIVELOOP, true);
         }
         else if (isLayerSequenceCompleted(ANIMATION_LAYER_ALIVELOOP))
@@ -664,17 +666,17 @@ void AnimState::setupAliveLoop() noexcept
             auto layer = entity->getAnimationLayer(ANIMATION_LAYER_ALIVELOOP);
             if (layer)
             {
-                float flNewRate = entity->getSequenceCycleRate(entity->getModelPtr(), layer->sequence);
-                flNewRate *= memory->randomFloat(0.8f, 1.1f);
-                setLayerRate(ANIMATION_LAYER_ALIVELOOP, flNewRate);
+                float newRate = entity->getSequenceCycleRate(entity->getModelPtr(), layer->sequence);
+                newRate *= memory->randomFloat(0.8f, 1.1f);
+                setLayerRate(ANIMATION_LAYER_ALIVELOOP, newRate);
             }
             interfaces->mdlCache->endLock();
             incrementLayerCycle(ANIMATION_LAYER_ALIVELOOP, true);
         }
         else
         {
-            float flWeightOutPoseBreaker = Helpers::remapValClamped(m_flSpeedAsPortionOfRunTopSpeed, 0.55f, 0.9f, 1.0f, 0.0f);
-            setLayerWeight(ANIMATION_LAYER_ALIVELOOP, flWeightOutPoseBreaker);
+            float weightOutPoseBreaker = Helpers::remapValClamped(speedAsPortionOfRunTopSpeed, 0.55f, 0.9f, 1.0f, 0.0f);
+            setLayerWeight(ANIMATION_LAYER_ALIVELOOP, weightOutPoseBreaker);
             incrementLayerCycle(ANIMATION_LAYER_ALIVELOOP, true);
         }
     }
@@ -687,23 +689,23 @@ void AnimState::addActivityModifier(const char* name) noexcept
 
 void AnimState::updateActivityModifiers() noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     activityModifiersWrapper modifierWrapper{};
     modifierWrapper.addModifier(memory->getWeaponPrefix(this));
 
-    if (m_flSpeedAsPortionOfWalkTopSpeed > .25f)
+    if (speedAsPortionOfWalkTopSpeed > .25f)
         modifierWrapper.addModifier("moving");
 
-    if (m_flAnimDuckAmount > .55f)
+    if (animDuckAmount > .55f)
         modifierWrapper.addModifier("crouch");
 
-    m_ActivityModifiers = modifierWrapper.get();
+    activityModifiers = modifierWrapper.get();
 }
 
 void AnimState::doAnimationEvent(int animationEvent) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     updateActivityModifiers();
 
@@ -718,15 +720,15 @@ void AnimState::doAnimationEvent(int animationEvent) noexcept
     case PLAYERANIMEVENT_FIRE_GUN_PRIMARY:
     case PLAYERANIMEVENT_THROW_GRENADE:
     {
-        auto weapon = reinterpret_cast<Entity*>(m_pWeapon);
-        if (!weapon)
+        auto currentWeapon = reinterpret_cast<Entity*>(weapon);
+        if (!currentWeapon)
             break;
 
-        if (weapon && animationEvent == PLAYERANIMEVENT_FIRE_GUN_PRIMARY && weapon->isBomb())
+        if (currentWeapon && animationEvent == PLAYERANIMEVENT_FIRE_GUN_PRIMARY && currentWeapon->isBomb())
         {
             setLayerSequence(ANIMATION_LAYER_WHOLE_BODY, ACT_CSGO_PLANT_BOMB);
-            m_bPlantAnimStarted = true;
-            //*reinterpret_cast<int*>(animState + 316) = 1;//+316 m_bPlantAnimStarted
+            plantAnimStarted = true;
+            //*reinterpret_cast<int*>(animState + 316) = 1;//+316 plantAnimStarted
         }
         else
         {
@@ -747,11 +749,11 @@ void AnimState::doAnimationEvent(int animationEvent) noexcept
     }
     case PLAYERANIMEVENT_FIRE_GUN_SECONDARY:
     {
-        auto weapon = reinterpret_cast<Entity*>(m_pWeapon);
-        if (!weapon)
+        auto currentWeapon = reinterpret_cast<Entity*>(weapon);
+        if (!currentWeapon)
             break;
 
-        if (weapon->isSniperRifle())
+        if (currentWeapon->isSniperRifle())
         {
             // hack: sniper rifles use primary fire anim when 'alt' firing, meaning scoped.
             setLayerSequence(ANIMATION_LAYER_WEAPON_ACTION, ACT_CSGO_FIRE_PRIMARY);
@@ -784,11 +786,11 @@ void AnimState::doAnimationEvent(int animationEvent) noexcept
     }
     case PLAYERANIMEVENT_RELOAD:
     {
-        auto weapon = reinterpret_cast<Entity*>(m_pWeapon);
-        if (!weapon)
+        auto currentWeapon = reinterpret_cast<Entity*>(weapon);
+        if (!currentWeapon)
             break;
 
-        if (weapon && weapon->isShotgun() && weapon->itemDefinitionIndex2() != WeaponId::Mag7)
+        if (currentWeapon && currentWeapon->isShotgun() && currentWeapon->itemDefinitionIndex2() != WeaponId::Mag7)
             break;
 
         setLayerSequence(ANIMATION_LAYER_WEAPON_ACTION, ACT_CSGO_RELOAD);
@@ -816,20 +818,20 @@ void AnimState::doAnimationEvent(int animationEvent) noexcept
     }
     case PLAYERANIMEVENT_CLEAR_FIRING:
     {
-        m_bPlantAnimStarted = false;
+        plantAnimStarted = false;
         break;
     }
     case PLAYERANIMEVENT_DEPLOY:
     {
-        auto weapon = reinterpret_cast<Entity*>(m_pWeapon);
-        if (!weapon)
+        auto currentWeapon = reinterpret_cast<Entity*>(weapon);
+        if (!currentWeapon)
             break;
 
-        if (weapon && getLayerActivity(ANIMATION_LAYER_WEAPON_ACTION) == ACT_CSGO_DEPLOY &&
+        if (currentWeapon && getLayerActivity(ANIMATION_LAYER_WEAPON_ACTION) == ACT_CSGO_DEPLOY &&
             getLayerCycle(ANIMATION_LAYER_WEAPON_ACTION) < 0.15f/*CSGO_ANIM_DEPLOY_RATELIMIT*/)
         {
             // we're already deploying
-            m_bDeployRateLimiting = true;
+            deployRateLimiting = true;
         }
         else
         {
@@ -840,7 +842,7 @@ void AnimState::doAnimationEvent(int animationEvent) noexcept
     case PLAYERANIMEVENT_JUMP:
     {
         // note: this event means a jump is definitely happening, not just that a jump is desired
-        m_bJumping = true;
+        jumping = true;
         setLayerSequence(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL, ACT_CSGO_JUMP);
         break;
     }
@@ -855,7 +857,7 @@ void AnimState::updateLayerOrderPreset(float weight, int layerIndex, int sequenc
 
 void AnimState::updateAnimLayer(size_t layerIndex, int sequence, float playbackRate, float weight, float cycle) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     if (sequence >= 2)
     {
@@ -891,14 +893,14 @@ void AnimState::setLayerSequence(size_t layer, int32_t activity) noexcept
     if (activity == ACT_INVALID)
         return;
 
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto hdr = entity->getModelPtr();
     if (!hdr)
         return;
 
     const auto mapping = memory->findMapping(hdr);
-    const auto sequence = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &m_ActivityModifiers[0], m_ActivityModifiers.size);
+    const auto sequence = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &activityModifiers[0], activityModifiers.size);
 
     if (sequence < 2)
         return;
@@ -911,7 +913,7 @@ void AnimState::setLayerSequence(size_t layer, int32_t activity) noexcept
 
 void AnimState::setLayerRate(size_t layer, float newRate) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
@@ -921,7 +923,7 @@ void AnimState::setLayerRate(size_t layer, float newRate) noexcept
 
 void AnimState::setLayerCycle(size_t layer, float newCycle) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
@@ -931,7 +933,7 @@ void AnimState::setLayerCycle(size_t layer, float newCycle) noexcept
 
 void AnimState::setLayerWeight(size_t layer, float weight) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
@@ -941,19 +943,19 @@ void AnimState::setLayerWeight(size_t layer, float weight) noexcept
 
 void AnimState::setLayerWeightRate(size_t layer, float previous) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
 
-    float flNewRate = (l.weight - previous) / m_flLastUpdateIncrement;
+    float flNewRate = (l.weight - previous) / lastUpdateIncrement;
     l.weightDeltaRate = flNewRate;
 }
 
 void AnimState::incrementLayerCycle(size_t layer, bool allowLoop) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
@@ -963,7 +965,7 @@ void AnimState::incrementLayerCycle(size_t layer, bool allowLoop) noexcept
         return;
 
     float flCurrentCycle = l.cycle;
-    flCurrentCycle += m_flLastUpdateIncrement * l.playbackRate;
+    flCurrentCycle += lastUpdateIncrement * l.playbackRate;
 
     if (!allowLoop && flCurrentCycle >= 1)
     {
@@ -975,7 +977,7 @@ void AnimState::incrementLayerCycle(size_t layer, bool allowLoop) noexcept
 
 void AnimState::incrementLayerCycleWeightRateGeneric(size_t layer) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
@@ -989,7 +991,7 @@ void AnimState::incrementLayerCycleWeightRateGeneric(size_t layer) noexcept
 
 void AnimState::incrementLayerWeight(size_t layer) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
@@ -999,7 +1001,7 @@ void AnimState::incrementLayerWeight(size_t layer) noexcept
         return;
 
     float flCurrentWeight = l.weight;
-    flCurrentWeight += m_flLastUpdateIncrement * l.weightDeltaRate;
+    flCurrentWeight += lastUpdateIncrement * l.weightDeltaRate;
     flCurrentWeight = std::clamp(flCurrentWeight, 0.f, 1.f);
 
     l.weight = flCurrentWeight;
@@ -1012,17 +1014,17 @@ float AnimState::getLayerIdealWeightFromSeqCycle(size_t layer) noexcept
 
 bool AnimState::isLayerSequenceCompleted(size_t layer) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (&l)
-        return (m_flLastUpdateIncrement * l.playbackRate) + l.cycle >= 1.0f;
+        return (lastUpdateIncrement * l.playbackRate) + l.cycle >= 1.0f;
     return false;
 }
 
 float AnimState::getLayerCycle(size_t layer) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
@@ -1032,7 +1034,7 @@ float AnimState::getLayerCycle(size_t layer) noexcept
 
 float AnimState::getLayerWeight(size_t layer) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
@@ -1047,7 +1049,7 @@ int AnimState::getLayerActivity(size_t layer)noexcept
 
 int AnimState::getLayerSequence(size_t layer) noexcept
 {
-    auto entity = reinterpret_cast<Entity*>(m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(player);
 
     auto& l = *entity->getAnimationLayer(layer);
     if (!&l)

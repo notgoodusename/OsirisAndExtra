@@ -55,7 +55,7 @@ private:
 public:
 	activityModifiersWrapper() = default;
 
-	explicit activityModifiersWrapper(UtlVector<uint16_t> currentModifiers)
+	explicit activityModifiersWrapper(UtlVector<uint16_t> currentModifiers) noexcept
 	{
 		modifiers.removeAll();
 		modifiers.growVector(currentModifiers.size);
@@ -64,12 +64,12 @@ public:
 			modifiers[i] = currentModifiers[i];
 	}
 
-	void addModifier(const char* name)
+	void addModifier(const char* name) noexcept
 	{
 		memory->addActivityModifier(this, name);
 	}
 
-	UtlVector<uint16_t> get() const
+	UtlVector<uint16_t> get() noexcept
 	{
 		return modifiers;
 	}
@@ -107,137 +107,137 @@ struct proceduralFoot
 struct AnimState //This is the client one
 {
 	PAD(4);
-	bool m_bFirstRunSinceInit; //4 = 0x4
+	bool firstRunSinceInit; //4 = 0x4
 	PAD(91); //5
-	void* m_pPlayer; //96 = 0x60
-	void* m_pWeapon; //100 = 0x64
-	void* m_pWeaponLast; //104 = 0x68
+	void* player; //96 = 0x60
+	void* weapon; //100 = 0x64
+	void* weaponLast; //104 = 0x68
 
-	float					m_flLastUpdateTime; //108 = 0x6C
-	int						m_nLastUpdateFrame; //112 = 0x70
-	float					m_flLastUpdateIncrement; //116 = 0x74
+	float					lastUpdateTime; //108 = 0x6C
+	int						lastUpdateFrame; //112 = 0x70
+	float					lastUpdateIncrement; //116 = 0x74
 
-	float					m_flEyeYaw; //120 = 0x78
-	float					m_flEyePitch; //124 = 0x7C
-	float					m_flFootYaw; //128 = 0x80
-	float					m_flFootYawLast; //132 = 0x84
-	float					m_flMoveYaw; //136 = 0x88
-	float					m_flMoveYawIdeal; //140 = 0x8C
-	float					m_flMoveYawCurrentToIdeal; //144 = 0x90
-	float					m_flTimeToAlignLowerBody; //148 = 0x94
+	float					eyeYaw; //120 = 0x78
+	float					eyePitch; //124 = 0x7C
+	float					footYaw; //128 = 0x80
+	float					footYawLast; //132 = 0x84
+	float					moveYaw; //136 = 0x88
+	float					moveYawIdeal; //140 = 0x8C
+	float					moveYawCurrentToIdeal; //144 = 0x90
+	float					timeToAlignLowerBody; //148 = 0x94
 
-	float					m_flPrimaryCycle; //152 = 0x98
-	float					m_flMoveWeight; //156 = 0x9C
-	float					m_flMoveWeightSmoothed; //T 160
-	float					m_flAnimDuckAmount; //T 164
-	float					m_flDuckAdditional; //168 = 0xA8
-	float					m_flRecrouchWeight; //T 172
+	float					primaryCycle; //152 = 0x98
+	float					moveWeight; //156 = 0x9C
+	float					moveWeightSmoothed; //T 160
+	float					animDuckAmount; //T 164
+	float					duckAdditional; //168 = 0xA8
+	float					recrouchWeight; //T 172
 
-	Vector					m_vecPositionCurrent; //T 176(X),180(Y),184(Z)
-	Vector					m_vecPositionLast; //T 188(X),192(Y),196(Z)
+	Vector					vecPositionCurrent; //T 176(X),180(Y),184(Z)
+	Vector					vecPositionLast; //T 188(X),192(Y),196(Z)
 
-	Vector					m_vecVelocity; //T 200(X),204(Y),208(Z)
-	Vector					m_vecVelocityNormalized; //T 212(X),216(Y),220(Z)
-	Vector					m_vecVelocityNormalizedNonZero; //T 224(X),228(Y),232(Z)
-	float					m_flVelocityLengthXY; //236 = 0xEC
-	float					m_flVelocityLengthZ; // T 240
+	Vector					vecVelocity; //T 200(X),204(Y),208(Z)
+	Vector					vecVelocityNormalized; //T 212(X),216(Y),220(Z)
+	Vector					vecVelocityNormalizedNonZero; //T 224(X),228(Y),232(Z)
+	float					velocityLengthXY; //236 = 0xEC
+	float					velocityLengthZ; // T 240
 
-	float					m_flSpeedAsPortionOfRunTopSpeed; //T 244
-	float					m_flSpeedAsPortionOfWalkTopSpeed; //T 248
-	float					m_flSpeedAsPortionOfCrouchTopSpeed; //T 252
+	float					speedAsPortionOfRunTopSpeed; //T 244
+	float					speedAsPortionOfWalkTopSpeed; //T 248
+	float					speedAsPortionOfCrouchTopSpeed; //T 252
 
-	float					m_flDurationMoving; //T 256
-	float					m_flDurationStill; //T 260
+	float					durationMoving; //T 256
+	float					durationStill; //T 260
 
-	bool					m_bOnGround; //264 = 0x108
-	bool					m_bLanding; //265 = 0x109
+	bool					onGround; //264 = 0x108
+	bool					landing; //265 = 0x109
 	PAD(2); //T 266
-	float					m_flJumpToFall; //268
-	float					m_flDurationInAir; //272 = 0x110
-	float					m_flLeftGroundHeight; //276 = 0x114
-	float					m_flLandAnimMultiplier; //280 = 0x118
+	float					jumpToFall; //268
+	float					durationInAir; //272 = 0x110
+	float					leftGroundHeight; //276 = 0x114
+	float					landAnimMultiplier; //280 = 0x118
 
-	float					m_flWalkToRunTransition; //284 = 0x11C
+	float					walkToRunTransition; //284 = 0x11C
 
-	bool					m_bLandedOnGroundThisFrame; //288 = 0x120
-	bool					m_bLeftTheGroundThisFrame; //289 = 0x121
+	bool					landedOnGroundThisFrame; //288 = 0x120
+	bool					leftTheGroundThisFrame; //289 = 0x121
 	PAD(2);
-	float					m_flInAirSmoothValue; //292 = 0x124
+	float					inAirSmoothValue; //292 = 0x124
 
-	bool					m_bOnLadder; //296 = 0x128
+	bool					onLadder; //296 = 0x128
 	PAD(3);
-	float					m_flLadderWeight; //300 = 0x12C
-	float					m_flLadderSpeed; //304 = 0x130
+	float					ladderWeight; //300 = 0x12C
+	float					ladderSpeed; //304 = 0x130
 
-	bool					m_bWalkToRunTransitionState; //308 = 0x134
+	bool					walkToRunTransitionState; //308 = 0x134
 
-	bool					m_bDefuseStarted; //T 309
-	bool					m_bPlantAnimStarted;//T 310
-	bool					m_bTwitchAnimStarted;//T 311
-	bool					m_bAdjustStarted;//T 312
+	bool					defuseStarted; //T 309
+	bool					plantAnimStarted;//T 310
+	bool					twitchAnimStarted;//T 311
+	bool					adjustStarted;//T 312
 	PAD(3); //T 313
 
-	UtlVector<uint16_t>	m_ActivityModifiers;//T 316 (size 20)
+	UtlVector<uint16_t>	activityModifiers;//T 316 (size 20)
 	
-	float					m_flNextTwitchTime;//T 336
+	float					nextTwitchTime;//T 336
 
-	float					m_flTimeOfLastKnownInjury;//T 340
+	float					timeOfLastKnownInjury;//T 340
 
-	float					m_flLastVelocityTestTime; //344 = 0x158
-	Vector					m_vecVelocityLast; //T 348(X), 352(Y), 356(Z)
-	Vector					m_vecTargetAcceleration; //T 360(X), 364(Y), 368(Z)
-	Vector					m_vecAcceleration; //T 372(X), 376(Y), 380(Z)
-	float					m_flAccelerationWeight; //T 384
+	float					lastVelocityTestTime; //344 = 0x158
+	Vector					vecVelocityLast; //T 348(X), 352(Y), 356(Z)
+	Vector					vecTargetAcceleration; //T 360(X), 364(Y), 368(Z)
+	Vector					vecAcceleration; //T 372(X), 376(Y), 380(Z)
+	float					accelerationWeight; //T 384
 
-	float					m_flAimMatrixTransition;//T 388
-	float					m_flAimMatrixTransitionDelay; //T 392
+	float					aimMatrixTransition;//T 388
+	float					aimMatrixTransitionDelay; //T 392
 
-	bool					m_bFlashed;// T 396
+	bool					flashed;// T 396
 	PAD(3);
-	float					m_flStrafeChangeWeight; //400 = 0x190
-	float					m_flStrafeChangeTargetWeight; // T 404
-	float					m_flStrafeChangeCycle; //408 = 0x198
-	int						m_nStrafeSequence; //412 = 0x19C
-	bool					m_bStrafeChanging; //416 = 0x1A0
+	float					strafeChangeWeight; //400 = 0x190
+	float					strafeChangeTargetWeight; // T 404
+	float					strafeChangeCycle; //408 = 0x198
+	int						strafeSequence; //412 = 0x19C
+	bool					strafeChanging; //416 = 0x1A0
 	PAD(3);
-	float					m_flDurationStrafing; //420 = 0x1A4
+	float					durationStrafing; //420 = 0x1A4
 
-	float					m_flFootLerp; // T 424
+	float					footLerp; // T 424
 
-	bool					m_bFeetCrossed; // T 428
+	bool					feetCrossed; // T 428
 
-	bool					m_bPlayerIsAccelerating; //429 = 0x1AD
+	bool					playerIsAccelerating; //429 = 0x1AD
 	PAD(2);
-	animstatePoseParamCache m_tPoseParamMappings[20];//T 432
+	animstatePoseParamCache poseParamMappings[20];//T 432
 
-	float					m_flDurationMoveWeightIsTooHigh; //672 = 0x2A0
-	float					m_flStaticApproachSpeed; //676 =  0x2A4
+	float					durationMoveWeightIsTooHigh; //672 = 0x2A0
+	float					staticApproachSpeed; //676 =  0x2A4
 
-	int						m_nPreviousMoveState; //680 = 0x2A8
-	float					m_flStutterStep; //684 = 0x2AC
+	int						previousMoveState; //680 = 0x2A8
+	float					stutterStep; //684 = 0x2AC
 
-	float					m_flActionWeightBiasRemainder; //688 = 0x2B0 //Literally useless??
+	float					actionWeightBiasRemainder; //688 = 0x2B0 //Literally useless??
 
-	proceduralFoot	m_footLeft; //692 = 0x2B4
-	proceduralFoot	m_footRight;//T 748
+	proceduralFoot	footLeft; //692 = 0x2B4
+	proceduralFoot	footRight;//T 748
 
-	float					m_flCameraSmoothHeight; //804 = 0x324
-	bool					m_bSmoothHeightValid; //808 = 0x328
+	float					cameraSmoothHeight; //804 = 0x324
+	bool					smoothHeightValid; //808 = 0x328
 	PAD(3);
-	float					m_flLastTimeVelocityOverTen; //T 812
+	float					lastTimeVelocityOverTen; //T 812
 
-	float					m_flAimYawMin; //T 816
-	float					m_flAimYawMax; //T 820
-	float					m_flAimPitchMin; //T 824
-	float					m_flAimPitchMax; //T 828
+	float					aimYawMin; //T 816
+	float					aimYawMax; //T 820
+	float					aimPitchMin; //T 824
+	float					aimPitchMax; //T 828
 
-	int						m_nAnimstateModelVersion; //832 = 0x340
+	int						animstateModelVersion; //832 = 0x340
 
 	// Custom members
-	float m_flLowerBodyRealignTimer;
-	bool m_bDeployRateLimiting;
-	bool m_bJumping;
-	int m_nButtons;
+	float lowerBodyRealignTimer;
+	bool deployRateLimiting;
+	bool jumping;
+	int buttons;
 
 	void setupVelocity() noexcept;
 	void setupMovement() noexcept;

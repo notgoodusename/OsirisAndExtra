@@ -34,7 +34,8 @@ struct AnimState;
 struct AnimationLayer
 {
 public:
-    PAD(8);
+    float animationTime;
+    float fadeOut;
     CStudioHdr* dispatchedStudioHdr;
     int dispatchedSrc;
     int dispatchedDst;
@@ -46,7 +47,7 @@ public:
     float playbackRate;
     float cycle;
     void* owner;
-    PAD(4);
+    int invalidatePhysicsBits;
 };
 
 enum class MoveType {
@@ -136,6 +137,28 @@ public:
         return v;
     }
 
+    auto drawServerHitboxes(float duration = 0.f, int monocolor = 0) 
+    {
+        static auto address = memory->drawServerHitboxes;
+
+        auto player = memory->utilPlayerByIndex(index());
+        if (!player)
+            return;
+
+        __asm {
+
+            pushad
+
+            movss xmm1, duration
+            push monocolor
+            mov ecx, player
+            call address
+
+            popad
+        }
+
+    }
+
     float getFirstSequenceAnimTag(int sequence, int animTag) noexcept
     {
         return memory->getFirstSequenceAnimTag(this, sequence, animTag, 0);
@@ -176,24 +199,10 @@ public:
     {
         return memory->lookUpSequence(this, sequence);
     }
-#pragma optimize( "", off)
-#pragma runtime_checks("", off) //Disable runtime checks to prevent ESP error
-    inline float getSequenceMoveDist(CStudioHdr* studioHdr, int sequence) noexcept
-    {
-        Vector v{};
 
-        getSequenceLinearMotion(studioHdr, sequence, v);
+    void getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector& v) noexcept;
 
-        return v.length();
-    }
-
-    void getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector& v) noexcept
-    {
-        memory->getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), &v);
-        __asm add esp, 8
-    }
-#pragma runtime_checks("", restore) //Restor runtime checks
-#pragma optimize( "", on )
+    float getSequenceMoveDist(CStudioHdr* studioHdr, int sequence) noexcept;
 
     CStudioHdr* getModelPtr() noexcept
     {
@@ -441,12 +450,12 @@ public:
         if (!animState)
             return 0.0f;
 
-        float yawModifier = (animState->m_flWalkToRunTransition * -0.3f - 0.2f) * std::clamp(animState->m_flSpeedAsPortionOfWalkTopSpeed, 0.0f, 1.0f) + 1.0f;
+        float yawModifier = (animState->walkToRunTransition * -0.3f - 0.2f) * std::clamp(animState->speedAsPortionOfWalkTopSpeed, 0.0f, 1.0f) + 1.0f;
 
-        if (animState->m_flAnimDuckAmount > 0.0f)
-            yawModifier += (animState->m_flAnimDuckAmount * std::clamp(animState->m_flSpeedAsPortionOfCrouchTopSpeed, 0.0f, 1.0f) * (0.5f - yawModifier));
+        if (animState->animDuckAmount > 0.0f)
+            yawModifier += (animState->animDuckAmount * std::clamp(animState->speedAsPortionOfCrouchTopSpeed, 0.0f, 1.0f) * (0.5f - yawModifier));
 
-        return animState->m_flAimYawMax * yawModifier;
+        return animState->aimYawMax * yawModifier;
     }
 
     bool isInReload() noexcept

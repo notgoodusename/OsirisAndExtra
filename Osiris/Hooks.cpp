@@ -694,7 +694,7 @@ void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, Vector& pos)
     using modifyEyePositionFn = void(__thiscall*)(void*, Vector&);
     static auto original = (modifyEyePositionFn)hooks->modifyEyePosition.getDetour();
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
-    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(animState->player);
 
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, pos);
@@ -703,7 +703,7 @@ void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, Vector& pos)
     if (bone == -1)
         return;
 
-    if (animState->m_bLanding || animState->m_flAnimDuckAmount != 0.f || !entity->groundEntity())
+    if (animState->landing || animState->animDuckAmount != 0.f || !entity->groundEntity())
     {
         Vector bonePos;
         entity->getBonePos(bone, bonePos);
@@ -746,11 +746,11 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
         return original(thisPointer, unknown, z, y, x, unknown1);
 
     // allow animations to be animated in the same frame
-    if (animState->m_nLastUpdateFrame == memory->globalVars->framecount)
-        animState->m_nLastUpdateFrame -= 1;
+    if (animState->lastUpdateFrame == memory->globalVars->framecount)
+        animState->lastUpdateFrame -= 1;
 
 
-    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
 	
@@ -820,14 +820,14 @@ void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
-    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity)
         return original(thisPointer);
 
-    animState->m_flLowerBodyRealignTimer = 0.f;
-    animState->m_bDeployRateLimiting = false;
-    animState->m_bJumping = false;
-    animState->m_nButtons = 0;
+    animState->lowerBodyRealignTimer = 0.f;
+    animState->deployRateLimiting = false;
+    animState->jumping = false;
+    animState->buttons = 0;
     if(localPlayer && entity == localPlayer.get())
         entity->lby() = 0.f;
 
@@ -840,7 +840,7 @@ void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
-    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer);
 
@@ -853,7 +853,7 @@ void __fastcall setupMovementHook(void* thisPointer, void* edx) noexcept
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
-    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer);
 
@@ -866,7 +866,7 @@ void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
-    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer);
 
@@ -879,7 +879,7 @@ void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
-    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, layer, newWeight);
     return;
@@ -891,7 +891,7 @@ void __fastcall notifyOnLayerChangeCycleHook(void* thisPointer, void* edx, void*
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
-    auto entity = reinterpret_cast<Entity*>(animState->m_pPlayer);
+    auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, layer, newCycle);
     return;

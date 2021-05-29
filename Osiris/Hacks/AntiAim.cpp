@@ -22,7 +22,7 @@ bool updateLby(bool update = false) noexcept
         return false;
     }
 
-    if (localPlayer->getAnimstate()->m_flVelocityLengthXY > 0.1f || fabsf(localPlayer->getAnimstate()->m_flVelocityLengthZ) > 100.f)
+    if (localPlayer->getAnimstate()->velocityLengthXY > 0.1f || fabsf(localPlayer->getAnimstate()->velocityLengthZ) > 100.f)
         timer = memory->globalVars->serverTime() + 0.22f;
 
     if (timer < memory->globalVars->serverTime())

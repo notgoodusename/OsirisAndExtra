@@ -175,6 +175,8 @@ public:
     std::uintptr_t notifyOnLayerChangeCycle;
     void(__thiscall* calcAbsoluteVelocity)(void*);
 
+    void*(__thiscall* utilPlayerByIndex)(int);
+    std::uintptr_t drawServerHitboxes;
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

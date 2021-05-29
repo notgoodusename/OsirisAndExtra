@@ -137,6 +137,28 @@ public:
         return v;
     }
 
+    auto drawServerHitboxes(float duration = 0.f, int monocolor = 0) 
+    {
+        static auto address = memory->drawServerHitboxes;
+
+        auto player = memory->utilPlayerByIndex(index());
+        if (!player)
+            return;
+
+        __asm {
+
+            pushad
+
+            movss xmm1, duration
+            push monocolor
+            mov ecx, player
+            call address
+
+            popad
+        }
+
+    }
+
     float getFirstSequenceAnimTag(int sequence, int animTag) noexcept
     {
         return memory->getFirstSequenceAnimTag(this, sequence, animTag, 0);

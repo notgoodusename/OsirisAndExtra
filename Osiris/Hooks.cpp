@@ -530,7 +530,7 @@ void __fastcall doExtraBoneProcessingHook(void* thisPointer, void* edx, void* hd
 
 void __fastcall standardBlendingRulesHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, float currentTime, int boneMask) noexcept
 {
-    static auto original = hooks->standardBlendingRules.getOriginalDetour<void>(hdr, pos, q, currentTime, boneMask);
+    static auto original = hooks->standardBlendingRules.getOriginal<void>(hdr, pos, q, currentTime, boneMask);
 
     auto entity = reinterpret_cast<Entity*>(thisPointer);
 
@@ -548,7 +548,7 @@ bool __fastcall shouldSkipAnimationFrameHook(void* thisPointer, void* edx) noexc
 
 void __fastcall updateClientSideAnimationHook(void* thisPointer, void* edx) noexcept
 {
-    static auto original = hooks->updateClientSideAnimation.getOriginalDetour<void>();
+    static auto original = hooks->updateClientSideAnimation.getOriginal<void>();
 
     auto entity = reinterpret_cast<Entity*>(thisPointer);
 
@@ -569,7 +569,7 @@ void __fastcall updateClientSideAnimationHook(void* thisPointer, void* edx) noex
 
 void __fastcall checkForSequenceChangeHook(void* thisPointer, void* edx, void* hdr, int curSequence, bool forceNewSequence, bool interpolate) noexcept
 {
-    static auto original = hooks->checkForSequenceChange.getOriginalDetour<void>(hdr, curSequence, forceNewSequence, interpolate);
+    static auto original = hooks->checkForSequenceChange.getOriginal<void>(hdr, curSequence, forceNewSequence, interpolate);
 
     return original(thisPointer, hdr, curSequence, forceNewSequence, false);
 }
@@ -652,7 +652,7 @@ static std::array<AnimationLayer, 13> layers{};
 //TODO: find a way to ignore networked data
 void __fastcall preDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
 {
-    static auto original = hooks->preDataUpdate.getOriginalDetour<void>(updateType);
+    static auto original = hooks->preDataUpdate.getOriginal<void>(updateType);
 
     auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
@@ -665,7 +665,7 @@ void __fastcall preDataUpdateHook(void* thisPointer, void* edx, int updateType) 
 
 void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
 {
-    static auto original = hooks->postDataUpdate.getOriginalDetour<void>(updateType);
+    static auto original = hooks->postDataUpdate.getOriginal<void>(updateType);
 
     auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
@@ -701,7 +701,7 @@ void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int updateType)
 
 void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
 {
-    static auto original = hooks->resetState.getOriginalDetour<void>();
+    static auto original = hooks->resetState.getOriginal<void>();
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
@@ -721,7 +721,7 @@ void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
 
 void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
 {
-    static auto original = hooks->setupVelocity.getOriginalDetour<void>();
+    static auto original = hooks->setupVelocity.getOriginal<void>();
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
@@ -734,7 +734,7 @@ void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
 
 void __fastcall setupMovementHook(void* thisPointer, void* edx) noexcept
 {
-    static auto original = hooks->setupMovement.getOriginalDetour<void>();
+    static auto original = hooks->setupMovement.getOriginal<void>();
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
@@ -747,7 +747,7 @@ void __fastcall setupMovementHook(void* thisPointer, void* edx) noexcept
 
 void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
 {
-    static auto original = hooks->setupAliveloop.getOriginalDetour<void>();
+    static auto original = hooks->setupAliveloop.getOriginal<void>();
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
@@ -760,7 +760,7 @@ void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
 
 void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void* layer, const float newWeight) noexcept
 {
-    static auto original = hooks->notifyOnLayerChangeWeight.getOriginalDetour<void>(layer, newWeight);
+    static auto original = hooks->notifyOnLayerChangeWeight.getOriginal<void>(layer, newWeight);
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 
@@ -772,7 +772,7 @@ void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void
 
 void __fastcall notifyOnLayerChangeCycleHook(void* thisPointer, void* edx, void* layer, const float newCycle) noexcept
 {
-    static auto original = hooks->notifyOnLayerChangeCycle.getOriginalDetour<void>(layer, newCycle);
+    static auto original = hooks->notifyOnLayerChangeCycle.getOriginal<void>(layer, newCycle);
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
 

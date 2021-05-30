@@ -44,12 +44,12 @@ void Animations::fake() noexcept
     static bool initfakeanim = true;
     static float spawnTime = 0.f;
 
-    if (!localPlayer || !localPlayer.get()->isAlive() || !localPlayer.get()->getAnimstate())
+    if (!localPlayer || !localPlayer->isAlive() || !localPlayer->getAnimstate())
         return;
 
-    if (spawnTime != localPlayer.get()->spawnTime() || updatefakeanim)
+    if (spawnTime != localPlayer->spawnTime() || updatefakeanim)
     {
-        spawnTime = localPlayer.get()->spawnTime();
+        spawnTime = localPlayer->spawnTime();
         initfakeanim = false;
         updatefakeanim = false;
     }
@@ -59,7 +59,7 @@ void Animations::fake() noexcept
         fakeanimstate = static_cast<AnimState*>(memory->memalloc->Alloc(sizeof(AnimState)));
 
         if (fakeanimstate != nullptr)
-            localPlayer.get()->createState(fakeanimstate);
+            localPlayer->createState(fakeanimstate);
 
         initfakeanim = true;
     }
@@ -71,17 +71,17 @@ void Animations::fake() noexcept
     {
         std::array<AnimationLayer, 13> layers;
 
-        std::memcpy(&layers, localPlayer.get()->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
 
-        auto backupAbs = localPlayer.get()->getAbsAngle();
-        auto backupPoses = localPlayer.get()->poseParameters();
+        auto backupAbs = localPlayer->getAbsAngle();
+        auto backupPoses = localPlayer->poseParameters();
 
-        localPlayer.get()->updateState(fakeanimstate, data.viewangles);
+        localPlayer->updateState(fakeanimstate, data.viewangles);
         memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeanimstate->footYaw, 0 });
-        std::memcpy(localPlayer.get()->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
-        localPlayer.get()->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
-        data.gotMatrix = localPlayer.get()->setupBones(data.fakematrix, MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
-        const auto origin = localPlayer.get()->getRenderOrigin();
+        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
+        data.gotMatrix = localPlayer->setupBones(data.fakematrix, MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
+        const auto origin = localPlayer->getRenderOrigin();
         if (data.gotMatrix)
         {
             for (auto& i : data.fakematrix)
@@ -91,8 +91,8 @@ void Animations::fake() noexcept
                 i[2][3] -= origin.z;
             }
         }
-        std::memcpy(localPlayer.get()->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
-        localPlayer.get()->poseParameters() = backupPoses;
+        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        localPlayer->poseParameters() = backupPoses;
         memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
     }
 }
@@ -109,8 +109,8 @@ void Animations::real(FrameStage stage) noexcept
 
     if(stage == FrameStage::RENDER_START)
     {
-        static auto backupPoses = localPlayer.get()->poseParameters();
-        static auto backupAbs = localPlayer.get()->getAnimstate()->footYaw;
+        static auto backupPoses = localPlayer->poseParameters();
+        static auto backupAbs = localPlayer->getAnimstate()->footYaw;
 
         static int oldTick = 0;
 

@@ -10,7 +10,6 @@
 class ClientMode;
 class ClientState;
 class Entity;
-class FileSystem;
 class GameEventDescriptor;
 class GameEventManager;
 class Input;
@@ -44,7 +43,6 @@ public:
     std::uintptr_t present;
     std::uintptr_t reset;
 
-    FileSystem* fileSystem;
     ClientMode* clientMode;
     Input* input;
     GlobalVars* globalVars;

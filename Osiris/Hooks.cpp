@@ -851,7 +851,7 @@ void Hooks::install() noexcept
     engine.hookAt(101, getScreenAspectRatio);
     engine.hookAt(218, getDemoPlaybackParameters);
 
-    fileSystem.init(memory->fileSystem);
+    fileSystem.init(interfaces->fileSystem);
     fileSystem.hookAt(101, getUnverifiedFileHashes);
     fileSystem.hookAt(127, canLoadThirdPartyFiles);
 

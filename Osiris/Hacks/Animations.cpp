@@ -39,32 +39,32 @@ void Animations::update(UserCmd* cmd, bool& sendPacket) noexcept
 
 void Animations::fake() noexcept
 {
-    static AnimState* fakeanimstate = nullptr;
-    static bool updatefakeanim = true;
-    static bool initfakeanim = true;
+    static AnimState* fakeAnimState = nullptr;
+    static bool updateFakeAnim = true;
+    static bool initFakeAnim = true;
     static float spawnTime = 0.f;
 
     if (!localPlayer || !localPlayer->isAlive() || !localPlayer->getAnimstate())
         return;
 
-    if (spawnTime != localPlayer->spawnTime() || updatefakeanim)
+    if (spawnTime != localPlayer->spawnTime() || updateFakeAnim)
     {
         spawnTime = localPlayer->spawnTime();
-        initfakeanim = false;
-        updatefakeanim = false;
+        initFakeAnim = false;
+        updateFakeAnim = false;
     }
 
-    if (!initfakeanim)
+    if (!initFakeAnim)
     {
-        fakeanimstate = static_cast<AnimState*>(memory->memalloc->Alloc(sizeof(AnimState)));
+        fakeAnimState = static_cast<AnimState*>(memory->memalloc->Alloc(sizeof(AnimState)));
 
-        if (fakeanimstate != nullptr)
-            localPlayer->createState(fakeanimstate);
+        if (fakeAnimState != nullptr)
+            localPlayer->createState(fakeAnimState);
 
-        initfakeanim = true;
+        initFakeAnim = true;
     }
 
-    if (!fakeanimstate)
+    if (!fakeAnimState)
         return;
 
     if (data.sendPacket)
@@ -76,8 +76,8 @@ void Animations::fake() noexcept
         auto backupAbs = localPlayer->getAbsAngle();
         auto backupPoses = localPlayer->poseParameters();
 
-        localPlayer->updateState(fakeanimstate, data.viewangles);
-        memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeanimstate->footYaw, 0 });
+        localPlayer->updateState(fakeAnimState, data.viewangles);
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, 0 });
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
         data.gotMatrix = localPlayer->setupBones(data.fakematrix, MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);

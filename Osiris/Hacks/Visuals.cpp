@@ -26,7 +26,7 @@
 
 void Visuals::playerModel(FrameStage stage) noexcept
 {
-    if (stage != FrameStage::NET_UPDATE_POSTDATAUPDATE_START)
+    if (stage != FrameStage::NET_UPDATE_END && stage != FrameStage::RENDER_END)
         return;
 
     static int originalIdx = 0;
@@ -110,7 +110,7 @@ void Visuals::playerModel(FrameStage stage) noexcept
     };
 
     if (const auto model = getModel(localPlayer->getTeamNumber())) {
-        if (stage == FrameStage::RENDER_START) {
+        if (stage == FrameStage::NET_UPDATE_END) {
             originalIdx = localPlayer->modelIndex();
             if (const auto modelprecache = interfaces->networkStringTableContainer->findTable("modelprecache")) {
                 modelprecache->addString(false, model);

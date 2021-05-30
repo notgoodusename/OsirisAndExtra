@@ -638,7 +638,7 @@ void AnimState::setupAliveLoop() noexcept
     {
         interfaces->mdlCache->beginLock();
         setLayerSequence(ANIMATION_LAYER_ALIVELOOP, ACT_CSGO_ALIVE_LOOP);
-        setLayerCycle(ANIMATION_LAYER_ALIVELOOP, memory->randomFloat(0, 1));
+        setLayerCycle(ANIMATION_LAYER_ALIVELOOP, memory->randomFloat(0.f, 1.f));
         auto layer = entity->getAnimationLayer(ANIMATION_LAYER_ALIVELOOP);
         if (layer)
         {

@@ -330,12 +330,12 @@ void AnimState::setupMovement() noexcept
     }
     else
     {
-        moveWeight = Helpers::approach(targetMoveWeight, moveWeight, lastUpdateIncrement * Helpers::remapValClamped(stutterStep, 0.0f, 100.0f, 2, 20));
+        moveWeight = Helpers::approach(targetMoveWeight, moveWeight, lastUpdateIncrement * Helpers::remapValClamped(stutterStep, 0.0f, 100.0f, 2.f, 20.f));
     }
 
     Vector vecMoveYawDir;
-    vecMoveYawDir = Vector::fromAngle(Vector{ 0.f, Helpers::angleNormalize(footYaw + moveYaw + 180), 0.f });
-    float yawDeltaAbsDot = std::abs(vecVelocityNormalizedNonZero.dotProduct(vecMoveYawDir));
+    Vector::fromAngle(Vector{ 0.f, Helpers::angleNormalize(footYaw + moveYaw + 180.f), 0.f }, &vecMoveYawDir);
+    float yawDeltaAbsDot = std::fabsf(vecVelocityNormalizedNonZero.dotProduct(vecMoveYawDir));
     moveWeight *= Helpers::bias(yawDeltaAbsDot, 0.2f);
 
     float moveWeightWithAirSmooth = moveWeight * inAirSmoothValue;

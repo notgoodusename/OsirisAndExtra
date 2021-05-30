@@ -8,9 +8,6 @@
 class matrix3x4;
 
 struct Vector {
-    //Vector() = default;
-    //constexpr Vector(float x, float y, float z) noexcept : x{ x }, y{ y }, z{ z } {}
-
     constexpr auto notNull() const noexcept
     {
         return x || y || z;
@@ -197,6 +194,17 @@ struct Vector {
                       -std::sin(Helpers::deg2rad(angle.x)) };
     }
 
+    static auto fromAngle(const Vector& angle, Vector* out) noexcept
+    {
+        if (out)
+        {
+            out->x = std::cos(Helpers::deg2rad(angle.x)) * std::cos(Helpers::deg2rad(angle.y));
+            out->y = std::cos(Helpers::deg2rad(angle.x)) * std::sin(Helpers::deg2rad(angle.y));
+            out->z = -std::sin(Helpers::deg2rad(angle.x));
+
+        }
+    }
+
     static auto fromAngleAll(const Vector& angle, Vector* forward, Vector* right, Vector* up) noexcept
     {
         float sr = std::sin(Helpers::deg2rad(angle.z))
@@ -228,14 +236,14 @@ struct Vector {
         }
     }
 
-    void vectorCrossProduct(const Vector& a, const Vector& b, Vector& result)
+    void vectorCrossProduct(const Vector& a, const Vector& b, Vector& result) noexcept
     {
         result.x = a.y * b.z - a.z * b.y;
         result.y = a.z * b.x - a.x * b.z;
         result.z = a.x * b.y - a.y * b.x;
     }
 
-    Vector Cross(const Vector& other)
+    Vector cross(const Vector& other) noexcept
     {
         Vector v;
         vectorCrossProduct(*this, other, v);

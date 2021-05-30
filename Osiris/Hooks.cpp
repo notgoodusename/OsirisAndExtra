@@ -817,10 +817,6 @@ void Hooks::install() noexcept
     calculateView.detour(memory->calculateView, calculateViewHook);
     updateState.detour(memory->updateState, updateStateHook);
 
-    fileSystem.init(memory->fileSystem);
-    fileSystem.hookAt(127, canLoadThirdPartyFiles);
-    fileSystem.hookAt(101, getUnverifiedFileHashes);
-
     //Finish rebuilding
 
     resetState.detour(memory->resetState, resetStateHook);
@@ -854,6 +850,10 @@ void Hooks::install() noexcept
     engine.hookAt(93, isHltv);
     engine.hookAt(101, getScreenAspectRatio);
     engine.hookAt(218, getDemoPlaybackParameters);
+
+    fileSystem.init(memory->fileSystem);
+    fileSystem.hookAt(101, getUnverifiedFileHashes);
+    fileSystem.hookAt(127, canLoadThirdPartyFiles);
 
     gameMovement.init(interfaces->gameMovement);
     gameMovement.hookAt(32, onJump);

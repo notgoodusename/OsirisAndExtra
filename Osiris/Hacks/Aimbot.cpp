@@ -161,7 +161,7 @@ float Aimbot::getScanDamage(Entity* entity, const Vector& destination, const Wea
     return 0.f;
 }
 
-float segmentToSegment(const Vector& s1, const Vector& s2, const Vector& k1, const Vector& k2)
+float segmentToSegment(const Vector& s1, const Vector& s2, const Vector& k1, const Vector& k2) noexcept
 {
     static auto constexpr epsilon = 0.00000001f;
 
@@ -241,7 +241,8 @@ float segmentToSegment(const Vector& s1, const Vector& s2, const Vector& k1, con
     return dp.length();
 }
 
-bool intersectLineWithBb(Vector& start, Vector& end, Vector& min, Vector& max) {
+bool intersectLineWithBb(Vector& start, Vector& end, Vector& min, Vector& max) noexcept
+{
     float d1, d2, f;
     auto start_solid = true;
     auto t1 = -1.0f, t2 = 1.0f;
@@ -297,7 +298,7 @@ void inline sinCos(float radians, float* sine, float* cosine)
     *cosine = cos(radians);
 }
 
-Vector vectorRotate(Vector& in1, Vector& in2)
+Vector vectorRotate(Vector& in1, Vector& in2) noexcept
 {
     auto vector_rotate = [](const Vector& in1, const matrix3x4& in2)
     {
@@ -337,21 +338,21 @@ Vector vectorRotate(Vector& in1, Vector& in2)
     return vector_rotate(in1, m);
 }
 
-void vectorITransform(const Vector& in1, const matrix3x4& in2, Vector& out)
+void vectorITransform(const Vector& in1, const matrix3x4& in2, Vector& out) noexcept
 {
     out.x = (in1.x - in2[0][3]) * in2[0][0] + (in1.y - in2[1][3]) * in2[1][0] + (in1.z - in2[2][3]) * in2[2][0];
     out.y = (in1.x - in2[0][3]) * in2[0][1] + (in1.y - in2[1][3]) * in2[1][1] + (in1.z - in2[2][3]) * in2[2][1];
     out.z = (in1.x - in2[0][3]) * in2[0][2] + (in1.y - in2[1][3]) * in2[1][2] + (in1.z - in2[2][3]) * in2[2][2];
 }
 
-void vectorIRotate(Vector in1, matrix3x4 in2, Vector& out)
+void vectorIRotate(Vector in1, matrix3x4 in2, Vector& out) noexcept
 {
     out.x = in1.x * in2[0][0] + in1.y * in2[1][0] + in1.z * in2[2][0];
     out.y = in1.x * in2[0][1] + in1.y * in2[1][1] + in1.z * in2[2][1];
     out.z = in1.x * in2[0][2] + in1.y * in2[1][2] + in1.z * in2[2][2];
 }
 
-bool hitboxIntersection(Entity* entity, matrix3x4 matrix[256], int iHitbox, StudioHitboxSet* set, const Vector& start, const Vector& end)
+bool hitboxIntersection(Entity* entity, matrix3x4 matrix[256], int iHitbox, StudioHitboxSet* set, const Vector& start, const Vector& end) noexcept
 {
     auto VectorTransform_Wrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
     {
@@ -402,60 +403,45 @@ bool hitboxIntersection(Entity* entity, matrix3x4 matrix[256], int iHitbox, Stud
 
 std::vector<Vector> Aimbot::multiPoint(Entity* entity, matrix3x4 matrix[256], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _multiPoint)
 {
-    auto AngleVectors = [](const Vector& angles, Vector* forward)
-    {
-        float	sp, sy, cp, cy;
-
-        sy = sin(Helpers::deg2rad(angles.y));
-        cy = cos(Helpers::deg2rad(angles.y));
-
-        sp = sin(Helpers::deg2rad(angles.x));
-        cp = cos(Helpers::deg2rad(angles.x));
-
-        forward->x = cp * cy;
-        forward->y = cp * sy;
-        forward->z = -sp;
-    };
-
-    auto VectorTransform_Wrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
+    auto VectorTransformWrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
     {
         auto VectorTransform = [](const float* in1, const matrix3x4 in2, float* out)
         {
-            auto DotProducts = [](const float* v1, const float* v2)
+            auto dotProducts = [](const float* v1, const float* v2)
             {
                 return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
             };
-            out[0] = DotProducts(in1, in2[0]) + in2[0][3];
-            out[1] = DotProducts(in1, in2[1]) + in2[1][3];
-            out[2] = DotProducts(in1, in2[2]) + in2[2][3];
+            out[0] = dotProducts(in1, in2[0]) + in2[0][3];
+            out[1] = dotProducts(in1, in2[1]) + in2[1][3];
+            out[2] = dotProducts(in1, in2[2]) + in2[2][3];
         };
         VectorTransform(&in1.x, in2, &out.x);
     };
 
-    Vector vMin, vMax, vCenter;
-    VectorTransform_Wrapper(hitbox->bbMin, matrix[hitbox->bone], vMin);
-    VectorTransform_Wrapper(hitbox->bbMax, matrix[hitbox->bone], vMax);
-    vCenter = (vMin + vMax) * 0.5f;
+    Vector min, max, center;
+    VectorTransformWrapper(hitbox->bbMin, matrix[hitbox->bone], min);
+    VectorTransformWrapper(hitbox->bbMax, matrix[hitbox->bone], max);
+    center = (min + max) * 0.5f;
 
     std::vector<Vector> vecArray;
 
     if (_multiPoint <= 0)
     {
-        vecArray.emplace_back(vCenter);
+        vecArray.emplace_back(center);
         return vecArray;
     }
-    vecArray.emplace_back(vCenter);
+    vecArray.emplace_back(center);
 
-    Vector CurrentAngles = Aimbot::calculateRelativeAngle(vCenter, localEyePos, Vector{});
+    Vector currentAngles = Aimbot::calculateRelativeAngle(center, localEyePos, Vector{});
 
-    Vector Forward;
-    AngleVectors(CurrentAngles, &Forward);
+    Vector forward;
+    Vector::fromAngle(currentAngles, &forward);
 
-    Vector Right = Forward.Cross(Vector{ 0, 0, 1 });
-    Vector Left = Vector{ -Right.x, -Right.y, Right.z };
+    Vector right = forward.cross(Vector{ 0, 0, 1 });
+    Vector left = Vector{ -right.x, -right.y, right.z };
 
-    Vector Top = Vector{ 0, 0, 1 };
-    Vector Bot = Vector{ 0, 0, -1 };
+    Vector top = Vector{ 0, 0, 1 };
+    Vector bottom = Vector{ 0, 0, -1 };
 
     float multiPoint = (min(_multiPoint, 95)) * 0.01f;
 
@@ -463,18 +449,18 @@ std::vector<Vector> Aimbot::multiPoint(Entity* entity, matrix3x4 matrix[256], St
     {
     case Hitboxes::Head:
         for (auto i = 0; i < 4; ++i)
-            vecArray.emplace_back(vCenter);
+            vecArray.emplace_back(center);
 
-        vecArray[1] += Top * (hitbox->capsuleRadius * multiPoint);
-        vecArray[2] += Right * (hitbox->capsuleRadius * multiPoint);
-        vecArray[3] += Left * (hitbox->capsuleRadius * multiPoint);
+        vecArray[1] += top * (hitbox->capsuleRadius * multiPoint);
+        vecArray[2] += right * (hitbox->capsuleRadius * multiPoint);
+        vecArray[3] += left * (hitbox->capsuleRadius * multiPoint);
         break;
     default://rest
         for (auto i = 0; i < 3; ++i)
-            vecArray.emplace_back(vCenter);
+            vecArray.emplace_back(center);
 
-        vecArray[1] += Right * (hitbox->capsuleRadius * multiPoint);
-        vecArray[2] += Left * (hitbox->capsuleRadius * multiPoint);
+        vecArray[1] += right * (hitbox->capsuleRadius * multiPoint);
+        vecArray[2] += left * (hitbox->capsuleRadius * multiPoint);
         break;
     }
     return vecArray;

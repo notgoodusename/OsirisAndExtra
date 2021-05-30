@@ -48,6 +48,9 @@ void TraceHull(Vector& src, Vector& end, Trace& tr)
 	if (!config->misc.nadePredict)
 		return;
 
+	if (!localPlayer)
+		return;
+
 	interfaces->engineTrace->traceRay({ src, end }, 0x200400B, { localPlayer.get() }, tr);
 }
 
@@ -321,7 +324,7 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 		return;
 	}
 
-	if (!localPlayer.get() || !localPlayer->isAlive())
+	if (!localPlayer || !localPlayer->isAlive())
 	{
 		renderMutex.unlock();
 		return;
@@ -409,7 +412,7 @@ void NadePrediction::draw() noexcept
 	if (!config->misc.nadePredict)
 		return;
 
-	if (!localPlayer.get() || !localPlayer->isAlive())
+	if (!localPlayer || !localPlayer->isAlive())
 		return;
 
 	if (renderMutex.try_lock())

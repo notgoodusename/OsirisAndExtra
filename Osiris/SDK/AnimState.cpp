@@ -10,9 +10,15 @@ void AnimState::setupVelocity() noexcept
 
     Vector vecAbsVelocity = entity->getAbsVelocity();
 
-    // prevent the client input velocity vector from exceeding a reasonable magnitude
-    if (vecAbsVelocity.squareLength() > std::sqrt(CS_PLAYER_SPEED_RUN * CSGO_ANIM_MAX_VEL_LIMIT))
-        vecAbsVelocity = vecAbsVelocity.normalized() * (CS_PLAYER_SPEED_RUN * CSGO_ANIM_MAX_VEL_LIMIT);
+    // We should call this only if we arent the localPlayer, since we cant figure out other players velocity
+    /*
+    if (localPlayer && localPlayer.get() != player)
+    {
+        // prevent the client input velocity vector from exceeding a reasonable magnitude
+        if (vecAbsVelocity.squareLength() > std::sqrt(CS_PLAYER_SPEED_RUN * CSGO_ANIM_MAX_VEL_LIMIT))
+            vecAbsVelocity = vecAbsVelocity.normalized() * (CS_PLAYER_SPEED_RUN * CSGO_ANIM_MAX_VEL_LIMIT);
+    }
+    */
 
     // save vertical velocity component
     velocityLengthZ = vecAbsVelocity.z;

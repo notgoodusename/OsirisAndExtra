@@ -114,8 +114,6 @@ void Animations::real(FrameStage stage) noexcept
 
         static int oldTick = 0;
 
-        localPlayer->getEFlags() &= ~0x1000;
-
         if (oldTick != memory->globalVars->tickCount)
         {
             oldTick = memory->globalVars->tickCount;

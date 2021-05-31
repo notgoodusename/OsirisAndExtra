@@ -121,8 +121,15 @@ void Animations::real(FrameStage stage) noexcept
             oldTick = memory->globalVars->tickCount;
             Animations::data.updating = true;
 
+            // allow animations to be animated in the same frame
+            if (localPlayer->getAnimstate()->lastUpdateFrame == memory->globalVars->framecount)
+                localPlayer->getAnimstate()->lastUpdateFrame -= 1;
+
             localPlayer->updateState(localPlayer->getAnimstate(), Animations::data.viewangles);
-            localPlayer->updateClientSideAnimation();
+            // updateClientSideAnimation calls animState update, but uses eyeAngles, 
+            // note: after updating the animstate lastUpdateFrame will be equal to memory->globalVars->framecount, so it wont be executed
+            // so no need to worry about it
+            localPlayer->updateClientSideAnimation(); 
 
             if (data.sendPacket)
             {

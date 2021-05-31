@@ -630,11 +630,6 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
     if (!animState)
         return original(thisPointer, unknown, z, y, x, unknown1);
 
-    // allow animations to be animated in the same frame
-    if (animState->lastUpdateFrame == memory->globalVars->framecount)
-        animState->lastUpdateFrame -= 1;
-
-
     auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
@@ -642,9 +637,7 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
     if (!localPlayer->getModelPtr())
         return;
 
-    const auto angle = Animations::data.viewangles;
-
-    return original(thisPointer, unknown, z, angle.y, angle.x, unknown1);;
+    return original(thisPointer, unknown, z, y, x, unknown1);
 }
 
 static std::array<AnimationLayer, 13> layers{};

@@ -39,6 +39,7 @@
 #include "Hacks/Visuals.h"
 
 #include "SDK/ClientState.h"
+#include "SDK/ConVar.h"
 #include "SDK/Engine.h"
 #include "SDK/Entity.h"
 #include "SDK/EntityList.h"
@@ -190,6 +191,11 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     __asm mov framePointer, ebp;
     bool& sendPacket = *reinterpret_cast<bool*>(*framePointer - 0x1C);
 
+    static auto pitchDown = interfaces->cvar->findVar("cl_pitchdown");
+    static auto pitchUp = interfaces->cvar->findVar("cl_pitchup");
+    static auto forwardSpeed = interfaces->cvar->findVar("cl_forwardspeed");;
+    static auto sideSpeed = interfaces->cvar->findVar("cl_sidespeed");;
+
     static void* oldPointer = nullptr;
     if (auto network = memory->clientState->netChannel; network && oldPointer != network)
     {
@@ -249,11 +255,11 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     cmd->viewangles.normalize();
     Misc::fixMovement(cmd, currentViewAngles.y);
 
-    cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
+    cmd->viewangles.x = std::clamp(cmd->viewangles.x, -pitchUp->getFloat(), pitchDown->getFloat());
     cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
     cmd->viewangles.z = 0.0f;
-    cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
-    cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
+    cmd->forwardmove = std::clamp(cmd->forwardmove, -forwardSpeed->getFloat(), forwardSpeed->getFloat());
+    cmd->sidemove = std::clamp(cmd->sidemove, -sideSpeed->getFloat(), sideSpeed->getFloat());
 
     previousViewAngles = cmd->viewangles;
     Animations::update(cmd, sendPacket);

@@ -34,20 +34,20 @@ struct AnimState;
 struct AnimationLayer
 {
 public:
-    float animationTime;
-    float fadeOut;
-    CStudioHdr* dispatchedStudioHdr;
-    int dispatchedSrc;
-    int dispatchedDst;
-    unsigned int order;
-    unsigned int sequence;
-    float prevCycle;
-    float weight;
-    float weightDeltaRate;
-    float playbackRate;
-    float cycle;
-    void* owner;
-    int invalidatePhysicsBits;
+    float animationTime; //0
+    float fadeOut; //4
+    CStudioHdr* dispatchedStudioHdr; //8
+    int dispatchedSrc; //12
+    int dispatchedDst; //16
+    unsigned int order; //20, networked
+    unsigned int sequence; //24, networked
+    float prevCycle; //28, networked
+    float weight; //32, networked
+    float weightDeltaRate; //36, networked
+    float playbackRate; //40, networked
+    float cycle; //44, networked
+    void* owner; //48
+    int invalidatePhysicsBits; //52
 };
 
 enum class MoveType {
@@ -206,7 +206,7 @@ public:
 
     CStudioHdr* getModelPtr() noexcept
     {
-        return *reinterpret_cast<CStudioHdr**>(uintptr_t(this) + 0x294C);
+        return *reinterpret_cast<CStudioHdr**>(reinterpret_cast<uintptr_t>(this) + 0x294C);
     }
 
     Vector& getAbsVelocity() noexcept
@@ -346,7 +346,6 @@ public:
     auto isShotgun() noexcept { return getWeaponType() == WeaponType::Shotgun; }
     auto isGrenade() noexcept { return getWeaponType() == WeaponType::Grenade; }
     auto isBomb() noexcept { return getWeaponType() == WeaponType::C4; }
-
 
     bool isThrowing() noexcept 
     {

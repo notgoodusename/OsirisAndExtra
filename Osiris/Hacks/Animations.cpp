@@ -127,6 +127,7 @@ void Animations::real(FrameStage stage) noexcept
             // updateClientSideAnimation calls animState update, but uses eyeAngles, 
             // note: after updating the animstate lastUpdateFrame will be equal to memory->globalVars->framecount, so it wont be executed
             // so no need to worry about it
+            // a better aproach would be too hook eyeAngles an return cmd->viewangles
             localPlayer->updateClientSideAnimation(); 
 
             if (data.sendPacket)

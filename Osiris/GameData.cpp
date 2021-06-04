@@ -55,6 +55,14 @@ static void updateNetLatency() noexcept
         netOutgoingLatency = 0;
 }
 
+constexpr auto playerVisibilityUpdateDelay = 0.1f;
+static float nextPlayerVisibilityUpdateTime = 0.0f;
+
+static bool shouldUpdatePlayerVisibility() noexcept
+{
+    return nextPlayerVisibilityUpdateTime <= memory->globalVars->realtime;
+}
+
 void GameData::update() noexcept
 {
     static int lastFrame;
@@ -171,6 +179,9 @@ void GameData::update() noexcept
         && (projectile.trajectory.size() < 1 || projectile.trajectory[projectile.trajectory.size() - 1].first + 60.0f < memory->globalVars->realtime); });
 
     std::erase_if(playerData, [](const auto& player) { return interfaces->entityList->getEntityFromHandle(player.handle) == nullptr; });
+
+    if (shouldUpdatePlayerVisibility())
+        nextPlayerVisibilityUpdateTime = memory->globalVars->realtime + playerVisibilityUpdateDelay;
 }
 
 void GameData::clearProjectileList() noexcept
@@ -398,7 +409,11 @@ void PlayerData::update(Entity* entity) noexcept
 
     if (localPlayer) {
         enemy = memory->isOtherEnemy(entity, localPlayer.get());
-        visible = inViewFrustum && alive && entity->visibleTo(localPlayer.get());
+
+        if (!inViewFrustum || !alive)
+            visible = false;
+        else if (shouldUpdatePlayerVisibility())
+            visible = entity->visibleTo(localPlayer.get());
     }
 
     constexpr auto isEntityAudible = [](int entityIndex) noexcept {
@@ -419,6 +434,9 @@ void PlayerData::update(Entity* entity) noexcept
         if (const auto weaponInfo = weapon->getWeaponData())
             activeWeapon = interfaces->localize->findAsUTF8(weaponInfo->name);
     }
+
+    if (!alive || !inViewFrustum)
+        return;
 
     const auto model = entity->getModel();
     if (!model)

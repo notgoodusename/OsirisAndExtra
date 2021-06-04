@@ -857,10 +857,6 @@ void AnimState::doAnimationEvent(int animationEvent) noexcept
     }
 }
 
-void AnimState::updateLayerOrderPreset(float weight, int layerIndex, int sequence) noexcept
-{
-}
-
 void AnimState::updateAnimLayer(size_t layerIndex, int sequence, float playbackRate, float weight, float cycle) noexcept
 {
     auto entity = reinterpret_cast<Entity*>(player);
@@ -868,13 +864,13 @@ void AnimState::updateAnimLayer(size_t layerIndex, int sequence, float playbackR
     if (sequence >= 2)
     {
         interfaces->mdlCache->beginLock();
-        auto* layer = entity->getAnimationLayer(layerIndex);
-        if (layer)
+        auto& layer = *entity->getAnimationLayer(layerIndex);
+        if (&layer)
         {
-            layer->sequence = sequence;
-            layer->playbackRate = playbackRate;
-            layer->cycle = std::clamp(cycle, 0.0f, 1.0f);
-            layer->weight = std::clamp(weight, 0.0f, 1.0f);
+            layer.sequence = sequence;
+            layer.playbackRate = playbackRate;
+            layer.cycle = std::clamp(cycle, 0.0f, 1.0f);
+            layer.weight = std::clamp(weight, 0.0f, 1.0f);
         }
         interfaces->mdlCache->endLock();
     }
@@ -967,7 +963,7 @@ void AnimState::incrementLayerCycle(size_t layer, bool allowLoop) noexcept
     if (!&l)
         return;
 
-    if (abs(l.playbackRate) <= 0)
+    if (fabsf(l.playbackRate) <= 0)
         return;
 
     float flCurrentCycle = l.cycle;

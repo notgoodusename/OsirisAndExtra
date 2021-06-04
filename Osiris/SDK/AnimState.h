@@ -247,7 +247,6 @@ struct AnimState //This is the client one
 	void updateActivityModifiers() noexcept;
 	void addActivityModifier(const char* name) noexcept;
 
-	void updateLayerOrderPreset(float weight, int layerIndex, int sequence) noexcept;
 	void updateAnimLayer(size_t layerIndex, int sequence, float playbackRate, float weight, float cycle) noexcept;
 
 	void incrementLayerCycleWeightRateGeneric(size_t layer) noexcept;

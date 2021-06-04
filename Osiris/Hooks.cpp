@@ -327,7 +327,6 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
     if (stage == FrameStage::RENDER_START) {
         Misc::preserveKillfeed();
         Misc::disablePanoramablur();
-        Misc::fakePrime();
         Misc::updateEventListeners();
         Visuals::updateEventListeners();
     }
@@ -646,58 +645,6 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
     return original(thisPointer, unknown, z, y, x, unknown1);
 }
 
-static std::array<AnimationLayer, 13> layers{};
-
-//TODO: find a way to ignore networked data
-void __fastcall preDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
-{
-    static auto original = hooks->preDataUpdate.getOriginal<void>(updateType);
-
-    auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, updateType);
-
-    std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
-
-    return original(thisPointer, updateType);
-}
-
-void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
-{
-    static auto original = hooks->postDataUpdate.getOriginal<void>(updateType);
-
-    auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, updateType);
-
-    std::array<AnimationLayer, 13> currentLayers{};
-
-    std::memcpy(&currentLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
-
-    for (int i = 0; i < 13; i++)
-    {
-        AnimationLayer _curLayer = currentLayers.at(i);
-        AnimationLayer _prevLayer = layers.at(i);
-        if (
-            _curLayer.sequence != _prevLayer.sequence
-            || _curLayer.weightDeltaRate!= _prevLayer.weightDeltaRate
-            || _curLayer.cycle != _prevLayer.cycle
-            || _curLayer.weight != _prevLayer.weight
-            || _curLayer.playbackRate != _prevLayer.playbackRate
-            )
-        {
-
-            {
-                auto a = _curLayer;
-                auto b = _prevLayer;
-                auto c = 1;
-            }
-        }
-    }
-
-    return original(thisPointer, updateType);
-}
-
 void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
 {
     static auto original = hooks->resetState.getOriginal<void>();
@@ -816,19 +763,14 @@ void Hooks::install() noexcept
     calculateView.detour(memory->calculateView, calculateViewHook);
     updateState.detour(memory->updateState, updateStateHook);
 
-    //Finish rebuilding
-
     resetState.detour(memory->resetState, resetStateHook);
     
-    setupVelocity.detour(memory->setupVelocity, setupVelocityHook); //done
-    setupMovement.detour(memory->setupMovement, setupMovementHook); //done
-    setupAliveloop.detour(memory->setupAliveloop, setupAliveloopHook); // done
+    setupVelocity.detour(memory->setupVelocity, setupVelocityHook);
+    setupMovement.detour(memory->setupMovement, setupMovementHook);
+    setupAliveloop.detour(memory->setupAliveloop, setupAliveloopHook);
 
     notifyOnLayerChangeWeight.detour(memory->notifyOnLayerChangeWeight, notifyOnLayerChangeWeightHook);
     notifyOnLayerChangeCycle.detour(memory->notifyOnLayerChangeCycle, notifyOnLayerChangeCycleHook);
-
-    //preDataUpdate.detour(memory->preDataUpdate, preDataUpdateHook);
-    //postDataUpdate.detour(memory->postDataUpdate, postDataUpdateHook);
     
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 

@@ -100,7 +100,7 @@ Memory::Memory() noexcept
     cameraThink = findPattern(CLIENT_DLL, "\x85\xC0\x75\x30\x38\x86");
     getSequenceActivity = reinterpret_cast<decltype(getSequenceActivity)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x8B\x5D\x08\x56\x8B\xF1\x83"));
     isOtherEnemy = relativeToAbsolute<decltype(isOtherEnemy)>(findPattern(CLIENT_DLL, "\x8B\xCE\xE8????\x02\xC0") + 3);
-    auto temp = reinterpret_cast<std::uintptr_t*>(findPattern(CLIENT_DLL, "\xB9????\xE8????\x8B\x5D\x08") + 1); //12
+    auto temp = reinterpret_cast<std::uintptr_t*>(findPattern(CLIENT_DLL, "\xB9????\xE8????\x8B\x5D\x08") + 1); //11
     hud = *temp;
     findHudElement = relativeToAbsolute<decltype(findHudElement)>(reinterpret_cast<uintptr_t>(temp) + 5);
     clearHudWeapon = reinterpret_cast<decltype(clearHudWeapon)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x53\x56\x8B\x75\x08\x8B\xD9\x57\x6B\xFE\x2C"));
@@ -112,8 +112,7 @@ Memory::Memory() noexcept
     viewRender = **reinterpret_cast<ViewRender***>(findPattern(CLIENT_DLL, "\x8B\x0D????\xFF\x75\x0C\x8B\x45\x08") + 2);
     viewRenderBeams = *reinterpret_cast<ViewRenderBeams**>(findPattern(CLIENT_DLL, "\xB9????\x0F\x11\x44\x24?\xC7\x44\x24?????\xF3\x0F\x10\x84\x24") + 1);
     drawScreenEffectMaterial = relativeToAbsolute<uintptr_t>(findPattern(CLIENT_DLL, "\xE8????\x83\xC4\x0C\x8D\x4D\xF8") + 1);
-    submitReportFunction = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x28\x8B\x4D\x08"); //22
-    fakePrime = reinterpret_cast<std::uint8_t*>(findPattern(CLIENT_DLL, "\x17\xF6\x40\x14\x10") - 1);
+    submitReportFunction = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x28\x8B\x4D\x08"); //21
     const auto tier0 = GetModuleHandleW(L"tier0");
     debugMsg = reinterpret_cast<decltype(debugMsg)>(GetProcAddress(tier0, "Msg"));
     conColorMsg = reinterpret_cast<decltype(conColorMsg)>(GetProcAddress(tier0, "?ConColorMsg@@YAXABVColor@@PBDZZ"));
@@ -136,7 +135,7 @@ Memory::Memory() noexcept
     scopeArc = findPattern(CLIENT_DLL, "\x8B\x0D????\xFF\xB7????\x8B\x01\xFF\x90????\x8B\x7C\x24\x1C");
     demoOrHLTV = findPattern(CLIENT_DLL, "\x84\xC0\x75\x09\x38\x05");
     money = findPattern(CLIENT_DLL, "\x84\xC0\x75\x0C\x5B");
-    demoFileEndReached = findPattern(CLIENT_DLL, "\x8B\xC8\x85\xC9\x74\x1F\x80\x79\x10"); //42
+    demoFileEndReached = findPattern(CLIENT_DLL, "\x8B\xC8\x85\xC9\x74\x1F\x80\x79\x10"); //41
     plantedC4s = *reinterpret_cast<decltype(plantedC4s)*>(findPattern(CLIENT_DLL, "\x7E\x2C\x8B\x15") + 4);
     gameRules = *reinterpret_cast<Entity***>(findPattern(CLIENT_DLL, "\x8B\xEC\x8B\x0D????\x85\xC9\x74\x07") + 4);
     setOrAddAttributeValueByNameFunction = relativeToAbsolute<decltype(setOrAddAttributeValueByNameFunction)>(findPattern(CLIENT_DLL, "\xE8????\x8B\x8D????\x85\xC9\x74\x10") + 1);
@@ -149,7 +148,7 @@ Memory::Memory() noexcept
     memalloc = *reinterpret_cast<MemAlloc**>(GetProcAddress(GetModuleHandleA("tier0.dll"), "g_pMemAlloc"));
     setAbsAngle = reinterpret_cast<decltype(setAbsAngle)>(reinterpret_cast<DWORD*>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x64\x53\x56\x57\x8B\xF1")));
     createState = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\xB9????\xC7");
-    updateState = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x18\x56\x57\x8B\xF9\xF3"); //52
+    updateState = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x18\x56\x57\x8B\xF9\xF3"); //51
     resetState = findPattern(CLIENT_DLL, "\x56\x6A\x01\x68????\x8B\xF1");
     invalidateBoneCache = findPattern(CLIENT_DLL, "\x80\x3D?????\x74\x16\xA1????\x48\xC7\x81");
     isLoadOutAvailable = *(reinterpret_cast<void**>(findPattern(CLIENT_DLL, "\x75\x04\xB0\x01\x5F") - 2));
@@ -159,7 +158,7 @@ Memory::Memory() noexcept
     doExtraBoneProcessing = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x53\x56\x8B\xF1\x57\x89\x74\x24\x1C");
     shouldSkipAnimationFrame = findPattern(CLIENT_DLL, "\x57\x8B\xF9\x8B\x07\x8B\x80????\xFF\xD0\x84\xC0\x75\x02");
     updateClientSideAnimation = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x56\x8B\xF1\x80\xBE?????\x74");
-    checkForSequenceChange = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x57\x85"); //62
+    checkForSequenceChange = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x57\x85"); //61
     modifyEyePosition = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x5C\x53\x8B\xD9\x56\x57\x83");
     lookUpBone = reinterpret_cast<decltype(lookUpBone)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x56\x8B\xF1\x57\x83\xBE\x4C\x29"));
     getBonePos = reinterpret_cast<decltype(getBonePos)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x56\x8B\xF1\x57\x83\xBE\x4C\x29"));
@@ -168,8 +167,7 @@ Memory::Memory() noexcept
     setupVelocity = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x56\x57\x8B\x3D");
     setupMovement = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x56\x57\x8B\x3D????\x8B\xF1");
     setupAliveloop = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x56\x8B\x71\x60\x83\xBE\x8C\x29????\x84\x93????\xB6\x80\x29");
-    preDataUpdate = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\x75\x08\x8B\xD6\x57\x8B\xF9\x8D\x4F\xF8\xF7");
-    postDataUpdate = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x56\x8B\xF1\x57\x80\xBE\x71"); //72
+
     randomSeed = reinterpret_cast<decltype(randomSeed)>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomSeed"));
     randomFloat = reinterpret_cast<decltype(randomFloat)>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomFloat"));
 

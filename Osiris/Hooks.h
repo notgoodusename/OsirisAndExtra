@@ -47,9 +47,6 @@ public:
     MinHook notifyOnLayerChangeWeight;
     MinHook notifyOnLayerChangeCycle;
 
-    MinHook preDataUpdate;
-    MinHook postDataUpdate;
-
     VmtSwap networkChannel; //TODO: use minhook
 
     HookType fileSystem;

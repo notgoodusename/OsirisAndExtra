@@ -69,7 +69,6 @@ public:
     ViewRender* viewRender;
     ViewRenderBeams* viewRenderBeams;
     std::uintptr_t drawScreenEffectMaterial;
-    std::uint8_t* fakePrime;
     std::add_pointer_t<void __cdecl(const char* msg, ...)> debugMsg;
     std::add_pointer_t<void __cdecl(const std::array<std::uint8_t, 4>& color, const char* msg, ...)> conColorMsg;
     float* vignette;
@@ -148,9 +147,6 @@ public:
     std::uintptr_t setupVelocity;
     std::uintptr_t setupMovement;
     std::uintptr_t setupAliveloop;
-
-    std::uintptr_t preDataUpdate;
-    std::uintptr_t postDataUpdate;
 
     std::add_pointer_t<int __cdecl(const int, ...)> randomSeed;
     std::add_pointer_t<float __cdecl(const float, const float, ...)> randomFloat;

@@ -17,7 +17,7 @@ namespace Aimbot
     bool canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept;
     float getScanDamage(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept;
 
-    std::vector<Vector> multiPoint(Entity* entity, matrix3x4 matrix[256], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _multiPoint);
+    std::vector<Vector> multiPoint(Entity* entity, const matrix3x4 matrix[256], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _multiPoint);
 
-    bool hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet*, matrix3x4 matrix[256], Entity* activeWeapon, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept;
+    bool hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet*, const matrix3x4 matrix[256], Entity* activeWeapon, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept;
 }

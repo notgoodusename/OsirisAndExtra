@@ -185,8 +185,10 @@ void Chams::renderPlayer(Entity* player) noexcept
 }
 void Chams::renderDesync(int health) noexcept
 {
-    if (Animations::data.gotMatrix) {
-        for (auto& i : Animations::data.fakematrix)
+    if (Animations::gotFakeMatrix()) 
+    {
+        auto fakeMatrix = Animations::getFakeMatrix();
+        for (auto& i : fakeMatrix)
         {
             i[0][3] += info->origin.x;
             i[1][3] += info->origin.y;
@@ -194,9 +196,9 @@ void Chams::renderDesync(int health) noexcept
         }
         if (!appliedChams)
             hooks->modelRender.callOriginal<void, 21>(ctx, state, info, customBoneToWorld);
-        applyChams(config->chams["Desync"].materials, health, Animations::data.fakematrix);
+        applyChams(config->chams["Desync"].materials, health, fakeMatrix.data());
         interfaces->studioRender->forcedMaterialOverride(nullptr);
-        for (auto& i : Animations::data.fakematrix)
+        for (auto& i : fakeMatrix)
         {
             i[0][3] -= info->origin.x;
             i[1][3] -= info->origin.y;

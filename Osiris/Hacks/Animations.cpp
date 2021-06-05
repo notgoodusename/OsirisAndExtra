@@ -13,7 +13,13 @@
 #include "../SDK/MemAlloc.h"
 #include "../SDK/Input.h"
 
-Animations::Datas Animations::data;
+static std::array<Animations::Players, 65> players{};
+static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
+static bool updatingLocal{ false };
+static bool updatingEntity{ false };
+static bool sendPacket{ true };
+static bool gotMatrix{ false };
+static Vector viewangles{};
 
 void Animations::init() noexcept
 {
@@ -26,13 +32,13 @@ void Animations::init() noexcept
         extrapolate->setValue(0);
 }
 
-void Animations::update(UserCmd* cmd, bool& sendPacket) noexcept
+void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    data.viewangles = cmd->viewangles;
-    data.sendPacket = sendPacket;
+    viewangles = cmd->viewangles;
+    sendPacket = _sendPacket;
     localPlayer->getAnimstate()->buttons = cmd->buttons;
     localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
 }
@@ -67,7 +73,7 @@ void Animations::fake() noexcept
     if (!fakeAnimState)
         return;
 
-    if (data.sendPacket)
+    if (sendPacket)
     {
         std::array<AnimationLayer, 13> layers;
 
@@ -76,15 +82,15 @@ void Animations::fake() noexcept
         auto backupAbs = localPlayer->getAbsAngle();
         auto backupPoses = localPlayer->poseParameters();
 
-        localPlayer->updateState(fakeAnimState, data.viewangles);
+        localPlayer->updateState(fakeAnimState, viewangles);
         memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, 0 });
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
-        data.gotMatrix = localPlayer->setupBones(data.fakematrix, MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
+        gotMatrix = localPlayer->setupBones(fakematrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
         const auto origin = localPlayer->getRenderOrigin();
-        if (data.gotMatrix)
+        if (gotMatrix)
         {
-            for (auto& i : data.fakematrix)
+            for (auto& i : fakematrix)
             {
                 i[0][3] -= origin.x;
                 i[1][3] -= origin.y;
@@ -102,10 +108,10 @@ void Animations::real(FrameStage stage) noexcept
     if (stage != FrameStage::RENDER_START)
         return;
 
-    static std::array<AnimationLayer, 13> layers{};
-
     if (!localPlayer || !localPlayer->isAlive())
         return;
+
+    static std::array<AnimationLayer, 13> layers{};
 
     if(stage == FrameStage::RENDER_START)
     {
@@ -117,26 +123,26 @@ void Animations::real(FrameStage stage) noexcept
         if (oldTick != memory->globalVars->tickCount)
         {
             oldTick = memory->globalVars->tickCount;
-            Animations::data.updating = true;
+            updatingLocal = true;
 
             // allow animations to be animated in the same frame
             if (localPlayer->getAnimstate()->lastUpdateFrame == memory->globalVars->framecount)
                 localPlayer->getAnimstate()->lastUpdateFrame -= 1;
 
-            localPlayer->updateState(localPlayer->getAnimstate(), Animations::data.viewangles);
+            localPlayer->updateState(localPlayer->getAnimstate(), viewangles);
             // updateClientSideAnimation calls animState update, but uses eyeAngles, 
             // note: after updating the animstate lastUpdateFrame will be equal to memory->globalVars->framecount, so it wont be executed
             // so no need to worry about it
             // a better aproach would be too hook eyeAngles an return cmd->viewangles
             localPlayer->updateClientSideAnimation(); 
 
-            if (data.sendPacket)
+            if (sendPacket)
             {
                 std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
                 backupPoses = localPlayer->poseParameters();
                 backupAbs = localPlayer->getAnimstate()->footYaw;
             }
-            Animations::data.updating = false;
+            updatingLocal = false;
             /*
             std::string a =
                 "sequence: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).sequence)
@@ -158,21 +164,21 @@ void Animations::real(FrameStage stage) noexcept
     }
 }
 
-void Animations::players(FrameStage stage) noexcept
+void Animations::handlePlayers(FrameStage stage) noexcept
 {
     if (stage != FrameStage::NET_UPDATE_END)
         return;
 
     if (!localPlayer)
     {
-        for (auto& record : data.player)
+        for (auto& record : players)
             record.clear();
         return;
     }
     for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
     {
         auto entity = interfaces->entityList->getEntity(i);
-        auto& player = data.player[i];
+        auto& player = players.at(i);
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive())
         {
             player.clear();
@@ -187,10 +193,10 @@ void Animations::players(FrameStage stage) noexcept
         memory->globalVars->frametime = memory->globalVars->intervalPerTick;
         memory->globalVars->currenttime = entity->simulationTime();
 
-        if (player.oldSimtime != entity->simulationTime())
+        if (player.simulationTime != entity->simulationTime())
         {
             if (player.lastOrigin.notNull())
-                player.velocity = (entity->origin() - player.lastOrigin) * (1.0f / fabsf(entity->simulationTime() - player.oldSimtime));
+                player.velocity = (entity->origin() - player.lastOrigin) * (1.0f / fabsf(entity->simulationTime() - player.simulationTime));
             player.lastOrigin = entity->origin();
 
             if (entity->flags() & 1
@@ -234,23 +240,47 @@ void Animations::players(FrameStage stage) noexcept
         entity->getEFlags() &= ~0x1000;
         entity->getAbsVelocity() = player.velocity;
 
-        data.update = true;
+        updatingEntity = true;
         entity->updateClientSideAnimation();
-        data.update = false;
+        updatingEntity = false;
 
         std::memcpy(entity->animOverlays(), &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayerCount());
 
         memory->globalVars->frametime = frameTime;
         memory->globalVars->currenttime = currentTime;
 
-        if (player.oldSimtime != entity->simulationTime())
+        if (player.simulationTime != entity->simulationTime())
         {
-            player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.oldSimtime) / memory->globalVars->intervalPerTick) - 1;
-            player.oldSimtime = entity->simulationTime();
-            player.currentSimtime = entity->simulationTime();
+            player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.simulationTime) / memory->globalVars->intervalPerTick) - 1;
+            player.simulationTime = entity->simulationTime();
             player.gotMatrix = entity->setupBones(player.matrix.data(), 256, 0x7FF00, memory->globalVars->currenttime);
             player.mins = entity->getCollideable()->obbMins();
             player.maxs = entity->getCollideable()->obbMaxs();
         }
     }
+}
+
+bool Animations::isLocalUpdating() noexcept
+{
+    return updatingLocal;
+}
+
+bool Animations::isEntityUpdating() noexcept
+{
+    return updatingEntity;
+}
+
+bool Animations::gotFakeMatrix() noexcept
+{
+    return gotMatrix;
+}
+
+std::array<matrix3x4, MAXSTUDIOBONES> Animations::getFakeMatrix() noexcept
+{
+    return fakematrix;
+}
+
+Animations::Players Animations::getPlayer(int index) noexcept
+{
+    return players.at(index);
 }

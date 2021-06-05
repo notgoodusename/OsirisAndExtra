@@ -26,11 +26,6 @@ struct Cvars {
 
 static Cvars cvars;
 
-void copyMatrix(int i, matrix3x4* out)
-{
-    if (out) std::copy(Animations::data.player[i].matrix.begin(), Animations::data.player[i].matrix.end(), out);
-}
-
 float getExtraTicks() noexcept
 {
     auto network = interfaces->engine->getNetworkChannel();
@@ -58,7 +53,9 @@ void Backtrack::update(FrameStage stage) noexcept
             continue;
         }
         
-        if (!Animations::data.player[i].gotMatrix)
+        const auto player = Animations::getPlayer(i);
+
+        if (!player.gotMatrix)
             continue;
 
         if (!records[i].empty() && (records[i].front().simulationTime == entity->simulationTime()))
@@ -69,7 +66,7 @@ void Backtrack::update(FrameStage stage) noexcept
         record.simulationTime = entity->simulationTime();
         record.mins = entity->getCollideable()->obbMins();
         record.maxs = entity->getCollideable()->obbMaxs();
-        copyMatrix(i, record.matrix);
+        std::copy(player.matrix.begin(), player.matrix.end(), record.matrix);
 
         records[i].push_front(record);
         

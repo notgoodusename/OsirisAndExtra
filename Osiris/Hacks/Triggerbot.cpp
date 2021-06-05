@@ -106,7 +106,9 @@ void Triggerbot::run(UserCmd* cmd) noexcept
     if (trace.entity->gunGameImmunity())
         return;
 
-    if (!Animations::data.player[trace.entity->index()].gotMatrix || !Animations::data.player[trace.entity->index()].currentSimtime)
+    const auto player = Animations::getPlayer(trace.entity->index());
+
+    if (!player.gotMatrix || !player.simulationTime)
         return;
 
     const Model* model = trace.entity->getModel();
@@ -121,6 +123,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
     if (!set)
         return;
 
+
     float damage = -1;
     bool hitchance = false;
     for (int x = 0; x < Hitboxes::Max; x++)
@@ -132,7 +135,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             continue;
 
         damage = (activeWeapon->itemDefinitionIndex2() != WeaponId::Taser ? HitGroup::getDamageMultiplier(trace.hitgroup) : 1.0f) * weaponData->damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
-        hitchance = Aimbot::hitChance(localPlayer.get(), trace.entity, set, Animations::data.player[trace.entity->index()].matrix.data(), activeWeapon, Aimbot::calculateRelativeAngle(startPos, trace.endpos, cmd->viewangles + aimPunch), cmd, cfg.hitChance);
+        hitchance = Aimbot::hitChance(localPlayer.get(), trace.entity, set, player.matrix.data(), activeWeapon, Aimbot::calculateRelativeAngle(startPos, trace.endpos, cmd->viewangles + aimPunch), cmd, cfg.hitChance);
     }
 
     if (damage <= -1 || !hitchance)
@@ -143,7 +146,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
 
     if (damage >= (cfg.killshot ? trace.entity->health() : cfg.minDamage)) {
         cmd->buttons |= UserCmd::IN_ATTACK;
-        cmd->tickCount = timeToTicks(Animations::data.player[trace.entity->index()].currentSimtime + Backtrack::getLerp());
+        cmd->tickCount = timeToTicks(player.simulationTime + Backtrack::getLerp());
         lastTime = 0.0f;
     }
 }

@@ -128,15 +128,16 @@ void Ragebot::run(UserCmd* cmd) noexcept
     for (const auto& target : enemies) 
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
+        const auto player = Animations::getPlayer(target.id);
 
         auto backupBoneCache = entity->getCachedBoneData();
         auto backupMins = entity->getCollideable()->obbMins();
         auto backupMaxs = entity->getCollideable()->obbMaxs();
         auto backupOrigin = entity->getAbsOrigin();
 
-        memcpy(entity->getCachedBoneData(), Animations::data.player[target.id].matrix.data(), std::clamp(entity->getCachedBoneDataAmount(), 0, 256) * sizeof(matrix3x4));
-        memory->setAbsOrigin(entity, Animations::data.player[target.id].lastOrigin);
-        memory->setCollisionBounds(entity->getCollideable(), Animations::data.player[target.id].mins, Animations::data.player[target.id].maxs);
+        memcpy(entity->getCachedBoneData(), player.matrix.data(), std::clamp(entity->getCachedBoneDataAmount(), 0, 256) * sizeof(matrix3x4));
+        memory->setAbsOrigin(entity, player.lastOrigin);
+        memory->setCollisionBounds(entity->getCollideable(), player.mins, player.maxs);
 
         const Model* model = entity->getModel();
         if (!model)
@@ -159,7 +160,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!hitbox)
                 continue;
 
-            for (auto &bonePosition : Aimbot::multiPoint(entity, Animations::data.player[target.id].matrix.data(), hitbox, localPlayerEyePosition, i, cfg[weaponIndex].multiPoint))
+            for (auto &bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, i, cfg[weaponIndex].multiPoint))
             {
                 const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
                 const auto fov{ angle.length2D() };
@@ -213,7 +214,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         if (bestTarget.notNull())
         {
-            if (!Aimbot::hitChance(localPlayer.get(), entity, set, Animations::data.player[target.id].matrix.data(), activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
+            if (!Aimbot::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
             {
                 bestTarget = Vector{ };
                 bestSimulationTime = 0;

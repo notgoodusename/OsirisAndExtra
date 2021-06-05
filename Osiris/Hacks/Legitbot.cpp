@@ -98,6 +98,8 @@ void Legitbot::run(UserCmd* cmd) noexcept
             if (!set)
                 continue;
 
+            const auto player = Animations::getPlayer(i);
+
             for (size_t j = 0; j < hitbox.size(); j++)
             {
                 if (!hitbox[j])
@@ -107,7 +109,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
                 if (!hitbox)
                     continue;
 
-                for (auto& bonePosition : Aimbot::multiPoint(entity, Animations::data.player[i].matrix.data(), hitbox, localPlayerEyePosition, j, 0))
+                for (auto& bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, j, 0))
                 {
                     const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
                     const auto fov{ angle.length2D() };

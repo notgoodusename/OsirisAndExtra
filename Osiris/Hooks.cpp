@@ -342,7 +342,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::applyZoom(stage);
         SkinChanger::run(stage);
         Animations::real(stage);
-        Animations::players(stage);
+        Animations::handlePlayers(stage);
         Backtrack::update(stage);
     }
     hooks->client.callOriginal<void, 37>(stage);
@@ -562,12 +562,12 @@ void __fastcall updateClientSideAnimationHook(void* thisPointer, void* edx) noex
 
     if (entity != localPlayer.get())
     {
-        if (Animations::data.update)
+        if (Animations::isEntityUpdating())
             return original(thisPointer);
     }
     else if (entity == localPlayer.get())
     {
-        if (Animations::data.updating)
+        if (Animations::isLocalUpdating())
             return original(thisPointer);
     }
 }

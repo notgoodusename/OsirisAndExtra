@@ -19,7 +19,13 @@ namespace Animations
 	void real(FrameStage) noexcept;
 	void fake() noexcept;
 
-	void players(FrameStage) noexcept;
+	void handlePlayers(FrameStage) noexcept;
+
+	bool isLocalUpdating() noexcept;
+	bool isEntityUpdating() noexcept;
+
+	bool gotFakeMatrix() noexcept;
+	std::array<matrix3x4, MAXSTUDIOBONES> getFakeMatrix() noexcept;
 
 	struct Players
 	{
@@ -34,32 +40,20 @@ namespace Animations
 		Vector lastOrigin{};
 		Vector velocity{};
 
-		float oldSimtime{ 0.f };
-		float currentSimtime{ 0.f };
+		float simulationTime{ 0.f };
 		int chokedPackets{ 0 };
 		bool gotMatrix{ false };
 
 		void clear()
 		{
-			oldSimtime = 0;
-			currentSimtime = 0;
+			simulationTime = 0.f;
 			chokedPackets = 0;
 			gotMatrix = false;
 			lastOrigin = Vector{};
 			velocity = Vector{};
+			mins = Vector{};
+			maxs = Vector{};
 		}
 	};
-
-	struct Datas
-	{
-		std::array<AnimationLayer, 13> layers{};
-		bool update{ false };
-		bool updating{ false };
-		bool sendPacket{ true };
-		bool gotMatrix{ false };
-		Vector viewangles{};
-		matrix3x4 fakematrix[MAXSTUDIOBONES]{};
-		std::array<Players, 65> player;
-	};
-	extern Datas data;
+	Players getPlayer(int index) noexcept;
 }

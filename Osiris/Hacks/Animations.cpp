@@ -137,6 +137,20 @@ void Animations::real(FrameStage stage) noexcept
                 backupAbs = localPlayer->getAnimstate()->footYaw;
             }
             Animations::data.updating = false;
+            /*
+            std::string a =
+                "sequence: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).sequence)
+                + "\n" + "order: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).order)
+                + "\n" + "prevCycle: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).prevCycle)
+                + "\n" + "weight" + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).weight)
+                + "\n" + "weightDeltaRate: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).weightDeltaRate)
+                + "\n" + "playbackRate: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).playbackRate)
+                + "\n" + "cyle: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).cycle)
+                + "\n" + "moveWeight: " + std::to_string(localPlayer->getAnimstate()->moveWeight)
+                + "\n" + "primaryCycle: " + std::to_string(localPlayer->getAnimstate()->primaryCycle);
+            memory->debugMsg(a.c_str());
+            memory->debugMsg("\n");
+            */
         }
         memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs,0 });
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());

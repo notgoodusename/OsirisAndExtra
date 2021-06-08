@@ -145,14 +145,14 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
     return hooks->originalReset(device, params);
 }
 
-int __stdcall getUnverifiedFileHashes(void* thisPointer, int maxFiles)
+static int __stdcall getUnverifiedFileHashes(void* thisPointer, int maxFiles)
 {
     if (config->misc.svPureBypass)
         return 0;
     return hooks->fileSystem.callOriginal<int, 101>(thisPointer, maxFiles);
 }
 
-int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexcept
+static int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexcept
 {
     if (config->misc.svPureBypass)
         return 1;
@@ -528,12 +528,12 @@ static void __stdcall onJump(float stamina) noexcept
         localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_JUMP);
 }
 
-void __fastcall doExtraBoneProcessingHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, const matrix3x4& matrix, uint8_t* bone_list, void* context) noexcept
+static void __fastcall doExtraBoneProcessingHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, const matrix3x4& matrix, uint8_t* bone_list, void* context) noexcept
 {
     return;
 }
 
-void __fastcall standardBlendingRulesHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, float currentTime, int boneMask) noexcept
+static void __fastcall standardBlendingRulesHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, float currentTime, int boneMask) noexcept
 {
     static auto original = hooks->standardBlendingRules.getOriginal<void>(hdr, pos, q, currentTime, boneMask);
 
@@ -546,12 +546,12 @@ void __fastcall standardBlendingRulesHook(void* thisPointer, void* edx, void* hd
     entity->getEffects() &= ~8;
 }
 
-bool __fastcall shouldSkipAnimationFrameHook(void* thisPointer, void* edx) noexcept
+static bool __fastcall shouldSkipAnimationFrameHook(void* thisPointer, void* edx) noexcept
 {
     return false;
 }
 
-void __fastcall updateClientSideAnimationHook(void* thisPointer, void* edx) noexcept
+static void __fastcall updateClientSideAnimationHook(void* thisPointer, void* edx) noexcept
 {
     static auto original = hooks->updateClientSideAnimation.getOriginal<void>();
 
@@ -572,14 +572,14 @@ void __fastcall updateClientSideAnimationHook(void* thisPointer, void* edx) noex
     }
 }
 
-void __fastcall checkForSequenceChangeHook(void* thisPointer, void* edx, void* hdr, int curSequence, bool forceNewSequence, bool interpolate) noexcept
+static void __fastcall checkForSequenceChangeHook(void* thisPointer, void* edx, void* hdr, int curSequence, bool forceNewSequence, bool interpolate) noexcept
 {
     static auto original = hooks->checkForSequenceChange.getOriginal<void>(hdr, curSequence, forceNewSequence, interpolate);
 
     return original(thisPointer, hdr, curSequence, forceNewSequence, false);
 }
 
-void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, Vector& pos) noexcept
+static void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, Vector& pos) noexcept
 {
     using modifyEyePositionFn = void(__thiscall*)(void*, Vector&);
     static auto original = (modifyEyePositionFn)hooks->modifyEyePosition.getDetour();
@@ -607,7 +607,7 @@ void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, Vector& pos)
     }
 }
 
-void __fastcall calculateViewHook(void* thisPointer, void* edx, Vector& eyeOrigin, Vector& eyeAngles, float& zNear, float& zFar, float& fov) noexcept
+static void __fastcall calculateViewHook(void* thisPointer, void* edx, Vector& eyeOrigin, Vector& eyeAngles, float& zNear, float& zFar, float& fov) noexcept
 {
     using calculateViewFn = void(__thiscall*)(void*, Vector&, Vector&, float&, float&, float&);
     static auto original = (calculateViewFn)hooks->calculateView.getDetour();
@@ -626,7 +626,7 @@ void __fastcall calculateViewHook(void* thisPointer, void* edx, Vector& eyeOrigi
     entity->useNewAnimationState() = oldUseNewAnimationState;
 }
 
-void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, float y, float x, void* unknown1) noexcept
+static void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, float y, float x, void* unknown1) noexcept
 {
     using updateStateFn = void(__vectorcall*)(void*, void*, float, float, float, void*);
     static auto original = (updateStateFn)hooks->updateState.getDetour();
@@ -645,7 +645,7 @@ void __vectorcall updateStateHook(void* thisPointer, void* unknown, float z, flo
     return original(thisPointer, unknown, z, y, x, unknown1);
 }
 
-void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
+static void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
 {
     static auto original = hooks->resetState.getOriginal<void>();
 
@@ -665,7 +665,7 @@ void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
     return original(thisPointer);
 }
 
-void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
+static void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
 {
     static auto original = hooks->setupVelocity.getOriginal<void>();
 
@@ -678,7 +678,7 @@ void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
     animState->setupVelocity();
 }
 
-void __fastcall setupMovementHook(void* thisPointer, void* edx) noexcept
+static void __fastcall setupMovementHook(void* thisPointer, void* edx) noexcept
 {
     static auto original = hooks->setupMovement.getOriginal<void>();
 
@@ -691,7 +691,7 @@ void __fastcall setupMovementHook(void* thisPointer, void* edx) noexcept
     animState->setupMovement();
 }
 
-void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
+static void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
 {
     static auto original = hooks->setupAliveloop.getOriginal<void>();
 
@@ -704,7 +704,7 @@ void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
     animState->setupAliveLoop();
 }
 
-void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void* layer, const float newWeight) noexcept
+static void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void* layer, const float newWeight) noexcept
 {
     static auto original = hooks->notifyOnLayerChangeWeight.getOriginal<void>(layer, newWeight);
 
@@ -714,7 +714,7 @@ void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void
     return;
 }
 
-void __fastcall notifyOnLayerChangeCycleHook(void* thisPointer, void* edx, void* layer, const float newCycle) noexcept
+static void __fastcall notifyOnLayerChangeCycleHook(void* thisPointer, void* edx, void* layer, const float newCycle) noexcept
 {
     static auto original = hooks->notifyOnLayerChangeCycle.getOriginal<void>(layer, newCycle);
 

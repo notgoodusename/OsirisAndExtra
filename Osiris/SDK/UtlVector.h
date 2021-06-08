@@ -3,31 +3,33 @@
 #include "../Memory.h"
 
 template <typename T>
-void destruct(T* memory) {
+void destruct(T* memory) noexcept
+{
     memory->~T();
 }
 
 template <typename T>
-T* construct(T* memory) {
+T* construct(T* memory) noexcept
+{
     return ::new(memory) T;
 }
 
-inline int utlMemoryCalcNewAllocationcount(int nAllocationcount, int nGrowSize, int nNewSize, int nBytesItem) 
+inline int utlMemoryCalcNewAllocationcount(int allocationcount, int growSize, int newSize, int bytesItem) noexcept
 {
-	if (nGrowSize) {
-		nAllocationcount = ((1 + ((nNewSize - 1) / nGrowSize)) * nGrowSize);
+	if (growSize) {
+		allocationcount = ((1 + ((newSize - 1) / growSize)) * growSize);
 	}
 	else {
-		if (!nAllocationcount) {
-			nAllocationcount = (31 + nBytesItem) / nBytesItem;
+		if (!allocationcount) {
+			allocationcount = (31 + bytesItem) / bytesItem;
 		}
 
-		while (nAllocationcount < nNewSize) {
-			nAllocationcount *= 2;
+		while (allocationcount < newSize) {
+			allocationcount *= 2;
 		}
 	}
 
-	return nAllocationcount;
+	return allocationcount;
 }
 
 template <typename T>

@@ -708,9 +708,7 @@ void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void
 {
     static auto original = hooks->notifyOnLayerChangeWeight.getOriginal<void>(layer, newWeight);
 
-    auto animState = reinterpret_cast<AnimState*>(thisPointer);
-
-    auto entity = reinterpret_cast<Entity*>(animState->player);
+    auto entity = reinterpret_cast<Entity*>(thisPointer);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, layer, newWeight);
     return;
@@ -720,9 +718,7 @@ void __fastcall notifyOnLayerChangeCycleHook(void* thisPointer, void* edx, void*
 {
     static auto original = hooks->notifyOnLayerChangeCycle.getOriginal<void>(layer, newCycle);
 
-    auto animState = reinterpret_cast<AnimState*>(thisPointer);
-
-    auto entity = reinterpret_cast<Entity*>(animState->player);
+    auto entity = reinterpret_cast<Entity*>(thisPointer);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, layer, newCycle);
     return;

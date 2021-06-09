@@ -601,8 +601,12 @@ static void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, Vecto
 
         if (bonePos.z < pos.z)
         {
-            float tmp = std::clamp((fabsf(pos.z - bonePos.z) - 4.0f) * (1.0f / 6.0f), 0.0f, 1.0f);
-            pos.z += ((bonePos.z - pos.z) * (((powf(tmp, 2) * -2.0f) * tmp) + (3.0f * powf(tmp, 2))));
+            float lerpFraction = Helpers::simpleSplineRemapValClamped(fabsf(pos.z - bonePos.z),
+                FIRSTPERSON_TO_THIRDPERSON_VERTICAL_TOLERANCE_MIN,
+                FIRSTPERSON_TO_THIRDPERSON_VERTICAL_TOLERANCE_MAX,
+                0.0f, 1.0f);
+
+            pos.z = Helpers::lerp(lerpFraction, pos.z, bonePos.z);
         }
     }
 }

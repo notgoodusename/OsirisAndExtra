@@ -21,6 +21,30 @@ static auto rainbowColor(float time, float speed, float alpha) noexcept
                        alpha };
 }
 
+float Helpers::simpleSpline(float value) noexcept
+{
+    float valueSquared = value * value;
+
+    return (3 * valueSquared - 2 * valueSquared * value);
+}
+
+float Helpers::simpleSplineRemapVal(float val, float A, float B, float C, float D) noexcept
+{
+    if (A == B)
+        return val >= B ? D : C;
+    float cVal = (val - A) / (B - A);
+    return C + (D - C) * simpleSpline(cVal);
+}
+
+float Helpers::simpleSplineRemapValClamped(float val, float A, float B, float C, float D) noexcept
+{
+    if (A == B)
+        return val >= B ? D : C;
+    float cVal = (val - A) / (B - A);
+    cVal = std::clamp(cVal, 0.0f, 1.0f);
+    return C + (D - C) * simpleSpline(cVal);
+}
+
 float Helpers::lerp(float percent, float a, float b) noexcept
 {
     return a + (b - a) * percent;

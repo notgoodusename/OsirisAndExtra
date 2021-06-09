@@ -544,12 +544,14 @@ public:
     NETVAR(reserveAmmoCount, "CBaseCombatWeapon", "m_iPrimaryReserveAmmoCount", int)
     NETVAR(nextPrimaryAttack, "CBaseCombatWeapon", "m_flNextPrimaryAttack", float)
     NETVAR(nextSecondaryAttack, "CBaseCombatWeapon", "m_flNextSecondaryAttack", float)
-    NETVAR(readyTime, "CBaseCombatWeapon", "m_flPostponeFireReadyTime", float)
-    NETVAR(burstMode, "CBaseCombatWeapon", "m_bBurstMode", bool)
-    NETVAR(burstShotRemaining, "CBaseCombatWeapon", "m_iBurstShotsRemaining", int)
     NETVAR(recoilIndex, "CBaseCombatWeapon", "m_flRecoilIndex", float)
 
     NETVAR(nextAttack, "CBaseCombatCharacter", "m_flNextAttack", float)
+
+    NETVAR(readyTime, "CWeaponCSBase", "m_flPostponeFireReadyTime", float)
+    NETVAR(burstMode, "CWeaponCSBase", "m_bBurstMode", bool)
+
+    NETVAR(burstShotRemaining, "CWeaponCSBaseGun", "m_iBurstShotsRemaining", int)
 
     NETVAR(accountID, "CBaseAttributableItem", "m_iAccountID", int)
     NETVAR(itemDefinitionIndex, "CBaseAttributableItem", "m_iItemDefinitionIndex", short)

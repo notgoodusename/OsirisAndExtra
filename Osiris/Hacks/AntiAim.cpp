@@ -290,7 +290,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if ((*memory->gameRules)->freezePeriod())
         return false;
 
-    auto activeWeapon = localPlayer.get()->getActiveWeapon();
+    auto activeWeapon = localPlayer->getActiveWeapon();
     if (!activeWeapon || !activeWeapon->clip())
         return true;
 
@@ -303,7 +303,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto() || localPlayer->waitForNoAttack())
         return true;
 
-    if (localPlayer.get()->nextAttack() > memory->globalVars->serverTime())
+    if (localPlayer->nextAttack() > memory->globalVars->serverTime())
         return true;
 
     if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
@@ -312,7 +312,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if (activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
         return true;
 
-    if (localPlayer.get()->nextAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
+    if (localPlayer->nextAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))
         return false;
 
     if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && (cmd->buttons & (UserCmd::IN_ATTACK)))

@@ -268,6 +268,12 @@ void AntiAim::updateInput() noexcept
 
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
+    if (cmd->buttons & (UserCmd::IN_USE))
+        return;
+
+    if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
+        return;
+
     if (config->legitAntiAim.enabled)
         AntiAim::legit(cmd, previousViewAngles, currentViewAngles, sendPacket);
     else if (config->rageAntiAim.enabled || config->fakeAngle.enabled)
@@ -280,12 +286,6 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
         return false;
     
     updateLby(true); //Update lby timer
-    
-    if (cmd->buttons & (UserCmd::IN_USE))
-        return false;
-
-    if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
-        return false;
 
     if ((*memory->gameRules)->freezePeriod())
         return false;

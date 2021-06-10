@@ -20,6 +20,14 @@ void AnimState::setupVelocity() noexcept
     }
     */
 
+    //this is a hack to fix shuffling animations due to rounding errors, not part of actual game code
+    if (fabsf(vecAbsVelocity.x) < 0.001)
+        vecAbsVelocity.x = 0.0f;
+    if (fabsf(vecAbsVelocity.y) < 0.001)
+        vecAbsVelocity.y = 0.0f;
+    if (fabsf(vecAbsVelocity.z) < 0.001)
+        vecAbsVelocity.z = 0.0f;
+
     // save vertical velocity component
     velocityLengthZ = vecAbsVelocity.z;
 
@@ -124,8 +132,6 @@ void AnimState::setupVelocity() noexcept
     {
         footYaw = Helpers::approachAngle(eyeYaw, footYaw, lastUpdateIncrement * (30.0f + 20.0f * walkToRunTransition));
         lowerBodyRealignTimer = lastUpdateTime + (CSGO_ANIM_LOWER_REALIGN_DELAY * 0.2f);
-        if (entity->lby() != eyeYaw)
-            entity->lby() = eyeYaw;
     }
     else
     {
@@ -134,8 +140,6 @@ void AnimState::setupVelocity() noexcept
         if (lastUpdateTime > lowerBodyRealignTimer && fabsf(Helpers::angleDiff(footYaw, eyeYaw)) > 35.0f)
         {
             lowerBodyRealignTimer = lastUpdateTime + CSGO_ANIM_LOWER_REALIGN_DELAY;
-            if (entity->lby() != eyeYaw)
-                entity->lby() = eyeYaw;
         }
     }
 

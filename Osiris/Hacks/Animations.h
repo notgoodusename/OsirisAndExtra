@@ -23,6 +23,7 @@ namespace Animations
 
 	bool isLocalUpdating() noexcept;
 	bool isEntityUpdating() noexcept;
+	bool isFakeUpdating() noexcept;
 
 	bool gotFakeMatrix() noexcept;
 	std::array<matrix3x4, MAXSTUDIOBONES> getFakeMatrix() noexcept;

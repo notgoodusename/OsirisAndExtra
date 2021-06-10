@@ -663,8 +663,6 @@ static void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
     animState->deployRateLimiting = false;
     animState->jumping = false;
     animState->buttons = 0;
-    if(localPlayer && entity == localPlayer.get())
-        entity->lby() = 0.f;
 
     return original(thisPointer);
 }
@@ -677,6 +675,9 @@ static void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
 
     auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer);
+
+    if(Animations::isFakeUpdating())
         return original(thisPointer);
 
     animState->setupVelocity();
@@ -692,6 +693,9 @@ static void __fastcall setupMovementHook(void* thisPointer, void* edx) noexcept
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer);
 
+    if (Animations::isFakeUpdating())
+        return original(thisPointer);
+
     animState->setupMovement();
 }
 
@@ -703,6 +707,9 @@ static void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
 
     auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer);
+
+    if (Animations::isFakeUpdating())
         return original(thisPointer);
 
     animState->setupAliveLoop();

@@ -17,6 +17,7 @@ static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
 static bool updatingLocal{ false };
 static bool updatingEntity{ false };
+static bool updatingFake{ false };
 static bool sendPacket{ true };
 static bool gotMatrix{ false };
 static Vector viewangles{};
@@ -75,6 +76,8 @@ void Animations::fake() noexcept
 
     if (sendPacket)
     {
+        updatingFake = true;
+
         std::array<AnimationLayer, 13> layers;
 
         std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
@@ -100,6 +103,7 @@ void Animations::fake() noexcept
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
         localPlayer->poseParameters() = backupPoses;
         memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
+        updatingFake = false;
     }
 }
 
@@ -268,6 +272,11 @@ bool Animations::isLocalUpdating() noexcept
 bool Animations::isEntityUpdating() noexcept
 {
     return updatingEntity;
+}
+
+bool Animations::isFakeUpdating() noexcept
+{
+    return updatingFake;
 }
 
 bool Animations::gotFakeMatrix() noexcept

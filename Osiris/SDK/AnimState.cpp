@@ -357,18 +357,18 @@ void AnimState::setupMovement() noexcept
     if (velocityLengthXY > 0.f)
     {
         moveCycleRate = entity->getSequenceCycleRate(entity->getModelPtr(), weaponMoveSeq);
-        float flSequenceGroundSpeed = std::fmaxf(entity->getSequenceMoveDist(entity->getModelPtr(), weaponMoveSeq) / (1.0f / moveCycleRate), 0.001f);
-        moveCycleRate *= velocityLengthXY / flSequenceGroundSpeed;
+        float sequenceGroundSpeed = std::fmaxf(entity->getSequenceMoveDist(entity->getModelPtr(), weaponMoveSeq) / (1.0f / moveCycleRate), 0.001f);
+        moveCycleRate *= velocityLengthXY / sequenceGroundSpeed;
 
         moveCycleRate *= Helpers::lerp(walkToRunTransition, 1.0f, CSGO_ANIM_RUN_ANIM_PLAYBACK_MULTIPLIER);
     }
 
-    float flLocalCycleIncrement = (moveCycleRate * lastUpdateIncrement);
+    float localCycleIncrement = (moveCycleRate * lastUpdateIncrement);
 
-    primaryCycle = Helpers::clampCycle(primaryCycle + flLocalCycleIncrement);
+    primaryCycle = Helpers::clampCycle(primaryCycle + localCycleIncrement);
 
     moveWeightWithAirSmooth = std::clamp(moveWeightWithAirSmooth, 0.f, 1.f);
-    updateAnimLayer(ANIMATION_LAYER_MOVEMENT_MOVE, weaponMoveSeq, flLocalCycleIncrement, moveWeightWithAirSmooth, primaryCycle);
+    updateAnimLayer(ANIMATION_LAYER_MOVEMENT_MOVE, weaponMoveSeq, localCycleIncrement, moveWeightWithAirSmooth, primaryCycle);
 
     // blend in a strafe direction-change pose when the player changes strafe dir
 

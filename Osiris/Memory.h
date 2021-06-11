@@ -166,7 +166,6 @@ public:
     bool(__thiscall* initPoseParameter)(void*, void*, const char*); //char __thiscall InitPoseParameter(_DWORD *poseParameter, int player, int name)
     std::uintptr_t studioSetPoseParameter;
     std::uintptr_t notifyOnLayerChangeWeight;
-    std::uintptr_t notifyOnLayerChangeCycle;
     void(__thiscall* calcAbsoluteVelocity)(void*);
 
     void*(__thiscall* utilPlayerByIndex)(int);

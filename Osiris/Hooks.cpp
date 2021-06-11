@@ -725,16 +725,6 @@ static void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* ed
     return;
 }
 
-static void __fastcall notifyOnLayerChangeCycleHook(void* thisPointer, void* edx, void* layer, const float newCycle) noexcept
-{
-    static auto original = hooks->notifyOnLayerChangeCycle.getOriginal<void>(layer, newCycle);
-
-    auto entity = reinterpret_cast<Entity*>(thisPointer);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, layer, newCycle);
-    return;
-}
-
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -777,7 +767,6 @@ void Hooks::install() noexcept
     setupAliveloop.detour(memory->setupAliveloop, setupAliveloopHook);
 
     notifyOnLayerChangeWeight.detour(memory->notifyOnLayerChangeWeight, notifyOnLayerChangeWeightHook);
-    notifyOnLayerChangeCycle.detour(memory->notifyOnLayerChangeCycle, notifyOnLayerChangeCycleHook);
     
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 

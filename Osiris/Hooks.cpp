@@ -725,6 +725,63 @@ static void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* ed
     return;
 }
 
+static std::array<AnimationLayer, 13> layers{};
+
+//TODO: find a way to ignore networked data
+static void __fastcall preDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
+{
+    static auto original = hooks->preDataUpdate.getOriginal<void>(updateType);
+
+    auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
+    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, updateType);
+
+    std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+
+    return original(thisPointer, updateType);
+}
+
+static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
+{
+    static auto original = hooks->postDataUpdate.getOriginal<void>(updateType);
+
+    auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
+    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, updateType);
+
+    std::array<AnimationLayer, 13> currentLayers{};
+
+    std::memcpy(&currentLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+
+    for (int i = 0; i < 13; i++)
+    {
+        AnimationLayer _curLayer = currentLayers.at(i);
+        AnimationLayer _prevLayer = layers.at(i);
+        if (_curLayer.order != _prevLayer.order
+            || _curLayer.sequence != _prevLayer.sequence
+            || _curLayer.prevCycle != _prevLayer.prevCycle
+            || _curLayer.weight != _prevLayer.weight
+            || _curLayer.weightDeltaRate != _prevLayer.weightDeltaRate
+            || _curLayer.playbackRate != _prevLayer.playbackRate
+            || _curLayer.cycle != _prevLayer.cycle)
+        {
+            auto& layer = *entity->getAnimationLayer(i);
+            if (&layer)
+            {
+                layer.order = _prevLayer.order;
+                layer.sequence = _prevLayer.sequence;
+                layer.prevCycle = _prevLayer.prevCycle;
+                layer.weight = _prevLayer.weight;
+                layer.weightDeltaRate = _prevLayer.weightDeltaRate;
+                layer.playbackRate = _prevLayer.playbackRate;
+                layer.cycle = _prevLayer.cycle;
+            }
+        }
+    }
+
+    return original(thisPointer, updateType);
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);

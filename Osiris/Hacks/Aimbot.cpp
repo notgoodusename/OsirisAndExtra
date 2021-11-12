@@ -24,21 +24,25 @@ static bool traceToExit(const Trace& enterTrace, const Vector& start, const Vect
     bool result = false;
     const auto traceToExitFn = memory->traceToExit;
     __asm {
+        push 0
+        push 0
+        push 0
         push exitTrace
         mov eax, direction
-        push [eax]Vector.z
-        push [eax]Vector.y
-        push [eax]Vector.x
+        push[eax]Vector.z
+        push[eax]Vector.y
+        push[eax]Vector.x
         mov eax, start
-        push [eax]Vector.z
-        push [eax]Vector.y
-        push [eax]Vector.x
+        push[eax]Vector.z
+        push[eax]Vector.y
+        push[eax]Vector.x
         mov edx, enterTrace
         mov ecx, end
         call traceToExitFn
-        add esp, 28
+        add esp, 40
         mov result, al
     }
+
     return result;
 }
 
@@ -58,7 +62,8 @@ static float handleBulletPenetration(SurfaceData* enterSurfaceData, const Trace&
     if (enterSurfaceData->material == 71 || enterSurfaceData->material == 89) {
         damageModifier = 0.05f;
         penetrationModifier = 3.0f;
-    } else if (enterTrace.contents >> 3 & 1 || enterTrace.surface.flags >> 7 & 1) {
+    }
+    else if (enterTrace.contents >> 3 & 1 || enterTrace.surface.flags >> 7 & 1) {
         penetrationModifier = 1.0f;
     }
 
@@ -99,7 +104,7 @@ bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo
             break;
 
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+            damage = HitGroup::getDamageMultiplier(trace.hitgroup) * damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
 
             if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet()))
                 damage -= (trace.entity->armor() < damage * armorRatio / 2.0f ? trace.entity->armor() * 4.0f : damage) * (1.0f - armorRatio);

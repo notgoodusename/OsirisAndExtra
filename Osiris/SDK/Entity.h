@@ -102,38 +102,38 @@ public:
         VIRTUAL_METHOD(datamap*, getDataDescMap, 15, (), (this))
         VIRTUAL_METHOD(datamap*, getPredDescMap, 17, (), (this))
         VIRTUAL_METHOD(void, setModelIndex, 75, (int index), (this, index))
-        VIRTUAL_METHOD(bool, getAttachment, 83, (int index, Vector& origin), (this, index, std::ref(origin)))
-        VIRTUAL_METHOD(Team, getTeamNumber, 87, (), (this))
-        VIRTUAL_METHOD(int, health, 121, (), (this))
-        VIRTUAL_METHOD(bool, isAlive, 155, (), (this))
-        VIRTUAL_METHOD(bool, isPlayer, 157, (), (this))
-        VIRTUAL_METHOD(bool, isWeapon, 165, (), (this))
-        VIRTUAL_METHOD(Entity*, getActiveWeapon, 267, (), (this))
-        VIRTUAL_METHOD(int, getWeaponSubType, 281, (), (this))
-        VIRTUAL_METHOD(ObsMode, getObserverMode, 293, (), (this))
-        VIRTUAL_METHOD(Entity*, getObserverTarget, 294, (), (this))
-        VIRTUAL_METHOD(float, getMaxSpeed, 441, (), (this))
-        VIRTUAL_METHOD(WeaponType, getWeaponType, 454, (), (this))
-        VIRTUAL_METHOD(WeaponInfo*, getWeaponData, 460, (), (this))
-        VIRTUAL_METHOD(int, getMuzzleAttachmentIndex1stPerson, 467, (Entity* viewModel), (this, viewModel))
-        VIRTUAL_METHOD(int, getMuzzleAttachmentIndex3rdPerson, 468, (), (this))
-        VIRTUAL_METHOD(float, getInaccuracy, 482, (), (this))
-        VIRTUAL_METHOD(float, getSpread, 452, (), (this))
-        VIRTUAL_METHOD(float, getSequenceCycleRate, 221, (CStudioHdr* studioHdr, int sequence), (this, studioHdr, sequence))
-        VIRTUAL_METHOD(float, getLayerSequenceCycleRate, 222, (AnimationLayer* layer, int sequence), (this, layer, sequence))
-        VIRTUAL_METHOD(void, updateClientSideAnimation, 223, (), (this))
+        VIRTUAL_METHOD(bool, getAttachment, 84, (int index, Vector& origin), (this, index, std::ref(origin)))
+        VIRTUAL_METHOD(Team, getTeamNumber, 88, (), (this))
+        VIRTUAL_METHOD(int, health, 122, (), (this))
+        VIRTUAL_METHOD(bool, isAlive, 156, (), (this))
+        VIRTUAL_METHOD(bool, isPlayer, 158, (), (this))
+        VIRTUAL_METHOD(bool, isWeapon, 166, (), (this))
+        VIRTUAL_METHOD(Entity*, getActiveWeapon, 268, (), (this))
+        VIRTUAL_METHOD(int, getWeaponSubType, 282, (), (this))
+        VIRTUAL_METHOD(ObsMode, getObserverMode, 294, (), (this))
+        VIRTUAL_METHOD(Entity*, getObserverTarget, 295, (), (this))
+        VIRTUAL_METHOD(float, getMaxSpeed, 442, (), (this))
+        VIRTUAL_METHOD(WeaponType, getWeaponType, 455, (), (this))
+        VIRTUAL_METHOD(WeaponInfo*, getWeaponData, 461, (), (this))
+        VIRTUAL_METHOD(int, getMuzzleAttachmentIndex1stPerson, 468, (Entity* viewModel), (this, viewModel))
+        VIRTUAL_METHOD(int, getMuzzleAttachmentIndex3rdPerson, 469, (), (this))
+        VIRTUAL_METHOD(float, getInaccuracy, 483, (), (this))
+        VIRTUAL_METHOD(float, getSpread, 453, (), (this))
+        VIRTUAL_METHOD(float, getSequenceCycleRate, 222, (CStudioHdr* studioHdr, int sequence), (this, studioHdr, sequence))
+        VIRTUAL_METHOD(float, getLayerSequenceCycleRate, 223, (AnimationLayer* layer, int sequence), (this, layer, sequence))
+        VIRTUAL_METHOD(void, updateClientSideAnimation, 224, (), (this))
 
         auto getEyePosition() noexcept
     {
         Vector v;
-        VirtualMethod::call<void, 284>(this, std::ref(v));
+        VirtualMethod::call<void, 285>(this, std::ref(v));
         return v;
     }
 
     auto getAimPunch() noexcept
     {
         Vector v;
-        VirtualMethod::call<void, 345>(this, std::ref(v));
+        VirtualMethod::call<void, 346>(this, std::ref(v));
         return v;
     }
 
@@ -222,14 +222,14 @@ public:
         return reinterpret_cast<Entity*>(reinterpret_cast<uintptr_t>(this) + m_hGroundEntity);
     }
 
-    int getAnimationLayerCount() noexcept
+    int getAnimationLayersCount()
     {
-        return *reinterpret_cast<int*>(this + 0x298C);
+        return *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + 0x299C);
     }
 
     AnimationLayer* animOverlays() noexcept
     {
-        return *reinterpret_cast<AnimationLayer**>(reinterpret_cast<uintptr_t>(this) + 0x2980);
+        return *reinterpret_cast<AnimationLayer**>(reinterpret_cast<uintptr_t>(this) + 0x2990);
     }
 
     AnimationLayer* getAnimationLayer(int overlay) noexcept
@@ -436,11 +436,8 @@ public:
     {
         return reinterpret_cast<VarMap*>(this + 0x24);
     }
-   
-    AnimState* getAnimstate() noexcept
-    {
-        return *reinterpret_cast<AnimState**>(this + 0x3914);
-    }
+
+    NETVAR_OFFSET(getAnimstate, "CCSPlayer", "m_bIsScoped", -20, AnimState*)
 
     float getMaxDesyncAngle() noexcept
     {
@@ -589,11 +586,6 @@ public:
     bool isFlashed() noexcept
     {
         return flashDuration() > 75.0f;
-    }
-
-    bool grenadeExploded() noexcept
-    {
-        return *reinterpret_cast<bool*>(this + 0x29E8);
     }
 };
 

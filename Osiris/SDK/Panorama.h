@@ -13,9 +13,11 @@ public:
 };
 
 struct PanoramaEventRegistration {
-    PAD(8)
+    int numberOfArgs;
+    PAD(4)
     void* (__cdecl* makeEvent)(void*);
-    PAD(28)
+    void* (__cdecl* createEventFromString)(void*, const char* args, const char** result);
+    PAD(24)
 };
 
 class UIEngine {

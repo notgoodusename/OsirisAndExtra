@@ -37,6 +37,7 @@ struct WeaponInfo {
     bool fullAuto;
     PAD(3)
     int damage;
+    float headshotMultiplier;
     float armorRatio;
     int bullets;
     float penetration;

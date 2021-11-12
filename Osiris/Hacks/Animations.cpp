@@ -80,14 +80,14 @@ void Animations::fake() noexcept
 
         std::array<AnimationLayer, 13> layers;
 
-        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
 
         auto backupAbs = localPlayer->getAbsAngle();
         auto backupPoses = localPlayer->poseParameters();
 
         localPlayer->updateState(fakeAnimState, viewangles);
         memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, 0 });
-        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
         gotMatrix = localPlayer->setupBones(fakematrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
         const auto origin = localPlayer->getRenderOrigin();
@@ -100,7 +100,7 @@ void Animations::fake() noexcept
                 i[2][3] -= origin.z;
             }
         }
-        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->poseParameters() = backupPoses;
         memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
         updatingFake = false;
@@ -142,7 +142,7 @@ void Animations::real(FrameStage stage) noexcept
 
             if (sendPacket)
             {
-                std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+                std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
                 backupPoses = localPlayer->poseParameters();
                 backupAbs = localPlayer->getAnimstate()->footYaw;
             }
@@ -163,7 +163,7 @@ void Animations::real(FrameStage stage) noexcept
             */
         }
         memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs,0 });
-        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->poseParameters() = backupPoses;
     }
 }
@@ -189,7 +189,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             continue;
         }
 
-        std::memcpy(&player.layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayerCount());
+        std::memcpy(&player.layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
         const auto frameTime = memory->globalVars->frametime;
         const auto currentTime = memory->globalVars->currenttime;
@@ -248,7 +248,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
         entity->updateClientSideAnimation();
         updatingEntity = false;
 
-        std::memcpy(entity->animOverlays(), &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayerCount());
+        std::memcpy(entity->animOverlays(), &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
         memory->globalVars->frametime = frameTime;
         memory->globalVars->currenttime = currentTime;

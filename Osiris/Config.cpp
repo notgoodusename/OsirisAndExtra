@@ -346,18 +346,6 @@ static void from_json(const json& j, Config::StreamProofESP& e)
     read(j, "Other Entities", e.otherEntities);
 }
 
-static void from_json(const json& j, Config::Visuals::ColorCorrection& c)
-{
-    read(j, "Enabled", c.enabled);
-    read(j, "Blue", c.blue);
-    read(j, "Red", c.red);
-    read(j, "Mono", c.mono);
-    read(j, "Saturation", c.saturation);
-    read(j, "Ghost", c.ghost);
-    read(j, "Green", c.green);
-    read(j, "Yellow", c.yellow);
-}
-
 static void from_json(const json& j, Config::Visuals& v)
 {
     read(j, "Disable post-processing", v.disablePostProcessing);
@@ -393,7 +381,6 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Hit marker time", v.hitMarkerTime);
     read(j, "Playermodel T", v.playerModelT);
     read(j, "Playermodel CT", v.playerModelCT);
-    read<value_t::object>(j, "Color correction", v.colorCorrection);
     read<value_t::object>(j, "Bullet Tracers", v.bulletTracers);
     read<value_t::object>(j, "Molotov Hull", v.molotovHull);
 }
@@ -963,18 +950,6 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Autobuy", autoBuy);
 }
 
-static void to_json(json& j, const Config::Visuals::ColorCorrection& o, const Config::Visuals::ColorCorrection& dummy)
-{
-    WRITE("Enabled", enabled);
-    WRITE("Blue", blue);
-    WRITE("Red", red);
-    WRITE("Mono", mono);
-    WRITE("Saturation", saturation);
-    WRITE("Ghost", ghost);
-    WRITE("Green", green);
-    WRITE("Yellow", yellow);
-}
-
 static void to_json(json& j, const Config::Visuals& o)
 {
     const Config::Visuals dummy;
@@ -1012,7 +987,6 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Hit marker time", hitMarkerTime);
     WRITE("Playermodel T", playerModelT);
     WRITE("Playermodel CT", playerModelCT);
-    WRITE("Color correction", colorCorrection);
     WRITE("Bullet Tracers", bulletTracers);
     WRITE("Molotov Hull", molotovHull);
 }

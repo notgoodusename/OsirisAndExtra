@@ -203,17 +203,6 @@ public:
         int playerModelCT{ 0 };
         BulletTracers bulletTracers;
         ColorToggle molotovHull{ 1.0f, 0.27f, 0.0f, 0.3f };
-
-        struct ColorCorrection {
-            bool enabled = false;
-            float blue = 0.0f;
-            float red = 0.0f;
-            float mono = 0.0f;
-            float saturation = 0.0f;
-            float ghost = 0.0f;
-            float green = 0.0f;
-            float yellow = 0.0f;
-        } colorCorrection;
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

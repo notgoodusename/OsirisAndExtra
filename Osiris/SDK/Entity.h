@@ -123,7 +123,7 @@ public:
         VIRTUAL_METHOD(float, getLayerSequenceCycleRate, 223, (AnimationLayer* layer, int sequence), (this, layer, sequence))
         VIRTUAL_METHOD(void, updateClientSideAnimation, 224, (), (this))
 
-        auto getEyePosition() noexcept
+    auto getEyePosition() noexcept
     {
         Vector v;
         VirtualMethod::call<void, 285>(this, std::ref(v));

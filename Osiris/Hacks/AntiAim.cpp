@@ -231,7 +231,7 @@ void AntiAim::legit(UserCmd* cmd, const Vector& previousViewAngles, const Vector
     {
         bool invert = config->legitAntiAim.invert.isToggled();
         float desyncAngle = localPlayer->getMaxDesyncAngle() * 2.f;
-        if (updateLby() && config->legitAntiAim.extend) //Add pre lby flicking to prevent 979 from triggering
+        if (updateLby() && config->legitAntiAim.extend)
         {
             cmd->viewangles.y += !invert ? desyncAngle : -desyncAngle;
             sendPacket = false;
@@ -300,7 +300,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if (activeWeapon->isGrenade())
         return true;
 
-    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto() || localPlayer->waitForNoAttack())
+    if (localPlayer->waitForNoAttack())
         return true;
 
     if (localPlayer->nextAttack() > memory->globalVars->serverTime())

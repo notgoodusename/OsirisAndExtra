@@ -285,7 +285,7 @@ public:
 
     float spawnTime() noexcept
     {
-        return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + 0xA370);
+        return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + 0xA360);
     }
 
     int* getCachedBoneData() noexcept
@@ -389,8 +389,6 @@ public:
         int* render = reinterpret_cast<int*>(this + 0x274);
         int backup = *render;
 
-        *reinterpret_cast<int*>(this + 0xA28) = 0;
-        *reinterpret_cast<int*>(this + 0xA30) = memory->globalVars->framecount;
         this->invalidateBoneCache();
         getEffects() |= 8;
         *render = 0;

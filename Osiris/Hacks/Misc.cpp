@@ -567,6 +567,23 @@ void Misc::antiAfkKick(UserCmd* cmd) noexcept
         cmd->buttons |= 1 << 26;
 }
 
+void Misc::fixAnimationLOD(FrameStage stage) noexcept
+{
+    if (stage != FrameStage::RENDER_START)
+        return;
+
+    if (!localPlayer)
+        return;
+
+    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
+        Entity* entity = interfaces->entityList->getEntity(i);
+        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive())
+            continue;
+        *reinterpret_cast<int*>(entity + 0xA28) = 0;
+        *reinterpret_cast<int*>(entity + 0xA30) = memory->globalVars->framecount;
+    }
+}
+
 void Misc::autoPistol(UserCmd* cmd) noexcept
 {
     if (config->misc.autoPistol && localPlayer) {

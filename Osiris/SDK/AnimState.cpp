@@ -10,7 +10,7 @@ void AnimState::setupVelocity() noexcept
 
     Vector vecAbsVelocity = entity->getAbsVelocity();
 
-    // We should call this only if we arent the localPlayer, since we cant figure out other players velocity
+    // We should call this only if the entity isnt the localPlayer, since we cant figure out other players velocity
     /*
     if (localPlayer && localPlayer.get() != player)
     {
@@ -1048,8 +1048,11 @@ float AnimState::getLayerWeight(size_t layer) noexcept
     return l.weight;
 }
 
-int AnimState::getLayerActivity(size_t layer)noexcept
+int AnimState::getLayerActivity(size_t layer) noexcept
 {
+    if (!this)
+        return 0;
+
     return memory->getLayerActivity(this, layer);
 }
 

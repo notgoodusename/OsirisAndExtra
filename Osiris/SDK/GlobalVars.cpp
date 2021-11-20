@@ -5,7 +5,7 @@
 #include "Entity.h"
 #include "EntityList.h"
 
-float GlobalVars::serverTime(UserCmd* cmd) noexcept
+float GlobalVars::serverTime(UserCmd* cmd) const noexcept
 {
     static int tick;
     static UserCmd* lastCmd;

@@ -69,6 +69,7 @@ Config::Config() noexcept
 
     std::sort(std::next(systemFonts.begin()), systemFonts.end());
 }
+#pragma region  Read
 
 static void from_json(const json& j, ColorToggle& ct)
 {
@@ -570,6 +571,10 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read<value_t::object>(j, "Misc", misc);
 }
 
+#pragma endregion
+
+#pragma region  Write
+
 static void to_json(json& j, const ColorToggle& o, const ColorToggle& dummy = {})
 {
     to_json(j, static_cast<const Color4&>(o), dummy);
@@ -1025,6 +1030,8 @@ static void to_json(json& j, const item_setting& o)
         j["Custom name"] = o.custom_name;
     WRITE("Stickers", stickers);
 }
+
+#pragma endregion
 
 void removeEmptyObjects(json& j) noexcept
 {

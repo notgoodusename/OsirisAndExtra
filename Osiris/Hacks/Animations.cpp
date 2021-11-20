@@ -15,7 +15,7 @@
 
 static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
-static bool updatingLocal{ false };
+static bool updatingLocal{ true };
 static bool updatingEntity{ false };
 static bool updatingFake{ false };
 static bool sendPacket{ true };
@@ -41,7 +41,7 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
     viewangles = cmd->viewangles;
     sendPacket = _sendPacket;
     localPlayer->getAnimstate()->buttons = cmd->buttons;
-    localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
+    //localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
 }
 
 void Animations::fake() noexcept
@@ -112,60 +112,60 @@ void Animations::real(FrameStage stage) noexcept
     if (stage != FrameStage::RENDER_START)
         return;
 
-    if (!localPlayer || !localPlayer->isAlive())
+    if (!localPlayer)
         return;
 
     static std::array<AnimationLayer, 13> layers{};
+    static auto backupPoses = localPlayer->poseParameters();
+    static auto backupAbs = localPlayer->getAnimstate()->footYaw;
 
-    if(stage == FrameStage::RENDER_START)
+    static int oldTick = 0;
+
+    if (oldTick != memory->globalVars->tickCount)
     {
-        static auto backupPoses = localPlayer->poseParameters();
-        static auto backupAbs = localPlayer->getAnimstate()->footYaw;
+        oldTick = memory->globalVars->tickCount;
+        updatingLocal = true;
 
-        static int oldTick = 0;
+        // allow animations to be animated in the same frame
+        if (localPlayer->getAnimstate()->lastUpdateFrame == memory->globalVars->framecount)
+            localPlayer->getAnimstate()->lastUpdateFrame -= 1;
 
-        if (oldTick != memory->globalVars->tickCount)
+        if (localPlayer->getAnimstate()->lastUpdateTime == memory->globalVars->currenttime)
+            localPlayer->getAnimstate()->lastUpdateTime -= 1;
+
+        localPlayer->updateState(localPlayer->getAnimstate(), viewangles);
+        // updateClientSideAnimation calls animState update, but uses eyeAngles, 
+        // note: after updating the animstate lastUpdateFrame will be equal to memory->globalVars->framecount, so it wont be executed
+        // so no need to worry about it
+        // a better aproach would be too hook eyeAngles an return cmd->viewangles
+        localPlayer->updateClientSideAnimation();
+
+        if (sendPacket)
         {
-            oldTick = memory->globalVars->tickCount;
-            updatingLocal = true;
-
-            // allow animations to be animated in the same frame
-            if (localPlayer->getAnimstate()->lastUpdateFrame == memory->globalVars->framecount)
-                localPlayer->getAnimstate()->lastUpdateFrame -= 1;
-
-            localPlayer->updateState(localPlayer->getAnimstate(), viewangles);
-            // updateClientSideAnimation calls animState update, but uses eyeAngles, 
-            // note: after updating the animstate lastUpdateFrame will be equal to memory->globalVars->framecount, so it wont be executed
-            // so no need to worry about it
-            // a better aproach would be too hook eyeAngles an return cmd->viewangles
-            localPlayer->updateClientSideAnimation(); 
-
-            if (sendPacket)
-            {
-                std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-                backupPoses = localPlayer->poseParameters();
-                backupAbs = localPlayer->getAnimstate()->footYaw;
-            }
-            updatingLocal = false;
-            /*
-            std::string a =
-                "sequence: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).sequence)
-                + "\n" + "order: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).order)
-                + "\n" + "prevCycle: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).prevCycle)
-                + "\n" + "weight" + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).weight)
-                + "\n" + "weightDeltaRate: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).weightDeltaRate)
-                + "\n" + "playbackRate: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).playbackRate)
-                + "\n" + "cyle: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).cycle)
-                + "\n" + "moveWeight: " + std::to_string(localPlayer->getAnimstate()->moveWeight)
-                + "\n" + "primaryCycle: " + std::to_string(localPlayer->getAnimstate()->primaryCycle);
-            memory->debugMsg(a.c_str());
-            memory->debugMsg("\n");
-            */
+            std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+            backupPoses = localPlayer->poseParameters();
+            backupAbs = localPlayer->getAnimstate()->footYaw;
         }
-        memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs,0 });
-        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-        localPlayer->poseParameters() = backupPoses;
+        updatingLocal = false;
+        /*
+        std::string a =
+            "sequence: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).sequence)
+            + "\n" + "order: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).order)
+            + "\n" + "prevCycle: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).prevCycle)
+            + "\n" + "weight" + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).weight)
+            + "\n" + "weightDeltaRate: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).weightDeltaRate)
+            + "\n" + "playbackRate: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).playbackRate)
+            + "\n" + "cyle: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).cycle)
+            + "\n" + "moveWeight: " + std::to_string(localPlayer->getAnimstate()->moveWeight)
+            + "\n" + "primaryCycle: " + std::to_string(localPlayer->getAnimstate()->primaryCycle);
+        memory->debugMsg(a.c_str());
+        memory->debugMsg("\n");
+        */
     }
+    memory->setAbsAngle(localPlayer.get(), Vector{ 0, backupAbs, 0 });
+    std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+    localPlayer->poseParameters() = backupPoses;
+
 }
 
 void Animations::handlePlayers(FrameStage stage) noexcept

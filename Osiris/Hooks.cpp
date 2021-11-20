@@ -159,9 +159,9 @@ static int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexc
     return hooks->fileSystem.callOriginal<int, 127>(thisPointer);
 }
 
-static int __fastcall sendDatagram(NetworkChannel* network, void* edx, void* datagram)
+static int __fastcall sendDatagramHook(NetworkChannel* network, void* edx, void* datagram)
 {
-    static auto original = hooks->networkChannel.getOriginal<int, 46, void*>(datagram);
+    static auto original = hooks->sendDatagram.getOriginal<int>(datagram);
     if (!config->backtrack.fakeLatency || datagram || !interfaces->engine->isInGame())
         return original(network, datagram);
 
@@ -195,14 +195,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     static auto pitchUp = interfaces->cvar->findVar("cl_pitchup");
     static auto forwardSpeed = interfaces->cvar->findVar("cl_forwardspeed");;
     static auto sideSpeed = interfaces->cvar->findVar("cl_sidespeed");;
-
-    static void* oldPointer = nullptr;
-    if (auto network = memory->clientState->netChannel; network && oldPointer != network)
-    {
-        oldPointer = network;
-        hooks->networkChannel.init(network);
-        hooks->networkChannel.hookAt(46, sendDatagram);
-    }
 
     static auto previousViewAngles{ cmd->viewangles };
     auto currentViewAngles{ cmd->viewangles };
@@ -263,7 +255,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 
     previousViewAngles = cmd->viewangles;
     Animations::update(cmd, sendPacket);
-    Animations::fake();
+    //Animations::fake();
     return false;
 }
 
@@ -341,6 +333,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::removeVisualRecoil(stage);
         Visuals::applyZoom(stage);
         SkinChanger::run(stage);
+        Misc::fixAnimationLOD(stage);
         Animations::real(stage);
         Animations::handlePlayers(stage);
         Backtrack::update(stage);
@@ -371,7 +364,7 @@ static bool __stdcall shouldDrawFog() noexcept
     if (*static_cast<std::uint32_t*>(_ReturnAddress()) != 0x6274C084)
         return hooks->clientMode.callOriginal<bool, 17>();
     }
-    
+
     return !config->visuals.noFog;
 }
 
@@ -421,20 +414,14 @@ struct RenderableInfo {
 
 static int __stdcall listLeavesInBox(const Vector& mins, const Vector& maxs, unsigned short* list, int listMax) noexcept
 {
-    if (std::uintptr_t(_ReturnAddress()) == memory->listLeaves) {
-        if (const auto info = *reinterpret_cast<RenderableInfo**>(std::uintptr_t(_AddressOfReturnAddress()) + 0x14); info && info->renderable) {
-            if (const auto ent = VirtualMethod::call<Entity*, 7>(info->renderable - 4); ent && ent->isPlayer()) {
-                if (config->misc.disableModelOcclusion) {
-                    // FIXME: sometimes players are rendered above smoke, maybe sort render list?
-                    info->flags &= ~0x100;
-                    info->flags2 |= 0x40;
-
-                    constexpr float maxCoord = 16384.0f;
-                    constexpr float minCoord = -maxCoord;
-                    constexpr Vector min{ minCoord, minCoord, minCoord };
-                    constexpr Vector max{ maxCoord, maxCoord, maxCoord };
-                    return hooks->bspQuery.callOriginal<int, 6>(std::cref(min), std::cref(max), list, listMax);
-                }
+    if (config->misc.disableModelOcclusion && std::uintptr_t(_ReturnAddress()) == memory->insertIntoTree) {
+        if (const auto info = *reinterpret_cast<RenderableInfo**>(std::uintptr_t(_AddressOfReturnAddress()) - sizeof(std::uintptr_t) + 0x18); info && info->renderable) {
+            if (const auto ent = VirtualMethod::call<Entity*, 7>(info->renderable - sizeof(std::uintptr_t)); ent && ent->isPlayer()) {
+                constexpr float maxCoord = 16384.0f;
+                constexpr float minCoord = -maxCoord;
+                constexpr Vector min{ minCoord, minCoord, minCoord };
+                constexpr Vector max{ maxCoord, maxCoord, maxCoord };
+                return hooks->bspQuery.callOriginal<int, 6>(std::cref(min), std::cref(max), list, listMax);
             }
         }
     }
@@ -453,9 +440,9 @@ static int __fastcall dispatchSound(SoundInfo& soundInfo) noexcept
 
 static void __stdcall render2dEffectsPreHud(void* viewSetup) noexcept
 {
-Visuals::applyScreenEffects();
-Visuals::hitEffect();
-hooks->viewRender.callOriginal<void, 39>(viewSetup);
+    Visuals::applyScreenEffects();
+    Visuals::hitEffect();
+    hooks->viewRender.callOriginal<void, 39>(viewSetup);
 }
 
 static const DemoPlaybackParameters* __stdcall getDemoPlaybackParameters() noexcept
@@ -490,16 +477,6 @@ static bool __fastcall isHltv() noexcept
 static void __stdcall updateColorCorrectionWeights() noexcept
 {
     hooks->clientMode.callOriginal<void, 58>();
-
-    if (const auto& cfg = config->visuals.colorCorrection; cfg.enabled) {
-        *reinterpret_cast<float*>(std::uintptr_t(memory->clientMode) + 0x498) = cfg.blue;
-        *reinterpret_cast<float*>(std::uintptr_t(memory->clientMode) + 0x4A0) = cfg.red;
-        *reinterpret_cast<float*>(std::uintptr_t(memory->clientMode) + 0x4A8) = cfg.mono;
-        *reinterpret_cast<float*>(std::uintptr_t(memory->clientMode) + 0x4B0) = cfg.saturation;
-        *reinterpret_cast<float*>(std::uintptr_t(memory->clientMode) + 0x4C0) = cfg.ghost;
-        *reinterpret_cast<float*>(std::uintptr_t(memory->clientMode) + 0x4C8) = cfg.green;
-        *reinterpret_cast<float*>(std::uintptr_t(memory->clientMode) + 0x4D0) = cfg.yellow;
-    }
 
     if (config->visuals.noScopeOverlay)
         *memory->vignette = 0.0f;
@@ -564,11 +541,13 @@ static void __fastcall updateClientSideAnimationHook(void* thisPointer, void* ed
     {
         if (Animations::isEntityUpdating())
             return original(thisPointer);
+        return;
     }
     else if (entity == localPlayer.get())
     {
         if (Animations::isLocalUpdating())
             return original(thisPointer);
+        return;
     }
 }
 
@@ -640,11 +619,8 @@ static void __vectorcall updateStateHook(void* thisPointer, void* unknown, float
         return original(thisPointer, unknown, z, y, x, unknown1);
 
     auto entity = reinterpret_cast<Entity*>(animState->player);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
+    if (!entity || !entity->isAlive() || !entity->isPlayer() || !entity->getModelPtr() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
-
-    if (!localPlayer->getModelPtr())
-        return;
 
     return original(thisPointer, unknown, z, y, x, unknown1);
 }
@@ -725,6 +701,8 @@ static void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* ed
     return;
 }
 
+/*
+
 static std::array<AnimationLayer, 13> layers{};
 
 //TODO: find a way to ignore networked data
@@ -736,7 +714,7 @@ static void __fastcall preDataUpdateHook(void* thisPointer, void* edx, int updat
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, updateType);
 
-    std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+    std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
 
     return original(thisPointer, updateType);
 }
@@ -751,7 +729,7 @@ static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int upda
 
     std::array<AnimationLayer, 13> currentLayers{};
 
-    std::memcpy(&currentLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayerCount());
+    std::memcpy(&currentLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
 
     for (int i = 0; i < 13; i++)
     {
@@ -781,6 +759,7 @@ static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int upda
 
     return original(thisPointer, updateType);
 }
+*/
 
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
@@ -799,6 +778,8 @@ Hooks::Hooks(HMODULE moduleHandle) noexcept
 
 void Hooks::install() noexcept
 {
+
+    //TODO: Redo AnimFix
     originalPresent = **reinterpret_cast<decltype(originalPresent)**>(memory->present);
     **reinterpret_cast<decltype(present)***>(memory->present) = present;
     originalReset = **reinterpret_cast<decltype(originalReset)**>(memory->reset);
@@ -807,29 +788,35 @@ void Hooks::install() noexcept
     if constexpr (std::is_same_v<HookType, MinHook>)
         MH_Initialize();
 
+    sendDatagram.detour(memory->sendDatagram, sendDatagramHook);
+    
     doExtraBoneProcessing.detour(memory->doExtraBoneProcessing, doExtraBoneProcessingHook);
     shouldSkipAnimationFrame.detour(memory->shouldSkipAnimationFrame, shouldSkipAnimationFrameHook);
     standardBlendingRules.detour(memory->standardBlendingRules, standardBlendingRulesHook);
     updateClientSideAnimation.detour(memory->updateClientSideAnimation, updateClientSideAnimationHook);
+    notifyOnLayerChangeWeight.detour(memory->notifyOnLayerChangeWeight, notifyOnLayerChangeWeightHook);
+
+    updateState.detour(memory->updateState, updateStateHook);
+    /*
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
 
-    modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
+    //modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
     calculateView.detour(memory->calculateView, calculateViewHook);
     updateState.detour(memory->updateState, updateStateHook);
 
     resetState.detour(memory->resetState, resetStateHook);
-    
-    setupVelocity.detour(memory->setupVelocity, setupVelocityHook);
-    setupMovement.detour(memory->setupMovement, setupMovementHook);
-    setupAliveloop.detour(memory->setupAliveloop, setupAliveloopHook);
 
-    notifyOnLayerChangeWeight.detour(memory->notifyOnLayerChangeWeight, notifyOnLayerChangeWeightHook);
-    
+    //setupVelocity.detour(memory->setupVelocity, setupVelocityHook);
+    //setupMovement.detour(memory->setupMovement, setupMovementHook);
+    //setupAliveloop.detour(memory->setupAliveloop, setupAliveloopHook);
+    */
+
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 
     client.init(interfaces->client);
     client.hookAt(37, frameStageNotify);
 
+    
     clientMode.init(memory->clientMode);
     clientMode.hookAt(17, shouldDrawFog);
     clientMode.hookAt(18, overrideView);
@@ -849,8 +836,8 @@ void Hooks::install() noexcept
     fileSystem.hookAt(101, getUnverifiedFileHashes);
     fileSystem.hookAt(127, canLoadThirdPartyFiles);
 
-    gameMovement.init(interfaces->gameMovement);
-    gameMovement.hookAt(32, onJump);
+    //gameMovement.init(interfaces->gameMovement); //y
+    //gameMovement.hookAt(32, onJump); //y
 
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);
@@ -870,7 +857,7 @@ void Hooks::install() noexcept
 
     if (DWORD oldProtection; VirtualProtect(memory->dispatchSound, 4, PAGE_EXECUTE_READWRITE, &oldProtection)) {
         originalDispatchSound = decltype(originalDispatchSound)(uintptr_t(memory->dispatchSound + 1) + *memory->dispatchSound);
-        *memory->dispatchSound = uintptr_t(dispatchSound) - uintptr_t(memory->dispatchSound + 1);
+        *memory->dispatchSound = uintptr_t(&dispatchSound) - uintptr_t(memory->dispatchSound + 1);
         VirtualProtect(memory->dispatchSound, 4, oldProtection, nullptr);
     }
 

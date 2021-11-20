@@ -63,7 +63,7 @@ public:
     int(__thiscall* clearHudWeapon)(int*, int);
     std::add_pointer_t<ItemSystem* __cdecl()> itemSystem;
     void(__thiscall* setAbsOrigin)(Entity*, const Vector&);
-    std::uintptr_t listLeaves;
+    std::uintptr_t insertIntoTree;
     int* dispatchSound;
     std::uintptr_t traceToExit;
     ViewRender* viewRender;
@@ -125,7 +125,6 @@ public:
     std::uintptr_t createState;
     std::uintptr_t resetState;
     std::uintptr_t invalidateBoneCache;
-    void* isLoadOutAvailable;
     void* setupVelocityAddress;
     void* accumulateLayersAddress;
 
@@ -134,6 +133,7 @@ public:
     std::uintptr_t shouldSkipAnimationFrame;
     std::uintptr_t updateClientSideAnimation;
     std::uintptr_t checkForSequenceChange;
+    std::uintptr_t sendDatagram;
 
     std::uintptr_t modifyEyePosition;
 

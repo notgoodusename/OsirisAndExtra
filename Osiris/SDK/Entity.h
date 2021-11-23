@@ -206,7 +206,7 @@ public:
 
     CStudioHdr* getModelPtr() noexcept
     {
-        return *reinterpret_cast<CStudioHdr**>(reinterpret_cast<uintptr_t>(this) + 0x294C);
+        return *reinterpret_cast<CStudioHdr**>(reinterpret_cast<uintptr_t>(this) + 0x2950);
     }
 
     Vector& getAbsVelocity() noexcept

@@ -228,13 +228,13 @@ struct AnimState //This is the client one
 	bool					smoothHeightValid; //808 = 0x328
 	PAD(3);
 	float					lastTimeVelocityOverTen; //T 812
+	PAD(4); //T 816
+	float					aimYawMin; //T 820
+	float					aimYawMax; //T 824
+	float					aimPitchMin; //T 828
+	float					aimPitchMax; //T 832
 
-	float					aimYawMin; //T 816
-	float					aimYawMax; //T 820
-	float					aimPitchMin; //T 824
-	float					aimPitchMax; //T 828
-
-	int						animstateModelVersion; //832 = 0x340
+	int						animstateModelVersion; //836
 
 	// Custom members
 	float lowerBodyRealignTimer;
@@ -262,6 +262,8 @@ struct AnimState //This is the client one
 	void setLayerCycle(size_t layer, float newCycle) noexcept;
 	void setLayerRate(size_t layer, float newRate) noexcept;
 	void setLayerSequence(size_t layer, int32_t activity) noexcept;
+
+	int32_t selectSequenceFromActivityModifier(int activity) noexcept;
 
 	float getLayerIdealWeightFromSeqCycle(size_t layer) noexcept;
 	float getLayerCycle(size_t layer) noexcept;

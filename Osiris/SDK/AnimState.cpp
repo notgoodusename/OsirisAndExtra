@@ -709,15 +709,11 @@ void AnimState::updateActivityModifiers() noexcept
 
     if (animDuckAmount > .55f)
         modifierWrapper.addModifier("crouch");
-
-    activityModifiers = modifierWrapper.get();
 }
 
 void AnimState::doAnimationEvent(int animationEvent) noexcept
 {
     auto entity = reinterpret_cast<Entity*>(player);
-
-    updateActivityModifiers();
 
     switch (animationEvent)
     {
@@ -882,16 +878,71 @@ void AnimState::updateAnimLayer(size_t layerIndex, int sequence, float playbackR
 
 void animstatePoseParamCache::setValue(Entity* player, float flValue) noexcept
 {
-	if (!m_bInitialized)
-	{
-		init(player, m_szName);
-	}
-	if (m_bInitialized && player)
-	{
-		interfaces->mdlCache->beginLock();
-		player->setPoseParameter(flValue, m_nIndex);
-		interfaces->mdlCache->endLock();
-	}
+    if (!m_bInitialized)
+    {
+        init(player, m_szName);
+    }
+    if (m_bInitialized && player)
+    {
+        interfaces->mdlCache->beginLock();
+        player->setPoseParameter(flValue, m_nIndex);
+        interfaces->mdlCache->endLock();
+    }
+}
+
+int32_t AnimState::selectSequenceFromActivityModifier(int activity) noexcept
+{
+    bool isPlayerDucked = animDuckAmount > 0.55f;
+    bool isPlayerRunning = speedAsPortionOfWalkTopSpeed > 0.25f;
+
+    int32_t layerSequence = -1;
+    switch (activity)
+    {
+    case ACT_CSGO_JUMP:
+        layerSequence = 15 + static_cast <int32_t>(isPlayerRunning);
+        if (isPlayerDucked)
+            layerSequence = 17 + static_cast <int32_t>(isPlayerRunning);
+        break;
+    case ACT_CSGO_ALIVE_LOOP:
+        layerSequence = 8;
+        if (weaponLast != weapon)
+            layerSequence = 9;
+        break;
+    case ACT_CSGO_IDLE_ADJUST_STOPPEDMOVING:
+        layerSequence = 6;
+        break;
+    case ACT_CSGO_FALL:
+        layerSequence = 14;
+        break;
+    case ACT_CSGO_IDLE_TURN_BALANCEADJUST:
+        layerSequence = 4;
+        break;
+    case ACT_CSGO_LAND_LIGHT:
+        layerSequence = 20;
+        if (isPlayerRunning)
+            layerSequence = 22;
+
+        if (isPlayerDucked)
+        {
+            layerSequence = 21;
+            if (isPlayerRunning)
+                layerSequence = 19;
+        }
+        break;
+    case ACT_CSGO_LAND_HEAVY:
+        layerSequence = 23;
+        if (isPlayerDucked)
+            layerSequence = 24;
+        break;
+
+    case ACT_CSGO_CLIMB_LADDER:
+        layerSequence = 13;
+        break;
+    default:
+        break;
+    }
+
+    return layerSequence;
 }
 
 void AnimState::setLayerSequence(size_t layer, int32_t activity) noexcept
@@ -905,8 +956,21 @@ void AnimState::setLayerSequence(size_t layer, int32_t activity) noexcept
     if (!hdr)
         return;
 
+    updateActivityModifiers();
+
     const auto mapping = memory->findMapping(hdr);
-    const auto sequence = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &activityModifiers[0], activityModifiers.size);
+    const auto sequence1 = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &activityModifiersWrapper().get()[0], activityModifiersWrapper().get().size);
+
+    const auto sequence = selectSequenceFromActivityModifier(activity);
+
+    if (sequence1 != sequence)
+    {
+        std::string a =
+            "sequence1: " + std::to_string(sequence1)
+            + "\n" + "sequence: " + std::to_string(sequence);
+        memory->debugMsg(a.c_str());
+        memory->debugMsg("\n");
+    }
 
     if (sequence < 2)
         return;

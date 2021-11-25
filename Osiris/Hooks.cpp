@@ -180,6 +180,22 @@ static int __fastcall sendDatagramHook(NetworkChannel* network, void* edx, void*
     return result;
 }
 
+static void __fastcall packetStart(void* thisPointer, void* edx, int incomingSequence, int outgoingAcknowledged) noexcept
+{
+    Animations::packetStart();
+
+    return hooks->clientState.callOriginal<void, 5>(incomingSequence, outgoingAcknowledged);
+}
+
+static void __fastcall packetEnd(void* thisPointer, void* edx) noexcept
+{
+    hooks->clientState.callOriginal<void, 6>();
+
+    Animations::packetEnd();
+    return;
+}
+
+
 static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 {
     auto result = hooks->clientMode.callOriginal<bool, 24>(inputSampleTime, cmd);
@@ -616,10 +632,13 @@ static void __vectorcall updateStateHook(void* thisPointer, void* unknown, float
 
     auto animState = reinterpret_cast<AnimState*>(thisPointer);
     if (!animState)
-        return original(thisPointer, unknown, z, y, x, unknown1);
+        return;
 
     auto entity = reinterpret_cast<Entity*>(animState->player);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !entity->getModelPtr() || !localPlayer || entity != localPlayer.get())
+    if (!entity || !entity->getModelPtr())
+        return;
+    
+    if (!localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
 
     return original(thisPointer, unknown, z, y, x, unknown1);
@@ -701,66 +720,6 @@ static void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* ed
     return;
 }
 
-/*
-
-static std::array<AnimationLayer, 13> layers{};
-
-//TODO: find a way to ignore networked data
-static void __fastcall preDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
-{
-    static auto original = hooks->preDataUpdate.getOriginal<void>(updateType);
-
-    auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, updateType);
-
-    std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-
-    return original(thisPointer, updateType);
-}
-
-static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
-{
-    static auto original = hooks->postDataUpdate.getOriginal<void>(updateType);
-
-    auto entity = reinterpret_cast<Entity*>((uintptr_t)thisPointer - 8);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, updateType);
-
-    std::array<AnimationLayer, 13> currentLayers{};
-
-    std::memcpy(&currentLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-
-    for (int i = 0; i < 13; i++)
-    {
-        AnimationLayer _curLayer = currentLayers.at(i);
-        AnimationLayer _prevLayer = layers.at(i);
-        if (_curLayer.order != _prevLayer.order
-            || _curLayer.sequence != _prevLayer.sequence
-            || _curLayer.prevCycle != _prevLayer.prevCycle
-            || _curLayer.weight != _prevLayer.weight
-            || _curLayer.weightDeltaRate != _prevLayer.weightDeltaRate
-            || _curLayer.playbackRate != _prevLayer.playbackRate
-            || _curLayer.cycle != _prevLayer.cycle)
-        {
-            auto& layer = *entity->getAnimationLayer(i);
-            if (&layer)
-            {
-                layer.order = _prevLayer.order;
-                layer.sequence = _prevLayer.sequence;
-                layer.prevCycle = _prevLayer.prevCycle;
-                layer.weight = _prevLayer.weight;
-                layer.weightDeltaRate = _prevLayer.weightDeltaRate;
-                layer.playbackRate = _prevLayer.playbackRate;
-                layer.cycle = _prevLayer.cycle;
-            }
-        }
-    }
-
-    return original(thisPointer, updateType);
-}
-*/
-
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -796,6 +755,9 @@ void Hooks::install() noexcept
     updateClientSideAnimation.detour(memory->updateClientSideAnimation, updateClientSideAnimationHook);
     notifyOnLayerChangeWeight.detour(memory->notifyOnLayerChangeWeight, notifyOnLayerChangeWeightHook);
 
+    setupVelocity.detour(memory->setupVelocity, setupVelocityHook);
+    setupMovement.detour(memory->setupMovement, setupMovementHook);
+
     updateState.detour(memory->updateState, updateStateHook);
     /*
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
@@ -815,7 +777,6 @@ void Hooks::install() noexcept
 
     client.init(interfaces->client);
     client.hookAt(37, frameStageNotify);
-
     
     clientMode.init(memory->clientMode);
     clientMode.hookAt(17, shouldDrawFog);
@@ -825,6 +786,10 @@ void Hooks::install() noexcept
     clientMode.hookAt(35, getViewModelFov);
     clientMode.hookAt(44, doPostScreenEffects);
     clientMode.hookAt(58, updateColorCorrectionWeights);
+
+    clientState.init((ClientState*)(uint32_t(memory->clientState) + 0x8));
+    clientState.hookAt(5, packetStart);
+    clientState.hookAt(6, packetEnd);
 
     engine.init(interfaces->engine);
     engine.hookAt(82, isPlayingDemo);
@@ -836,8 +801,8 @@ void Hooks::install() noexcept
     fileSystem.hookAt(101, getUnverifiedFileHashes);
     fileSystem.hookAt(127, canLoadThirdPartyFiles);
 
-    //gameMovement.init(interfaces->gameMovement); //y
-    //gameMovement.hookAt(32, onJump); //y
+    gameMovement.init(interfaces->gameMovement);
+    gameMovement.hookAt(32, onJump);
 
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);
@@ -898,6 +863,7 @@ void Hooks::uninstall() noexcept
     bspQuery.restore();
     client.restore();
     clientMode.restore();
+    clientState.restore();
     engine.restore();
     gameMovement.restore();
     modelRender.restore();
@@ -905,7 +871,6 @@ void Hooks::uninstall() noexcept
     surface.restore();
     svCheats.restore();
     viewRender.restore();
-    networkChannel.restore();
     fileSystem.restore();
 
     netvars->restore();

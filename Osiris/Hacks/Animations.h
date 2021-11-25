@@ -19,6 +19,9 @@ namespace Animations
 	void real(FrameStage) noexcept;
 	void fake() noexcept;
 
+	void packetStart() noexcept;
+	void packetEnd() noexcept;
+
 	void handlePlayers(FrameStage) noexcept;
 
 	bool isLocalUpdating() noexcept;

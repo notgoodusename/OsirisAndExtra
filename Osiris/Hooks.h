@@ -49,12 +49,11 @@ public:
 
     MinHook sendDatagram;
 
-    VmtSwap networkChannel; //TODO: use minhook
-
     HookType fileSystem;
     HookType bspQuery;
     HookType client;
     HookType clientMode;
+    HookType clientState;
     HookType engine;
     HookType gameMovement;
     HookType modelRender;

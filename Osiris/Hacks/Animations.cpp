@@ -21,6 +21,7 @@ static bool updatingFake{ false };
 static bool sendPacket{ true };
 static bool gotMatrix{ false };
 static Vector viewangles{};
+static std::array<AnimationLayer, 13> staticLayers{};
 
 void Animations::init() noexcept
 {
@@ -41,7 +42,6 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
     viewangles = cmd->viewangles;
     sendPacket = _sendPacket;
     localPlayer->getAnimstate()->buttons = cmd->buttons;
-    //localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_COUNT); // Build activity modifiers
 }
 
 void Animations::fake() noexcept
@@ -116,6 +116,10 @@ void Animations::real(FrameStage stage) noexcept
         return;
 
     static std::array<AnimationLayer, 13> layers{};
+
+    if(layers.empty())
+        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+
     static auto backupPoses = localPlayer->poseParameters();
     static auto backupAbs = localPlayer->getAnimstate()->footYaw;
 
@@ -140,9 +144,10 @@ void Animations::real(FrameStage stage) noexcept
         // a better aproach would be too hook eyeAngles an return cmd->viewangles
         localPlayer->updateClientSideAnimation();
 
+        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+        std::memcpy(&staticLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         if (sendPacket)
         {
-            std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
             backupPoses = localPlayer->poseParameters();
             backupAbs = localPlayer->getAnimstate()->footYaw;
         }
@@ -162,10 +167,10 @@ void Animations::real(FrameStage stage) noexcept
         memory->debugMsg("\n");
         */
     }
+
     memory->setAbsAngle(localPlayer.get(), Vector{ 0, backupAbs, 0 });
     std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
     localPlayer->poseParameters() = backupPoses;
-
 }
 
 void Animations::handlePlayers(FrameStage stage) noexcept
@@ -248,11 +253,6 @@ void Animations::handlePlayers(FrameStage stage) noexcept
         entity->updateClientSideAnimation();
         updatingEntity = false;
 
-        std::memcpy(entity->animOverlays(), &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
-
-        memory->globalVars->frametime = frameTime;
-        memory->globalVars->currenttime = currentTime;
-
         if (player.simulationTime != entity->simulationTime())
         {
             player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.simulationTime) / memory->globalVars->intervalPerTick) - 1;
@@ -261,6 +261,75 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             player.mins = entity->getCollideable()->obbMins();
             player.maxs = entity->getCollideable()->obbMaxs();
         }
+
+        std::memcpy(entity->animOverlays(), &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
+
+        memory->globalVars->frametime = frameTime;
+        memory->globalVars->currenttime = currentTime;
+    }
+}
+
+void Animations::packetStart() noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    //std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+}
+
+void verifyLayer(int32_t activity) noexcept
+{
+    AnimationLayer currentlayer = *localPlayer->getAnimationLayer(activity);
+    AnimationLayer previousLayer = staticLayers.at(activity);
+
+    auto& layer = *localPlayer->getAnimationLayer(activity);
+    if (!&layer)
+        return;
+
+    if (currentlayer.order != previousLayer.order)
+    {
+        layer.order = previousLayer.order;
+    }
+
+    if (currentlayer.sequence != previousLayer.sequence)
+    {
+        layer.sequence = previousLayer.sequence;
+    }
+
+    if (currentlayer.prevCycle != previousLayer.prevCycle)
+    {
+        layer.prevCycle = previousLayer.prevCycle;
+    }
+
+    if (currentlayer.weight != previousLayer.weight)
+    {
+        layer.weight = previousLayer.weight;
+    }
+
+    if (currentlayer.weightDeltaRate != previousLayer.weightDeltaRate)
+    {
+        layer.weightDeltaRate = previousLayer.weightDeltaRate;
+    }
+
+    if (currentlayer.playbackRate != previousLayer.playbackRate)
+    {
+        layer.playbackRate = previousLayer.playbackRate;
+    }
+
+    if (currentlayer.cycle != previousLayer.cycle)
+    {
+        layer.cycle = previousLayer.cycle;
+    }
+}
+
+void Animations::packetEnd() noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    for (int i = 0; i < 13; i++)
+    {
+        verifyLayer(i);
     }
 }
 

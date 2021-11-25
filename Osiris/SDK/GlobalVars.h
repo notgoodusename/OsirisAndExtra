@@ -6,7 +6,7 @@ struct UserCmd;
 
 struct GlobalVars {
     const float realtime;
-    const int framecount;
+    int framecount;
     const float absoluteFrameTime;
     const std::byte pad[4];
     float currenttime;

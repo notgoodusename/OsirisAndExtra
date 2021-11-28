@@ -4,8 +4,11 @@
 
 struct StudioSeqdesc
 {
-	PAD(196);
-	int numAnimTags;
+	PAD(104); //0
+	float fadeInTime; //104
+	float fadeOutTime; //108
+	PAD(84); //112
+	int numAnimTags; // 196
 };
 
 struct CStudioHdr

@@ -365,6 +365,8 @@ void AnimState::setupMovement() noexcept
 
     float localCycleIncrement = (moveCycleRate * lastUpdateIncrement);
 
+    if (std::isnan(primaryCycle)) primaryCycle = 0.f;
+    
     primaryCycle = Helpers::clampCycle(primaryCycle + localCycleIncrement);
 
     moveWeightWithAirSmooth = std::clamp(moveWeightWithAirSmooth, 0.f, 1.f);
@@ -956,21 +958,11 @@ void AnimState::setLayerSequence(size_t layer, int32_t activity) noexcept
     if (!hdr)
         return;
 
-    updateActivityModifiers();
-
-    const auto mapping = memory->findMapping(hdr);
-    const auto sequence1 = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &activityModifiersWrapper().get()[0], activityModifiersWrapper().get().size);
+    //updateActivityModifiers();
+    //const auto mapping = memory->findMapping(hdr);
+    //const auto sequence = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &activityModifiersWrapper().get()[0], activityModifiersWrapper().get().size);
 
     const auto sequence = selectSequenceFromActivityModifier(activity);
-
-    if (sequence1 != sequence)
-    {
-        std::string a =
-            "sequence1: " + std::to_string(sequence1)
-            + "\n" + "sequence: " + std::to_string(sequence);
-        memory->debugMsg(a.c_str());
-        memory->debugMsg("\n");
-    }
 
     if (sequence < 2)
         return;
@@ -1079,7 +1071,34 @@ void AnimState::incrementLayerWeight(size_t layer) noexcept
 
 float AnimState::getLayerIdealWeightFromSeqCycle(size_t layer) noexcept
 {
-    return memory->getLayerIdealWeightFromSeqCycle(this, layer);
+    auto entity = reinterpret_cast<Entity*>(player);
+
+    auto& l = *entity->getAnimationLayer(layer);
+    if (!&l)
+        return 0.f;
+
+    auto seqdesc = entity->getModelPtr()->seqdesc(l.sequence);
+
+    float cycle = l.cycle;
+    if (cycle >= 0.999f)
+        cycle = 1.f;
+    float easeIn = seqdesc.fadeInTime;
+    float easeOut = seqdesc.fadeOutTime;
+    float idealWeight = 1.f;
+
+    if (easeIn > 0.f && cycle < easeIn)
+    {
+        idealWeight = Helpers::smoothStepBounds(0.0f, easeIn, cycle);
+    }
+    else if (easeOut < 1.f && cycle > easeOut)
+    {
+        idealWeight = Helpers::smoothStepBounds(1.0f, easeOut, cycle);
+    }
+
+    if (idealWeight < 0.0015f)
+        return 0.f;
+
+    return std::clamp(idealWeight, 0.f, 1.f);
 }
 
 bool AnimState::isLayerSequenceCompleted(size_t layer) noexcept

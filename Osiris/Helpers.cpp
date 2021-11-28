@@ -69,15 +69,15 @@ float Helpers::smoothStepBounds(float edge0, float edge1, float x) noexcept
 
 float Helpers::clampCycle(float clycle) noexcept
 {
-    clycle -= int(clycle);
+    clycle -= (float)(int)clycle;
 
-    if (clycle < 0)
+    if (clycle < 0.0f)
     {
-        clycle += 1;
+        clycle += 1.0f;
     }
-    else if (clycle > 1)
+    else if (clycle > 1.0f)
     {
-        clycle -= 1;
+        clycle -= 1.0f;
     }
 
     return clycle;

@@ -79,7 +79,7 @@ bool Entity::visibleTo(Entity* other) noexcept
 #pragma runtime_checks("", off) //Disable runtime checks to prevent ESP error
 void Entity::getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector& v) noexcept
 {
-    memory->getSequenceLinearMotion(studioHdr, sequence, getPoseParameter(), &v);
+    memory->getSequenceLinearMotion(studioHdr, sequence, (float*)&poseParameters(), &v);
 }
 #pragma runtime_checks("", restore) //Restore runtime checks
 #pragma optimize( "", on )

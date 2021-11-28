@@ -148,10 +148,10 @@ Memory::Memory() noexcept
     invalidateBoneCache = findPattern(CLIENT_DLL, "\x80\x3D?????\x74\x16\xA1????\x48\xC7\x81");
 
 
-
     setupVelocityAddress = *(reinterpret_cast<void**>(findPattern(CLIENT_DLL, "\x84\xC0\x75\x38\x8B\x0D????\x8B\x01\x8B\x80")));
     accumulateLayersAddress = *(reinterpret_cast<void**>(findPattern(CLIENT_DLL, "\x84\xC0\x75\x0D\xF6\x87")));
     standardBlendingRules = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8\xF8\x10");
+
     doExtraBoneProcessing = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x53\x56\x8B\xF1\x57\x89\x74\x24\x1C\x80");
     shouldSkipAnimationFrame = findPattern(CLIENT_DLL, "\x57\x8B\xF9\x8B\x07\x8B\x80????\xFF\xD0\x84\xC0\x75\x02");
     updateClientSideAnimation = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x56\x8B\xF1\x80\xBE?????\x74\x36");
@@ -193,4 +193,5 @@ Memory::Memory() noexcept
     calcAbsoluteVelocity = relativeToAbsolute<decltype(calcAbsoluteVelocity)>(findPattern(CLIENT_DLL, "\xE8????\x83\x7B\x30\x00") + 1);
     utilPlayerByIndex = reinterpret_cast<decltype(utilPlayerByIndex)>(findPattern(SERVER_DLL, "\x85\xC9\x7E\x32\xA1????"));
     drawServerHitboxes = findPattern(SERVER_DLL, "\x55\x8B\xEC\x81\xEC????\x53\x56\x8B\x35????\x8B\xD9\x57\x8B\xCE");
+    postDataUpdate = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x56\x8B\xF1\x57\x80\xBE\x71");
 }

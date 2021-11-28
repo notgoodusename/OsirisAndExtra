@@ -187,14 +187,15 @@ static void __fastcall packetStart(void* thisPointer, void* edx, int incomingSeq
     return hooks->clientState.callOriginal<void, 5>(incomingSequence, outgoingAcknowledged);
 }
 
-static void __fastcall packetEnd(void* thisPointer, void* edx) noexcept
+static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
 {
-    hooks->clientState.callOriginal<void, 6>();
+    static auto original = hooks->postDataUpdate.getOriginal<void>(updateType);
 
+    original(thisPointer, updateType);
+    
     Animations::packetEnd();
     return;
 }
-
 
 static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 {
@@ -759,6 +760,8 @@ void Hooks::install() noexcept
     setupMovement.detour(memory->setupMovement, setupMovementHook);
 
     updateState.detour(memory->updateState, updateStateHook);
+
+    postDataUpdate.detour(memory->postDataUpdate, postDataUpdateHook);
     /*
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
 
@@ -789,7 +792,6 @@ void Hooks::install() noexcept
 
     clientState.init((ClientState*)(uint32_t(memory->clientState) + 0x8));
     clientState.hookAt(5, packetStart);
-    clientState.hookAt(6, packetEnd);
 
     engine.init(interfaces->engine);
     engine.hookAt(82, isPlayingDemo);

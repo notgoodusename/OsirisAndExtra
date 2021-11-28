@@ -45,9 +45,10 @@ public:
     MinHook setupWeaponAction;
 
     MinHook notifyOnLayerChangeWeight;
-    MinHook notifyOnLayerChangeCycle;
 
     MinHook sendDatagram;
+
+    MinHook postDataUpdate;
 
     HookType fileSystem;
     HookType bspQuery;

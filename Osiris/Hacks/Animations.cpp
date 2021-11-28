@@ -22,6 +22,7 @@ static bool sendPacket{ true };
 static bool gotMatrix{ false };
 static Vector viewangles{};
 static std::array<AnimationLayer, 13> staticLayers{};
+static float primaryCycle{0.f};
 
 void Animations::init() noexcept
 {
@@ -125,7 +126,7 @@ void Animations::real(FrameStage stage) noexcept
 
     static int oldTick = 0;
 
-    if (oldTick != memory->globalVars->tickCount)
+    if (oldTick != memory->globalVars->tickCount) //TODO: Add list of commands to animate
     {
         oldTick = memory->globalVars->tickCount;
         updatingLocal = true;
@@ -135,7 +136,7 @@ void Animations::real(FrameStage stage) noexcept
             localPlayer->getAnimstate()->lastUpdateFrame -= 1;
 
         if (localPlayer->getAnimstate()->lastUpdateTime == memory->globalVars->currenttime)
-            localPlayer->getAnimstate()->lastUpdateTime -= 1;
+            localPlayer->getAnimstate()->lastUpdateTime += ticksToTime(1);
 
         localPlayer->updateState(localPlayer->getAnimstate(), viewangles);
         // updateClientSideAnimation calls animState update, but uses eyeAngles, 
@@ -143,34 +144,22 @@ void Animations::real(FrameStage stage) noexcept
         // so no need to worry about it
         // a better aproach would be too hook eyeAngles an return cmd->viewangles
         localPlayer->updateClientSideAnimation();
-
-        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         std::memcpy(&staticLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+
         if (sendPacket)
         {
             backupPoses = localPlayer->poseParameters();
             backupAbs = localPlayer->getAnimstate()->footYaw;
+            //setupBones
         }
         updatingLocal = false;
-        /*
-        std::string a =
-            "sequence: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).sequence)
-            + "\n" + "order: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).order)
-            + "\n" + "prevCycle: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).prevCycle)
-            + "\n" + "weight" + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).weight)
-            + "\n" + "weightDeltaRate: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).weightDeltaRate)
-            + "\n" + "playbackRate: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).playbackRate)
-            + "\n" + "cyle: " + std::to_string(layers.at(ANIMATION_LAYER_MOVEMENT_MOVE).cycle)
-            + "\n" + "moveWeight: " + std::to_string(localPlayer->getAnimstate()->moveWeight)
-            + "\n" + "primaryCycle: " + std::to_string(localPlayer->getAnimstate()->primaryCycle);
-        memory->debugMsg(a.c_str());
-        memory->debugMsg("\n");
-        */
     }
 
     memory->setAbsAngle(localPlayer.get(), Vector{ 0, backupAbs, 0 });
     std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
     localPlayer->poseParameters() = backupPoses;
+    //localPlayer->drawServerHitboxes();
 }
 
 void Animations::handlePlayers(FrameStage stage) noexcept
@@ -271,10 +260,15 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
 void Animations::packetStart() noexcept
 {
-    if (!localPlayer || !localPlayer->isAlive())
+    if (!localPlayer || !localPlayer->animOverlays())
         return;
 
-    //std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+    std::memcpy(&staticLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+
+    if (!localPlayer->getAnimstate())
+        return;
+
+    primaryCycle = localPlayer->getAnimstate()->primaryCycle;
 }
 
 void verifyLayer(int32_t activity) noexcept
@@ -324,13 +318,18 @@ void verifyLayer(int32_t activity) noexcept
 
 void Animations::packetEnd() noexcept
 {
-    if (!localPlayer || !localPlayer->isAlive())
+    if (!localPlayer || !localPlayer->animOverlays())
         return;
 
     for (int i = 0; i < 13; i++)
     {
         verifyLayer(i);
     }
+
+    if (!localPlayer->getAnimstate())
+        return;
+
+    localPlayer->getAnimstate()->primaryCycle = primaryCycle;
 }
 
 bool Animations::isLocalUpdating() noexcept

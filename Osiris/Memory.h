@@ -171,6 +171,8 @@ public:
     void*(__thiscall* utilPlayerByIndex)(int);
     std::uintptr_t drawServerHitboxes;
     std::uintptr_t postDataUpdate;
+
+    std::uintptr_t setupBones;
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

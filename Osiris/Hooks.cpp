@@ -721,6 +721,42 @@ static void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* ed
     return;
 }
 
+static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* boneToWorldOut , int maxBones, int boneMask, float currentTime) noexcept
+{
+    static auto original = hooks->setupBones.getOriginal<bool>(boneToWorldOut, boneMask, maxBones, currentTime);
+
+    auto entity = reinterpret_cast<Entity*>(reinterpret_cast<uintptr_t>(thisPointer) - 4);
+
+    if (!entity || !localPlayer || localPlayer.get() != entity)
+        return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
+
+    if (!Animations::isLocalUpdating())
+    {
+        if (boneToWorldOut)
+        {
+            auto renderOrigin = entity->getRenderOrigin();
+            auto realMatrix = Animations::getRealMatrix();
+            for (auto& i : realMatrix)
+            {
+                i[0][3] += renderOrigin.x;
+                i[1][3] += renderOrigin.y;
+                i[2][3] += renderOrigin.z;
+            }
+            memcpy(boneToWorldOut, realMatrix.data(), sizeof(matrix3x4) * maxBones);
+            renderOrigin = entity->getRenderOrigin();
+            for (auto& i : realMatrix)
+            {
+                i[0][3] -= renderOrigin.x;
+                i[1][3] -= renderOrigin.y;
+                i[2][3] -= renderOrigin.z;
+            }
+        }
+        return true;
+    }
+    else
+        return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -738,8 +774,6 @@ Hooks::Hooks(HMODULE moduleHandle) noexcept
 
 void Hooks::install() noexcept
 {
-
-    //TODO: Redo AnimFix
     originalPresent = **reinterpret_cast<decltype(originalPresent)**>(memory->present);
     **reinterpret_cast<decltype(present)***>(memory->present) = present;
     originalReset = **reinterpret_cast<decltype(originalReset)**>(memory->reset);
@@ -762,6 +796,8 @@ void Hooks::install() noexcept
     updateState.detour(memory->updateState, updateStateHook);
 
     postDataUpdate.detour(memory->postDataUpdate, postDataUpdateHook);
+
+    setupBones.detour(memory->setupBones, setupBonesHook);
     /*
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
 

@@ -48,6 +48,8 @@ public:
 
     MinHook sendDatagram;
 
+    MinHook setupBones;
+
     MinHook postDataUpdate;
 
     HookType fileSystem;

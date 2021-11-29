@@ -31,6 +31,9 @@ namespace Animations
 	bool gotFakeMatrix() noexcept;
 	std::array<matrix3x4, MAXSTUDIOBONES> getFakeMatrix() noexcept;
 
+	bool gotRealMatrix() noexcept;
+	std::array<matrix3x4, MAXSTUDIOBONES> getRealMatrix() noexcept;
+
 	struct Players
 	{
 		Players()

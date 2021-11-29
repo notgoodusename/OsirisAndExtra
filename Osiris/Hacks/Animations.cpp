@@ -15,13 +15,16 @@
 
 static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
+static std::array<matrix3x4, MAXSTUDIOBONES> realmatrix{};
 static bool updatingLocal{ true };
 static bool updatingEntity{ false };
 static bool updatingFake{ false };
 static bool sendPacket{ true };
 static bool gotMatrix{ false };
+static bool gotMatrixReal{ false };
 static Vector viewangles{};
 static std::array<AnimationLayer, 13> staticLayers{};
+static std::array<AnimationLayer, 13> layers{};
 static float primaryCycle{0.f};
 
 void Animations::init() noexcept
@@ -43,6 +46,36 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
     viewangles = cmd->viewangles;
     sendPacket = _sendPacket;
     localPlayer->getAnimstate()->buttons = cmd->buttons;
+
+    updatingLocal = true;
+
+    // allow animations to be animated in the same frame
+    if (localPlayer->getAnimstate()->lastUpdateFrame == memory->globalVars->framecount)
+        localPlayer->getAnimstate()->lastUpdateFrame -= 1;
+
+    if (localPlayer->getAnimstate()->lastUpdateTime == memory->globalVars->currenttime)
+        localPlayer->getAnimstate()->lastUpdateTime += ticksToTime(1);
+
+    localPlayer->updateState(localPlayer->getAnimstate(), viewangles);
+    localPlayer->updateClientSideAnimation();
+
+    std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+
+    if (sendPacket)
+    {
+        gotMatrixReal = localPlayer->setupBones(realmatrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
+        const auto origin = localPlayer->getRenderOrigin();
+        if (gotMatrixReal)
+        {
+            for (auto& i : realmatrix)
+            {
+                i[0][3] -= origin.x;
+                i[1][3] -= origin.y;
+                i[2][3] -= origin.z;
+            }
+        }
+    }
+    updatingLocal = false;
 }
 
 void Animations::fake() noexcept
@@ -115,58 +148,21 @@ void Animations::real(FrameStage stage) noexcept
 
     if (!localPlayer)
         return;
-
-    static std::array<AnimationLayer, 13> layers{};
-
-    if(layers.empty())
-        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-
-    static auto backupPoses = localPlayer->poseParameters();
-    static auto backupAbs = localPlayer->getAnimstate()->footYaw;
-
-    static int oldTick = 0;
-
-    /*
-    TODO:
-    How to process animations:
-    -Save all necesary values (netvars mostly) used on Animstate::Update, such as duckAmount, ladderNormal, isStrafing, etc
-    -Once sendPacket is true, process ALL commands at once
-    */
-
-    if (oldTick != memory->globalVars->tickCount) //TODO: Add list of commands to animate
+    for (int i = 0; i < 13; i++)
     {
-        oldTick = memory->globalVars->tickCount;
-        updatingLocal = true;
-
-        // allow animations to be animated in the same frame
-        if (localPlayer->getAnimstate()->lastUpdateFrame == memory->globalVars->framecount)
-            localPlayer->getAnimstate()->lastUpdateFrame -= 1;
-
-        if (localPlayer->getAnimstate()->lastUpdateTime == memory->globalVars->currenttime)
-            localPlayer->getAnimstate()->lastUpdateTime += ticksToTime(1);
-
-        localPlayer->updateState(localPlayer->getAnimstate(), viewangles);
-        // updateClientSideAnimation calls animState update, but uses eyeAngles, 
-        // note: after updating the animstate lastUpdateFrame will be equal to memory->globalVars->framecount, so it wont be executed
-        // so no need to worry about it
-        // a better aproach would be too hook eyeAngles an return cmd->viewangles
-        localPlayer->updateClientSideAnimation();
-        std::memcpy(&staticLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-
-        if (sendPacket)
+        if (i == ANIMATION_LAYER_FLINCH ||
+            i == ANIMATION_LAYER_FLASHED ||
+            i == ANIMATION_LAYER_WHOLE_BODY ||
+            i == ANIMATION_LAYER_WEAPON_ACTION ||
+            i == ANIMATION_LAYER_WEAPON_ACTION_RECROUCH)
         {
-            backupPoses = localPlayer->poseParameters();
-            backupAbs = localPlayer->getAnimstate()->footYaw;
-            //setupBones
+            continue;
         }
-        updatingLocal = false;
+        auto& l = *localPlayer->getAnimationLayer(i);
+        if (!&l)
+            return;
+        l = layers.at(i);
     }
-
-    memory->setAbsAngle(localPlayer.get(), Vector{ 0, backupAbs, 0 });
-    std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-    localPlayer->poseParameters() = backupPoses;
-    //localPlayer->drawServerHitboxes();
 }
 
 void Animations::handlePlayers(FrameStage stage) noexcept
@@ -278,48 +274,48 @@ void Animations::packetStart() noexcept
     primaryCycle = localPlayer->getAnimstate()->primaryCycle;
 }
 
-void verifyLayer(int32_t activity) noexcept
+void verifyLayer(int32_t layer) noexcept
 {
-    AnimationLayer currentlayer = *localPlayer->getAnimationLayer(activity);
-    AnimationLayer previousLayer = staticLayers.at(activity);
+    AnimationLayer currentlayer = *localPlayer->getAnimationLayer(layer);
+    AnimationLayer previousLayer = staticLayers.at(layer);
 
-    auto& layer = *localPlayer->getAnimationLayer(activity);
-    if (!&layer)
+    auto& l = *localPlayer->getAnimationLayer(layer);
+    if (!&l)
         return;
 
     if (currentlayer.order != previousLayer.order)
     {
-        layer.order = previousLayer.order;
+        l.order = previousLayer.order;
     }
 
     if (currentlayer.sequence != previousLayer.sequence)
     {
-        layer.sequence = previousLayer.sequence;
+        l.sequence = previousLayer.sequence;
     }
 
     if (currentlayer.prevCycle != previousLayer.prevCycle)
     {
-        layer.prevCycle = previousLayer.prevCycle;
+        l.prevCycle = previousLayer.prevCycle;
     }
 
     if (currentlayer.weight != previousLayer.weight)
     {
-        layer.weight = previousLayer.weight;
+        l.weight = previousLayer.weight;
     }
 
     if (currentlayer.weightDeltaRate != previousLayer.weightDeltaRate)
     {
-        layer.weightDeltaRate = previousLayer.weightDeltaRate;
+        l.weightDeltaRate = previousLayer.weightDeltaRate;
     }
 
     if (currentlayer.playbackRate != previousLayer.playbackRate)
     {
-        layer.playbackRate = previousLayer.playbackRate;
+        l.playbackRate = previousLayer.playbackRate;
     }
 
     if (currentlayer.cycle != previousLayer.cycle)
     {
-        layer.cycle = previousLayer.cycle;
+        l.cycle = previousLayer.cycle;
     }
 }
 
@@ -330,6 +326,14 @@ void Animations::packetEnd() noexcept
 
     for (int i = 0; i < 13; i++)
     {
+        if (i == ANIMATION_LAYER_FLINCH ||
+            i == ANIMATION_LAYER_FLASHED ||
+            i == ANIMATION_LAYER_WHOLE_BODY ||
+            i == ANIMATION_LAYER_WEAPON_ACTION ||
+            i == ANIMATION_LAYER_WEAPON_ACTION_RECROUCH)
+        {
+            continue;
+        }
         verifyLayer(i);
     }
 
@@ -362,6 +366,16 @@ bool Animations::gotFakeMatrix() noexcept
 std::array<matrix3x4, MAXSTUDIOBONES> Animations::getFakeMatrix() noexcept
 {
     return fakematrix;
+}
+
+bool Animations::gotRealMatrix() noexcept
+{
+    return gotMatrixReal;
+}
+
+std::array<matrix3x4, MAXSTUDIOBONES> Animations::getRealMatrix() noexcept
+{
+    return realmatrix;
 }
 
 Animations::Players Animations::getPlayer(int index) noexcept

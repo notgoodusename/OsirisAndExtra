@@ -194,4 +194,6 @@ Memory::Memory() noexcept
     utilPlayerByIndex = reinterpret_cast<decltype(utilPlayerByIndex)>(findPattern(SERVER_DLL, "\x85\xC9\x7E\x32\xA1????"));
     drawServerHitboxes = findPattern(SERVER_DLL, "\x55\x8B\xEC\x81\xEC????\x53\x56\x8B\x35????\x8B\xD9\x57\x8B\xCE");
     postDataUpdate = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x56\x8B\xF1\x57\x80\xBE\x71");
+
+    setupBones = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8\xD8");
 }

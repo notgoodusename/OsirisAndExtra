@@ -126,6 +126,13 @@ void Animations::real(FrameStage stage) noexcept
 
     static int oldTick = 0;
 
+    /*
+    TODO:
+    How to process animations:
+    -Save all necesary values (netvars mostly) used on Animstate::Update, such as duckAmount, ladderNormal, isStrafing, etc
+    -Once sendPacket is true, process ALL commands at once
+    */
+
     if (oldTick != memory->globalVars->tickCount) //TODO: Add list of commands to animate
     {
         oldTick = memory->globalVars->tickCount;

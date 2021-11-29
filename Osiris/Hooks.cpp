@@ -727,7 +727,7 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
     auto entity = reinterpret_cast<Entity*>(reinterpret_cast<uintptr_t>(thisPointer) - 4);
 
-    if (!entity || !localPlayer || localPlayer.get() != entity)
+    if (!entity || !localPlayer || localPlayer.get() != entity || !memory->input->isCameraInThirdPerson)
         return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
 
     if (!Animations::isLocalUpdating())

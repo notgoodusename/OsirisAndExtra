@@ -412,7 +412,7 @@ public:
 
     Vector getBonePosition(int bone) noexcept
     {
-        if (matrix3x4 boneMatrices[256]; unfixedSetupBones(boneMatrices, 256, 256, 0.0f))
+        if (matrix3x4 boneMatrices[MAXSTUDIOBONES]; unfixedSetupBones(boneMatrices, MAXSTUDIOBONES, 256, 0.0f))
             return boneMatrices[bone].origin();
         else
             return Vector{ };

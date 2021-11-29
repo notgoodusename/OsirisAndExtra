@@ -84,7 +84,7 @@ struct StudioHitboxSet {
     }
 };
 
-constexpr auto MAXSTUDIOBONES = 256;
+constexpr auto MAXSTUDIOBONES = 128;
 constexpr auto BONE_USED_BY_HITBOX = 0x100;
 
 struct StudioBone {

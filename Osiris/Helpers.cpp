@@ -182,6 +182,15 @@ float Helpers::remapValClamped(float val, float A, float B, float C, float D) no
     return C + (D - C) * cVal;
 }
 
+float Helpers::normalizeYaw(float yaw) noexcept
+{
+    while (yaw < -180.f)
+        yaw += 360.f;
+    while (yaw > 180.f)
+        yaw -= 360.f;
+    return yaw;
+}
+
 static float alphaFactor = 1.0f;
 
 unsigned int Helpers::calculateColor(Color4 color) noexcept

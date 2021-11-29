@@ -26,6 +26,7 @@ namespace Helpers
     float angleNormalize(float angle) noexcept;
     float approachAngle(float target, float value, float speed) noexcept;
     float remapValClamped(float val, float A, float B, float C, float D) noexcept;
+    float normalizeYaw(float yaw) noexcept;
 
     unsigned int calculateColor(Color4 color) noexcept;
     unsigned int calculateColor(Color3 color) noexcept;

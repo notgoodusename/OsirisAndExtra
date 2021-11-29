@@ -620,67 +620,54 @@ void Misc::autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    float delta = std::clamp(Helpers::rad2deg(std::atan2(15.f, EnginePrediction::getVelocity().length2D())), 0.f, 45.f);
-    float angle = 0;
-    if (cmd->buttons & UserCmd::IN_FORWARD)
-    {
+    static float angle = 0.f;
+
+    bool back = cmd->buttons & UserCmd::IN_BACK;
+    bool forward = cmd->buttons & UserCmd::IN_FORWARD;
+    bool right = cmd->buttons & UserCmd::IN_MOVERIGHT;
+    bool left = cmd->buttons & UserCmd::IN_MOVELEFT;
+
+    if (back) {
+        angle = -180.f;
+        if (left)
+            angle -= 45.f;
+        else if (right)
+            angle += 45.f;
+    }
+    else if (left) {
+        angle = 90.f;
+        if (back)
+            angle += 45.f;
+        else if (forward)
+            angle -= 45.f;
+    }
+    else if (right) {
+        angle = -90.f;
+        if (back)
+            angle -= 45.f;
+        else if (forward)
+            angle += 45.f;
+    }
+    else {
         angle = 0.f;
-        if (cmd->buttons & UserCmd::IN_MOVELEFT)
-            angle = 45.f;
-        else if (cmd->buttons & UserCmd::IN_MOVERIGHT)
-            angle = -45.f;
-    }
-    if (!(cmd->buttons & (UserCmd::IN_FORWARD | UserCmd::IN_BACK)))
-    {
-        if (cmd->buttons & UserCmd::IN_MOVELEFT)
-            angle = 90.f;
-        if (cmd->buttons & UserCmd::IN_MOVERIGHT)
-            angle = -90.f;
-    }
-    if (cmd->buttons & UserCmd::IN_BACK)
-    {
-        angle = 180.f;
-        if (cmd->buttons & UserCmd::IN_MOVELEFT)
-            angle = 135.f;
-        else if (cmd->buttons & UserCmd::IN_MOVERIGHT)
-            angle = -135.f;
     }
 
-    static float direction = 0.f;
     if ((EnginePrediction::getFlags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP)) || localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER)
-    {
-        direction = angle;
-        direction = std::isfinite(direction) ? std::remainder(direction, 360.0f) : 0.0f;
         return;
-    }
 
     if (EnginePrediction::getFlags() & 1)
         return;
 
-    static bool flip = true;
-    if (std::abs(direction - angle) <= 180)
-    {
-        if (direction < angle)
-            direction += delta;
-        else
-            direction -= delta;
-    }
-    else {
-        if (direction < angle)
-            direction -= delta;
-        else
-            direction += delta;
-    }
-    direction = std::isfinite(direction) ? std::remainder(direction, 360.0f) : 0.0f;
+    currentViewAngles.y += angle;
 
-    Vector base;
-    interfaces->engine->getViewAngles(base);
+    cmd->forwardmove = 0.f;
+    cmd->sidemove = 0.f;
 
-    flip ? base.y += direction + delta : base.y += direction - delta;
-    flip ? cmd->sidemove = 450.f : cmd->sidemove = -450.f;
-    cmd->forwardmove = 0;
-    currentViewAngles.y = base.y;
-    flip = !flip;
+    const auto delta = Helpers::normalizeYaw(currentViewAngles.y - Helpers::rad2deg(std::atan2(EnginePrediction::getVelocity().y, EnginePrediction::getVelocity().x)));
+
+    cmd->sidemove = delta > 0.f ? -450.f : 450.f;
+
+    currentViewAngles.y = Helpers::normalizeYaw(currentViewAngles.y - delta);
 }
 
 void Misc::removeCrouchCooldown(UserCmd* cmd) noexcept

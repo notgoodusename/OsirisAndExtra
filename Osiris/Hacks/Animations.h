@@ -16,11 +16,11 @@ namespace Animations
 
 	void update(UserCmd*, bool& sendPacket) noexcept;
 
-	void real(FrameStage) noexcept;
+	void renderStart(FrameStage) noexcept;
 	void fake() noexcept;
 
 	void packetStart() noexcept;
-	void packetEnd() noexcept;
+	void postDataUpdate() noexcept;
 
 	void handlePlayers(FrameStage) noexcept;
 

@@ -141,7 +141,7 @@ void Animations::fake() noexcept
     }
 }
 
-void Animations::real(FrameStage stage) noexcept
+void Animations::renderStart(FrameStage stage) noexcept
 {
     if (stage != FrameStage::RENDER_START)
         return;
@@ -319,7 +319,7 @@ void verifyLayer(int32_t layer) noexcept
     }
 }
 
-void Animations::packetEnd() noexcept
+void Animations::postDataUpdate() noexcept
 {
     if (!localPlayer || !localPlayer->animOverlays())
         return;

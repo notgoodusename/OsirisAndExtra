@@ -193,7 +193,7 @@ static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int upda
 
     original(thisPointer, updateType);
     
-    Animations::packetEnd();
+    Animations::postDataUpdate();
     return;
 }
 
@@ -351,7 +351,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::applyZoom(stage);
         SkinChanger::run(stage);
         Misc::fixAnimationLOD(stage);
-        Animations::real(stage);
+        Animations::renderStart(stage);
         Animations::handlePlayers(stage);
         Backtrack::update(stage);
     }

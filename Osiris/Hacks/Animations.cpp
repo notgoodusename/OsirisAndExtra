@@ -147,14 +147,14 @@ void Animations::fake() noexcept
         std::array<AnimationLayer, 13> layers;
 
         std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-
-        auto backupAbs = localPlayer->getAbsAngle();
-        auto backupPoses = localPlayer->poseParameters();
+        const auto backupAbs = localPlayer->getAbsAngle();
+        const auto backupPoses = localPlayer->poseParameters();
 
         localPlayer->updateState(fakeAnimState, viewangles);
         memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, 0 });
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
+        
         gotMatrix = localPlayer->setupBones(fakematrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
         const auto origin = localPlayer->getRenderOrigin();
         if (gotMatrix)
@@ -166,9 +166,11 @@ void Animations::fake() noexcept
                 i[2][3] -= origin.z;
             }
         }
+
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->poseParameters() = backupPoses;
         memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
+
         updatingFake = false;
     }
 }

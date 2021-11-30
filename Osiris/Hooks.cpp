@@ -270,7 +270,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 
     previousViewAngles = cmd->viewangles;
     Animations::update(cmd, sendPacket);
-    //Animations::fake();
+    Animations::fake();
     return false;
 }
 
@@ -343,7 +343,6 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Misc::oppositeHandKnife(stage);
         Visuals::removeGrass(stage);
         Visuals::modifySmoke(stage);
-        Visuals::playerModel(stage);
         Visuals::disablePostProcessing(stage);
         Visuals::removeVisualRecoil(stage);
         Visuals::applyZoom(stage);
@@ -726,6 +725,9 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
     auto entity = reinterpret_cast<Entity*>(reinterpret_cast<uintptr_t>(thisPointer) - 4);
 
     if (!entity || !localPlayer || localPlayer.get() != entity || !memory->input->isCameraInThirdPerson)
+        return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
+
+    if (Animations::isFakeUpdating())
         return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
 
     if (!Animations::isLocalUpdating())

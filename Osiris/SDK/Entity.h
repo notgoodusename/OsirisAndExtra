@@ -48,6 +48,16 @@ public:
     float cycle; //44, networked
     void* owner; //48
     int invalidatePhysicsBits; //52
+
+    void reset()
+    {
+        sequence = 0;
+        weight = 0;
+        weightDeltaRate = 0;
+        playbackRate = 0;
+        prevCycle = 0;
+        cycle = 0;
+    }
 };
 
 enum class MoveType {
@@ -285,7 +295,7 @@ public:
 
     float spawnTime() noexcept
     {
-        return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + 0xA360);
+        return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + 0x103C0);
     }
 
     int* getCachedBoneData() noexcept

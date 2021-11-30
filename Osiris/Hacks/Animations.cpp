@@ -44,12 +44,37 @@ void Animations::init() noexcept
 
 void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
 {
+    static float spawnTime = 0.f;
+
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
     viewangles = cmd->viewangles;
     sendPacket = _sendPacket;
     localPlayer->getAnimstate()->buttons = cmd->buttons;
+
+    if (spawnTime != localPlayer->spawnTime())
+    {
+        spawnTime = localPlayer->spawnTime();
+        for (int i = 0; i < 13; i++)
+        {
+            if (i == ANIMATION_LAYER_FLINCH ||
+                i == ANIMATION_LAYER_FLASHED ||
+                i == ANIMATION_LAYER_WHOLE_BODY ||
+                i == ANIMATION_LAYER_WEAPON_ACTION ||
+                i == ANIMATION_LAYER_WEAPON_ACTION_RECROUCH)
+            {
+                continue;
+            }
+            auto& l = *localPlayer->getAnimationLayer(i);
+            if (!&l)
+                continue;
+            l.reset();
+        }
+    }
+
+    if (!localPlayer->getAnimstate())
+        return;
 
     updatingLocal = true;
 
@@ -167,7 +192,7 @@ void Animations::renderStart(FrameStage stage) noexcept
         }
         auto& l = *localPlayer->getAnimationLayer(i);
         if (!&l)
-            return;
+            continue;
         l = layers.at(i);
     }
 }

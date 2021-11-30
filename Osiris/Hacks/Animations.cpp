@@ -27,6 +27,10 @@ static std::array<AnimationLayer, 13> staticLayers{};
 static std::array<AnimationLayer, 13> layers{};
 static float primaryCycle{0.f};
 
+static float footYaw{};
+static std::array<float, 24> poseParameters{};
+static std::array<AnimationLayer, 13> sendPacketLayers{};
+
 void Animations::init() noexcept
 {
     static auto jiggleBones = interfaces->cvar->findVar("r_jiggle_bones");
@@ -63,6 +67,9 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
 
     if (sendPacket)
     {
+        std::memcpy(&sendPacketLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+        footYaw = localPlayer->getAnimstate()->footYaw;
+        poseParameters = localPlayer->poseParameters();
         gotMatrixReal = localPlayer->setupBones(realmatrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
         const auto origin = localPlayer->getRenderOrigin();
         if (gotMatrixReal)
@@ -376,6 +383,21 @@ bool Animations::gotRealMatrix() noexcept
 std::array<matrix3x4, MAXSTUDIOBONES> Animations::getRealMatrix() noexcept
 {
     return realmatrix;
+}
+
+float Animations::getFootYaw() noexcept
+{
+    return footYaw;
+}
+
+std::array<float, 24> Animations::getPoseParameters() noexcept
+{
+    return poseParameters;
+}
+
+std::array<AnimationLayer, 13> Animations::getAnimLayers() noexcept
+{
+    return sendPacketLayers;
 }
 
 Animations::Players Animations::getPlayer(int index) noexcept

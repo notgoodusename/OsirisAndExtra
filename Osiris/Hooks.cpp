@@ -732,6 +732,21 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
     if (!Animations::isLocalUpdating())
     {
+        const auto poseParameters = localPlayer->poseParameters();
+        localPlayer->poseParameters() = Animations::getPoseParameters();
+
+        std::array<AnimationLayer, 13> layers;
+        std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+
+        std::array<AnimationLayer, 13> layer = Animations::getAnimLayers();
+        std::memcpy(localPlayer->animOverlays(), &layer, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0.f, Animations::getFootYaw(), 0.f });
+        original(thisPointer, nullptr, maxBones, boneMask, currentTime);
+
+        localPlayer->poseParameters() = poseParameters;
+        std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+        
         if (boneToWorldOut)
         {
             auto renderOrigin = entity->getRenderOrigin();

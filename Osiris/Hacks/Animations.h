@@ -34,6 +34,10 @@ namespace Animations
 	bool gotRealMatrix() noexcept;
 	std::array<matrix3x4, MAXSTUDIOBONES> getRealMatrix() noexcept;
 
+	float getFootYaw() noexcept;
+	std::array<float, 24> getPoseParameters() noexcept;
+	std::array<AnimationLayer, 13> getAnimLayers() noexcept;
+
 	struct Players
 	{
 		Players()

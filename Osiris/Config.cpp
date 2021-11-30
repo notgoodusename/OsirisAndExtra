@@ -484,12 +484,9 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::string>(j, "Kill message string", m.killMessageString);
     read(j, "Name stealer", m.nameStealer);
     read(j, "Disable HUD blur", m.disablePanoramablur);
-    read(j, "Ban color", m.banColor);
-    read<value_t::string>(j, "Ban text", m.banText);
     read(j, "Fast plant", m.fastPlant);
     read(j, "Fast Stop", m.fastStop);
     read<value_t::object>(j, "Bomb timer", m.bombTimer);
-    read(j, "Quick reload", m.quickReload);
     read(j, "Prepare revolver", m.prepareRevolver);
     read(j, "Prepare revolver key", m.prepareRevolverKey);
     read(j, "Hit sound", m.hitSound);
@@ -930,12 +927,9 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Kill message string", killMessageString);
     WRITE("Name stealer", nameStealer);
     WRITE("Disable HUD blur", disablePanoramablur);
-    WRITE("Ban color", banColor);
-    WRITE("Ban text", banText);
     WRITE("Fast plant", fastPlant);
     WRITE("Fast Stop", fastStop);
     WRITE("Bomb timer", bombTimer);
-    WRITE("Quick reload", quickReload);
     WRITE("Prepare revolver", prepareRevolver);
     WRITE("Prepare revolver key", prepareRevolverKey);
     WRITE("Hit sound", hitSound);

@@ -433,42 +433,6 @@ void Misc::disablePanoramablur() noexcept
     blur->setValue(config->misc.disablePanoramablur);
 }
 
-void Misc::quickReload(UserCmd* cmd) noexcept
-{
-    if (config->misc.quickReload) {
-        static Entity* reloadedWeapon{ nullptr };
-
-        if (reloadedWeapon) {
-            for (auto weaponHandle : localPlayer->weapons()) {
-                if (weaponHandle == -1)
-                    break;
-
-                if (interfaces->entityList->getEntityFromHandle(weaponHandle) == reloadedWeapon) {
-                    cmd->weaponselect = reloadedWeapon->index();
-                    cmd->weaponsubtype = reloadedWeapon->getWeaponSubType();
-                    break;
-                }
-            }
-            reloadedWeapon = nullptr;
-        }
-
-        if (auto activeWeapon{ localPlayer->getActiveWeapon() }; activeWeapon && activeWeapon->isInReload() && activeWeapon->clip() == activeWeapon->getWeaponData()->maxClip) {
-            reloadedWeapon = activeWeapon;
-
-            for (auto weaponHandle : localPlayer->weapons()) {
-                if (weaponHandle == -1)
-                    break;
-
-                if (auto weapon{ interfaces->entityList->getEntityFromHandle(weaponHandle) }; weapon && weapon != reloadedWeapon) {
-                    cmd->weaponselect = weapon->index();
-                    cmd->weaponsubtype = weapon->getWeaponSubType();
-                    break;
-                }
-            }
-        }
-    }
-}
-
 bool Misc::changeName(bool reconnect, const char* newName, float delay) noexcept
 {
     static auto exploitInitialized{ false };
@@ -510,17 +474,6 @@ void Misc::bunnyHop(UserCmd* cmd) noexcept
         cmd->buttons &= ~UserCmd::IN_JUMP;
 
     wasLastTimeOnGround = localPlayer->flags() & 1;
-}
-
-void Misc::fakeBan(bool set) noexcept
-{
-    static bool shouldSet = false;
-
-    if (set)
-        shouldSet = set;
-
-    if (shouldSet && interfaces->engine->isInGame() && changeName(false, std::string{ "\x1\xB" }.append(std::string{ static_cast<char>(config->misc.banColor + 1) }).append(config->misc.banText).append("\x1").c_str(), 5.0f))
-        shouldSet = false;
 }
 
 void Misc::fixTabletSignal() noexcept

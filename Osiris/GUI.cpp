@@ -1497,21 +1497,9 @@ void GUI::renderMiscWindow() noexcept
     ImGui::InputText("", &config->misc.killMessageString);
     ImGui::PopID();
     ImGui::Checkbox("Name stealer", &config->misc.nameStealer);
-    ImGui::PushID(3);
-    ImGui::SetNextItemWidth(100.0f);
-    ImGui::Combo("", &config->misc.banColor, "White\0Red\0Purple\0Green\0Light green\0Turquoise\0Light red\0Gray\0Yellow\0Gray 2\0Light blue\0Gray/Purple\0Blue\0Pink\0Dark orange\0Orange\0");
-    ImGui::PopID();
-    ImGui::SameLine();
-    ImGui::PushID(4);
-    ImGui::InputText("", &config->misc.banText);
-    ImGui::PopID();
-    ImGui::SameLine();
-    if (ImGui::Button("Setup fake ban"))
-        Misc::fakeBan(true);
     ImGui::Checkbox("Fast plant", &config->misc.fastPlant);
     ImGui::Checkbox("Fast Stop", &config->misc.fastStop);
     ImGuiCustom::colorPicker("Bomb timer", config->misc.bombTimer);
-    ImGui::Checkbox("Quick reload", &config->misc.quickReload);
     ImGui::Checkbox("Prepare revolver", &config->misc.prepareRevolver);
     ImGui::SameLine();
     ImGui::PushID("Prepare revolver Key");
@@ -1523,7 +1511,7 @@ void GUI::renderMiscWindow() noexcept
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("audio file must be put in csgo/sound/ directory");
     }
-    ImGui::PushID(5);
+    ImGui::PushID(2);
     ImGui::Combo("Kill Sound", &config->misc.killSound, "None\0Metal\0Gamesense\0Bell\0Glass\0Custom\0");
     if (config->misc.killSound == 5) {
         ImGui::InputText("Kill Sound filename", &config->misc.customKillSound);

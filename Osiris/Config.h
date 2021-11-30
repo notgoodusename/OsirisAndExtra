@@ -237,7 +237,6 @@ public:
         bool fixTabletSignal{ false };
         bool fastPlant{ false };
         bool fastStop{ false };
-        bool quickReload{ false };
         bool prepareRevolver{ false };
         bool oppositeHandKnife = false;
         bool svPureBypass{ false };
@@ -261,8 +260,6 @@ public:
         Watermark watermark;
         float aspectratio{ 0 };
         std::string killMessageString{ "Gotcha!" };
-        int banColor{ 6 };
-        std::string banText{ "Cheater has been permanently banned from official CS:GO servers." };
         ColorToggle3 bombTimer{ 1.0f, 0.55f, 0.0f };
         KeyBind prepareRevolverKey = KeyBind::NONE;
         int hitSound{ 0 };

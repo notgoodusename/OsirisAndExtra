@@ -250,18 +250,22 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
             player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.simulationTime) / memory->globalVars->intervalPerTick) - 1;
 
+            if (entity->flags() & 1)
+                player.velocity.z = 0.f;
+
             if (entity->flags() & 1
                 && player.layers[ANIMATION_LAYER_ALIVELOOP].weight > 0.f
-                && player.layers[ANIMATION_LAYER_ALIVELOOP].weight < 1.f)
+                && player.layers[ANIMATION_LAYER_ALIVELOOP].weight < 1.f
+                && player.layers[ANIMATION_LAYER_ALIVELOOP].cycle > player.oldlayers[ANIMATION_LAYER_ALIVELOOP].cycle)
             {
                 float velocityLengthXY = 0.f;
                 auto weapon = entity->getActiveWeapon();
-                float flMaxSpeedRun = weapon ? std::fmaxf(weapon->getMaxSpeed(), 0.001f) : CS_PLAYER_SPEED_RUN;
+                float maxSpeedRun = weapon ? std::fmaxf(weapon->getMaxSpeed(), 0.001f) : CS_PLAYER_SPEED_RUN;
 
                 auto modifier = 0.35f * (1.0f - player.layers[ANIMATION_LAYER_ALIVELOOP].weight);
 
                 if (modifier > 0.f && modifier < 1.0f)
-                    velocityLengthXY = flMaxSpeedRun * (modifier + 0.55f);
+                    velocityLengthXY = maxSpeedRun * (modifier + 0.55f);
 
                 if (velocityLengthXY != 0.f)
                 {

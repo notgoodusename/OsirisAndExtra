@@ -652,12 +652,12 @@ static void __fastcall resetStateHook(void* thisPointer, void* edx) noexcept
     if (!entity)
         return original(thisPointer);
 
+    original(thisPointer);
+
     animState->lowerBodyRealignTimer = 0.f;
     animState->deployRateLimiting = false;
     animState->jumping = false;
     animState->buttons = 0;
-
-    return original(thisPointer);
 }
 
 static void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
@@ -813,24 +813,18 @@ void Hooks::install() noexcept
 
     setupVelocity.detour(memory->setupVelocity, setupVelocityHook);
     setupMovement.detour(memory->setupMovement, setupMovementHook);
+    setupAliveloop.detour(memory->setupAliveloop, setupAliveloopHook);
 
     updateState.detour(memory->updateState, updateStateHook);
+    resetState.detour(memory->resetState, resetStateHook);
 
     postDataUpdate.detour(memory->postDataUpdate, postDataUpdateHook);
 
     setupBones.detour(memory->setupBones, setupBonesHook);
     /*
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
-
-    //modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
+    modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
     calculateView.detour(memory->calculateView, calculateViewHook);
-    updateState.detour(memory->updateState, updateStateHook);
-
-    resetState.detour(memory->resetState, resetStateHook);
-
-    //setupVelocity.detour(memory->setupVelocity, setupVelocityHook);
-    //setupMovement.detour(memory->setupMovement, setupMovementHook);
-    //setupAliveloop.detour(memory->setupAliveloop, setupAliveloopHook);
     */
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());

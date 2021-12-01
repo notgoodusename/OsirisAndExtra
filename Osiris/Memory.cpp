@@ -167,10 +167,10 @@ Memory::Memory() noexcept
 
     setCollisionBounds = reinterpret_cast<decltype(setCollisionBounds)>(findPattern(CLIENT_DLL, "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF8\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x83\xEC\x18\x56\x57\x8B\x7B"));
     calculateView = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\xFF\x75\x18");
+
     setupVelocity = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x56\x57\x8B\x3D");
     setupMovement = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x56\x57\x8B\x3D????\x8B\xF1");
-    
-    //setupAliveloop = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x56\x8B\x71\x60\x83\xBE\x8C\x29????\x84\x93????\xB6\x80\x29");
+    setupAliveloop = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x53\x56\x57\x8B\xF9\x8B\x77\x60");
 
     randomSeed = reinterpret_cast<decltype(randomSeed)>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomSeed"));
     randomFloat = reinterpret_cast<decltype(randomFloat)>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomFloat"));

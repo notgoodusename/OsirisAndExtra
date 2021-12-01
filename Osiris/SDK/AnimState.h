@@ -270,6 +270,8 @@ struct AnimState //This is the client one
 	float getLayerWeight(size_t layer) noexcept;
 	int getLayerActivity(size_t layer) noexcept;
 	int getLayerSequence(size_t layer) noexcept;
+
+	int getTicksFromCycle(float playbackRate, float cycle, float previousCycle) noexcept;
 };
 
 enum animEvent

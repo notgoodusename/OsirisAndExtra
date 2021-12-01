@@ -52,6 +52,8 @@ namespace Animations
 		Vector lastOrigin{};
 		Vector velocity{};
 
+		float spawnTime{ 0.f };
+
 		float simulationTime{ 0.f };
 		int chokedPackets{ 0 };
 		bool gotMatrix{ false };
@@ -61,6 +63,19 @@ namespace Animations
 			simulationTime = 0.f;
 			chokedPackets = 0;
 			gotMatrix = false;
+			lastOrigin = Vector{};
+			velocity = Vector{};
+			mins = Vector{};
+			maxs = Vector{};
+		}
+
+		void reset()
+		{
+			simulationTime = 0.f;
+			chokedPackets = 0;
+			gotMatrix = false;
+			oldlayers = {};
+			layers = {};
 			lastOrigin = Vector{};
 			velocity = Vector{};
 			mins = Vector{};

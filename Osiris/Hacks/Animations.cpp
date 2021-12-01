@@ -182,6 +182,7 @@ void Animations::renderStart(FrameStage stage) noexcept
 
     if (!localPlayer)
         return;
+
     for (int i = 0; i < 13; i++)
     {
         if (i == ANIMATION_LAYER_FLINCH ||
@@ -210,6 +211,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             record.clear();
         return;
     }
+
     for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
     {
         auto entity = interfaces->entityList->getEntity(i);
@@ -220,9 +222,15 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             continue;
         }
 
-        if(!player.layers.empty())
-            std::memcpy(&player.oldlayers, &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
-        std::memcpy(&player.layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayersCount());
+        if (entity->spawnTime() != player.spawnTime)
+        {
+            player.spawnTime = entity->spawnTime();
+            player.reset();
+        }
+
+        std::array<AnimationLayer, 13> layers;
+
+        std::memcpy(&layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
         const auto frameTime = memory->globalVars->frametime;
         const auto currentTime = memory->globalVars->currenttime;
@@ -232,9 +240,15 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         if (player.simulationTime != entity->simulationTime())
         {
+            if (!player.layers.empty())
+                std::memcpy(&player.oldlayers, &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
+            std::memcpy(&player.layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayersCount());
+
             if (player.lastOrigin.notNull())
                 player.velocity = (entity->origin() - player.lastOrigin) * (1.0f / fabsf(entity->simulationTime() - player.simulationTime));
             player.lastOrigin = entity->origin();
+
+            player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.simulationTime) / memory->globalVars->intervalPerTick) - 1;
 
             if (entity->flags() & 1
                 && player.layers[ANIMATION_LAYER_ALIVELOOP].weight > 0.f
@@ -283,14 +297,57 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         if (player.simulationTime != entity->simulationTime())
         {
-            player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.simulationTime) / memory->globalVars->intervalPerTick) - 1;
+            if (!(entity->flags() & 1) && !player.oldlayers.empty())// && entity->moveType() != MoveType::NOCLIP)
+            {
+                auto currentActivity = entity->getAnimstate()->getLayerActivity(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
+                if (currentActivity == ACT_CSGO_FALL || currentActivity == ACT_CSGO_JUMP)
+                {
+                    std::array<AnimationLayer, 13> backupLayers;
+
+                    std::memcpy(&backupLayers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayersCount());
+                    std::memcpy(entity->animOverlays(), &player.oldlayers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
+                    auto oldActivity = entity->getAnimstate()->getLayerActivity(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
+                    std::memcpy(entity->animOverlays(), &backupLayers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
+
+                    float cycle;
+                    if (oldActivity != currentActivity)
+                    {
+                        entity->getAnimstate()->durationInAir = 0.0f;
+                        cycle = 0.0f;
+                    }
+                    else if (player.layers[ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL].cycle < player.oldlayers[ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL].cycle)
+                    {
+                        entity->getAnimstate()->durationInAir = 0.0f;
+                        cycle = 0.0f;
+                    }
+                    else
+                    {
+                        cycle = player.oldlayers[ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL].cycle;
+                    }
+
+                    int ticks = entity->getAnimstate()->getTicksFromCycle(player.layers[ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL].playbackRate,
+                        player.layers[ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL].cycle, cycle);
+
+                    if (ticks == 0 || player.layers[ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL].cycle >= 0.999f)
+                    {
+                        //if animation is finished already, fix up the total time in air
+                        int totalCommands = player.chokedPackets + 1;
+                        int ticksLeft = totalCommands - ticks;
+                        ticks += ticksLeft;
+                    }
+
+                    entity->getAnimstate()->durationInAir = entity->getAnimstate()->lastUpdateIncrement * ticks;
+                    entity->getAnimstate()->poseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, std::clamp(Helpers::smoothStepBounds(0.72f, 1.52f, entity->getAnimstate()->durationInAir), 0.f, 1.f));
+                }
+            }
+
             player.simulationTime = entity->simulationTime();
             player.gotMatrix = entity->setupBones(player.matrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
             player.mins = entity->getCollideable()->obbMins();
             player.maxs = entity->getCollideable()->obbMaxs();
         }
 
-        std::memcpy(entity->animOverlays(), &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
+        std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
         memory->globalVars->frametime = frameTime;
         memory->globalVars->currenttime = currentTime;

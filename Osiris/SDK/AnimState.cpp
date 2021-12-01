@@ -1133,10 +1133,12 @@ float AnimState::getLayerWeight(size_t layer) noexcept
 
 int AnimState::getLayerActivity(size_t layer) noexcept
 {
-    if (!this)
-        return 0;
+    auto entity = reinterpret_cast<Entity*>(player);
 
-    return memory->getLayerActivity(this, layer);
+    AnimationLayer* l = entity->getAnimationLayer(layer);
+    if (l)
+        return memory->getSequenceActivity(entity, l->sequence);
+    return ACT_INVALID;
 }
 
 int AnimState::getLayerSequence(size_t layer) noexcept
@@ -1147,4 +1149,27 @@ int AnimState::getLayerSequence(size_t layer) noexcept
     if (!&l)
         return 0;
     return l.sequence;
+}
+
+int AnimState::getTicksFromCycle(float playbackRate, float cycle, float previousCycle) noexcept
+{
+    int ticks = 0;
+
+    if (onLadder || playbackRate <= 0.0f)
+        return ticks;
+
+    float targetCycle = cycle;
+
+    if (targetCycle != previousCycle)
+    {
+        float currentCycle = previousCycle;
+        float timeDelta = lastUpdateIncrement != 0.0f ? lastUpdateIncrement : memory->globalVars->intervalPerTick;
+        while (currentCycle < targetCycle)
+        {
+            currentCycle += playbackRate * timeDelta;
+            ticks++;
+        }
+    }
+
+    return ticks;
 }

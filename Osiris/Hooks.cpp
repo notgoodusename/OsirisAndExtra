@@ -724,8 +724,14 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
     auto entity = reinterpret_cast<Entity*>(reinterpret_cast<uintptr_t>(thisPointer) - 4);
 
-    if (!entity || !localPlayer || localPlayer.get() != entity || !memory->input->isCameraInThirdPerson)
+    if (!entity || !localPlayer || localPlayer.get() != entity)
         return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
+
+    if (!memory->input->isCameraInThirdPerson)
+    {
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0.f, Animations::getFootYaw(), 0.f });
+        return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
+    }
 
     if (Animations::isFakeUpdating())
         return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);

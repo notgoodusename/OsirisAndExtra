@@ -7,12 +7,11 @@
 
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/matrix3x4.h"
+#include "../SDK/ModelInfo.h"
 #include "../SDK/Vector.h"
 
 enum class FrameStage;
 struct UserCmd;
-
-#define OSIRIS_BACKTRACK() true
 
 namespace Backtrack
 {
@@ -29,7 +28,7 @@ namespace Backtrack
         Vector mins;
         Vector maxs;
         float simulationTime;
-        matrix3x4 matrix[256];
+        matrix3x4 matrix[MAXSTUDIOBONES];
     };
 
     struct incomingSequence {

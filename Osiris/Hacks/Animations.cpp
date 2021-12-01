@@ -220,6 +220,8 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             continue;
         }
 
+        if(!player.layers.empty())
+            std::memcpy(&player.oldlayers, &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
         std::memcpy(&player.layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
         const auto frameTime = memory->globalVars->frametime;
@@ -283,7 +285,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
         {
             player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.simulationTime) / memory->globalVars->intervalPerTick) - 1;
             player.simulationTime = entity->simulationTime();
-            player.gotMatrix = entity->setupBones(player.matrix.data(), 256, 0x7FF00, memory->globalVars->currenttime);
+            player.gotMatrix = entity->setupBones(player.matrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
             player.mins = entity->getCollideable()->obbMins();
             player.maxs = entity->getCollideable()->obbMaxs();
         }

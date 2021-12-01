@@ -46,6 +46,7 @@ namespace Animations
 		}
 		std::array<matrix3x4, MAXSTUDIOBONES> matrix;
 		std::array<AnimationLayer, 13> layers { };
+		std::array<AnimationLayer, 13> oldlayers { };
 
 		Vector mins{}, maxs{};
 		Vector lastOrigin{};

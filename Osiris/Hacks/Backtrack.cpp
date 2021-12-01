@@ -9,8 +9,6 @@
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
 
-#if OSIRIS_BACKTRACK()
-
 static std::array<std::deque<Backtrack::Record>, 65> records;
 static std::deque<Backtrack::incomingSequence> sequences;
 
@@ -232,23 +230,3 @@ float Backtrack::getMaxUnlag() noexcept
 {
     return cvars.maxUnlag->getFloat();
 }
-
-#else
-
-namespace Backtrack
-{
-    void update(FrameStage) noexcept {}
-    void run(UserCmd*) noexcept {}
-
-    float getLerp() noexcept {}
-
-    void addLatencyToNetwork(NetworkChannel*, float) noexcept {}
-    void updateIncomingSequences() noexcept {}
-
-    const std::deque<Record>* getRecords(std::size_t index) noexcept { return nullptr; }
-    bool valid(float simtime) noexcept { return false; }
-    void init() noexcept {}
-    float getMaxUnlag() noexcept { return 0.f };
-}
-
-#endif

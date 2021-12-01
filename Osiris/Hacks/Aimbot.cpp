@@ -406,7 +406,7 @@ bool hitboxIntersection(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], 
     return false;
 }
 
-std::vector<Vector> Aimbot::multiPoint(Entity* entity, const matrix3x4 matrix[256], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _multiPoint)
+std::vector<Vector> Aimbot::multiPoint(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _multiPoint)
 {
     auto VectorTransformWrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
     {
@@ -471,7 +471,7 @@ std::vector<Vector> Aimbot::multiPoint(Entity* entity, const matrix3x4 matrix[25
     return vecArray;
 }
 
-bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set, const matrix3x4 matrix[256], Entity* activeWeapon, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
+bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set, const matrix3x4 matrix[MAXSTUDIOBONES], Entity* activeWeapon, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
 {
     static auto isSpreadEnabled = interfaces->cvar->findVar("weapon_accuracy_nospread");
     if (!hitChance || isSpreadEnabled->getInt() >= 1)

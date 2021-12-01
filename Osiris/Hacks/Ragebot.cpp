@@ -132,7 +132,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         auto backupMaxs = entity->getCollideable()->obbMaxs();
         auto backupOrigin = entity->getAbsOrigin();
 
-        memcpy(entity->getCachedBoneData(), player.matrix.data(), std::clamp(entity->getCachedBoneDataAmount(), 0, 256) * sizeof(matrix3x4));
+        memcpy(entity->getCachedBoneData(), player.matrix.data(), std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, player.lastOrigin);
         memory->setCollisionBounds(entity->getCollideable(), player.mins, player.maxs);
 
@@ -179,7 +179,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
                 if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                 {
-                    memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, 256) * sizeof(matrix3x4));
+                    memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
                     memory->setAbsOrigin(entity, backupOrigin);
                     memory->setCollisionBounds(entity->getCollideable(), backupMins, backupMaxs);
                     return;
@@ -218,7 +218,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             }
         }
 
-        memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, 256) * sizeof(matrix3x4));
+        memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, backupOrigin);
         memory->setCollisionBounds(entity->getCollideable(), backupMins, backupMaxs);
 
@@ -253,7 +253,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         backupMaxs = entity->getCollideable()->obbMaxs();
         backupOrigin = entity->getAbsOrigin();
 
-        memcpy(entity->getCachedBoneData(), record.matrix, std::clamp(entity->getCachedBoneDataAmount(), 0, 256) * sizeof(matrix3x4));
+        memcpy(entity->getCachedBoneData(), record.matrix, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, record.origin);
         memory->setCollisionBounds(entity->getCollideable(), record.mins, record.maxs);
 
@@ -288,7 +288,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
                 if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                 {
-                    memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, 256) * sizeof(matrix3x4));
+                    memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
                     memory->setAbsOrigin(entity, backupOrigin);
                     memory->setCollisionBounds(entity->getCollideable(), backupMins, backupMaxs);
                     return;
@@ -327,7 +327,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             }
         }
 
-        memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, 256) * sizeof(matrix3x4));
+        memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, backupOrigin);
         memory->setCollisionBounds(entity->getCollideable(), backupMins, backupMaxs);
 

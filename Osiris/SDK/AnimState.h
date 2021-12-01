@@ -81,27 +81,27 @@ public:
 struct animstatePoseParamCache
 {
 public:
-	bool m_bInitialized; //0
+	bool initialized; //0
 	PAD(3); //1
-	int m_nIndex; //4
-	char* m_szName; //8
+	int index; //4
+	char* name; //8
 
-	bool init(Entity* player, const char* szPoseParamName) noexcept
+	bool init(Entity* player, const char* poseParamName) noexcept
 	{
-		return memory->initPoseParameter(this, player, szPoseParamName);
+		return memory->initPoseParameter(this, player, poseParamName);
 	}
 
-	void setValue(Entity* player, float flValue) noexcept;
+	void setValue(Entity* player, float value) noexcept;
 }; //Size: 0xC(12)
 
 struct proceduralFoot
 {
-	Vector m_vecPosAnim;
-	Vector m_vecPosAnimLast;
-	Vector m_vecPosPlant;
-	Vector m_vecPlantVel;
-	float m_flLockAmount;
-	float m_flLastPlantTime;
+	Vector vecPosAnim;
+	Vector vecPosAnimLast;
+	Vector vecPosPlant;
+	Vector vecPlantVel;
+	float lockAmount;
+	float lastPlantTime;
 };//Size: 0x38(56)
 
 

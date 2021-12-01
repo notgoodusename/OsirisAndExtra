@@ -878,16 +878,16 @@ void AnimState::updateAnimLayer(size_t layerIndex, int sequence, float playbackR
     }
 }
 
-void animstatePoseParamCache::setValue(Entity* player, float flValue) noexcept
+void animstatePoseParamCache::setValue(Entity* player, float value) noexcept
 {
-    if (!m_bInitialized)
+    if (!initialized)
     {
-        init(player, m_szName);
+        init(player, name);
     }
-    if (m_bInitialized && player)
+    if (initialized && player)
     {
         interfaces->mdlCache->beginLock();
-        player->setPoseParameter(flValue, m_nIndex);
+        player->setPoseParameter(value, index);
         interfaces->mdlCache->endLock();
     }
 }

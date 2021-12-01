@@ -276,19 +276,12 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 }
             }
 
-            if (player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].playbackRate <= 0.f 
-                || player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].weight <= 0.f 
+            if (player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].playbackRate <= 0.f
+                || player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].weight <= 0.f
                 && entity->flags() & 1)
             {
                 player.velocity.x = 0.f;
                 player.velocity.y = 0.f;
-            }
-
-            if (entity->getAnimstate()->getLayerActivity(ANIMATION_LAYER_ADJUST) == ACT_CSGO_IDLE_ADJUST_STOPPEDMOVING ||
-                entity->getAnimstate()->getLayerActivity(ANIMATION_LAYER_ADJUST) == ACT_CSGO_IDLE_TURN_BALANCEADJUST)
-            {
-                player.velocity.x = std::clamp(entity->velocity().x, -1.f, 1.f);
-                player.velocity.y = std::clamp(entity->velocity().y, -1.f, 1.f);
             }
         }
 

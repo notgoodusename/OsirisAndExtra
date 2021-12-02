@@ -1026,15 +1026,15 @@ void AnimState::incrementLayerCycle(size_t layer, bool allowLoop) noexcept
     if (fabsf(l.playbackRate) <= 0)
         return;
 
-    float flCurrentCycle = l.cycle;
-    flCurrentCycle += lastUpdateIncrement * l.playbackRate;
+    float currentCycle = l.cycle;
+    currentCycle += lastUpdateIncrement * l.playbackRate;
 
-    if (!allowLoop && flCurrentCycle >= 1)
+    if (!allowLoop && currentCycle >= 1)
     {
-        flCurrentCycle = 0.999f;
+        currentCycle = 0.999f;
     }
 
-    l.cycle = (Helpers::clampCycle(flCurrentCycle));
+    l.cycle = (Helpers::clampCycle(currentCycle));
 }
 
 void AnimState::incrementLayerCycleWeightRateGeneric(size_t layer) noexcept

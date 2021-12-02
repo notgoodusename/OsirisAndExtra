@@ -1062,11 +1062,11 @@ void AnimState::incrementLayerWeight(size_t layer) noexcept
     if (abs(l.weightDeltaRate) <= 0)
         return;
 
-    float flCurrentWeight = l.weight;
-    flCurrentWeight += lastUpdateIncrement * l.weightDeltaRate;
-    flCurrentWeight = std::clamp(flCurrentWeight, 0.f, 1.f);
+    float currentWeight = l.weight;
+    currentWeight += lastUpdateIncrement * l.weightDeltaRate;
+    currentWeight = std::clamp(currentWeight, 0.f, 1.f);
 
-    l.weight = flCurrentWeight;
+    l.weight = currentWeight;
 }
 
 float AnimState::getLayerIdealWeightFromSeqCycle(size_t layer) noexcept

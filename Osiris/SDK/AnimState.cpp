@@ -174,43 +174,43 @@ void AnimState::setupVelocity() noexcept
         moveYaw = moveYawIdeal;
 
         // select a special starting cycle that's set by the animator in content
-        int nMoveSeq = getLayerSequence(ANIMATION_LAYER_MOVEMENT_MOVE);
-        if (nMoveSeq != -1)
+        int moveSeq = getLayerSequence(ANIMATION_LAYER_MOVEMENT_MOVE);
+        if (moveSeq != -1)
         {
-            StudioSeqdesc seqdesc = entity->getModelPtr()->seqdesc(nMoveSeq);
+            StudioSeqdesc seqdesc = entity->getModelPtr()->seqdesc(moveSeq);
             if (seqdesc.numAnimTags > 0)
             {
                 if (fabsf(Helpers::angleDiff(moveYaw, 180)) <= EIGHT_WAY_WIDTH) //N
                 {
-                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_N);
+                    primaryCycle = entity->getFirstSequenceAnimTag(moveSeq, ANIMTAG_STARTCYCLE_N);
                 }
                 else if (fabsf(Helpers::angleDiff(moveYaw, 135)) <= EIGHT_WAY_WIDTH) //NE
                 {
-                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_NE);
+                    primaryCycle = entity->getFirstSequenceAnimTag(moveSeq, ANIMTAG_STARTCYCLE_NE);
                 }
                 else if (fabsf(Helpers::angleDiff(moveYaw, 90)) <= EIGHT_WAY_WIDTH) //E
                 {
-                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_E);
+                    primaryCycle = entity->getFirstSequenceAnimTag(moveSeq, ANIMTAG_STARTCYCLE_E);
                 }
                 else if (fabsf(Helpers::angleDiff(moveYaw, 45)) <= EIGHT_WAY_WIDTH) //SE
                 {
-                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_SE);
+                    primaryCycle = entity->getFirstSequenceAnimTag(moveSeq, ANIMTAG_STARTCYCLE_SE);
                 }
                 else if (fabsf(Helpers::angleDiff(moveYaw, 0)) <= EIGHT_WAY_WIDTH) //S
                 {
-                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_S);
+                    primaryCycle = entity->getFirstSequenceAnimTag(moveSeq, ANIMTAG_STARTCYCLE_S);
                 }
                 else if (fabsf(Helpers::angleDiff(moveYaw, -45)) <= EIGHT_WAY_WIDTH) //SW
                 {
-                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_SW);
+                    primaryCycle = entity->getFirstSequenceAnimTag(moveSeq, ANIMTAG_STARTCYCLE_SW);
                 }
                 else if (fabsf(Helpers::angleDiff(moveYaw, -90)) <= EIGHT_WAY_WIDTH) //W
                 {
-                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_W);
+                    primaryCycle = entity->getFirstSequenceAnimTag(moveSeq, ANIMTAG_STARTCYCLE_W);
                 }
                 else if (fabsf(Helpers::angleDiff(moveYaw, -135)) <= EIGHT_WAY_WIDTH) //NW
                 {
-                    primaryCycle = entity->getFirstSequenceAnimTag(nMoveSeq, ANIMTAG_STARTCYCLE_NW);
+                    primaryCycle = entity->getFirstSequenceAnimTag(moveSeq, ANIMTAG_STARTCYCLE_NW);
                 }
             }
         }

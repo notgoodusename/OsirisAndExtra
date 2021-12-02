@@ -322,7 +322,7 @@ public:
 
     bool& useNewAnimationState() noexcept
     {
-        return *reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(this) + 0x3AC8);
+        return *reinterpret_cast<bool*>(reinterpret_cast<uintptr_t>(this) + 0x26C5);
     }
 
     uint32_t& mostRecentModelBoneCounter() noexcept

@@ -160,10 +160,10 @@ Memory::Memory() noexcept
 
     sendDatagram = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8????\xE8????\x56\x57\x8B\xF9\x89\x7C\x24\x18");
 
-    //modifyEyePosition = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x5C\x53\x8B\xD9\x56\x57\x83"); //x
+    modifyEyePosition = relativeToAbsolute<decltype(modifyEyePosition)>(findPattern(CLIENT_DLL, "\xE8????\x8B\x06\x8B\xCE\xFF\x90????\x85\xC0\x74\x50") + 1);
 
-    //lookUpBone = reinterpret_cast<decltype(lookUpBone)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x56\x8B\xF1\x57\x83\xBE\x4C\x29")); //x
-    //getBonePos = reinterpret_cast<decltype(getBonePos)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x56\x8B\xF1\x57\x83\xBE\x4C\x29")); //x
+    lookUpBone = relativeToAbsolute<decltype(lookUpBone)>(findPattern(CLIENT_DLL, "\xE8????\x85\xC0\x78\x4E") + 1);
+    getBonePos = relativeToAbsolute<decltype(getBonePos)>(findPattern(CLIENT_DLL, "\xE8????\x8D\x14\x24") + 1);
 
     setCollisionBounds = reinterpret_cast<decltype(setCollisionBounds)>(findPattern(CLIENT_DLL, "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF8\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x83\xEC\x18\x56\x57\x8B\x7B"));
     calculateView = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\xFF\x75\x18");

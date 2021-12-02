@@ -572,13 +572,13 @@ static void __fastcall checkForSequenceChangeHook(void* thisPointer, void* edx, 
     return original(thisPointer, hdr, curSequence, forceNewSequence, false);
 }
 
-static void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, Vector& pos) noexcept
+static void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, unsigned int* pos) noexcept
 {
-    using modifyEyePositionFn = void(__thiscall*)(void*, Vector&);
-    static auto original = (modifyEyePositionFn)hooks->modifyEyePosition.getDetour();
-    auto animState = reinterpret_cast<AnimState*>(thisPointer);
-    auto entity = reinterpret_cast<Entity*>(animState->player);
+    static auto original = hooks->modifyEyePosition.getOriginal<void>(pos);
 
+    auto animState = reinterpret_cast<AnimState*>(thisPointer);
+
+    auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, pos);
 
@@ -586,28 +586,30 @@ static void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, Vecto
     if (bone == -1)
         return;
 
+    Vector eyePosition = reinterpret_cast<Vector&>(pos);
+
     if (animState->landing || animState->animDuckAmount != 0.f || !entity->groundEntity())
     {
         Vector bonePos;
         entity->getBonePos(bone, bonePos);
         bonePos.z += 1.7f;
 
-        if (bonePos.z < pos.z)
+        if (bonePos.z < eyePosition.z)
         {
-            float lerpFraction = Helpers::simpleSplineRemapValClamped(fabsf(pos.z - bonePos.z),
+            float lerpFraction = Helpers::simpleSplineRemapValClamped(fabsf(eyePosition.z - bonePos.z),
                 FIRSTPERSON_TO_THIRDPERSON_VERTICAL_TOLERANCE_MIN,
                 FIRSTPERSON_TO_THIRDPERSON_VERTICAL_TOLERANCE_MAX,
                 0.0f, 1.0f);
 
-            pos.z = Helpers::lerp(lerpFraction, pos.z, bonePos.z);
+            eyePosition.z = Helpers::lerp(lerpFraction, eyePosition.z, bonePos.z);
         }
     }
+    pos = reinterpret_cast<unsigned int*>(&eyePosition);
 }
 
-static void __fastcall calculateViewHook(void* thisPointer, void* edx, Vector& eyeOrigin, Vector& eyeAngles, float& zNear, float& zFar, float& fov) noexcept
+static void __fastcall calculateViewHook(void* thisPointer, void* edx, float* eyeOrigin, int eyeAngles, int zNear, int zFar, float* fov) noexcept
 {
-    using calculateViewFn = void(__thiscall*)(void*, Vector&, Vector&, float&, float&, float&);
-    static auto original = (calculateViewFn)hooks->calculateView.getDetour();
+    static auto original = hooks->calculateView.getOriginal<void>(eyeOrigin, eyeAngles, zNear, zFar, fov);
 
     auto entity = reinterpret_cast<Entity*>(thisPointer);
 
@@ -821,10 +823,11 @@ void Hooks::install() noexcept
     postDataUpdate.detour(memory->postDataUpdate, postDataUpdateHook);
 
     setupBones.detour(memory->setupBones, setupBonesHook);
-    /*
-    checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
+
     modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
     calculateView.detour(memory->calculateView, calculateViewHook);
+    /*
+    checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
     */
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());

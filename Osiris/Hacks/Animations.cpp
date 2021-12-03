@@ -339,9 +339,9 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             }
 
             player.simulationTime = entity->simulationTime();
-            player.gotMatrix = entity->setupBones(player.matrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
             player.mins = entity->getCollideable()->obbMins();
             player.maxs = entity->getCollideable()->obbMaxs();
+            player.gotMatrix = entity->setupBones(player.matrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
         }
 
         std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());

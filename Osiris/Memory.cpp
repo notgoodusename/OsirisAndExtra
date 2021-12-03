@@ -165,7 +165,7 @@ Memory::Memory() noexcept
     lookUpBone = relativeToAbsolute<decltype(lookUpBone)>(findPattern(CLIENT_DLL, "\xE8????\x85\xC0\x78\x4E") + 1);
     getBonePos = relativeToAbsolute<decltype(getBonePos)>(findPattern(CLIENT_DLL, "\xE8????\x8D\x14\x24") + 1);
 
-    setCollisionBounds = reinterpret_cast<decltype(setCollisionBounds)>(findPattern(CLIENT_DLL, "\x53\x8B\xDC\x83\xEC\x08\x83\xE4\xF8\x83\xC4\x04\x55\x8B\x6B\x04\x89\x6C\x24\x04\x8B\xEC\x83\xEC\x18\x56\x57\x8B\x7B"));
+    setCollisionBounds = relativeToAbsolute<decltype(setCollisionBounds)>(findPattern(CLIENT_DLL, "\xE8????\x0F\xBF\x87????") + 1);
     calculateView = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\xFF\x75\x18");
 
     setupVelocity = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x56\x57\x8B\x3D");
@@ -196,4 +196,6 @@ Memory::Memory() noexcept
     postDataUpdate = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x56\x8B\xF1\x57\x80\xBE\x71");
 
     setupBones = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8\xD8");
+
+    markSurroundingBoundsDirty = relativeToAbsolute<decltype(markSurroundingBoundsDirty)>(findPattern(CLIENT_DLL, "\xE8????\x83\xFB\x01\x75\x41") + 1);
 }

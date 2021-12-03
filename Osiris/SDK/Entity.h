@@ -84,8 +84,31 @@ enum class Team {
 
 class Collideable {
 public:
+    PAD(8); //0
+    Vector vecMins; //8(x), 12(y), 16(z) 
+    Vector vecMaxs; //20(x), 24(y), 28(z)
+    unsigned short solidFlags; //32
+    unsigned char solidType; //34
+    unsigned char triggerBloat; //35
+    float radius; //36
+
     VIRTUAL_METHOD(Vector&, obbMins, 1, (), (this))
     VIRTUAL_METHOD(Vector&, obbMaxs, 2, (), (this))
+
+    void setCollisionBounds(const Vector& mins, const Vector& maxs)
+    {
+        if ((vecMins == mins) && (vecMaxs == maxs))
+            return;
+
+        vecMins = mins;
+        vecMaxs = maxs;
+
+        Vector vecSize;
+        Vector::vectorSubtract(maxs, mins, vecSize);
+        radius = vecSize.length() * 0.5f;
+
+        memory->markSurroundingBoundsDirty(this);
+    }
 };
 
 class Entity {

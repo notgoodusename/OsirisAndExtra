@@ -173,6 +173,8 @@ public:
     std::uintptr_t postDataUpdate;
 
     std::uintptr_t setupBones;
+
+    void(__thiscall* markSurroundingBoundsDirty)(void*);
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

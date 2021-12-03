@@ -243,6 +243,13 @@ struct Vector {
         result.z = a.x * b.y - a.y * b.x;
     }
 
+    static void vectorSubtract(const Vector& a, const Vector& b, Vector& c) noexcept
+    {
+        c.x = a.x - b.x;
+        c.y = a.y - b.y;
+        c.z = a.z - b.z;
+    }
+
     Vector cross(const Vector& other) noexcept
     {
         Vector v;

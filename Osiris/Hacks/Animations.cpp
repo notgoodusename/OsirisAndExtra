@@ -244,9 +244,9 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 std::memcpy(&player.oldlayers, &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
             std::memcpy(&player.layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
-            if (player.lastOrigin.notNull())
-                player.velocity = (entity->origin() - player.lastOrigin) * (1.0f / fabsf(entity->simulationTime() - player.simulationTime));
-            player.lastOrigin = entity->origin();
+            if (player.origin.notNull())
+                player.velocity = (entity->origin() - player.origin) * (1.0f / fabsf(entity->simulationTime() - player.simulationTime));
+            player.origin = entity->origin();
 
             player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.simulationTime) / memory->globalVars->intervalPerTick) - 1;
 

@@ -126,14 +126,16 @@ void Ragebot::run(UserCmd* cmd) noexcept
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
-
+        
         auto backupBoneCache = entity->getCachedBoneData();
         auto backupMins = entity->getCollideable()->obbMins();
         auto backupMaxs = entity->getCollideable()->obbMaxs();
         auto backupOrigin = entity->getAbsOrigin();
+        auto backupAbsAngle = entity->getAbsAngle();
 
         memcpy(entity->getCachedBoneData(), player.matrix.data(), std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
-        memory->setAbsOrigin(entity, player.lastOrigin);
+        memory->setAbsOrigin(entity, player.origin);
+        memory->setAbsAngle(entity, Vector{ 0.f, player.absAngle.y, 0.f });
         memory->setCollisionBounds(entity->getCollideable(), player.mins, player.maxs);
 
         const Model* model = entity->getModel();
@@ -147,7 +149,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         StudioHitboxSet* set = hdr->getHitboxSet(0);
         if (!set)
             continue;
-        
+        /*
         for (size_t i = 0; i < hitbox.size(); i++)
         {
             if (!hitbox[i])
@@ -181,6 +183,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 {
                     memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
                     memory->setAbsOrigin(entity, backupOrigin);
+                    memory->setAbsAngle(entity, Vector{ 0.f, backupAbsAngle.y, 0.f });
                     memory->setCollisionBounds(entity->getCollideable(), backupMins, backupMaxs);
                     return;
                 }
@@ -217,9 +220,10 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 bestSimulationTime = 0;
             }
         }
-
+        */
         memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, backupOrigin);
+        memory->setAbsAngle(entity, Vector{ 0.f, backupAbsAngle.y, 0.f });
         memory->setCollisionBounds(entity->getCollideable(), backupMins, backupMaxs);
 
         if (bestTarget.notNull())
@@ -246,15 +250,17 @@ void Ragebot::run(UserCmd* cmd) noexcept
         if (lastestTick == -1)
             continue;
 
-        auto record = records->at(lastestTick);
+        const auto record = records->at(lastestTick);
 
         backupBoneCache = entity->getCachedBoneData();
         backupMins = entity->getCollideable()->obbMins();
         backupMaxs = entity->getCollideable()->obbMaxs();
         backupOrigin = entity->getAbsOrigin();
+        backupAbsAngle = entity->getAbsAngle();
 
         memcpy(entity->getCachedBoneData(), record.matrix, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, record.origin);
+        memory->setAbsAngle(entity, Vector{ 0.f, record.absAngle.y, 0.f });
         memory->setCollisionBounds(entity->getCollideable(), record.mins, record.maxs);
 
         for (size_t i = 0; i < hitbox.size(); i++)
@@ -290,6 +296,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 {
                     memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
                     memory->setAbsOrigin(entity, backupOrigin);
+                    memory->setAbsAngle(entity, Vector{ 0.f, backupAbsAngle.y, 0.f });
                     memory->setCollisionBounds(entity->getCollideable(), backupMins, backupMaxs);
                     return;
                 }
@@ -329,6 +336,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         memcpy(entity->getCachedBoneData(), backupBoneCache, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, backupOrigin);
+        memory->setAbsAngle(entity, Vector{ 0.f, backupAbsAngle.y, 0.f });
         memory->setCollisionBounds(entity->getCollideable(), backupMins, backupMaxs);
 
         if (bestTarget.notNull())

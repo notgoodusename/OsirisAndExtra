@@ -49,7 +49,7 @@ namespace Animations
 		std::array<AnimationLayer, 13> oldlayers { };
 
 		Vector mins{}, maxs{};
-		Vector lastOrigin{};
+		Vector origin{}, absAngle{};
 		Vector velocity{};
 
 		float spawnTime{ 0.f };
@@ -63,7 +63,8 @@ namespace Animations
 			simulationTime = 0.f;
 			chokedPackets = 0;
 			gotMatrix = false;
-			lastOrigin = Vector{};
+			origin = Vector{};
+			absAngle = Vector{};
 			velocity = Vector{};
 			mins = Vector{};
 			maxs = Vector{};
@@ -71,15 +72,9 @@ namespace Animations
 
 		void reset()
 		{
-			simulationTime = 0.f;
-			chokedPackets = 0;
-			gotMatrix = false;
+			clear();
 			oldlayers = {};
 			layers = {};
-			lastOrigin = Vector{};
-			velocity = Vector{};
-			mins = Vector{};
-			maxs = Vector{};
 		}
 	};
 	Players getPlayer(int index) noexcept;

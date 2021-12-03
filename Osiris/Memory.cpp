@@ -172,8 +172,8 @@ Memory::Memory() noexcept
     setupMovement = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x56\x57\x8B\x3D????\x8B\xF1");
     setupAliveloop = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x53\x56\x57\x8B\xF9\x8B\x77\x60");
 
-    randomSeed = reinterpret_cast<decltype(randomSeed)>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomSeed"));
-    randomFloat = reinterpret_cast<decltype(randomFloat)>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "RandomFloat"));
+    randomSeed = reinterpret_cast<decltype(randomSeed)>(GetProcAddress(GetModuleHandleA(VSTDLIB_DLL), "RandomSeed"));
+    randomFloat = reinterpret_cast<decltype(randomFloat)>(GetProcAddress(GetModuleHandleA(VSTDLIB_DLL), "RandomFloat"));
 
     getWeaponPrefix = reinterpret_cast<decltype(getWeaponPrefix)>(findPattern(CLIENT_DLL, "\x53\x56\x57\x8B\xF9\x33\xF6\x8B\x4F\x60\x8B\x01\xFF"));
     addActivityModifier = reinterpret_cast<decltype(addActivityModifier)>(findPattern(SERVER_DLL, "\x55\x8B\xEC\x8B\x55\x08\x83\xEC\x30\x56\x8B\xF1\x85\xD2"));

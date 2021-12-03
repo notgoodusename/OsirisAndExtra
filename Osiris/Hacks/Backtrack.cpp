@@ -61,6 +61,7 @@ void Backtrack::update(FrameStage stage) noexcept
 
         Record record{ };
         record.origin = entity->origin();
+        record.absAngle = entity->getAbsAngle();
         record.simulationTime = entity->simulationTime();
         record.mins = entity->getCollideable()->obbMins();
         record.maxs = entity->getCollideable()->obbMaxs();

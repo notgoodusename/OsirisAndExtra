@@ -484,6 +484,8 @@ bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set
     int hits = 0;
     const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) / 100.f));
 
+    activeWeapon->updateAccuracyPenalty();
+
     const auto weapSpread = activeWeapon->getSpread();
     const auto weapInaccuracy = activeWeapon->getInaccuracy();
     const auto localEyePosition = localPlayer->getEyePosition();

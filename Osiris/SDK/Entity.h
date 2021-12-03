@@ -129,6 +129,7 @@ public:
         VIRTUAL_METHOD(int, getMuzzleAttachmentIndex3rdPerson, 469, (), (this))
         VIRTUAL_METHOD(float, getInaccuracy, 483, (), (this))
         VIRTUAL_METHOD(float, getSpread, 453, (), (this))
+        VIRTUAL_METHOD(void, updateAccuracyPenalty, 484, (), (this))
         VIRTUAL_METHOD(float, getSequenceCycleRate, 222, (CStudioHdr* studioHdr, int sequence), (this, studioHdr, sequence))
         VIRTUAL_METHOD(float, getLayerSequenceCycleRate, 223, (AnimationLayer* layer, int sequence), (this, layer, sequence))
         VIRTUAL_METHOD(void, updateClientSideAnimation, 224, (), (this))

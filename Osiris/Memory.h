@@ -175,6 +175,10 @@ public:
     std::uintptr_t setupBones;
 
     void(__thiscall* markSurroundingBoundsDirty)(void*);
+
+    std::uintptr_t clSendMove;
+    void(__thiscall* clMsgMoveSetData)(void*, unsigned char*, std::size_t);
+    void(__thiscall* clMsgMoveDescontructor)(void*);
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

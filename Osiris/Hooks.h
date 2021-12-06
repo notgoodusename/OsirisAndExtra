@@ -52,6 +52,8 @@ public:
 
     MinHook postDataUpdate;
 
+    MinHook clSendMove;
+
     HookType fileSystem;
     HookType bspQuery;
     HookType client;

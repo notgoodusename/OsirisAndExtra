@@ -198,4 +198,8 @@ Memory::Memory() noexcept
     setupBones = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8\xD8");
 
     markSurroundingBoundsDirty = relativeToAbsolute<decltype(markSurroundingBoundsDirty)>(findPattern(CLIENT_DLL, "\xE8????\x83\xFB\x01\x75\x41") + 1);
+
+    clSendMove = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x8B\x4D\x04\x81\xEC????");
+    clMsgMoveSetData = relativeToAbsolute<decltype(clMsgMoveSetData)>(findPattern(ENGINE_DLL, "\xE8????\x8D\x7E\x18") + 1);
+
 }

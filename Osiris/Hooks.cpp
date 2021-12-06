@@ -38,6 +38,7 @@
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
+#include "SDK/Client.h"
 #include "SDK/ClientState.h"
 #include "SDK/ConVar.h"
 #include "SDK/Engine.h"
@@ -780,6 +781,46 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
         return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
 }
 
+static void __cdecl clSendMoveHook() noexcept
+{
+    int nextCommandNr = memory->clientState->lastOutgoingCommand + memory->clientState->chokedCommands + 1;
+    int chokedCommands = memory->clientState->chokedCommands;
+
+    bfWrite dataOut;
+    byte data[4000 /* MAX_CMD_BUFFER */];
+    clMsgMove moveMsg;
+
+    dataOut.startWriting(data, sizeof(data));
+
+    int clCmdbackup = 2;
+    int backupCommands = std::clamp(clCmdbackup, 0, 7 /* MAX_BACKUP_COMMANDS */);
+
+    //int newCommands = std::clamp(chokedCommands + 1, 0, 15 /* MAX_NEW_COMMANDS */);
+    int newCommands = max(chokedCommands + 1, 0);
+
+    moveMsg.setNumBackupCommands(backupCommands);
+    moveMsg.setNumNewCommands(newCommands);
+
+    int numCmds = newCommands + backupCommands;
+    int from = -1;
+    bool ok = true;
+
+    for (int to = nextCommandNr - numCmds + 1; to <= nextCommandNr; ++to) {
+
+        bool isnewcmd = to >= (nextCommandNr - newCommands + 1);
+
+        ok = ok && interfaces->client->writeUsercmdDeltaToBuffer(0, &dataOut, from, to, isnewcmd);
+        from = to;
+    }
+
+    if (ok) {
+
+        moveMsg.setData(dataOut.getData(), dataOut.getNumBytesWritten());
+
+        memory->clientState->netChannel->sendNetMsg(&moveMsg); //crash here
+    }
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -829,6 +870,8 @@ void Hooks::install() noexcept
     /*
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
     */
+
+    //clSendMove.detour(memory->clSendMove, clSendMoveHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 

@@ -149,12 +149,6 @@ void AnimState::setupVelocity() noexcept
         adjustStarted = true;
     }
 
-    if (getLayerWeight(ANIMATION_LAYER_ADJUST) > 0.f)
-    {
-        incrementLayerCycle(ANIMATION_LAYER_ADJUST, false);
-        incrementLayerWeight(ANIMATION_LAYER_ADJUST);
-    }
-
     // the final model render yaw is aligned to the foot yaw
     if (velocityLengthXY > 0.f)
     {

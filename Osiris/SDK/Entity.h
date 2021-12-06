@@ -328,14 +328,9 @@ public:
         return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + 0x103C0);
     }
 
-    int* getCachedBoneData() noexcept
+    UtlVector<matrix3x4>& getBoneCache()
     {
-        return *reinterpret_cast<int**>(this + 0x2910);
-    }
-
-    int getCachedBoneDataAmount() noexcept
-    {
-        return *reinterpret_cast<int*>(this + 0x291C);
+        return *reinterpret_cast<UtlVector<matrix3x4>*>(reinterpret_cast<uintptr_t>(this) + 0x2914);
     }
 
     uint32_t& getEffects() noexcept

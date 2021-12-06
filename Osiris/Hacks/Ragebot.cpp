@@ -17,9 +17,9 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/ModelInfo.h"
 
-void resetMatrix(Entity* entity, int* boneCacheData, Vector origin, Vector absAngle, Vector mins, Vector maxs)
+void resetMatrix(Entity* entity, matrix3x4* boneCacheData, Vector origin, Vector absAngle, Vector mins, Vector maxs)
 {
-    memcpy(entity->getCachedBoneData(), boneCacheData, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
+    memcpy(entity->getBoneCache().memory, boneCacheData, std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
     memory->setAbsOrigin(entity, origin);
     memory->setAbsAngle(entity, Vector{ 0.f, absAngle.y, 0.f });
     entity->getCollideable()->setCollisionBounds(mins, maxs);
@@ -135,17 +135,17 @@ void Ragebot::run(UserCmd* cmd) noexcept
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
         
-        auto backupBoneCache = entity->getCachedBoneData();
+        auto backupBoneCache = entity->getBoneCache().memory;
         auto backupMins = entity->getCollideable()->obbMins();
         auto backupMaxs = entity->getCollideable()->obbMaxs();
         auto backupOrigin = entity->getAbsOrigin();
         auto backupAbsAngle = entity->getAbsAngle();
 
-        
-        memcpy(entity->getCachedBoneData(), player.matrix.data(), std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
+        memcpy(entity->getBoneCache().memory, player.matrix.data(), std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, player.origin);
         memory->setAbsAngle(entity, Vector{ 0.f, player.absAngle.y, 0.f });
         entity->getCollideable()->setCollisionBounds(player.mins, player.maxs);
+
         const Model* model = entity->getModel();
         if (!model)
         {
@@ -239,7 +239,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         if (bestTarget.notNull())
             break;
-        /*
+
         if (!config->backtrack.enabled)
             continue;
 
@@ -263,32 +263,32 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         const auto record = records->at(lastestTick);
 
-        backupBoneCache = entity->getCachedBoneData();
+        backupBoneCache = entity->getBoneCache().memory;
         backupMins = entity->getCollideable()->obbMins();
         backupMaxs = entity->getCollideable()->obbMaxs();
         backupOrigin = entity->getAbsOrigin();
         backupAbsAngle = entity->getAbsAngle();
 
-        memcpy(entity->getCachedBoneData(), record.matrix, std::clamp(entity->getCachedBoneDataAmount(), 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
+        memcpy(entity->getBoneCache().memory, record.matrix, std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, record.origin);
         memory->setAbsAngle(entity, Vector{ 0.f, record.absAngle.y, 0.f });
         entity->getCollideable()->setCollisionBounds(record.mins, record.maxs);
 
-        const Model* model = entity->getModel();
+        model = entity->getModel();
         if (!model)
         {
             resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
             continue;
         }
 
-        StudioHdr* hdr = interfaces->modelInfo->getStudioModel(model);
+        hdr = interfaces->modelInfo->getStudioModel(model);
         if (!hdr)
         {
             resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
             continue;
         }
 
-        StudioHitboxSet* set = hdr->getHitboxSet(0);
+        set = hdr->getHitboxSet(0);
         if (!set)
         {
             resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
@@ -366,7 +366,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
         resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
         if (bestTarget.notNull())
             break;
-            */
     }
 
     if (bestTarget.notNull()) 

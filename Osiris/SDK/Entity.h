@@ -246,6 +246,12 @@ public:
     Vector& getAbsVelocity() noexcept
     {
         static unsigned int m_vecAbsVelocity = DataMap::findInDataMap(getPredDescMap(), "m_vecAbsVelocity");
+        return *reinterpret_cast<Vector*>(reinterpret_cast<uintptr_t>(this) + m_vecAbsVelocity);
+    }
+
+    Vector& callGetAbsVelocity() noexcept
+    {
+        static unsigned int m_vecAbsVelocity = DataMap::findInDataMap(getPredDescMap(), "m_vecAbsVelocity");
         memory->calcAbsoluteVelocity(this);
         return *reinterpret_cast<Vector*>(reinterpret_cast<uintptr_t>(this) + m_vecAbsVelocity);
     }

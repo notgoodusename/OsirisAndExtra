@@ -85,6 +85,9 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
     if (localPlayer->getAnimstate()->lastUpdateTime == memory->globalVars->currenttime)
         localPlayer->getAnimstate()->lastUpdateTime += ticksToTime(1);
 
+    localPlayer->getEFlags() &= ~0x1000;
+    localPlayer->getAbsVelocity() = localPlayer->velocity();
+
     localPlayer->updateState(localPlayer->getAnimstate(), viewangles);
     localPlayer->updateClientSideAnimation();
 

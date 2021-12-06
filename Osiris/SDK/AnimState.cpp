@@ -962,6 +962,9 @@ void AnimState::setLayerSequence(size_t layer, int32_t activity) noexcept
         return;
 
     auto& l = *entity->getAnimationLayer(layer);
+    if (!&l)
+        return;
+
     l.playbackRate = entity->getLayerSequenceCycleRate(&l, sequence);
     l.sequence = sequence;
     l.cycle = l.weight = 0.f;

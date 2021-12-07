@@ -19,10 +19,9 @@ public:
     int chokedPackets;
 };
 
-inline int bitByte(int bits) {
-
+inline int bitByte(int bits) 
+{
 	return (bits + 7) >> 3;
-
 }
 
 struct bfWrite {
@@ -66,13 +65,11 @@ private:
 	const char* debugName;
 };
 
-
 struct clMsgMove
 {
-
 	clMsgMove() {
-		netMessageVtable = memory->clSendMove + 0x76;
-		clMsgMoveVtable = memory->clSendMove + 0x82;
+		netMessageVtable = *(int*)memory->clSendMove + 0x76;
+		clMsgMoveVtable = *(int*)memory->clSendMove + 0x82;
 		allocatedMemory = reinterpret_cast<void*>(memory->clSendMove + 0x7b);
 
 		unknown = 15;
@@ -88,7 +85,7 @@ struct clMsgMove
 	}
 
 	~clMsgMove() {
-		//memory->clMsgMoveDescontructor(this);
+		memory->clMsgMoveDescontructor(this);
 	}
 
 	inline auto setNumBackupCommands(int backupCommands) {

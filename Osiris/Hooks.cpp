@@ -846,6 +846,16 @@ void Hooks::install() noexcept
     if constexpr (std::is_same_v<HookType, MinHook>)
         MH_Initialize();
 
+    bool removeClientSideChokeLimit = false;
+    if (removeClientSideChokeLimit)
+    {
+        auto clMoveChokeClamp = memory->chokeLimit;
+        unsigned long protect = 0;
+        VirtualProtect((void*)clMoveChokeClamp, 4, PAGE_EXECUTE_READWRITE, &protect);
+        *(std::uint32_t*)clMoveChokeClamp = 62;
+        VirtualProtect((void*)clMoveChokeClamp, 4, protect, &protect);
+    }
+
     sendDatagram.detour(memory->sendDatagram, sendDatagramHook);
     
     doExtraBoneProcessing.detour(memory->doExtraBoneProcessing, doExtraBoneProcessingHook);

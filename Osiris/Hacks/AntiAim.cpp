@@ -146,7 +146,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
         if (config->fakeAngle.enabled) //Fakeangle
         {
             bool isInvertToggled = config->fakeAngle.invert.isToggled();
-            bool invert = isInvertToggled;
+            static bool invert = true;
+            if (config->fakeAngle.peekMode != 3)
+                invert = isInvertToggled;
             float leftDesyncAngle = config->fakeAngle.leftLimit * 2.f;
             float rightDesyncAngle = config->fakeAngle.rightLimit * 2.f;
 
@@ -165,6 +167,10 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                     invert = !autoDirection(cmd->viewangles);
                 else
                     invert = autoDirection(cmd->viewangles);
+                break;
+            case 3: // Jitter
+                if (sendPacket)
+                    invert = !invert;
                 break;
             default:
                 break;

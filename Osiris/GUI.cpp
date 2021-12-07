@@ -677,7 +677,7 @@ void GUI::renderFakeAngleWindow() noexcept
     ImGui::SliderInt("Right limit", &config->fakeAngle.rightLimit, 0, 60, "%d");
     ImGui::PopItemWidth();
 
-    ImGui::Combo("Peek mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0");
+    ImGui::Combo("Mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0Jitter\0");
     ImGui::Combo("Lby mode", &config->fakeAngle.lbyMode, "Normal\0Opposite\0Sway\0");
 
     ImGui::NextColumn();

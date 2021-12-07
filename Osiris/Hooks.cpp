@@ -63,6 +63,8 @@
 #include "SDK/Surface.h"
 #include "SDK/UserCmd.h"
 
+#define removeClientSideChokeLimit false
+
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
     [[maybe_unused]] static const auto once = [](HWND window) noexcept {
@@ -846,7 +848,6 @@ void Hooks::install() noexcept
     if constexpr (std::is_same_v<HookType, MinHook>)
         MH_Initialize();
 
-    bool removeClientSideChokeLimit = false;
     if (removeClientSideChokeLimit)
     {
         auto clMoveChokeClamp = memory->chokeLimit;

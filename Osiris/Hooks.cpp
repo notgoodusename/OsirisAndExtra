@@ -844,6 +844,9 @@ static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) no
     if(!config->tickbase.enabled)
         return original(accumulatedExtraSamples, finalTick);
 
+    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+        return original(accumulatedExtraSamples, finalTick);
+
     if (!localPlayer || !localPlayer->isAlive())
         return original(accumulatedExtraSamples, finalTick);
 
@@ -981,7 +984,7 @@ void Hooks::install() noexcept
     modelRender.hookAt(21, drawModelExecute);
 
     prediction.init(interfaces->prediction);
-   //prediction.hookAt(19, runCommand);
+    //prediction.hookAt(19, runCommand);
 
     sound.init(interfaces->sound);
     sound.hookAt(5, emitSound);

@@ -1891,7 +1891,7 @@ void GUI::renderGuiStyle() noexcept
                             if (ImGui::Button("AntiAim                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 3;
                             if (ImGui::Button("Fake Angle              ", ImVec2{ 80, 20 })) activeSubTabRagebot = 4;
                             if (ImGui::Button("FakeLag                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 5;
-                            if (ImGui::Button("Tickbase                ", ImVec2{ 80, 20 })) activeSubTabRagebot = 6;
+                            //if (ImGui::Button("Tickbase                ", ImVec2{ 80, 20 })) activeSubTabRagebot = 6;
                             break;
                         case 3: //Visuals
                             ImGui::SetCursorPosY(10);
@@ -1968,7 +1968,7 @@ void GUI::renderGuiStyle() noexcept
                                     break;
                                 case 6:
                                     //Tickbase
-                                    renderTickbaseWindow();
+                                    //renderTickbaseWindow();
                                     break;
                                 default:
                                     break;

@@ -35,7 +35,6 @@
 #include "Hacks/Ragebot.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
-#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
@@ -63,6 +62,8 @@
 #include "SDK/StudioRender.h"
 #include "SDK/Surface.h"
 #include "SDK/UserCmd.h"
+
+#define removeClientSideChokeLimit false
 
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
@@ -210,17 +211,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     __asm mov framePointer, ebp;
     bool& sendPacket = *reinterpret_cast<bool*>(*framePointer - 0x1C);
 
-    if (Tickbase::isShifting && config->tickbase.enabled)
-    {
-        sendPacket = Tickbase::ticksToShift == 1;
-        cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
-        if (config->tickbase.teleport)
-            return false;
-        cmd->tickCount += 200;
-        cmd->hasbeenpredicted = true;
-        return false;
-    }
-
     static auto pitchDown = interfaces->cvar->findVar("cl_pitchdown");
     static auto pitchUp = interfaces->cvar->findVar("cl_pitchup");
     static auto forwardSpeed = interfaces->cvar->findVar("cl_forwardspeed");;
@@ -284,7 +274,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     previousViewAngles = cmd->viewangles;
     Animations::update(cmd, sendPacket);
     Animations::fake();
-    //Tickbase::run(cmd);
     return false;
 }
 
@@ -834,68 +823,6 @@ static void __cdecl clSendMoveHook() noexcept
     }
 }
 
-static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
-{
-    using clMoveFn = void(__cdecl*)(float, float);
-    static auto original = (clMoveFn)hooks->clMove.getDetour();
-
-    static float realTime = 0.0f;
-
-    if(!config->tickbase.enabled)
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (!localPlayer || !localPlayer->isAlive())
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (Tickbase::doubletapCharge < Tickbase::shiftAmount && memory->globalVars->realtime - realTime > 1.0f)
-    {
-        Tickbase::doubletapCharge++;
-        return;
-    }
-
-    original(accumulatedExtraSamples, finalTick);
-
-    if (Tickbase::lastShift == 0)
-        return;
-
-    Tickbase::isShifting = true;
-    {
-        for (Tickbase::ticksToShift = min(Tickbase::doubletapCharge, Tickbase::lastShift); Tickbase::ticksToShift > 0; Tickbase::ticksToShift--, Tickbase::doubletapCharge--)
-            original(accumulatedExtraSamples, finalTick);
-    }
-    Tickbase::isShifting = false;
-    Tickbase::lastShift = 0;
-    realTime = memory->globalVars->realtime;
-}
-
-static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
-{
-    static auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
-
-    if (!entity || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, entity, cmd, moveHelper);
-
-    if (abs(cmd->tickCount - memory->globalVars->tickCount) >= 50)
-        return;
-
-    int tickbase = entity->tickBase();
-    auto currentime = memory->globalVars->currenttime;
-
-    if (cmd->commandNumber == Tickbase::commandNumber)
-        entity->tickBase() -= Tickbase::lastShift;
-
-    original(thisPointer, entity, cmd, moveHelper);
-
-    if (cmd->commandNumber == Tickbase::commandNumber)
-    {
-        entity->tickBase() = tickbase;
-        memory->globalVars->currenttime = currentime;
-    }
-}
-
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -920,6 +847,15 @@ void Hooks::install() noexcept
 
     if constexpr (std::is_same_v<HookType, MinHook>)
         MH_Initialize();
+
+    if (removeClientSideChokeLimit)
+    {
+        auto clMoveChokeClamp = memory->chokeLimit;
+        unsigned long protect = 0;
+        VirtualProtect((void*)clMoveChokeClamp, 4, PAGE_EXECUTE_READWRITE, &protect);
+        *(std::uint32_t*)clMoveChokeClamp = 62;
+        VirtualProtect((void*)clMoveChokeClamp, 4, protect, &protect);
+    }
 
     sendDatagram.detour(memory->sendDatagram, sendDatagramHook);
     
@@ -947,8 +883,6 @@ void Hooks::install() noexcept
     */
 
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
-    //clMove.detour(memory->clMove, clMoveHook);
-
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 
@@ -983,9 +917,6 @@ void Hooks::install() noexcept
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);
 
-    prediction.init(interfaces->prediction);
-    //prediction.hookAt(19, runCommand);
-
     sound.init(interfaces->sound);
     sound.hookAt(5, emitSound);
 
@@ -1004,12 +935,6 @@ void Hooks::install() noexcept
         *memory->dispatchSound = uintptr_t(&dispatchSound) - uintptr_t(memory->dispatchSound + 1);
         VirtualProtect(memory->dispatchSound, 4, oldProtection, nullptr);
     }
-
-    auto clMoveChokeClamp = memory->chokeLimit;
-    unsigned long protect = 0;
-    VirtualProtect((void*)clMoveChokeClamp, 4, PAGE_EXECUTE_READWRITE, &protect);
-    *(std::uint32_t*)clMoveChokeClamp = 62;
-    VirtualProtect((void*)clMoveChokeClamp, 4, protect, &protect);
 
     bspQuery.hookAt(6, listLeavesInBox);
     surface.hookAt(67, lockCursor);
@@ -1051,7 +976,6 @@ void Hooks::uninstall() noexcept
     clientState.restore();
     engine.restore();
     gameMovement.restore();
-    prediction.restore();
     modelRender.restore();
     sound.restore();
     surface.restore();

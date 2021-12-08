@@ -63,8 +63,6 @@
 #include "SDK/Surface.h"
 #include "SDK/UserCmd.h"
 
-#define removeClientSideChokeLimit false
-
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
     [[maybe_unused]] static const auto once = [](HWND window) noexcept {
@@ -848,15 +846,6 @@ void Hooks::install() noexcept
     if constexpr (std::is_same_v<HookType, MinHook>)
         MH_Initialize();
 
-    if (removeClientSideChokeLimit)
-    {
-        auto clMoveChokeClamp = memory->chokeLimit;
-        unsigned long protect = 0;
-        VirtualProtect((void*)clMoveChokeClamp, 4, PAGE_EXECUTE_READWRITE, &protect);
-        *(std::uint32_t*)clMoveChokeClamp = 62;
-        VirtualProtect((void*)clMoveChokeClamp, 4, protect, &protect);
-    }
-
     sendDatagram.detour(memory->sendDatagram, sendDatagramHook);
     
     doExtraBoneProcessing.detour(memory->doExtraBoneProcessing, doExtraBoneProcessingHook);
@@ -935,6 +924,12 @@ void Hooks::install() noexcept
         *memory->dispatchSound = uintptr_t(&dispatchSound) - uintptr_t(memory->dispatchSound + 1);
         VirtualProtect(memory->dispatchSound, 4, oldProtection, nullptr);
     }
+
+    auto clMoveChokeClamp = memory->chokeLimit;
+    unsigned long protect = 0;
+    VirtualProtect((void*)clMoveChokeClamp, 4, PAGE_EXECUTE_READWRITE, &protect);
+    *(std::uint32_t*)clMoveChokeClamp = 62;
+    VirtualProtect((void*)clMoveChokeClamp, 4, protect, &protect);
 
     bspQuery.hookAt(6, listLeavesInBox);
     surface.hookAt(67, lockCursor);

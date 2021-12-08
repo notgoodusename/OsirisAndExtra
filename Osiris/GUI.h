@@ -22,6 +22,7 @@ private:
     void renderLegitAntiAimWindow() noexcept;
     void renderRageAntiAimWindow() noexcept;
     void renderFakeAngleWindow() noexcept;
+    void renderTickbaseWindow() noexcept;
     void renderBacktrackWindow() noexcept;
     void renderChamsWindow() noexcept;
     void renderStreamProofESPWindow() noexcept;

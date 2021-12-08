@@ -203,4 +203,5 @@ Memory::Memory() noexcept
     clMsgMoveSetData = relativeToAbsolute<decltype(clMsgMoveSetData)>(findPattern(ENGINE_DLL, "\xE8????\x8D\x7E\x18") + 1);
     clMsgMoveDescontructor = relativeToAbsolute<decltype(clMsgMoveDescontructor)>(findPattern(ENGINE_DLL, "\xE8????\x5F\x5E\x5B\x8B\xE5\x5D\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55\x8B\xEC\x81\xEC????") + 1);
     chokeLimit = findPattern(ENGINE_DLL, "\xB8????\x3B\xF0\x0F\x4F\xF0\x89\x5D\xFC") + 1;
+    clMove = relativeToAbsolute<decltype(clMove)>(findPattern(ENGINE_DLL, "\xE8????\xFF\x15????\xF2\x0F\x10\x05????\xDC\x25????\xDD\x5D\xF0") + 1);
 }

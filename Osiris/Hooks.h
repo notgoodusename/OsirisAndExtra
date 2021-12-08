@@ -53,6 +53,7 @@ public:
     MinHook postDataUpdate;
 
     MinHook clSendMove;
+    MinHook clMove;
 
     HookType fileSystem;
     HookType bspQuery;
@@ -62,6 +63,7 @@ public:
     HookType engine;
     HookType gameMovement;
     HookType modelRender;
+    HookType prediction;
     HookType sound;
     HookType surface;
     HookType viewRender;

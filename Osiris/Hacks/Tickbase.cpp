@@ -5,6 +5,8 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/NetworkChannel.h"
 
+//TODO: fix random prediction errors, make ragebot backtrack on tickbase manip
+
 void Tickbase::run(UserCmd* cmd) noexcept
 {
 	static float spawnTime = 0.f;

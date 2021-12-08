@@ -284,7 +284,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     previousViewAngles = cmd->viewangles;
     Animations::update(cmd, sendPacket);
     Animations::fake();
-    //Tickbase::run(cmd);
+    Tickbase::run(cmd);
     return false;
 }
 
@@ -947,7 +947,7 @@ void Hooks::install() noexcept
     */
 
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
-    //clMove.detour(memory->clMove, clMoveHook);
+    clMove.detour(memory->clMove, clMoveHook);
 
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
@@ -984,7 +984,7 @@ void Hooks::install() noexcept
     modelRender.hookAt(21, drawModelExecute);
 
     prediction.init(interfaces->prediction);
-    //prediction.hookAt(19, runCommand);
+    prediction.hookAt(19, runCommand);
 
     sound.init(interfaces->sound);
     sound.hookAt(5, emitSound);

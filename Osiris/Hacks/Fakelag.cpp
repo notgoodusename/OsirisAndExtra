@@ -10,6 +10,10 @@ void Fakelag::run(bool& sendPacket) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
+    auto netChannel = interfaces->engine->getNetworkChannel();
+    if (!netChannel)
+        return;
+
     auto chokedPackets = config->legitAntiAim.enabled ? 1 : 0;
     if (config->fakelag.enabled)
     {
@@ -22,5 +26,6 @@ void Fakelag::run(bool& sendPacket) noexcept
             break;
         }
     }
-    sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
+
+    sendPacket = netChannel->chokedPackets >= chokedPackets;
 }

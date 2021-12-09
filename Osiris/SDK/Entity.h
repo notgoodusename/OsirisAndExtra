@@ -583,6 +583,7 @@ public:
     NETVAR(burstMode, "CWeaponCSBase", "m_bBurstMode", bool)
 
     NETVAR(burstShotRemaining, "CWeaponCSBaseGun", "m_iBurstShotsRemaining", int)
+    NETVAR(zoomLevel, "CWeaponCSBaseGun", "m_zoomLevel", int)
 
     NETVAR(accountID, "CBaseAttributableItem", "m_iAccountID", int)
     NETVAR(itemDefinitionIndex, "CBaseAttributableItem", "m_iItemDefinitionIndex", short)

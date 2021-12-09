@@ -193,8 +193,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
                     continue;
 
-                if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
-                    cmd->buttons |= UserCmd::IN_ATTACK2;
+                if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+                    cmd->buttons |= UserCmd::IN_ZOOM;
 
                 if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                 {

@@ -37,6 +37,17 @@
 
 #include "../imguiCustom.h"
 
+void Misc::unlockHiddenCvars() noexcept
+{
+    auto iterator = **reinterpret_cast<conCommandBase***>(interfaces->cvar + 0x34);
+    for (auto c = iterator->next; c != nullptr; c = c->next)
+    {
+        conCommandBase* cmd = c;
+        cmd->flags &= ~(1 << 1);
+        cmd->flags &= ~(1 << 4);
+    }
+}
+
 void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
 {
     if (!config->misc.fakeduck || !config->misc.fakeduckKey.isToggled())

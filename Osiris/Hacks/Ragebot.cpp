@@ -69,11 +69,11 @@ void Ragebot::run(UserCmd* cmd) noexcept
     if (!(cfg[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg[weaponIndex].autoShot || cfg[weaponIndex].aimlock)))
         return;
 
-    float bestDamage = (float)cfg[weaponIndex].minDamage;
+    float damageDiff = FLT_MAX;
     Vector bestTarget{ };
     Vector bestAngle{ };
-    auto localPlayerEyePosition = localPlayer->getEyePosition();
     float bestSimulationTime = 0;
+    const auto localPlayerEyePosition = localPlayer->getEyePosition();
     const auto aimPunch = localPlayer->getAimPunch();
 
     std::array<bool, Hitboxes::Max> hitbox{ false };
@@ -134,7 +134,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
-        const int minDamage = std::clamp(cfg[weaponIndex].minDamage, 0, target.health);
+        const int minDamage = std::clamp(std::clamp(cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
+        damageDiff = FLT_MAX;
 
         auto backupBoneCache = entity->getBoneCache().memory;
         auto backupMins = entity->getCollideable()->obbMins();
@@ -218,9 +219,10 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     }
                 }
 
-                if (damage >= bestDamage) {
+                if (std::abs(target.health - (int)damage) <= damageDiff)
+                {
                     bestAngle = angle;
-                    bestDamage = damage;
+                    damageDiff = std::abs(target.health - (int)damage);
                     bestTarget = bonePosition;
                     bestSimulationTime = entity->simulationTime();
                 }
@@ -232,7 +234,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!Aimbot::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
             {
                 bestTarget = Vector{ };
+                bestAngle = Vector{ };
                 bestSimulationTime = 0;
+                damageDiff = FLT_MAX;
             }
         }
 
@@ -344,11 +348,13 @@ void Ragebot::run(UserCmd* cmd) noexcept
                         cmd->forwardmove = negatedDirection.x;
                         cmd->sidemove = negatedDirection.y;
                     }
+                
                 }
 
-                if (damage >= bestDamage) {
+                if (std::abs(target.health - (int)damage) <= damageDiff)
+                {
                     bestAngle = angle;
-                    bestDamage = damage;
+                    damageDiff = std::abs(target.health - (int)damage);
                     bestTarget = bonePosition;
                     bestSimulationTime = record.simulationTime;
                 }
@@ -360,7 +366,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!Aimbot::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
             {
                 bestTarget = Vector{ };
+                bestAngle = Vector{ };
                 bestSimulationTime = 0;
+                damageDiff = FLT_MAX;
             }
         }
 

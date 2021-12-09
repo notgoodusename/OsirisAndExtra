@@ -37,6 +37,28 @@
 
 #include "../imguiCustom.h"
 
+void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
+{
+    if (!config->misc.fakeduck || !config->misc.fakeduckKey.isToggled())
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive() || !(localPlayer->flags() & 1))
+        return;
+
+    auto netChannel = interfaces->engine->getNetworkChannel();
+    if (!netChannel)
+        return;
+
+    cmd->buttons |= UserCmd::IN_BULLRUSH;
+    bool crouch = netChannel->chokedPackets >= (maxUserCmdProcessTicks / 2);
+    if (crouch)
+        cmd->buttons |= UserCmd::IN_DUCK;
+    else
+        cmd->buttons &= ~UserCmd::IN_DUCK;
+    sendPacket = netChannel->chokedPackets >= maxUserCmdProcessTicks;
+}
+
+
 void Misc::edgejump(UserCmd* cmd) noexcept
 {
     if (!config->misc.edgejump || !config->misc.edgejumpkey.isDown())
@@ -1148,5 +1170,5 @@ void Misc::updateEventListeners(bool forceRemove) noexcept
 
 void Misc::updateInput() noexcept
 {
-
+    config->misc.fakeduckKey.handleToggle();
 }

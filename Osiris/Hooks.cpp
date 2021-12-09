@@ -46,6 +46,7 @@
 #include "SDK/EntityList.h"
 #include "SDK/FrameStage.h"
 #include "SDK/GameEvent.h"
+#include "SDK/GameMovement.h"
 #include "SDK/GameUI.h"
 #include "SDK/GlobalVars.h"
 #include "SDK/Input.h"
@@ -217,6 +218,9 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     static auto previousViewAngles{ cmd->viewangles };
     auto currentViewAngles{ cmd->viewangles };
 
+    if (auto gameRules = (*memory->gameRules); gameRules)
+        maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
+
     memory->globalVars->serverTime(cmd);
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
@@ -245,11 +249,13 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Misc::edgejump(cmd);
     Misc::fastPlant(cmd);
 
-    if (AntiAim::canRun(cmd)) {
+    if (AntiAim::canRun(cmd))
+    {
         Fakelag::run(sendPacket);
         AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
     }
 
+    Misc::fakeDuck(cmd, sendPacket);
     Misc::autoStrafe(cmd, currentViewAngles);
     Misc::moonwalk(cmd);
 
@@ -408,7 +414,9 @@ struct ViewSetup {
     PAD(172);
     void* csm;
     float fov;
-    PAD(32);
+    PAD(4);
+    Vector origin;
+    PAD(16);
     float farZ;
 };
 
@@ -417,6 +425,9 @@ static void __stdcall overrideView(ViewSetup* setup) noexcept
     if (localPlayer && !localPlayer->isScoped())
         setup->fov += config->visuals.fov;
     setup->farZ += config->visuals.farZ * 10;
+
+    if (localPlayer && localPlayer->isAlive() && config->misc.fakeduck && config->misc.fakeduckKey.isToggled() && localPlayer->flags() & 1)
+        setup->origin.z = localPlayer->getAbsOrigin().z + interfaces->gameMovement->getPlayerViewOffset(false).z;
     hooks->clientMode.callOriginal<void, 18>(setup);
 }
 

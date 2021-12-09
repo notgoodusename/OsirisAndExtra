@@ -219,6 +219,7 @@ public:
         bool moonwalk{ false };
         bool edgejump{ false };
         bool slowwalk{ false };
+        bool fakeduck{ false };
         bool autoPistol{ false };
         bool autoReload{ false };
         bool autoAccept{ false };
@@ -242,6 +243,7 @@ public:
         char clanTag[16];
         KeyBind edgejumpkey = KeyBind::NONE;
         KeyBind slowwalkKey = KeyBind::NONE;
+        KeyBindToggle fakeduckKey = KeyBind::NONE;
         ColorToggleThickness noscopeCrosshair;
         ColorToggleThickness recoilCrosshair;
 

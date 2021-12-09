@@ -1430,6 +1430,11 @@ void GUI::renderMiscWindow() noexcept
     ImGui::PushID("Slowwalk Key");
     hotkey2("", config->misc.slowwalkKey);
     ImGui::PopID();
+    ImGui::Checkbox("Fakeduck", &config->misc.fakeduck);
+    ImGui::SameLine();
+    ImGui::PushID("Fakeduck Key");
+    hotkey2("", config->misc.fakeduckKey);
+    ImGui::PopID();
     ImGuiCustom::colorPicker("Noscope crosshair", config->misc.noscopeCrosshair);
     ImGuiCustom::colorPicker("Recoil crosshair", config->misc.recoilCrosshair);
     ImGui::Checkbox("Auto pistol", &config->misc.autoPistol);

@@ -49,7 +49,6 @@ public:
         int hitChance{ 50 };
         int multiPoint{ 0 };
         int minDamage{ 1 };
-        bool killshot{ false };
     };
     std::array<Ragebot, 40> ragebot;
     bool ragebotOnKey{ false };

@@ -295,7 +295,7 @@ void GUI::renderLegitbotWindow() noexcept
     ImGui::SliderFloat("Fov", &config->legitbot[currentWeapon].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderFloat("Smooth", &config->legitbot[currentWeapon].smooth, 1.0f, 100.0f, "%.2f");
     ImGui::SliderInt("Reaction time", &config->legitbot[currentWeapon].reactionTime, 0, 300, "%d");
-    ImGui::InputInt("Min damage", &config->legitbot[currentWeapon].minDamage);
+    ImGui::SliderInt("Min damage", &config->ragebot[currentWeapon].minDamage, 0, 101, "%d");
     config->legitbot[currentWeapon].minDamage = std::clamp(config->legitbot[currentWeapon].minDamage, 0, 250);
     ImGui::Checkbox("Killshot", &config->legitbot[currentWeapon].killshot);
     ImGui::Checkbox("Between shots", &config->legitbot[currentWeapon].betweenShots);
@@ -467,9 +467,8 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::SliderFloat("Fov", &config->ragebot[currentWeapon].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderInt("Hitchance", &config->ragebot[currentWeapon].hitChance, 0, 100, "%d");
     ImGui::SliderInt("Multipoint", &config->ragebot[currentWeapon].multiPoint, 0, 100, "%d");
-    ImGui::InputInt("Min damage", &config->ragebot[currentWeapon].minDamage);
+    ImGui::SliderInt("Min damage", &config->ragebot[currentWeapon].minDamage, 0, 101, "%d");
     config->ragebot[currentWeapon].minDamage = std::clamp(config->ragebot[currentWeapon].minDamage, 0, 250);
-    ImGui::Checkbox("Killshot", &config->ragebot[currentWeapon].killshot);
     ImGui::Columns(1);
 }
 
@@ -616,7 +615,7 @@ void GUI::renderTriggerbotWindow() noexcept
     ImGui::SliderInt("Hitchance", &config->triggerbot[currentWeapon].hitChance, 0, 100, "%d");
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Shot delay", &config->triggerbot[currentWeapon].shotDelay, 0, 250, "%d ms");
-    ImGui::InputInt("Min damage", &config->triggerbot[currentWeapon].minDamage);
+    ImGui::SliderInt("Min damage", &config->triggerbot[currentWeapon].minDamage, 0, 101, "%d");
     config->triggerbot[currentWeapon].minDamage = std::clamp(config->triggerbot[currentWeapon].minDamage, 0, 250);
     ImGui::Checkbox("Killshot", &config->triggerbot[currentWeapon].killshot);
     ImGui::NextColumn();

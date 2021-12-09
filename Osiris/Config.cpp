@@ -257,7 +257,6 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Hitchance", r.hitChance);
     read(j, "Multipoint", r.multiPoint);
     read(j, "Min damage", r.minDamage);
-    read(j, "Killshot", r.killshot);
 }
 
 static void from_json(const json& j, Config::Triggerbot& t)
@@ -742,7 +741,6 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Hitchance", hitChance);
     WRITE("Multipoint", multiPoint);
     WRITE("Min damage", minDamage);
-    WRITE("Killshot", killshot);
 }
 
 static void to_json(json& j, const Config::Triggerbot& o, const Config::Triggerbot& dummy = {})

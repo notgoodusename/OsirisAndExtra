@@ -134,7 +134,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
-        
+        const int minDamage = std::clamp(cfg[weaponIndex].minDamage, 0, target.health);
+
         auto backupBoneCache = entity->getBoneCache().memory;
         auto backupMins = entity->getCollideable()->obbMins();
         auto backupMaxs = entity->getCollideable()->obbMaxs();
@@ -186,7 +187,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                     continue;
 
-                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), cfg[weaponIndex].killshot ? entity->health() : cfg[weaponIndex].minDamage, cfg[weaponIndex].friendlyFire);
+                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
                 if (damage <= 0.f)
                     continue;
 
@@ -314,7 +315,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                     continue;
 
-                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), cfg[weaponIndex].killshot ? entity->health() : cfg[weaponIndex].minDamage, cfg[weaponIndex].friendlyFire);
+                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
                 if (damage <= 0.f)
                     continue;
 

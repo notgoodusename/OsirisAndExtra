@@ -96,7 +96,7 @@ struct HealthBar : ColorToggle {
 struct Player : Shared {
     Player() : Shared{}
     {
-        box.type = Box::_2dCorners;
+        box.type = Box::_2d;
     }
 
     ColorToggle weapon;

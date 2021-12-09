@@ -131,7 +131,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
         if (trace.hitbox != x)
             continue;
 
-        damage = (activeWeapon->itemDefinitionIndex2() != WeaponId::Taser ? HitGroup::getDamageMultiplier(trace.hitgroup) : 1.0f) * weaponData->damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+        damage = (activeWeapon->itemDefinitionIndex2() != WeaponId::Taser ? HitGroup::getDamageMultiplier(trace.hitgroup, weaponData) : 1.0f) * weaponData->damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
         hitchance = Aimbot::hitChance(localPlayer.get(), trace.entity, set, player.matrix.data(), activeWeapon, Aimbot::calculateRelativeAngle(startPos, trace.endpos, cmd->viewangles + aimPunch), cmd, cfg.hitChance);
     }
 

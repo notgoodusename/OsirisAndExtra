@@ -4,6 +4,7 @@
 
 #include "Vector.h"
 #include "VirtualMethod.h"
+#include "WeaponData.h"
 
 struct Ray {
     Ray(const Vector& src, const Vector& dest) : start(src), delta(dest - src) { isSwept = delta.x || delta.y || delta.z; }
@@ -38,11 +39,11 @@ namespace HitGroup {
         Gear = 10
     };
 
-    constexpr float getDamageMultiplier(int hitGroup) noexcept
+    constexpr float getDamageMultiplier(int hitGroup, const WeaponInfo* weaponData) noexcept
     {
         switch (hitGroup) {
         case Head:
-            return 4.0f;
+            return weaponData->headshotMultiplier;
         case Stomach:
             return 1.25f;
         case LeftLeg:

@@ -72,7 +72,7 @@ void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
 
 void Misc::edgejump(UserCmd* cmd) noexcept
 {
-    if (!config->misc.edgejump || !config->misc.edgejumpkey.isDown())
+    if (!config->misc.edgejump || (!config->misc.edgejumpkey.isDown() && config->misc.edgejumpkey.isSet()))
         return;
 
     if (!localPlayer || !localPlayer->isAlive())

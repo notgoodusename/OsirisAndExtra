@@ -460,6 +460,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Moonwalk", m.moonwalk);
     read(j, "Edge Jump", m.edgejump);
     read(j, "Edge Jump Key", m.edgejumpkey);
+    read(j, "Jump Bug", m.jumpBug);
+    read(j, "Jump Bug Key", m.jumpBugKey);
     read(j, "Slowwalk", m.slowwalk);
     read(j, "Slowwalk key", m.slowwalkKey);
     read(j, "Fake duck", m.fakeduck);
@@ -904,6 +906,8 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Moonwalk", moonwalk);
     WRITE("Edge Jump", edgejump);
     WRITE("Edge Jump Key", edgejumpkey);
+    WRITE("Jump Bug", jumpBug);
+    WRITE("Jump Bug Key", jumpBugKey);
     WRITE("Slowwalk", slowwalk);
     WRITE("Slowwalk key", slowwalkKey);
     WRITE("Fake duck", fakeduck);

@@ -1424,6 +1424,11 @@ void GUI::renderMiscWindow() noexcept
     ImGui::PushID("Edge Jump Key");
     hotkey2("", config->misc.edgejumpkey);
     ImGui::PopID();
+    ImGui::Checkbox("Jump Bug", &config->misc.jumpBug);
+    ImGui::SameLine();
+    ImGui::PushID("Jump Bug Key");
+    hotkey2("", config->misc.jumpBugKey);
+    ImGui::PopID();
     ImGui::Checkbox("Slowwalk", &config->misc.slowwalk);
     ImGui::SameLine();
     ImGui::PushID("Slowwalk Key");

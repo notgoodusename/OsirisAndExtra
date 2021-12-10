@@ -217,6 +217,7 @@ public:
         bool fastDuck{ false };
         bool moonwalk{ false };
         bool edgejump{ false };
+        bool jumpBug{ false };
         bool slowwalk{ false };
         bool fakeduck{ false };
         bool autoPistol{ false };
@@ -241,6 +242,7 @@ public:
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];
         KeyBind edgejumpkey = KeyBind::NONE;
+        KeyBindToggle jumpBugKey = KeyBind::NONE;
         KeyBind slowwalkKey = KeyBind::NONE;
         KeyBindToggle fakeduckKey = KeyBind::NONE;
         ColorToggleThickness noscopeCrosshair;

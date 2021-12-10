@@ -257,6 +257,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 
     Misc::fakeDuck(cmd, sendPacket);
     Misc::autoStrafe(cmd, currentViewAngles);
+    Misc::jumpBug(cmd);
     Misc::moonwalk(cmd);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };

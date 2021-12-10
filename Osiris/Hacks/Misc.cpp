@@ -37,6 +37,27 @@
 
 #include "../imguiCustom.h"
 
+void Misc::jumpBug(UserCmd* cmd) noexcept
+{
+    if (!config->misc.jumpBug || (!config->misc.jumpBugKey.isDown() && config->misc.jumpBugKey.isSet()))
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (const auto mt = localPlayer->moveType(); mt == MoveType::LADDER || mt == MoveType::NOCLIP)
+        return;
+
+    if (!(EnginePrediction::getFlags() & 1) && (localPlayer->flags() & 1))
+    {
+        cmd->buttons &= ~UserCmd::IN_BULLRUSH;
+        cmd->buttons |= UserCmd::IN_DUCK;
+    }
+
+    if (localPlayer->flags() & 1)
+        cmd->buttons &= ~UserCmd::IN_JUMP;
+}
+
 void Misc::unlockHiddenCvars() noexcept
 {
     auto iterator = **reinterpret_cast<conCommandBase***>(interfaces->cvar + 0x34);

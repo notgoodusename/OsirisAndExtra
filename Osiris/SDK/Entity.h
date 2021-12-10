@@ -138,6 +138,7 @@ public:
         VIRTUAL_METHOD(bool, getAttachment, 84, (int index, Vector& origin), (this, index, std::ref(origin)))
         VIRTUAL_METHOD(Team, getTeamNumber, 88, (), (this))
         VIRTUAL_METHOD(int, health, 122, (), (this))
+        VIRTUAL_METHOD(int, maxHealth, 123, (), (this))
         VIRTUAL_METHOD(bool, isAlive, 156, (), (this))
         VIRTUAL_METHOD(bool, isPlayer, 158, (), (this))
         VIRTUAL_METHOD(bool, isWeapon, 166, (), (this))

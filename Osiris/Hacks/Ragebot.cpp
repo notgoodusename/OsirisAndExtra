@@ -189,6 +189,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     continue;
 
                 float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
                 if (damage <= 0.f)
                     continue;
 
@@ -219,10 +220,10 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     }
                 }
 
-                if (std::abs(target.health - (int)damage) <= damageDiff)
+                if (std::fabsf((float)target.health - damage) <= damageDiff)
                 {
                     bestAngle = angle;
-                    damageDiff = std::abs(target.health - (int)damage);
+                    damageDiff = std::fabsf((float)target.health - damage);
                     bestTarget = bonePosition;
                     bestSimulationTime = entity->simulationTime();
                 }
@@ -320,6 +321,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     continue;
 
                 float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
                 if (damage <= 0.f)
                     continue;
 
@@ -351,10 +353,10 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 
                 }
 
-                if (std::abs(target.health - (int)damage) <= damageDiff)
+                if (std::fabsf((float)target.health - damage) <= damageDiff)
                 {
                     bestAngle = angle;
-                    damageDiff = std::abs(target.health - (int)damage);
+                    damageDiff = std::fabsf((float)target.health - damage);
                     bestTarget = bonePosition;
                     bestSimulationTime = record.simulationTime;
                 }

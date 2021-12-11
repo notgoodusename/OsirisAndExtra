@@ -67,6 +67,7 @@ void Misc::knifeBot(UserCmd* cmd) noexcept
     float bestSimulationTime = 0;
     Vector absAngle{ };
     Vector origin{ };
+    Vector bestTargetPosition{ };
 
     for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
     {
@@ -76,6 +77,8 @@ void Misc::knifeBot(UserCmd* cmd) noexcept
             continue;
 
         const auto player = Animations::getPlayer(i);
+        if (!player.gotMatrix)
+            continue;
 
         auto distance{ localPlayerOrigin.distTo(player.origin) };
 
@@ -85,6 +88,7 @@ void Misc::knifeBot(UserCmd* cmd) noexcept
             absAngle = player.absAngle;
             origin = player.origin;
             bestSimulationTime = player.simulationTime;
+            bestTargetPosition = player.matrix[7].origin();
         }
 
         if (!config->backtrack.enabled)
@@ -118,9 +122,9 @@ void Misc::knifeBot(UserCmd* cmd) noexcept
             absAngle = record.absAngle;
             origin = record.origin;
             bestSimulationTime = record.simulationTime;
+            bestTargetPosition = record.matrix[7].origin();
         }
     }
-
 
     if (!bestTarget || bestDistance > 75.0f)
         return;
@@ -707,7 +711,7 @@ void Misc::fixMovement(UserCmd* cmd, float yaw) noexcept
 void Misc::antiAfkKick(UserCmd* cmd) noexcept
 {
     if (config->misc.antiAfkKick && cmd->commandNumber % 2)
-        cmd->buttons |= 1 << 26;
+        cmd->buttons |= 1 << 27;
 }
 
 void Misc::fixAnimationLOD(FrameStage stage) noexcept

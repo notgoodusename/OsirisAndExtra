@@ -60,12 +60,13 @@ void Backtrack::update(FrameStage stage) noexcept
             continue;
 
         Record record{ };
-        record.origin = entity->origin();
-        record.absAngle = entity->getAbsAngle();
-        record.simulationTime = entity->simulationTime();
-        record.mins = entity->getCollideable()->obbMins();
-        record.maxs = entity->getCollideable()->obbMaxs();
+        record.origin = player.origin;
+        record.absAngle = player.absAngle;
+        record.simulationTime = player.simulationTime;
+        record.mins = player.mins;
+        record.maxs = player.maxs;
         std::copy(player.matrix.begin(), player.matrix.end(), record.matrix);
+        record.head = record.matrix[8].origin();
 
         records[i].push_front(record);
         
@@ -104,7 +105,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     auto bestFov{ 255.f };
     Entity * bestTarget{ };
     int bestTargetIndex{ };
-    Vector bestTargetOrigin{ };
+    Vector bestTargetPosition{ };
     int bestRecord{ };
 
     const auto aimPunch = localPlayer->getAimPunch();
@@ -123,12 +124,12 @@ void Backtrack::run(UserCmd* cmd) noexcept
             bestFov = fov;
             bestTarget = entity;
             bestTargetIndex = i;
-            bestTargetOrigin = origin;
+            bestTargetPosition = origin;
         }
     }
 
     if (bestTarget) {
-        if (records[bestTargetIndex].size() <= 3 || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetOrigin, 1)))
+        if (records[bestTargetIndex].size() <= 3 || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetPosition, 1)))
             return;
 
         bestFov = 255.f;
@@ -138,7 +139,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
             if (!valid(record.simulationTime))
                 continue;
 
-            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.origin, cmd->viewangles + aimPunch);
+            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
             auto fov = std::hypotf(angle.x, angle.y);
             if (fov < bestFov) {
                 bestFov = fov;

@@ -1,6 +1,7 @@
 #pragma once
 
 struct UserCmd;
+struct Vector;
 
 namespace EnginePrediction
 {

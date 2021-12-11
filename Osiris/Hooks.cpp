@@ -242,8 +242,8 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     NadePrediction::run(cmd);
 
     Legitbot::run(cmd);
-    Triggerbot::run(cmd);
     Backtrack::run(cmd);
+    Triggerbot::run(cmd);
     Ragebot::run(cmd);
 
     Misc::edgejump(cmd);

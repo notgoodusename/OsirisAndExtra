@@ -215,6 +215,7 @@ public:
         bool clocktag{ false };
         bool animatedClanTag{ false };
         bool fastDuck{ false };
+        bool knifeBot{ false };
         bool moonwalk{ false };
         bool edgejump{ false };
         bool jumpBug{ false };

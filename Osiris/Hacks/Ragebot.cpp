@@ -17,14 +17,6 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/ModelInfo.h"
 
-void resetMatrix(Entity* entity, matrix3x4* boneCacheData, Vector origin, Vector absAngle, Vector mins, Vector maxs)
-{
-    memcpy(entity->getBoneCache().memory, boneCacheData, std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
-    memory->setAbsOrigin(entity, origin);
-    memory->setAbsAngle(entity, Vector{ 0.f, absAngle.y, 0.f });
-    entity->getCollideable()->setCollisionBounds(mins, maxs);
-}
-
 static bool keyPressed = false;
 
 void Ragebot::updateInput() noexcept
@@ -106,8 +98,11 @@ void Ragebot::run(UserCmd* cmd) noexcept
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
             || !entity->isOtherEnemy(localPlayer.get()) && !cfg[weaponIndex].friendlyFire || entity->gunGameImmunity())
             continue;
+        const auto player = Animations::getPlayer(i);
+        if (!player.gotMatrix)
+            continue;
 
-        const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, entity->getBonePosition(8), cmd->viewangles + aimPunch) };
+        const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, player.matrix[8].origin(), cmd->viewangles + aimPunch) };
         const auto origin{ entity->getAbsOrigin() };
         const auto fov{ angle.length2D() }; //fov
         const auto health{ entity->health() }; //health
@@ -132,8 +127,10 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
     for (const auto& target : enemies) 
     {
-        const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
+        if (!player.gotMatrix)
+            continue;
+        const auto entity{ interfaces->entityList->getEntity(target.id) };
         const int minDamage = std::clamp(std::clamp(cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
         damageDiff = FLT_MAX;
 

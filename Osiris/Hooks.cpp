@@ -30,6 +30,7 @@
 #include "Hacks/StreamProofESP.h"
 #include "Hacks/Glow.h"
 #include "Hacks/GrenadePrediction.h"
+#include "Hacks/Knifebot.h"
 #include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
 #include "Hacks/Ragebot.h"
@@ -243,6 +244,8 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 
     Misc::edgejump(cmd);
     Misc::fastPlant(cmd);
+
+    Knifebot::run(cmd);
 
     if (AntiAim::canRun(cmd))
     {

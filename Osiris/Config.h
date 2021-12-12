@@ -216,6 +216,7 @@ public:
         bool animatedClanTag{ false };
         bool fastDuck{ false };
         bool knifeBot{ false };
+        int knifeBotMode{ 0 };
         bool moonwalk{ false };
         bool edgejump{ false };
         bool jumpBug{ false };

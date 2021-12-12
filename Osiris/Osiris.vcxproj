@@ -39,6 +39,7 @@
     <ClCompile Include="Hacks\Fakelag.cpp" />
     <ClCompile Include="Hacks\Glow.cpp" />
     <ClCompile Include="Hacks\GrenadePrediction.cpp" />
+    <ClCompile Include="Hacks\Knifebot.cpp" />
     <ClCompile Include="Hacks\Legitbot.cpp" />
     <ClCompile Include="Hacks\Ragebot.cpp" />
     <ClCompile Include="Hacks\SkinChanger.cpp" />
@@ -96,6 +97,7 @@
     <ClInclude Include="Hacks\Fakelag.h" />
     <ClInclude Include="Hacks\Glow.h" />
     <ClInclude Include="Hacks\GrenadePrediction.h" />
+    <ClInclude Include="Hacks\Knifebot.h" />
     <ClInclude Include="Hacks\Legitbot.h" />
     <ClInclude Include="Hacks\Misc.h" />
     <ClInclude Include="Hacks\Ragebot.h" />

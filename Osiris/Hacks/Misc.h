@@ -8,7 +8,6 @@ struct Vector;
 
 namespace Misc
 {
-    void knifeBot(UserCmd* cmd) noexcept;
     void jumpBug(UserCmd* cmd) noexcept;
     void unlockHiddenCvars() noexcept;
     void fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept;

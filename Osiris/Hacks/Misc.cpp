@@ -190,7 +190,8 @@ void Misc::jumpBug(UserCmd* cmd) noexcept
 
     if (!(EnginePrediction::getFlags() & 1) && (localPlayer->flags() & 1))
     {
-        cmd->buttons &= ~UserCmd::IN_BULLRUSH;
+        if(config->misc.fastDuck)
+            cmd->buttons &= ~UserCmd::IN_BULLRUSH;
         cmd->buttons |= UserCmd::IN_DUCK;
     }
 

@@ -51,7 +51,7 @@ void TraceHull(Vector& src, Vector& end, Trace& tr)
 	if (!localPlayer)
 		return;
 
-	interfaces->engineTrace->traceRay({ src, end }, 0x200400B, { localPlayer.get() }, tr);
+	interfaces->engineTrace->traceRay({ src, end, Vector{-2.0f, -2.0f, -2.0f}, Vector{2.0f, 2.0f, 2.0f} }, 0x200400B, { localPlayer.get() }, tr);
 }
 
 void Setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles)

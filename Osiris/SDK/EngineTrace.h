@@ -30,6 +30,7 @@ struct Ray {
     Vector startOffset{ };
     float pad2{ };
     Vector extents{ };
+    float pad3{ };
     const matrix3x4* worldAxisTransform;
     bool isRay{ };
     bool isSwept{ };

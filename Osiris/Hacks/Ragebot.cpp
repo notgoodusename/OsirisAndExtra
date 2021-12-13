@@ -94,12 +94,13 @@ void Ragebot::run(UserCmd* cmd) noexcept
     std::vector<Ragebot::Enemies> enemies;
     const auto localPlayerOrigin{ localPlayer->getAbsOrigin() };
     for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i) {
+        const auto player = Animations::getPlayer(i);
+        if (!player.gotMatrix)
+            continue;
+
         const auto entity{ interfaces->entityList->getEntity(i) };
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
             || !entity->isOtherEnemy(localPlayer.get()) && !cfg[weaponIndex].friendlyFire || entity->gunGameImmunity())
-            continue;
-        const auto player = Animations::getPlayer(i);
-        if (!player.gotMatrix)
             continue;
 
         const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, player.matrix[8].origin(), cmd->viewangles + aimPunch) };
@@ -130,6 +131,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         const auto player = Animations::getPlayer(target.id);
         if (!player.gotMatrix)
             continue;
+
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const int minDamage = std::clamp(std::clamp(cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
         damageDiff = FLT_MAX;
@@ -250,21 +252,21 @@ void Ragebot::run(UserCmd* cmd) noexcept
         if (records->empty() || records->size() <= 3)
             continue;
 
-        int lastestTick = -1;
+        int lastTick = -1;
 
-        for (int i = static_cast<int>(records->size() - 2); i >= 0; i--)
+        for (size_t i = records->size() - 1; i >= 0; i--)
         {
             if (Backtrack::valid(records->at(i).simulationTime))
             {
-                lastestTick = i;
+                lastTick = i;
                 break;
             }
         }
 
-        if (lastestTick == -1)
+        if (lastTick == -1)
             continue;
 
-        const auto record = records->at(lastestTick);
+        const auto record = records->at(lastTick);
 
         backupBoneCache = entity->getBoneCache().memory;
         backupMins = entity->getCollideable()->obbMins();

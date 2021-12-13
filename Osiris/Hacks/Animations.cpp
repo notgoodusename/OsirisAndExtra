@@ -33,6 +33,10 @@ static std::array<AnimationLayer, 13> sendPacketLayers{};
 
 void Animations::init() noexcept
 {
+    static auto threadedBoneSetup = interfaces->cvar->findVar("cl_threaded_bone_setup");
+    if (threadedBoneSetup->getInt() <= 0)
+        threadedBoneSetup->setValue(1);
+
     static auto jiggleBones = interfaces->cvar->findVar("r_jiggle_bones");
     if (jiggleBones->getInt() >= 1)
         jiggleBones->setValue(0);

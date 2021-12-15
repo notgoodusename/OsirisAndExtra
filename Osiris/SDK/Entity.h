@@ -422,12 +422,9 @@ public:
     {
         Vector absOrigin = getAbsOrigin();
         uintptr_t backupEffects = getEffects();
-        int* render = reinterpret_cast<int*>(this + 0x274);
-        int backup = *render;
 
         this->invalidateBoneCache();
         getEffects() |= 8;
-        *render = 0;
 
         memory->setAbsOrigin(this, origin());
 
@@ -435,7 +432,6 @@ public:
         
         memory->setAbsOrigin(this, absOrigin);
         getEffects() = backupEffects;
-        *render = backup;
         return result;
     }
 

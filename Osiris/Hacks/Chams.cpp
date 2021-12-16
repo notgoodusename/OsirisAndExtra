@@ -173,10 +173,22 @@ void Chams::renderPlayer(Entity* player) noexcept
         applyChams(config->chams["Enemies"].materials, health);
 
         const auto records = Backtrack::getRecords(player->index());
-        if (records && !records->empty() && Backtrack::valid(records->front().simulationTime) && records->back().origin != player->origin()) {
+
+        int lastTick = -1;
+
+        for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
+        {
+            if (Backtrack::valid(records->at(i).simulationTime))
+            {
+                lastTick = i;
+                break;
+            }
+        }
+
+        if (lastTick != -1 && records && !records->empty() && records->at(lastTick).origin != player->origin()) {
             if (!appliedChams)
                 hooks->modelRender.callOriginal<void, 21>(ctx, state, info, customBoneToWorld);
-            applyChams(config->chams["Backtrack"].materials, health, records->back().matrix);
+            applyChams(config->chams["Backtrack"].materials, health, records->at(lastTick).matrix);
             interfaces->studioRender->forcedMaterialOverride(nullptr);
         }
     } else {

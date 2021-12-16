@@ -173,7 +173,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             continue;
 
         const auto records = Backtrack::getRecords(entity->index());
-        if (records->empty() || records->size() <= 3)
+        if (!records || records->empty())
             continue;
 
         int bestTick = -1;
@@ -192,7 +192,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             }
         }
 
-        if (bestTick == -1)
+        if (bestTick <= -1)
             continue;
 
         const auto record = records->at(bestTick);

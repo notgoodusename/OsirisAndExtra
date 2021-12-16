@@ -62,24 +62,24 @@ void knifeBotRage(UserCmd* cmd) noexcept
             continue;
 
         const auto records = Backtrack::getRecords(entity->index());
-        if (records->empty() || records->size() <= 3)
+        if (!records || records->empty())
             continue;
 
-        int lastestTick = -1;
+        int lastTick = -1;
 
-        for (int i = static_cast<int>(records->size() - 2); i >= 0; i--)
+        for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
         {
             if (Backtrack::valid(records->at(i).simulationTime))
             {
-                lastestTick = i;
+                lastTick = i;
                 break;
             }
         }
 
-        if (lastestTick == -1)
+        if (lastTick <= -1)
             continue;
 
-        const auto record = records->at(lastestTick);
+        const auto record = records->at(lastTick);
 
         distance = localPlayerOrigin.distTo(record.origin);
 

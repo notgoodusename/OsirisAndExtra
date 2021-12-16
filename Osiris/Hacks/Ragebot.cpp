@@ -128,11 +128,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
     for (const auto& target : enemies) 
     {
-        const auto player = Animations::getPlayer(target.id);
-        if (!player.gotMatrix)
-            continue;
-
         const auto entity{ interfaces->entityList->getEntity(target.id) };
+        const auto player = Animations::getPlayer(target.id);
         const int minDamage = std::clamp(std::clamp(cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
         damageDiff = FLT_MAX;
 
@@ -249,12 +246,12 @@ void Ragebot::run(UserCmd* cmd) noexcept
             continue;
 
         const auto records = Backtrack::getRecords(entity->index());
-        if (records->empty() || records->size() <= 3)
+        if (!records || records->empty())
             continue;
 
         int lastTick = -1;
 
-        for (size_t i = records->size() - 1; i >= 0; i--)
+        for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
         {
             if (Backtrack::valid(records->at(i).simulationTime))
             {
@@ -263,7 +260,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             }
         }
 
-        if (lastTick == -1)
+        if (lastTick <= -1)
             continue;
 
         const auto record = records->at(lastTick);

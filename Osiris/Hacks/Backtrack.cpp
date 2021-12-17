@@ -93,7 +93,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     if (!(cmd->buttons & UserCmd::IN_ATTACK))
         return;
 
-    if (!localPlayer)
+    if (!localPlayer || !localPlayer->isAlive())
         return;
 
     if (!config->backtrack.ignoreFlash && localPlayer->isFlashed())

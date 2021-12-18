@@ -55,6 +55,11 @@ public:
     KeyBind ragebotKey = KeyBind::NONE;
     int ragebotKeyMode{ 0 };
 
+    struct Tickbase {
+        bool enabled = false;
+        bool teleport = false;
+    } tickbase;
+
     struct Fakelag {
         bool enabled = false;
         int mode = 0;

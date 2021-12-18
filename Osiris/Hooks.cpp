@@ -36,6 +36,7 @@
 #include "Hacks/Ragebot.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
+#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
@@ -832,6 +833,68 @@ static void __cdecl clSendMoveHook() noexcept
     }
 }
 
+static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
+{
+    using clMoveFn = void(__cdecl*)(float, float);
+    static auto original = (clMoveFn)hooks->clMove.getDetour();
+
+    static float realTime = 0.0f;
+
+    if (!config->tickbase.enabled)
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (Tickbase::doubletapCharge < Tickbase::shiftAmount && memory->globalVars->realtime - realTime > 1.0f)
+    {
+        Tickbase::doubletapCharge++;
+        return;
+    }
+
+    original(accumulatedExtraSamples, finalTick);
+
+    if (Tickbase::lastShift == 0)
+        return;
+
+    Tickbase::isShifting = true;
+    {
+        for (Tickbase::ticksToShift = min(Tickbase::doubletapCharge, Tickbase::lastShift); Tickbase::ticksToShift > 0; Tickbase::ticksToShift--, Tickbase::doubletapCharge--)
+            original(accumulatedExtraSamples, finalTick);
+    }
+    Tickbase::isShifting = false;
+    Tickbase::lastShift = 0;
+    realTime = memory->globalVars->realtime;
+}
+
+static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
+{
+    static auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
+
+    if (!entity || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, entity, cmd, moveHelper);
+
+    if (abs(cmd->tickCount - memory->globalVars->tickCount) >= 50)
+        return;
+
+    int tickbase = entity->tickBase();
+    auto currentime = memory->globalVars->currenttime;
+
+    if (cmd->commandNumber == Tickbase::commandNumber)
+        entity->tickBase() -= Tickbase::lastShift;
+
+    original(thisPointer, entity, cmd, moveHelper);
+
+    if (cmd->commandNumber == Tickbase::commandNumber)
+    {
+        entity->tickBase() = tickbase;
+        memory->globalVars->currenttime = currentime;
+    }
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -987,6 +1050,7 @@ void Hooks::uninstall() noexcept
     engine.restore();
     gameMovement.restore();
     modelRender.restore();
+    prediction.restore();
     sound.restore();
     surface.restore();
     svCheats.restore();

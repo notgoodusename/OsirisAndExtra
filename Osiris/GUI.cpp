@@ -621,6 +621,15 @@ void GUI::renderTriggerbotWindow() noexcept
     ImGui::NextColumn();
     ImGui::Columns(1);
 }
+void GUI::renderTickbaseWindow() noexcept
+{
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 300.f);
+    ImGui::Checkbox("Enabled", &config->tickbase.enabled);
+    ImGui::Checkbox("Teleport", &config->tickbase.teleport);
+    ImGui::NextColumn();
+    ImGui::Columns(1);
+}
 
 void GUI::renderFakelagWindow() noexcept
 {

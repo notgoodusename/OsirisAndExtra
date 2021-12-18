@@ -19,6 +19,7 @@ private:
     void renderRagebotWindow() noexcept;
     void renderTriggerbotWindow() noexcept;
     void renderFakelagWindow() noexcept;
+    void renderTickbaseWindow() noexcept;
     void renderLegitAntiAimWindow() noexcept;
     void renderRageAntiAimWindow() noexcept;
     void renderFakeAngleWindow() noexcept;

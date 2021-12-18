@@ -37,9 +37,64 @@
 
 #include "../imguiCustom.h"
 
+void Misc::jumpBug(UserCmd* cmd) noexcept
+{
+    if (!config->misc.jumpBug || (!config->misc.jumpBugKey.isDown() && config->misc.jumpBugKey.isSet()))
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (const auto mt = localPlayer->moveType(); mt == MoveType::LADDER || mt == MoveType::NOCLIP)
+        return;
+
+    if (!(EnginePrediction::getFlags() & 1) && (localPlayer->flags() & 1))
+    {
+        if(config->misc.fastDuck)
+            cmd->buttons &= ~UserCmd::IN_BULLRUSH;
+        cmd->buttons |= UserCmd::IN_DUCK;
+    }
+
+    if (localPlayer->flags() & 1)
+        cmd->buttons &= ~UserCmd::IN_JUMP;
+}
+
+void Misc::unlockHiddenCvars() noexcept
+{
+    auto iterator = **reinterpret_cast<conCommandBase***>(interfaces->cvar + 0x34);
+    for (auto c = iterator->next; c != nullptr; c = c->next)
+    {
+        conCommandBase* cmd = c;
+        cmd->flags &= ~(1 << 1);
+        cmd->flags &= ~(1 << 4);
+    }
+}
+
+void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
+{
+    if (!config->misc.fakeduck || !config->misc.fakeduckKey.isToggled())
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive() || !(localPlayer->flags() & 1))
+        return;
+
+    auto netChannel = interfaces->engine->getNetworkChannel();
+    if (!netChannel)
+        return;
+
+    cmd->buttons |= UserCmd::IN_BULLRUSH;
+    bool crouch = netChannel->chokedPackets >= (maxUserCmdProcessTicks / 2);
+    if (crouch)
+        cmd->buttons |= UserCmd::IN_DUCK;
+    else
+        cmd->buttons &= ~UserCmd::IN_DUCK;
+    sendPacket = netChannel->chokedPackets >= maxUserCmdProcessTicks;
+}
+
+
 void Misc::edgejump(UserCmd* cmd) noexcept
 {
-    if (!config->misc.edgejump || !config->misc.edgejumpkey.isDown())
+    if (!config->misc.edgejump || (!config->misc.edgejumpkey.isDown() && config->misc.edgejumpkey.isSet()))
         return;
 
     if (!localPlayer || !localPlayer->isAlive())
@@ -517,7 +572,7 @@ void Misc::fixMovement(UserCmd* cmd, float yaw) noexcept
 void Misc::antiAfkKick(UserCmd* cmd) noexcept
 {
     if (config->misc.antiAfkKick && cmd->commandNumber % 2)
-        cmd->buttons |= 1 << 26;
+        cmd->buttons |= 1 << 27;
 }
 
 void Misc::fixAnimationLOD(FrameStage stage) noexcept
@@ -1148,5 +1203,5 @@ void Misc::updateEventListeners(bool forceRemove) noexcept
 
 void Misc::updateInput() noexcept
 {
-
+    config->misc.fakeduckKey.handleToggle();
 }

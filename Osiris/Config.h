@@ -49,17 +49,11 @@ public:
         int hitChance{ 50 };
         int multiPoint{ 0 };
         int minDamage{ 1 };
-        bool killshot{ false };
     };
     std::array<Ragebot, 40> ragebot;
     bool ragebotOnKey{ false };
     KeyBind ragebotKey = KeyBind::NONE;
     int ragebotKeyMode{ 0 };
-
-    struct Tickbase {
-        bool enabled = false;
-        bool teleport = false;
-    } tickbase;
 
     struct Fakelag {
         bool enabled = false;
@@ -221,9 +215,13 @@ public:
         bool clocktag{ false };
         bool animatedClanTag{ false };
         bool fastDuck{ false };
+        bool knifeBot{ false };
+        int knifeBotMode{ 0 };
         bool moonwalk{ false };
         bool edgejump{ false };
+        bool jumpBug{ false };
         bool slowwalk{ false };
+        bool fakeduck{ false };
         bool autoPistol{ false };
         bool autoReload{ false };
         bool autoAccept{ false };
@@ -246,7 +244,9 @@ public:
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];
         KeyBind edgejumpkey = KeyBind::NONE;
+        KeyBindToggle jumpBugKey = KeyBind::NONE;
         KeyBind slowwalkKey = KeyBind::NONE;
+        KeyBindToggle fakeduckKey = KeyBind::NONE;
         ColorToggleThickness noscopeCrosshair;
         ColorToggleThickness recoilCrosshair;
 

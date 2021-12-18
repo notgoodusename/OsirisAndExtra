@@ -257,7 +257,6 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Hitchance", r.hitChance);
     read(j, "Multipoint", r.multiPoint);
     read(j, "Min damage", r.minDamage);
-    read(j, "Killshot", r.killshot);
 }
 
 static void from_json(const json& j, Config::Triggerbot& t)
@@ -465,10 +464,16 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Animated clan tag", m.animatedClanTag);
     read(j, "Fast duck", m.fastDuck);
     read(j, "Moonwalk", m.moonwalk);
+    read(j, "Knifebot", m.knifeBot);
+    read(j, "Knifebot mode", m.knifeBotMode);
     read(j, "Edge Jump", m.edgejump);
     read(j, "Edge Jump Key", m.edgejumpkey);
+    read(j, "Jump Bug", m.jumpBug);
+    read(j, "Jump Bug Key", m.jumpBugKey);
     read(j, "Slowwalk", m.slowwalk);
     read(j, "Slowwalk key", m.slowwalkKey);
+    read(j, "Fake duck", m.fakeduck);
+    read(j, "Fake duck key", m.fakeduckKey);
     read<value_t::object>(j, "Noscope crosshair", m.noscopeCrosshair);
     read<value_t::object>(j, "Recoil crosshair", m.recoilCrosshair);
     read(j, "Auto pistol", m.autoPistol);
@@ -747,7 +752,6 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Hitchance", hitChance);
     WRITE("Multipoint", multiPoint);
     WRITE("Min damage", minDamage);
-    WRITE("Killshot", killshot);
 }
 
 static void to_json(json& j, const Config::Triggerbot& o, const Config::Triggerbot& dummy = {})
@@ -915,10 +919,16 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Animated clan tag", animatedClanTag);
     WRITE("Fast duck", fastDuck);
     WRITE("Moonwalk", moonwalk);
+    WRITE("Knifebot", knifeBot);
+    WRITE("Knifebot mode", knifeBotMode);
     WRITE("Edge Jump", edgejump);
     WRITE("Edge Jump Key", edgejumpkey);
+    WRITE("Jump Bug", jumpBug);
+    WRITE("Jump Bug Key", jumpBugKey);
     WRITE("Slowwalk", slowwalk);
     WRITE("Slowwalk key", slowwalkKey);
+    WRITE("Fake duck", fakeduck);
+    WRITE("Fake duck key", fakeduckKey);
     WRITE("Noscope crosshair", noscopeCrosshair);
     WRITE("Recoil crosshair", recoilCrosshair);
     WRITE("Auto pistol", autoPistol);

@@ -30,12 +30,12 @@
 #include "Hacks/StreamProofESP.h"
 #include "Hacks/Glow.h"
 #include "Hacks/GrenadePrediction.h"
+#include "Hacks/Knifebot.h"
 #include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
 #include "Hacks/Ragebot.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
-#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
@@ -47,6 +47,7 @@
 #include "SDK/EntityList.h"
 #include "SDK/FrameStage.h"
 #include "SDK/GameEvent.h"
+#include "SDK/GameMovement.h"
 #include "SDK/GameUI.h"
 #include "SDK/GlobalVars.h"
 #include "SDK/Input.h"
@@ -210,24 +211,11 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     __asm mov framePointer, ebp;
     bool& sendPacket = *reinterpret_cast<bool*>(*framePointer - 0x1C);
 
-    if (Tickbase::isShifting && config->tickbase.enabled)
-    {
-        sendPacket = Tickbase::ticksToShift == 1;
-        cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
-        if (config->tickbase.teleport)
-            return false;
-        cmd->tickCount += 200;
-        cmd->hasbeenpredicted = true;
-        return false;
-    }
-
-    static auto pitchDown = interfaces->cvar->findVar("cl_pitchdown");
-    static auto pitchUp = interfaces->cvar->findVar("cl_pitchup");
-    static auto forwardSpeed = interfaces->cvar->findVar("cl_forwardspeed");;
-    static auto sideSpeed = interfaces->cvar->findVar("cl_sidespeed");;
-
     static auto previousViewAngles{ cmd->viewangles };
     auto currentViewAngles{ cmd->viewangles };
+
+    if (auto gameRules = (*memory->gameRules); gameRules)
+        maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
 
     memory->globalVars->serverTime(cmd);
     Misc::antiAfkKick(cmd);
@@ -250,19 +238,24 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     NadePrediction::run(cmd);
 
     Legitbot::run(cmd);
-    Triggerbot::run(cmd);
     Backtrack::run(cmd);
+    Triggerbot::run(cmd);
     Ragebot::run(cmd);
 
     Misc::edgejump(cmd);
     Misc::fastPlant(cmd);
 
-    if (AntiAim::canRun(cmd)) {
+    Knifebot::run(cmd);
+
+    if (AntiAim::canRun(cmd))
+    {
         Fakelag::run(sendPacket);
         AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
     }
 
+    Misc::fakeDuck(cmd, sendPacket);
     Misc::autoStrafe(cmd, currentViewAngles);
+    Misc::jumpBug(cmd);
     Misc::moonwalk(cmd);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
@@ -275,11 +268,11 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     cmd->viewangles.normalize();
     Misc::fixMovement(cmd, currentViewAngles.y);
 
-    cmd->viewangles.x = std::clamp(cmd->viewangles.x, -pitchUp->getFloat(), pitchDown->getFloat());
+    cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
     cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
     cmd->viewangles.z = 0.0f;
-    cmd->forwardmove = std::clamp(cmd->forwardmove, -forwardSpeed->getFloat(), forwardSpeed->getFloat());
-    cmd->sidemove = std::clamp(cmd->sidemove, -sideSpeed->getFloat(), sideSpeed->getFloat());
+    cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
+    cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
 
     previousViewAngles = cmd->viewangles;
     Animations::update(cmd, sendPacket);
@@ -421,7 +414,9 @@ struct ViewSetup {
     PAD(172);
     void* csm;
     float fov;
-    PAD(32);
+    PAD(4);
+    Vector origin;
+    PAD(16);
     float farZ;
 };
 
@@ -430,6 +425,9 @@ static void __stdcall overrideView(ViewSetup* setup) noexcept
     if (localPlayer && !localPlayer->isScoped())
         setup->fov += config->visuals.fov;
     setup->farZ += config->visuals.farZ * 10;
+
+    if (localPlayer && localPlayer->isAlive() && config->misc.fakeduck && config->misc.fakeduckKey.isToggled() && localPlayer->flags() & 1)
+        setup->origin.z = localPlayer->getAbsOrigin().z + interfaces->gameMovement->getPlayerViewOffset(false).z;
     hooks->clientMode.callOriginal<void, 18>(setup);
 }
 
@@ -834,68 +832,6 @@ static void __cdecl clSendMoveHook() noexcept
     }
 }
 
-static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
-{
-    using clMoveFn = void(__cdecl*)(float, float);
-    static auto original = (clMoveFn)hooks->clMove.getDetour();
-
-    static float realTime = 0.0f;
-
-    if(!config->tickbase.enabled)
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (!localPlayer || !localPlayer->isAlive())
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (Tickbase::doubletapCharge < Tickbase::shiftAmount && memory->globalVars->realtime - realTime > 1.0f)
-    {
-        Tickbase::doubletapCharge++;
-        return;
-    }
-
-    original(accumulatedExtraSamples, finalTick);
-
-    if (Tickbase::lastShift == 0)
-        return;
-
-    Tickbase::isShifting = true;
-    {
-        for (Tickbase::ticksToShift = min(Tickbase::doubletapCharge, Tickbase::lastShift); Tickbase::ticksToShift > 0; Tickbase::ticksToShift--, Tickbase::doubletapCharge--)
-            original(accumulatedExtraSamples, finalTick);
-    }
-    Tickbase::isShifting = false;
-    Tickbase::lastShift = 0;
-    realTime = memory->globalVars->realtime;
-}
-
-static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
-{
-    static auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
-
-    if (!entity || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, entity, cmd, moveHelper);
-
-    if (abs(cmd->tickCount - memory->globalVars->tickCount) >= 50)
-        return;
-
-    int tickbase = entity->tickBase();
-    auto currentime = memory->globalVars->currenttime;
-
-    if (cmd->commandNumber == Tickbase::commandNumber)
-        entity->tickBase() -= Tickbase::lastShift;
-
-    original(thisPointer, entity, cmd, moveHelper);
-
-    if (cmd->commandNumber == Tickbase::commandNumber)
-    {
-        entity->tickBase() = tickbase;
-        memory->globalVars->currenttime = currentime;
-    }
-}
-
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -948,7 +884,6 @@ void Hooks::install() noexcept
 
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
     clMove.detour(memory->clMove, clMoveHook);
-
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 
@@ -1051,7 +986,6 @@ void Hooks::uninstall() noexcept
     clientState.restore();
     engine.restore();
     gameMovement.restore();
-    prediction.restore();
     modelRender.restore();
     sound.restore();
     surface.restore();

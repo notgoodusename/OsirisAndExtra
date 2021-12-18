@@ -46,13 +46,12 @@ void Backtrack::update(FrameStage stage) noexcept
 
     for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
         auto entity = interfaces->entityList->getEntity(i);
-        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get())) {
+        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get()) || entity->gunGameImmunity()) {
             records[i].clear();
             continue;
         }
         
         const auto player = Animations::getPlayer(i);
-
         if (!player.gotMatrix)
             continue;
 
@@ -60,12 +59,13 @@ void Backtrack::update(FrameStage stage) noexcept
             continue;
 
         Record record{ };
-        record.origin = entity->origin();
-        record.absAngle = entity->getAbsAngle();
-        record.simulationTime = entity->simulationTime();
-        record.mins = entity->getCollideable()->obbMins();
-        record.maxs = entity->getCollideable()->obbMaxs();
+        record.origin = player.origin;
+        record.absAngle = player.absAngle;
+        record.simulationTime = player.simulationTime;
+        record.mins = player.mins;
+        record.maxs = player.maxs;
         std::copy(player.matrix.begin(), player.matrix.end(), record.matrix);
+        record.head = record.matrix[8].origin();
 
         records[i].push_front(record);
         
@@ -93,7 +93,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     if (!(cmd->buttons & UserCmd::IN_ATTACK))
         return;
 
-    if (!localPlayer)
+    if (!localPlayer || !localPlayer->isAlive())
         return;
 
     if (!config->backtrack.ignoreFlash && localPlayer->isFlashed())
@@ -104,7 +104,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     auto bestFov{ 255.f };
     Entity * bestTarget{ };
     int bestTargetIndex{ };
-    Vector bestTargetOrigin{ };
+    Vector bestTargetPosition{ };
     int bestRecord{ };
 
     const auto aimPunch = localPlayer->getAimPunch();
@@ -123,12 +123,12 @@ void Backtrack::run(UserCmd* cmd) noexcept
             bestFov = fov;
             bestTarget = entity;
             bestTargetIndex = i;
-            bestTargetOrigin = origin;
+            bestTargetPosition = origin;
         }
     }
 
     if (bestTarget) {
-        if (records[bestTargetIndex].size() <= 3 || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetOrigin, 1)))
+        if (records[bestTargetIndex].empty() || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetPosition, 1)))
             return;
 
         bestFov = 255.f;
@@ -138,7 +138,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
             if (!valid(record.simulationTime))
                 continue;
 
-            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.origin, cmd->viewangles + aimPunch);
+            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
             auto fov = std::hypotf(angle.x, angle.y);
             if (fov < bestFov) {
                 bestFov = fov;

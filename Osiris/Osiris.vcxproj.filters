@@ -236,7 +236,7 @@
     <ClCompile Include="SDK\AnimState.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
-    <ClCompile Include="Hacks\Tickbase.cpp">
+    <ClCompile Include="Hacks\Knifebot.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
   </ItemGroup>
@@ -613,7 +613,7 @@
     <ClInclude Include="SDK\CStudioHdr.h">
       <Filter>SDK</Filter>
     </ClInclude>
-    <ClInclude Include="Hacks\Tickbase.h">
+    <ClInclude Include="Hacks\Knifebot.h">
       <Filter>Hacks</Filter>
     </ClInclude>
   </ItemGroup>

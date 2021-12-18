@@ -104,7 +104,7 @@ bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo
             break;
 
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup) * damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData) * damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
 
             if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet()))
                 damage -= (trace.entity->armor() < damage * armorRatio / 2.0f ? trace.entity->armor() * 4.0f : damage) * (1.0f - armorRatio);
@@ -146,7 +146,7 @@ float Aimbot::getScanDamage(Entity* entity, const Vector& destination, const Wea
             break;
 
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
 
             if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet()))
                 damage -= (trace.entity->armor() < damage * armorRatio / 2.0f ? trace.entity->armor() * 4.0f : damage) * (1.0f - armorRatio);
@@ -357,7 +357,7 @@ void vectorIRotate(Vector in1, matrix3x4 in2, Vector& out) noexcept
     out.z = in1.x * in2[0][2] + in1.y * in2[1][2] + in1.z * in2[2][2];
 }
 
-bool hitboxIntersection(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], int iHitbox, StudioHitboxSet* set, const Vector& start, const Vector& end) noexcept
+bool Aimbot::hitboxIntersection(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], int iHitbox, StudioHitboxSet* set, const Vector& start, const Vector& end) noexcept
 {
     auto VectorTransform_Wrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
     {

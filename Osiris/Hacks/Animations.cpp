@@ -33,6 +33,10 @@ static std::array<AnimationLayer, 13> sendPacketLayers{};
 
 void Animations::init() noexcept
 {
+    static auto threadedBoneSetup = interfaces->cvar->findVar("cl_threaded_bone_setup");
+    if (threadedBoneSetup->getInt() <= 0)
+        threadedBoneSetup->setValue(1);
+
     static auto jiggleBones = interfaces->cvar->findVar("r_jiggle_bones");
     if (jiggleBones->getInt() >= 1)
         jiggleBones->setValue(0);
@@ -154,6 +158,16 @@ void Animations::fake() noexcept
         const auto backupPoses = localPlayer->poseParameters();
 
         localPlayer->updateState(fakeAnimState, viewangles);
+        if (fabsf(fakeAnimState->footYaw - footYaw) <= 5.f)
+        {
+            gotMatrix = false;
+            updatingFake = false;
+
+            std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+            localPlayer->poseParameters() = backupPoses;
+            memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
+            return;
+        }
         memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, 0 });
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();

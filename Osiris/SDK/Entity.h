@@ -138,6 +138,7 @@ public:
         VIRTUAL_METHOD(bool, getAttachment, 84, (int index, Vector& origin), (this, index, std::ref(origin)))
         VIRTUAL_METHOD(Team, getTeamNumber, 88, (), (this))
         VIRTUAL_METHOD(int, health, 122, (), (this))
+        VIRTUAL_METHOD(int, maxHealth, 123, (), (this))
         VIRTUAL_METHOD(bool, isAlive, 156, (), (this))
         VIRTUAL_METHOD(bool, isPlayer, 158, (), (this))
         VIRTUAL_METHOD(bool, isWeapon, 166, (), (this))
@@ -421,12 +422,9 @@ public:
     {
         Vector absOrigin = getAbsOrigin();
         uintptr_t backupEffects = getEffects();
-        int* render = reinterpret_cast<int*>(this + 0x274);
-        int backup = *render;
 
         this->invalidateBoneCache();
         getEffects() |= 8;
-        *render = 0;
 
         memory->setAbsOrigin(this, origin());
 
@@ -434,7 +432,6 @@ public:
         
         memory->setAbsOrigin(this, absOrigin);
         getEffects() = backupEffects;
-        *render = backup;
         return result;
     }
 
@@ -583,6 +580,7 @@ public:
     NETVAR(burstMode, "CWeaponCSBase", "m_bBurstMode", bool)
 
     NETVAR(burstShotRemaining, "CWeaponCSBaseGun", "m_iBurstShotsRemaining", int)
+    NETVAR(zoomLevel, "CWeaponCSBaseGun", "m_zoomLevel", int)
 
     NETVAR(accountID, "CBaseAttributableItem", "m_iAccountID", int)
     NETVAR(itemDefinitionIndex, "CBaseAttributableItem", "m_iItemDefinitionIndex", short)

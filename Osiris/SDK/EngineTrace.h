@@ -4,14 +4,35 @@
 
 #include "Vector.h"
 #include "VirtualMethod.h"
+#include "WeaponData.h"
+
+class matrix3x4;
 
 struct Ray {
-    Ray(const Vector& src, const Vector& dest) : start(src), delta(dest - src) { isSwept = delta.x || delta.y || delta.z; }
+    Ray(const Vector& src, const Vector& dest)
+        : start(src), delta(dest - src), extents(Vector{ }), startOffset(Vector{ }), worldAxisTransform(NULL), isRay(true) { isSwept = delta.x || delta.y || delta.z; }
+
+    Ray(const Vector& src, const Vector& dest, const Vector& mins, const Vector& maxs)
+        : delta(dest - src), extents(maxs - mins), startOffset(maxs + mins), worldAxisTransform(NULL)
+    {
+        isSwept = delta.x || delta.y || delta.z;
+        extents *= 0.5f;
+        isRay = (extents.squareLength() < 1e-6);
+
+        startOffset *= 0.5f;
+        start = src + startOffset;
+        startOffset *= -1.0f;
+    }
     Vector start{ };
     float pad{ };
     Vector delta{ };
-    std::byte pad2[40]{ };
-    bool isRay{ true };
+    float pad1{ };
+    Vector startOffset{ };
+    float pad2{ };
+    Vector extents{ };
+    float pad3{ };
+    const matrix3x4* worldAxisTransform;
+    bool isRay{ };
     bool isSwept{ };
 };
 
@@ -38,11 +59,11 @@ namespace HitGroup {
         Gear = 10
     };
 
-    constexpr float getDamageMultiplier(int hitGroup) noexcept
+    constexpr float getDamageMultiplier(int hitGroup, const WeaponInfo* weaponData) noexcept
     {
         switch (hitGroup) {
         case Head:
-            return 4.0f;
+            return weaponData->headshotMultiplier;
         case Stomach:
             return 1.25f;
         case LeftLeg:

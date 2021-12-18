@@ -25,6 +25,7 @@ namespace Backtrack
 
     struct Record {
         Vector origin;
+        Vector head;
         Vector absAngle;
         Vector mins;
         Vector maxs;

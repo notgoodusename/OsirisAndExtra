@@ -96,6 +96,8 @@ void Legitbot::run(UserCmd* cmd) noexcept
                 continue;
 
             const auto player = Animations::getPlayer(i);
+            if (!player.gotMatrix)
+                continue;
 
             for (size_t j = 0; j < hitbox.size(); j++)
             {

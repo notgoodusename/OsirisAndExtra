@@ -1,13 +1,19 @@
+#include "EnginePrediction.h"
 #include "Fakelag.h"
 
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/Localplayer.h"
+#include "../SDK/Vector.h"
 
 void Fakelag::run(bool& sendPacket) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    auto netChannel = interfaces->engine->getNetworkChannel();
+    if (!netChannel)
         return;
 
     auto chokedPackets = config->legitAntiAim.enabled ? 1 : 0;
@@ -18,9 +24,13 @@ void Fakelag::run(bool& sendPacket) noexcept
             chokedPackets = config->fakelag.limit;
             break;
         case 1: //Adaptive
-            chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (localPlayer->velocity().length() * memory->globalVars->intervalPerTick))), 1, config->fakelag.limit);
+            float speed = EnginePrediction::getVelocity().length2D();
+            if (speed < 15.0f)
+                speed = 0.0f;
+            chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (speed * memory->globalVars->intervalPerTick))), 1, config->fakelag.limit);
             break;
         }
     }
-    sendPacket = interfaces->engine->getNetworkChannel()->chokedPackets >= chokedPackets;
+
+    sendPacket = netChannel->chokedPackets >= chokedPackets;
 }

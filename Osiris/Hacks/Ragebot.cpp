@@ -17,14 +17,6 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/ModelInfo.h"
 
-void resetMatrix(Entity* entity, matrix3x4* boneCacheData, Vector origin, Vector absAngle, Vector mins, Vector maxs)
-{
-    memcpy(entity->getBoneCache().memory, boneCacheData, std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
-    memory->setAbsOrigin(entity, origin);
-    memory->setAbsAngle(entity, Vector{ 0.f, absAngle.y, 0.f });
-    entity->getCollideable()->setCollisionBounds(mins, maxs);
-}
-
 static bool keyPressed = false;
 
 void Ragebot::updateInput() noexcept
@@ -69,11 +61,11 @@ void Ragebot::run(UserCmd* cmd) noexcept
     if (!(cfg[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg[weaponIndex].autoShot || cfg[weaponIndex].aimlock)))
         return;
 
-    float bestDamage = (float)cfg[weaponIndex].minDamage;
+    float damageDiff = FLT_MAX;
     Vector bestTarget{ };
     Vector bestAngle{ };
-    auto localPlayerEyePosition = localPlayer->getEyePosition();
     float bestSimulationTime = 0;
+    const auto localPlayerEyePosition = localPlayer->getEyePosition();
     const auto aimPunch = localPlayer->getAimPunch();
 
     std::array<bool, Hitboxes::Max> hitbox{ false };
@@ -102,12 +94,16 @@ void Ragebot::run(UserCmd* cmd) noexcept
     std::vector<Ragebot::Enemies> enemies;
     const auto localPlayerOrigin{ localPlayer->getAbsOrigin() };
     for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i) {
+        const auto player = Animations::getPlayer(i);
+        if (!player.gotMatrix)
+            continue;
+
         const auto entity{ interfaces->entityList->getEntity(i) };
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()
             || !entity->isOtherEnemy(localPlayer.get()) && !cfg[weaponIndex].friendlyFire || entity->gunGameImmunity())
             continue;
 
-        const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, entity->getBonePosition(8), cmd->viewangles + aimPunch) };
+        const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, player.matrix[8].origin(), cmd->viewangles + aimPunch) };
         const auto origin{ entity->getAbsOrigin() };
         const auto fov{ angle.length2D() }; //fov
         const auto health{ entity->health() }; //health
@@ -134,7 +130,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
-        
+        const int minDamage = std::clamp(std::clamp(cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
+        damageDiff = FLT_MAX;
+
         auto backupBoneCache = entity->getBoneCache().memory;
         auto backupMins = entity->getCollideable()->obbMins();
         auto backupMaxs = entity->getCollideable()->obbMaxs();
@@ -186,15 +184,16 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                     continue;
 
-                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), cfg[weaponIndex].killshot ? entity->health() : cfg[weaponIndex].minDamage, cfg[weaponIndex].friendlyFire);
+                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
                 if (damage <= 0.f)
                     continue;
 
                 if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
                     continue;
 
-                if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
-                    cmd->buttons |= UserCmd::IN_ATTACK2;
+                if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+                    cmd->buttons |= UserCmd::IN_ZOOM;
 
                 if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                 {
@@ -217,9 +216,10 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     }
                 }
 
-                if (damage >= bestDamage) {
+                if (std::fabsf((float)target.health - damage) <= damageDiff)
+                {
                     bestAngle = angle;
-                    bestDamage = damage;
+                    damageDiff = std::fabsf((float)target.health - damage);
                     bestTarget = bonePosition;
                     bestSimulationTime = entity->simulationTime();
                 }
@@ -231,7 +231,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!Aimbot::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
             {
                 bestTarget = Vector{ };
+                bestAngle = Vector{ };
                 bestSimulationTime = 0;
+                damageDiff = FLT_MAX;
             }
         }
 
@@ -244,24 +246,24 @@ void Ragebot::run(UserCmd* cmd) noexcept
             continue;
 
         const auto records = Backtrack::getRecords(entity->index());
-        if (records->empty() || records->size() <= 3)
+        if (!records || records->empty())
             continue;
 
-        int lastestTick = -1;
+        int lastTick = -1;
 
-        for (int i = static_cast<int>(records->size() - 2); i >= 0; i--)
+        for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
         {
             if (Backtrack::valid(records->at(i).simulationTime))
             {
-                lastestTick = i;
+                lastTick = i;
                 break;
             }
         }
 
-        if (lastestTick == -1)
+        if (lastTick <= -1)
             continue;
 
-        const auto record = records->at(lastestTick);
+        const auto record = records->at(lastTick);
 
         backupBoneCache = entity->getBoneCache().memory;
         backupMins = entity->getCollideable()->obbMins();
@@ -314,7 +316,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                     continue;
 
-                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), cfg[weaponIndex].killshot ? entity->health() : cfg[weaponIndex].minDamage, cfg[weaponIndex].friendlyFire);
+                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
                 if (damage <= 0.f)
                     continue;
 
@@ -343,11 +346,13 @@ void Ragebot::run(UserCmd* cmd) noexcept
                         cmd->forwardmove = negatedDirection.x;
                         cmd->sidemove = negatedDirection.y;
                     }
+                
                 }
 
-                if (damage >= bestDamage) {
+                if (std::fabsf((float)target.health - damage) <= damageDiff)
+                {
                     bestAngle = angle;
-                    bestDamage = damage;
+                    damageDiff = std::fabsf((float)target.health - damage);
                     bestTarget = bonePosition;
                     bestSimulationTime = record.simulationTime;
                 }
@@ -359,7 +364,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!Aimbot::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
             {
                 bestTarget = Vector{ };
+                bestAngle = Vector{ };
                 bestSimulationTime = 0;
+                damageDiff = FLT_MAX;
             }
         }
 

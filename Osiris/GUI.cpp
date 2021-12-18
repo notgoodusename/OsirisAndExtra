@@ -295,7 +295,7 @@ void GUI::renderLegitbotWindow() noexcept
     ImGui::SliderFloat("Fov", &config->legitbot[currentWeapon].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderFloat("Smooth", &config->legitbot[currentWeapon].smooth, 1.0f, 100.0f, "%.2f");
     ImGui::SliderInt("Reaction time", &config->legitbot[currentWeapon].reactionTime, 0, 300, "%d");
-    ImGui::InputInt("Min damage", &config->legitbot[currentWeapon].minDamage);
+    ImGui::SliderInt("Min damage", &config->ragebot[currentWeapon].minDamage, 0, 101, "%d");
     config->legitbot[currentWeapon].minDamage = std::clamp(config->legitbot[currentWeapon].minDamage, 0, 250);
     ImGui::Checkbox("Killshot", &config->legitbot[currentWeapon].killshot);
     ImGui::Checkbox("Between shots", &config->legitbot[currentWeapon].betweenShots);
@@ -467,9 +467,8 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::SliderFloat("Fov", &config->ragebot[currentWeapon].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderInt("Hitchance", &config->ragebot[currentWeapon].hitChance, 0, 100, "%d");
     ImGui::SliderInt("Multipoint", &config->ragebot[currentWeapon].multiPoint, 0, 100, "%d");
-    ImGui::InputInt("Min damage", &config->ragebot[currentWeapon].minDamage);
+    ImGui::SliderInt("Min damage", &config->ragebot[currentWeapon].minDamage, 0, 101, "%d");
     config->ragebot[currentWeapon].minDamage = std::clamp(config->ragebot[currentWeapon].minDamage, 0, 250);
-    ImGui::Checkbox("Killshot", &config->ragebot[currentWeapon].killshot);
     ImGui::Columns(1);
 }
 
@@ -616,7 +615,7 @@ void GUI::renderTriggerbotWindow() noexcept
     ImGui::SliderInt("Hitchance", &config->triggerbot[currentWeapon].hitChance, 0, 100, "%d");
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Shot delay", &config->triggerbot[currentWeapon].shotDelay, 0, 250, "%d ms");
-    ImGui::InputInt("Min damage", &config->triggerbot[currentWeapon].minDamage);
+    ImGui::SliderInt("Min damage", &config->triggerbot[currentWeapon].minDamage, 0, 101, "%d");
     config->triggerbot[currentWeapon].minDamage = std::clamp(config->triggerbot[currentWeapon].minDamage, 0, 250);
     ImGui::Checkbox("Killshot", &config->triggerbot[currentWeapon].killshot);
     ImGui::NextColumn();
@@ -680,16 +679,6 @@ void GUI::renderFakeAngleWindow() noexcept
     ImGui::Combo("Mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0Jitter\0");
     ImGui::Combo("Lby mode", &config->fakeAngle.lbyMode, "Normal\0Opposite\0Sway\0");
 
-    ImGui::NextColumn();
-    ImGui::Columns(1);
-}
-
-void GUI::renderTickbaseWindow() noexcept
-{
-    ImGui::Columns(2, nullptr, false);
-    ImGui::SetColumnOffset(1, 300.f);
-    ImGui::Checkbox("Enabled", &config->tickbase.enabled);
-    ImGui::Checkbox("Teleport", &config->tickbase.teleport);
     ImGui::NextColumn();
     ImGui::Columns(1);
 }
@@ -1430,15 +1419,28 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Bunny hop", &config->misc.bunnyHop);
     ImGui::Checkbox("Fast duck", &config->misc.fastDuck);
     ImGui::Checkbox("Moonwalk", &config->misc.moonwalk);
+    ImGui::Checkbox("Knifebot", &config->misc.knifeBot);
+    ImGui::SameLine();
+    ImGui::Combo("Mode", &config->misc.knifeBotMode, "Trigger\0Rage\0");
     ImGui::Checkbox("Edge Jump", &config->misc.edgejump);
     ImGui::SameLine();
     ImGui::PushID("Edge Jump Key");
     hotkey2("", config->misc.edgejumpkey);
     ImGui::PopID();
+    ImGui::Checkbox("Jump Bug", &config->misc.jumpBug);
+    ImGui::SameLine();
+    ImGui::PushID("Jump Bug Key");
+    hotkey2("", config->misc.jumpBugKey);
+    ImGui::PopID();
     ImGui::Checkbox("Slowwalk", &config->misc.slowwalk);
     ImGui::SameLine();
     ImGui::PushID("Slowwalk Key");
     hotkey2("", config->misc.slowwalkKey);
+    ImGui::PopID();
+    ImGui::Checkbox("Fakeduck", &config->misc.fakeduck);
+    ImGui::SameLine();
+    ImGui::PushID("Fakeduck Key");
+    hotkey2("", config->misc.fakeduckKey);
     ImGui::PopID();
     ImGuiCustom::colorPicker("Noscope crosshair", config->misc.noscopeCrosshair);
     ImGuiCustom::colorPicker("Recoil crosshair", config->misc.recoilCrosshair);
@@ -1537,6 +1539,8 @@ void GUI::renderMiscWindow() noexcept
     ImGui::SliderFloat("Max angle delta", &config->misc.maxAngleDelta, 0.0f, 255.0f, "%.2f");
     ImGui::Checkbox("Opposite Hand Knife", &config->misc.oppositeHandKnife);
     ImGui::Checkbox("Sv pure bypass", &config->misc.svPureBypass);
+    if (ImGui::Button("Unlock hidden cvars"))
+        Misc::unlockHiddenCvars();
     ImGui::Checkbox("Preserve Killfeed", &config->misc.preserveKillfeed.enabled);
     ImGui::SameLine();
 

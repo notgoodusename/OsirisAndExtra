@@ -180,7 +180,6 @@ public:
     void(__thiscall* clMsgMoveSetData)(void*, unsigned char*, std::size_t);
     void(__thiscall* clMsgMoveDescontructor)(void*);
     std::uintptr_t chokeLimit;
-    std::uintptr_t clMove;
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

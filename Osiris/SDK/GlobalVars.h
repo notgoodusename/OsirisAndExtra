@@ -2,13 +2,15 @@
 
 #include <cstddef>
 
+#include "Pad.h"
+
 struct UserCmd;
 
 struct GlobalVars {
     const float realtime;
     int framecount;
     const float absoluteFrameTime;
-    const std::byte pad[4];
+    PAD(4);
     float currenttime;
     float frametime;
     const int maxClients;

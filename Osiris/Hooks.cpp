@@ -171,7 +171,7 @@ static int __fastcall sendDatagramHook(NetworkChannel* network, void* edx, void*
     int instate = network->inReliableState;
     int insequencenr = network->inSequenceNr;
 
-    float delta = max(0.f, std::clamp(config->backtrack.fakeLatencyAmount / 1000.f, 0.f, Backtrack::getMaxUnlag()) - network->getLatency(0));
+    float delta = max(0.f, config->backtrack.fakeLatencyAmount / 1000.f);
 
     Backtrack::addLatencyToNetwork(network, delta);
 

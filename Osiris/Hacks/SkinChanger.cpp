@@ -149,7 +149,7 @@ void apply_sticker_changer(Entity* item) noexcept
 {
     if (auto config = get_by_definition_index(item->itemDefinitionIndex2())) {
         constexpr auto m_Item = fnv::hash("CBaseAttributableItem->m_Item");
-        const auto attributeList = std::uintptr_t(item) + netvars->operator[](m_Item) + /* m_AttributeList = */ 0x244;
+        const auto attributeList = std::uintptr_t(item) + Netvars::get(m_Item) + /* m_AttributeList = */ 0x244;
 
         for (std::size_t i = 0; i < config->stickers.size(); ++i) {
             const auto& sticker = config->stickers[i];

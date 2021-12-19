@@ -68,7 +68,7 @@
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
     [[maybe_unused]] static const auto once = [](HWND window) noexcept {
-        netvars = std::make_unique<Netvars>();
+        Netvars::init();
         eventListener = std::make_unique<EventListener>();
 
         ImGui::CreateContext();
@@ -988,7 +988,7 @@ void Hooks::uninstall() noexcept
     viewRender.restore();
     fileSystem.restore();
 
-    netvars->restore();
+    Netvars::restore();
 
     Glow::clearCustomObjects();
 

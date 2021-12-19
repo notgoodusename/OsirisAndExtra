@@ -306,7 +306,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if (activeWeapon->isGrenade())
         return true;
 
-    if (localPlayer->waitForNoAttack())
+    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto() || localPlayer->waitForNoAttack())
         return true;
 
     if (localPlayer->nextAttack() > memory->globalVars->serverTime())

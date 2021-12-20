@@ -1,4 +1,4 @@
 # Osiris And Extra
-Project Im working on
 
+##Use a VAC bypass or you WILL get banned
 No linux support

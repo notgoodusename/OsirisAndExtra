@@ -301,7 +301,7 @@ public:
 
     void updateState(AnimState* state, Vector angle) noexcept
     {
-        if (!this || !state || !angle.notNull())
+        if (!this || !state || angle.null())
             return;
 
         static auto updateAnimState = reinterpret_cast<void(__vectorcall*)(void*, void*, float, float, float, void*)>(memory->updateState);

@@ -224,6 +224,7 @@ public:
         bool jumpBug{ false };
         bool slowwalk{ false };
         bool fakeduck{ false };
+        ColorToggle autoPeek{ 1.0f, 1.0f, 1.0f, 1.0f };
         bool autoPistol{ false };
         bool autoReload{ false };
         bool autoAccept{ false };
@@ -249,6 +250,7 @@ public:
         KeyBindToggle jumpBugKey = KeyBind::NONE;
         KeyBind slowwalkKey = KeyBind::NONE;
         KeyBindToggle fakeduckKey = KeyBind::NONE;
+        KeyBindToggle autoPeekKey = KeyBind::NONE;
         ColorToggleThickness noscopeCrosshair;
         ColorToggleThickness recoilCrosshair;
 

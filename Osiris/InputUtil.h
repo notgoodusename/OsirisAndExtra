@@ -132,6 +132,7 @@ public:
 
     void handleToggle() noexcept;
     bool isToggled() const noexcept { return toggledOn; }
+    void setToggleTo(bool value) noexcept { toggledOn = value; }
 private:
     bool toggledOn = true;
 };

@@ -470,6 +470,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Slowwalk key", m.slowwalkKey);
     read(j, "Fake duck", m.fakeduck);
     read(j, "Fake duck key", m.fakeduckKey);
+    read<value_t::object>(j, "Auto peek", m.autoPeek);
+    read(j, "Auto peek key", m.autoPeekKey);
     read<value_t::object>(j, "Noscope crosshair", m.noscopeCrosshair);
     read<value_t::object>(j, "Recoil crosshair", m.recoilCrosshair);
     read(j, "Auto pistol", m.autoPistol);
@@ -918,6 +920,8 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Slowwalk key", slowwalkKey);
     WRITE("Fake duck", fakeduck);
     WRITE("Fake duck key", fakeduckKey);
+    WRITE("Auto peek", autoPeek);
+    WRITE("Auto peek key", autoPeekKey);
     WRITE("Noscope crosshair", noscopeCrosshair);
     WRITE("Recoil crosshair", recoilCrosshair);
     WRITE("Auto pistol", autoPistol);

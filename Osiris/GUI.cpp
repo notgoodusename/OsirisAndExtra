@@ -1444,6 +1444,11 @@ void GUI::renderMiscWindow() noexcept
     ImGui::PushID("Fakeduck Key");
     hotkey2("", config->misc.fakeduckKey);
     ImGui::PopID();
+    ImGuiCustom::colorPicker("Auto peek", config->misc.autoPeek.color.data(), &config->misc.autoPeek.color[3], nullptr, nullptr, &config->misc.autoPeek.enabled);
+    ImGui::SameLine();
+    ImGui::PushID("Auto peek Key");
+    hotkey2("", config->misc.autoPeekKey);
+    ImGui::PopID();
     ImGuiCustom::colorPicker("Noscope crosshair", config->misc.noscopeCrosshair);
     ImGuiCustom::colorPicker("Recoil crosshair", config->misc.recoilCrosshair);
     ImGui::Checkbox("Auto pistol", &config->misc.autoPistol);

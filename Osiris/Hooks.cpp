@@ -111,6 +111,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     Visuals::hitMarker(nullptr, ImGui::GetBackgroundDrawList());
     Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
     Misc::watermark();
+    Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
 
     Legitbot::updateInput();
     Visuals::updateInput();
@@ -241,6 +242,8 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Backtrack::run(cmd);
     Triggerbot::run(cmd);
     Ragebot::run(cmd);
+
+    Misc::autoPeek(cmd, currentViewAngles);
 
     Misc::edgejump(cmd);
     Misc::fastPlant(cmd);

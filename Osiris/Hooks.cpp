@@ -220,6 +220,21 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
         maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
 
     memory->globalVars->serverTime(cmd);
+
+    if (Tickbase::isShifting && config->tickbase.enabled)
+    {
+        sendPacket = Tickbase::ticksToShift == 1;
+        cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
+        if (config->tickbase.teleport)
+        {
+            return false;
+        }
+        cmd->tickCount += 200;
+        cmd->hasbeenpredicted = true;
+        return false;
+    }
+
+
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
     Misc::prepareRevolver(cmd);

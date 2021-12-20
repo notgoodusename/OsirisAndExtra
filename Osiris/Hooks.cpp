@@ -225,12 +225,19 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     {
         sendPacket = Tickbase::ticksToShift == 1;
         cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
-        if (config->tickbase.teleport)
+        if (!config->tickbase.teleport)
         {
-            return false;
+            cmd->tickCount += 200;
+            cmd->hasbeenpredicted = true;
         }
-        cmd->tickCount += 200;
-        cmd->hasbeenpredicted = true;
+        cmd->viewangles.normalize();
+
+        cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
+        cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
+        cmd->viewangles.z = 0.0f;
+        cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
+        cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
+
         return false;
     }
 

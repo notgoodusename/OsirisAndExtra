@@ -25,6 +25,9 @@ void Legitbot::run(UserCmd* cmd) noexcept
     if (!activeWeapon || !activeWeapon->clip())
         return;
 
+    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
+        return;
+
     auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
     if (!weaponIndex)
         return;

@@ -26,11 +26,9 @@ static Cvars cvars;
 
 float getExtraTicks() noexcept
 {
-    auto network = interfaces->engine->getNetworkChannel();
-    if (!network)
+    if (!config->backtrack.fakeLatency || config->backtrack.fakeLatencyAmount <= 0)
         return 0.f;
-
-    return std::clamp(network->getLatency(1) - network->getLatency(0), 0.f, 0.2f);
+    return static_cast<float>(config->backtrack.fakeLatencyAmount) / 1000.f;
 }
 
 void Backtrack::update(FrameStage stage) noexcept

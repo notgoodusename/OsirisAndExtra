@@ -280,13 +280,13 @@ public:
 
     float* getPoseParameter() noexcept
     {
-        static auto m_flPoseParameter = netvars->operator[](fnv::hash("CBaseAnimating->m_flPoseParameter"));
+        static auto m_flPoseParameter = Netvars::get(fnv::hash("CBaseAnimating->m_flPoseParameter"));
         return reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + m_flPoseParameter);
     }
 
     std::array<float, 24>& poseParameters() noexcept
     {
-        static auto m_flPoseParameter = netvars->operator[](fnv::hash("CBaseAnimating->m_flPoseParameter"));
+        static auto m_flPoseParameter = Netvars::get(fnv::hash("CBaseAnimating->m_flPoseParameter"));
         return *reinterpret_cast<std::add_pointer_t<std::array<float, 24>>>(reinterpret_cast<uintptr_t>(this) + m_flPoseParameter);
     }
 
@@ -301,7 +301,7 @@ public:
 
     void updateState(AnimState* state, Vector angle) noexcept
     {
-        if (!this || !state || !angle.notNull())
+        if (!this || !state || angle.null())
             return;
 
         static auto updateAnimState = reinterpret_cast<void(__vectorcall*)(void*, void*, float, float, float, void*)>(memory->updateState);

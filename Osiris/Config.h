@@ -203,6 +203,8 @@ public:
         float hitEffectTime{ 0.6f };
         int hitMarker{ 0 };
         float hitMarkerTime{ 0.6f };
+        ColorToggle bulletImpacts{ 0.0f, 0.0f, 1.f, 0.5f };
+        float bulletImpactsTime{ 4.f };
         BulletTracers bulletTracers;
         ColorToggle molotovHull{ 1.0f, 0.27f, 0.0f, 0.3f };
     } visuals;
@@ -227,6 +229,7 @@ public:
         bool jumpBug{ false };
         bool slowwalk{ false };
         bool fakeduck{ false };
+        ColorToggle autoPeek{ 1.0f, 1.0f, 1.0f, 1.0f };
         bool autoPistol{ false };
         bool autoReload{ false };
         bool autoAccept{ false };
@@ -252,6 +255,7 @@ public:
         KeyBindToggle jumpBugKey = KeyBind::NONE;
         KeyBind slowwalkKey = KeyBind::NONE;
         KeyBindToggle fakeduckKey = KeyBind::NONE;
+        KeyBindToggle autoPeekKey = KeyBind::NONE;
         ColorToggleThickness noscopeCrosshair;
         ColorToggleThickness recoilCrosshair;
 

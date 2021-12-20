@@ -37,6 +37,111 @@
 
 #include "../imguiCustom.h"
 
+static bool worldToScreen(const Vector& in, ImVec2& out) noexcept
+{
+    const auto& matrix = GameData::toScreenMatrix();
+
+    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
+    if (w < 0.001f)
+        return false;
+
+    out = ImGui::GetIO().DisplaySize / 2.0f;
+    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
+    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
+    out = ImFloor(out);
+    return true;
+}
+
+static Vector peekPosition{};
+
+void Misc::drawAutoPeek(ImDrawList* drawList) noexcept
+{
+    if (!config->misc.autoPeek.enabled)
+        return;
+
+    if (peekPosition.notNull())
+    {
+        constexpr float step = 3.141592654f * 2.0f / 20.0f;
+        std::vector<ImVec2> points;
+        for (float lat = 0.f; lat <= 3.141592654f * 2.0f; lat += step)
+        {
+            const auto& point3d = Vector{ std::sin(lat), std::cos(lat), 0.f } *15.f;
+            ImVec2 point2d;
+            if (worldToScreen(peekPosition + point3d, point2d))
+                points.push_back(point2d);
+        }
+
+        const ImU32 color = (Helpers::calculateColor(config->misc.autoPeek));
+        auto flags_backup = drawList->Flags;
+        drawList->Flags |= ImDrawListFlags_AntiAliasedFill;
+        drawList->AddConvexPolyFilled(points.data(), points.size(), color);
+        drawList->AddPolyline(points.data(), points.size(), color, true, 2.f);
+        drawList->Flags = flags_backup;
+    }
+}
+
+void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
+{
+    static bool hasShot = false;
+
+    if (!config->misc.autoPeek.enabled)
+    {
+        hasShot = false;
+        peekPosition = Vector{};
+        return;
+    }
+
+    if (!localPlayer)
+        return;
+
+    if (!localPlayer->isAlive())
+    {
+        hasShot = false;
+        peekPosition = Vector{};
+        return;
+    }
+
+    if (const auto mt = localPlayer->moveType(); mt == MoveType::LADDER || mt == MoveType::NOCLIP || !(localPlayer->flags() & 1))
+        return;
+
+    if (config->misc.autoPeekKey.isToggled() && config->misc.autoPeekKey.isSet())
+    {
+        if (peekPosition.null())
+            peekPosition = localPlayer->getRenderOrigin();
+
+        if (cmd->buttons & UserCmd::IN_ATTACK)
+            hasShot = true;
+
+        if (hasShot)
+        {
+            const float yaw = currentViewAngles.y;
+            const auto difference = localPlayer->getRenderOrigin() - peekPosition;
+
+            if (difference.length2D() > 5.0f)
+            {
+                const auto velocity = Vector{
+                    difference.x * std::cos(yaw / 180.0f * 3.141592654f) + difference.y * std::sin(yaw / 180.0f * 3.141592654f),
+                    difference.y * std::cos(yaw / 180.0f * 3.141592654f) - difference.x * std::sin(yaw / 180.0f * 3.141592654f),
+                    difference.z };
+
+                cmd->forwardmove = -velocity.x * 20.f;
+                cmd->sidemove = velocity.y * 20.f;
+            }
+            else
+            {
+                hasShot = false;
+                peekPosition = Vector{};
+                config->misc.autoPeekKey.setToggleTo(false);
+            }
+        }
+    }
+    else
+    {
+        hasShot = false;
+        peekPosition = Vector{};
+    }
+}
+
 void Misc::jumpBug(UserCmd* cmd) noexcept
 {
     if (!config->misc.jumpBug || (!config->misc.jumpBugKey.isDown() && config->misc.jumpBugKey.isSet()))
@@ -258,22 +363,6 @@ void Misc::noscopeCrosshair(ImDrawList* drawList) noexcept
     }
 
     drawCrosshair(drawList, ImGui::GetIO().DisplaySize / 2, Helpers::calculateColor(config->misc.noscopeCrosshair));
-}
-
-
-static bool worldToScreen(const Vector& in, ImVec2& out) noexcept
-{
-    const auto& matrix = GameData::toScreenMatrix();
-
-    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
-    if (w < 0.001f)
-        return false;
-
-    out = ImGui::GetIO().DisplaySize / 2.0f;
-    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
-    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
-    out = ImFloor(out);
-    return true;
 }
 
 void Misc::recoilCrosshair(ImDrawList* drawList) noexcept
@@ -1204,4 +1293,5 @@ void Misc::updateEventListeners(bool forceRemove) noexcept
 void Misc::updateInput() noexcept
 {
     config->misc.fakeduckKey.handleToggle();
+    config->misc.autoPeekKey.handleToggle();
 }

@@ -386,6 +386,8 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Hit marker", v.hitMarker);
     read(j, "Hit marker time", v.hitMarkerTime);
     read<value_t::object>(j, "Bullet Tracers", v.bulletTracers);
+    read<value_t::object>(j, "Bullet Impacts", v.bulletImpacts);
+    read(j, "Bullet Impacts time", v.bulletImpactsTime);
     read<value_t::object>(j, "Molotov Hull", v.molotovHull);
 }
 
@@ -474,6 +476,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Slowwalk key", m.slowwalkKey);
     read(j, "Fake duck", m.fakeduck);
     read(j, "Fake duck key", m.fakeduckKey);
+    read<value_t::object>(j, "Auto peek", m.autoPeek);
+    read(j, "Auto peek key", m.autoPeekKey);
     read<value_t::object>(j, "Noscope crosshair", m.noscopeCrosshair);
     read<value_t::object>(j, "Recoil crosshair", m.recoilCrosshair);
     read(j, "Auto pistol", m.autoPistol);
@@ -929,6 +933,8 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Slowwalk key", slowwalkKey);
     WRITE("Fake duck", fakeduck);
     WRITE("Fake duck key", fakeduckKey);
+    WRITE("Auto peek", autoPeek);
+    WRITE("Auto peek key", autoPeekKey);
     WRITE("Noscope crosshair", noscopeCrosshair);
     WRITE("Recoil crosshair", recoilCrosshair);
     WRITE("Auto pistol", autoPistol);
@@ -1006,6 +1012,8 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Hit marker", hitMarker);
     WRITE("Hit marker time", hitMarkerTime);
     WRITE("Bullet Tracers", bulletTracers);
+    WRITE("Bullet Impacts", bulletImpacts);
+    WRITE("Bullet Impacts time", bulletImpactsTime);
     WRITE("Molotov Hull", molotovHull);
 }
 

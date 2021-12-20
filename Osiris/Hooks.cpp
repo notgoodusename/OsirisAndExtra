@@ -69,7 +69,7 @@
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
     [[maybe_unused]] static const auto once = [](HWND window) noexcept {
-        netvars = std::make_unique<Netvars>();
+        Netvars::init();
         eventListener = std::make_unique<EventListener>();
 
         ImGui::CreateContext();
@@ -112,6 +112,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     Visuals::hitMarker(nullptr, ImGui::GetBackgroundDrawList());
     Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
     Misc::watermark();
+    Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
 
     Legitbot::updateInput();
     Visuals::updateInput();
@@ -172,7 +173,7 @@ static int __fastcall sendDatagramHook(NetworkChannel* network, void* edx, void*
     int instate = network->inReliableState;
     int insequencenr = network->inSequenceNr;
 
-    float delta = max(0.f, std::clamp(config->backtrack.fakeLatencyAmount / 1000.f, 0.f, Backtrack::getMaxUnlag()) - network->getLatency(0));
+    float delta = max(0.f, config->backtrack.fakeLatencyAmount / 1000.f);
 
     Backtrack::addLatencyToNetwork(network, delta);
 
@@ -242,6 +243,8 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Backtrack::run(cmd);
     Triggerbot::run(cmd);
     Ragebot::run(cmd);
+
+    Misc::autoPeek(cmd, currentViewAngles);
 
     Misc::edgejump(cmd);
     Misc::fastPlant(cmd);
@@ -346,6 +349,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
+        Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
         Misc::oppositeHandKnife(stage);
@@ -1057,7 +1061,7 @@ void Hooks::uninstall() noexcept
     viewRender.restore();
     fileSystem.restore();
 
-    netvars->restore();
+    Netvars::restore();
 
     Glow::clearCustomObjects();
 

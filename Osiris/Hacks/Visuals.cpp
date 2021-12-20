@@ -1,5 +1,6 @@
 #include <array>
 #include <cstring>
+#include <deque>
 
 #include "../imgui/imgui.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -11,6 +12,7 @@
 #include "Visuals.h"
 
 #include "../SDK/ConVar.h"
+#include "../SDK/DebugOverlay.h"
 #include "../SDK/Entity.h"
 #include "../SDK/FrameStage.h"
 #include "../SDK/GameEvent.h"
@@ -352,6 +354,50 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
     }
 }
 
+//Why 2 functions when you can do it in 1?, because it causes a crash doing it in 1 function
+
+static std::deque<Vector> positions;
+
+void Visuals::drawBulletImpacts() noexcept
+{
+    if (!config->visuals.bulletImpacts.enabled)
+        return;
+
+    if (!localPlayer)
+        return;
+
+    if (!interfaces->debugOverlay)
+        return;
+
+    const int r = static_cast<int>(config->visuals.bulletImpacts.color[0] * 255.f);
+    const int g = static_cast<int>(config->visuals.bulletImpacts.color[1] * 255.f);
+    const int b = static_cast<int>(config->visuals.bulletImpacts.color[2] * 255.f);
+    const int a = static_cast<int>(config->visuals.bulletImpacts.color[3] * 255.f);
+
+    for (int i = 0; i < static_cast<int>(positions.size()); i++)
+    {
+        if (!positions.at(i).notNull())
+            continue;
+        interfaces->debugOverlay->boxOverlay(positions.at(i), Vector{ -2.0f, -2.0f, -2.0f }, Vector{ 2.0f, 2.0f, 2.0f }, Vector{ 0.0f, 0.0f, 0.0f }, r, g, b, a, config->visuals.bulletImpactsTime);
+    }
+    positions.clear();
+}
+
+void Visuals::bulletImpact(GameEvent& event) noexcept
+{
+    if (!config->visuals.bulletImpacts.enabled)
+        return;
+
+    if (!localPlayer)
+        return;
+
+    if (event.getInt("userid") != localPlayer->getUserId())
+        return;
+
+    Vector endPos = Vector{ event.getFloat("x"), event.getFloat("y"), event.getFloat("z") };
+    positions.push_front(endPos);
+}
+
 static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noexcept
 {
     const auto& matrix = GameData::toScreenMatrix();
@@ -417,16 +463,19 @@ void Visuals::updateEventListeners(bool forceRemove) noexcept
 {
     class ImpactEventListener : public GameEventListener {
     public:
-        void fireGameEvent(GameEvent* event) { bulletTracer(*event); }
+        void fireGameEvent(GameEvent* event) { 
+            bulletTracer(*event); 
+            bulletImpact(*event);
+        }
     };
 
     static ImpactEventListener listener;
     static bool listenerRegistered = false;
 
-    if (config->visuals.bulletTracers.enabled && !listenerRegistered) {
+    if ((config->visuals.bulletImpacts.enabled || config->visuals.bulletTracers.enabled) && !listenerRegistered) {
         interfaces->gameEventManager->addListener(&listener, "bullet_impact");
         listenerRegistered = true;
-    } else if ((!config->visuals.bulletTracers.enabled || forceRemove) && listenerRegistered) {
+    } else if (((!config->visuals.bulletImpacts.enabled && !config->visuals.bulletTracers.enabled) || forceRemove) && listenerRegistered) {
         interfaces->gameEventManager->removeListener(&listener);
         listenerRegistered = false;
     }

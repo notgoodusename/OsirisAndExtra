@@ -380,6 +380,8 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Hit marker", v.hitMarker);
     read(j, "Hit marker time", v.hitMarkerTime);
     read<value_t::object>(j, "Bullet Tracers", v.bulletTracers);
+    read<value_t::object>(j, "Bullet Impacts", v.bulletImpacts);
+    read(j, "Bullet Impacts time", v.bulletImpactsTime);
     read<value_t::object>(j, "Molotov Hull", v.molotovHull);
 }
 
@@ -993,6 +995,8 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Hit marker", hitMarker);
     WRITE("Hit marker time", hitMarkerTime);
     WRITE("Bullet Tracers", bulletTracers);
+    WRITE("Bullet Impacts", bulletImpacts);
+    WRITE("Bullet Impacts time", bulletImpactsTime);
     WRITE("Molotov Hull", molotovHull);
 }
 

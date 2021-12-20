@@ -134,6 +134,7 @@
     <ClInclude Include="SDK\ClientState.h" />
     <ClInclude Include="SDK\ConVar.h" />
     <ClInclude Include="SDK\CStudioHdr.h" />
+    <ClInclude Include="SDK\DebugOverlay.h" />
     <ClInclude Include="SDK\EngineTrace.h" />
     <ClInclude Include="SDK\Entity.h" />
     <ClInclude Include="SDK\ClientClass.h" />

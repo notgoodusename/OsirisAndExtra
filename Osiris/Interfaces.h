@@ -10,6 +10,7 @@
 class BaseFileSystem;
 class Client;
 class Cvar;
+class DebugOverlay;
 class Engine;
 class EngineSound;
 class EngineTrace;
@@ -41,6 +42,7 @@ type* name = reinterpret_cast<type*>(find(moduleName, version));
     GAME_INTERFACE(BaseFileSystem, baseFileSystem, FILESYSTEM_DLL, "VBaseFileSystem011")
     GAME_INTERFACE(Client, client, CLIENT_DLL, "VClient018")
     GAME_INTERFACE(Cvar, cvar, VSTDLIB_DLL, "VEngineCvar007")
+    GAME_INTERFACE(DebugOverlay, debugOverlay, ENGINE_DLL, "VDebugOverlay004")
     GAME_INTERFACE(Engine, engine, ENGINE_DLL, "VEngineClient014")
     GAME_INTERFACE(EngineTrace, engineTrace, ENGINE_DLL, "EngineTraceClient004")
     GAME_INTERFACE(EntityList, entityList, CLIENT_DLL, "VClientEntityList003")

@@ -616,5 +616,8 @@
     <ClInclude Include="Hacks\Knifebot.h">
       <Filter>Hacks</Filter>
     </ClInclude>
+    <ClInclude Include="SDK\DebugOverlay.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

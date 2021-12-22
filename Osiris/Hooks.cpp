@@ -534,6 +534,44 @@ static void __stdcall onJump(float stamina) noexcept
         localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_JUMP);
 }
 
+static bool __fastcall canUnduck(void* thisPointer, void* edx) noexcept
+{
+    static auto original = hooks->gameMovement.getOriginal<bool, 61>();
+
+    const GameMovement* gameMovement = reinterpret_cast<GameMovement*>(thisPointer);
+
+    const auto entity = gameMovement->player;
+
+    if (!entity || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer);
+
+    if (entity->duckOverride())
+        return false;
+
+    if (entity->moveType() == MoveType::NOCLIP)
+        return true;
+
+    if (!entity->groundEntity())
+        return original(thisPointer);
+
+    static auto mp_solid_teammates = interfaces->cvar->findVar("mp_solid_teammates");
+    if (mp_solid_teammates->getInt() == 1)
+        return original(thisPointer);
+
+    Vector newOrigin = localPlayer->getAbsOrigin();
+
+    const auto HULL_MIN = Vector{ -16, -16, 0 };
+    const auto HULL_MAX = Vector{ 16, 16, 72 };
+
+    Trace trace;
+    interfaces->engineTrace->traceRay({ newOrigin, newOrigin, HULL_MIN, HULL_MAX }, 0x201400B, { localPlayer.get() }, trace);
+
+    if (trace.startSolid || trace.fraction != 1.f)
+        return false;
+
+    return true;
+}
+
 static void __fastcall doExtraBoneProcessingHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, const matrix3x4& matrix, uint8_t* bone_list, void* context) noexcept
 {
     return;
@@ -916,6 +954,7 @@ void Hooks::install() noexcept
 
     gameMovement.init(interfaces->gameMovement);
     gameMovement.hookAt(32, onJump);
+    //gameMovement.hookAt(61, canUnduck);
 
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);

@@ -260,7 +260,10 @@ public:
     Entity* groundEntity() noexcept
     {
         static unsigned int m_hGroundEntity = DataMap::findInDataMap(getPredDescMap(), "m_hGroundEntity");
-        return reinterpret_cast<Entity*>(reinterpret_cast<uintptr_t>(this) + m_hGroundEntity);
+        const auto handle = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + m_hGroundEntity);
+        if (handle == -1)
+            return nullptr;
+        return interfaces->entityList->getEntityFromHandle(handle);
     }
 
     int getAnimationLayersCount()
@@ -563,6 +566,7 @@ public:
     NETVAR(isStrafing, "CCSPlayer", "m_bStrafing", bool)
     NETVAR(moveState, "CCSPlayer", "m_iMoveState", int)
     NETVAR(duckAmount, "CCSPlayer", "m_flDuckAmount", float)
+    NETVAR(duckOverride, "CCSPlayer", "m_bDuckOverride", bool)
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)
     NETVAR(worldModelIndex, "CBaseCombatWeapon", "m_iWorldModelIndex", int)

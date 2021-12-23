@@ -241,8 +241,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
         return false;
     }
 
-    Tickbase::run(cmd);
-
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
     Misc::prepareRevolver(cmd);
@@ -302,6 +300,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
 
     previousViewAngles = cmd->viewangles;
+    Tickbase::run(cmd);
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;

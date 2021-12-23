@@ -220,16 +220,16 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
         maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
 
     memory->globalVars->serverTime(cmd);
-
     if (Tickbase::isShifting && config->tickbase.enabled)
     {
         sendPacket = Tickbase::ticksToShift == 1;
-        cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
+        Misc::autoPeek(cmd, currentViewAngles);
         if (!config->tickbase.teleport)
         {
             cmd->tickCount += 200;
             cmd->hasbeenpredicted = true;
         }
+
         cmd->viewangles.normalize();
 
         cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
@@ -241,6 +241,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
         return false;
     }
 
+    Tickbase::run(cmd);
 
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
@@ -303,7 +304,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     previousViewAngles = cmd->viewangles;
     Animations::update(cmd, sendPacket);
     Animations::fake();
-    Tickbase::run(cmd);
     return false;
 }
 
@@ -899,7 +899,7 @@ static void __cdecl clSendMoveHook() noexcept
 
 static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
 {
-    using clMoveFn = void(__cdecl*)(float, float);
+    using clMoveFn = void(__cdecl*)(float, bool);
     static auto original = (clMoveFn)hooks->clMove.getDetour();
 
     static float realTime = 0.0f;

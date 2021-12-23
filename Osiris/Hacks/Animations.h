@@ -60,8 +60,6 @@ namespace Animations
 
 		void clear()
 		{
-			simulationTime = 0.f;
-			chokedPackets = 0;
 			gotMatrix = false;
 			origin = Vector{};
 			absAngle = Vector{};
@@ -75,6 +73,7 @@ namespace Animations
 			clear();
 			oldlayers = {};
 			layers = {};
+			chokedPackets = 0;
 		}
 	};
 	Players getPlayer(int index) noexcept;

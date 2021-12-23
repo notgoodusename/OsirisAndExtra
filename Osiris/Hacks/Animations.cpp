@@ -266,6 +266,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             player.origin = entity->origin();
 
             player.chokedPackets = static_cast<int>(fabsf(entity->simulationTime() - player.simulationTime) / memory->globalVars->intervalPerTick) - 1;
+            player.chokedPackets = std::clamp(player.chokedPackets, 0, maxUserCmdProcessTicks);
 
             if (entity->flags() & 1)
                 player.velocity.z = 0.f;
@@ -284,7 +285,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 if (modifier > 0.f && modifier < 1.0f)
                     velocityLengthXY = maxSpeedRun * (modifier + 0.55f);
 
-                if (velocityLengthXY != 0.f)
+                if (velocityLengthXY > 0.f)
                 {
                     velocityLengthXY = entity->velocity().length2D() / velocityLengthXY;
 
@@ -293,8 +294,8 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 }
             }
 
-            if (player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].playbackRate <= 0.f
-                || player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].weight <= 0.f
+            if ((player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].playbackRate <= 0.f
+                || player.layers[ANIMATION_LAYER_MOVEMENT_MOVE].weight <= 0.f)
                 && entity->flags() & 1)
             {
                 player.velocity.x = 0.f;
@@ -354,14 +355,17 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                     entity->getAnimstate()->poseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, std::clamp(Helpers::smoothStepBounds(0.72f, 1.52f, entity->getAnimstate()->durationInAir), 0.f, 1.f));
                 }
             }
+        }
 
+        std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer)* entity->getAnimationLayersCount());
+
+        if (player.simulationTime != entity->simulationTime())
+        {
             player.simulationTime = entity->simulationTime();
             player.mins = entity->getCollideable()->obbMins();
             player.maxs = entity->getCollideable()->obbMaxs();
             player.gotMatrix = entity->setupBones(player.matrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
         }
-
-        std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
         memory->globalVars->frametime = frameTime;
         memory->globalVars->currenttime = currentTime;

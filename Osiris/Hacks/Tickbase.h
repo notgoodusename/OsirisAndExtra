@@ -6,11 +6,11 @@ namespace Tickbase
 {
     void run(UserCmd*) noexcept;
 
-    int doubletapCharge = 0,
+    inline int doubletapCharge = 0,
         ticksToShift = 0,
         commandNumber = 0,
         lastShift = 0,
         shiftAmount = 0,
         maxTicks = 16;
-    bool isShifting = false;
+    inline bool isShifting = false;
 }

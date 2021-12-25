@@ -42,6 +42,7 @@
     <ClCompile Include="Hacks\Knifebot.cpp" />
     <ClCompile Include="Hacks\Legitbot.cpp" />
     <ClCompile Include="Hacks\Ragebot.cpp" />
+    <ClCompile Include="Hacks\Resolver.cpp" />
     <ClCompile Include="Hacks\SkinChanger.cpp" />
     <ClCompile Include="Hacks\Sound.cpp" />
     <ClCompile Include="Hacks\StreamProofESP.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="Hacks\Legitbot.h" />
     <ClInclude Include="Hacks\Misc.h" />
     <ClInclude Include="Hacks\Ragebot.h" />
+    <ClInclude Include="Hacks\Resolver.h" />
     <ClInclude Include="Hacks\SkinChanger.h" />
     <ClInclude Include="Hacks\Sound.h" />
     <ClInclude Include="Hacks\StreamProofESP.h" />

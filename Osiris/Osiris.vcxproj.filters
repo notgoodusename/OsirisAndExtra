@@ -242,6 +242,9 @@
     <ClCompile Include="Hacks\Tickbase.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
+    <ClCompile Include="Hacks\Resolver.cpp">
+      <Filter>Hacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -624,6 +627,9 @@
     </ClInclude>
     <ClInclude Include="SDK\DebugOverlay.h">
       <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Hacks\Resolver.h">
+      <Filter>Hacks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

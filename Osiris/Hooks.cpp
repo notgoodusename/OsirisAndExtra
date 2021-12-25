@@ -265,7 +265,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Backtrack::run(cmd);
     Triggerbot::run(cmd);
     Ragebot::run(cmd);
-    Resolver::run(cmd);
+    //Resolver::run(cmd);
 
     Misc::autoPeek(cmd, currentViewAngles);
 

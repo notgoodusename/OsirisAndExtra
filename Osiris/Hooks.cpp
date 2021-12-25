@@ -39,6 +39,7 @@
 #include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
+#include "Hacks/Resolver.h"
 
 #include "SDK/Client.h"
 #include "SDK/ClientState.h"
@@ -264,6 +265,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Backtrack::run(cmd);
     Triggerbot::run(cmd);
     Ragebot::run(cmd);
+    Resolver::run(cmd);
 
     Misc::autoPeek(cmd, currentViewAngles);
 

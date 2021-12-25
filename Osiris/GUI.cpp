@@ -1166,6 +1166,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("No scope overlay", &config->visuals.noScopeOverlay);
     ImGui::Checkbox("No grass", &config->visuals.noGrass);
     ImGui::Checkbox("No shadows", &config->visuals.noShadows);
+    ImGui::Checkbox("Full bright", &config->visuals.fullBright);
     ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
     ImGui::NextColumn();
     ImGui::Checkbox("Zoom", &config->visuals.zoom);

@@ -8,6 +8,7 @@ struct ImDrawList;
 
 namespace Visuals
 {
+    void fullBright() noexcept;
     void modifySmoke(FrameStage stage) noexcept;
     void thirdperson() noexcept;
     void removeVisualRecoil(FrameStage stage) noexcept;

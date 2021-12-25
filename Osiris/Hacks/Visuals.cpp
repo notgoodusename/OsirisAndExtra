@@ -26,6 +26,12 @@
 #include "../SDK/Surface.h"
 #include "../SDK/ViewRenderBeams.h"
 
+void Visuals::fullBright() noexcept
+{
+    const auto bright = interfaces->cvar->findVar("mat_fullbright");
+    bright->setValue(config->visuals.fullBright);
+}
+
 void Visuals::modifySmoke(FrameStage stage) noexcept
 {
     if (stage != FrameStage::RENDER_START && stage != FrameStage::RENDER_END)

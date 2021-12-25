@@ -181,6 +181,7 @@ public:
         bool noScopeOverlay{ false };
         bool noGrass{ false };
         bool noShadows{ false };
+        bool fullBright{ false };
         bool wireframeSmoke{ false };
         bool zoom{ false };
         KeyBindToggle zoomKey = KeyBind::NONE;

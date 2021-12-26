@@ -214,6 +214,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 
     static auto previousViewAngles{ cmd->viewangles };
     auto currentViewAngles{ cmd->viewangles };
+    auto currentCmd{ *cmd };
 
     if (auto gameRules = (*memory->gameRules); gameRules)
         maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
@@ -270,7 +271,13 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     cmd->viewangles = previousViewAngles + viewAnglesDelta;
 
     cmd->viewangles.normalize();
-    Misc::fixMovement(cmd, currentViewAngles.y);
+
+    if (currentViewAngles != cmd->viewangles
+        || cmd->forwardmove != currentCmd.forwardmove
+        || cmd->sidemove != currentCmd.sidemove)
+    {
+        Misc::fixMovement(cmd, currentViewAngles.y);
+    }
 
     cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
     cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);

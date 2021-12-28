@@ -355,6 +355,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
+        EnginePrediction::apply(stage);
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
@@ -881,6 +882,18 @@ static void __cdecl clSendMoveHook() noexcept
     }
 }
 
+static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
+{
+    static auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
+
+    if (!entity || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, entity, cmd, moveHelper);
+
+    original(thisPointer, entity, cmd, moveHelper);
+
+    EnginePrediction::store();
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -967,6 +980,9 @@ void Hooks::install() noexcept
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);
 
+    prediction.init(interfaces->prediction);
+    prediction.hookAt(19, runCommand);
+
     sound.init(interfaces->sound);
     sound.hookAt(5, emitSound);
 
@@ -1033,6 +1049,7 @@ void Hooks::uninstall() noexcept
     engine.restore();
     gameMovement.restore();
     modelRender.restore();
+    prediction.restore();
     sound.restore();
     surface.restore();
     svCheats.restore();

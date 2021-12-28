@@ -62,6 +62,7 @@ public:
     HookType engine;
     HookType gameMovement;
     HookType modelRender;
+    HookType prediction;
     HookType sound;
     HookType surface;
     HookType viewRender;

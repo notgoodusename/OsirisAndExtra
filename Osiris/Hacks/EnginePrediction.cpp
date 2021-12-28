@@ -4,6 +4,7 @@
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
+#include "../SDK/FrameStage.h"
 #include "../SDK/GameMovement.h"
 #include "../SDK/GlobalVars.h"
 #include "../SDK/MoveHelper.h"
@@ -13,6 +14,7 @@
 
 static int localPlayerFlags;
 static Vector localPlayerVelocity;
+static std::array<EnginePrediction::NetvarData, 150> netvarData;
 
 void EnginePrediction::run(UserCmd* cmd) noexcept
 {
@@ -40,6 +42,52 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
 
     memory->globalVars->currenttime = oldCurrenttime;
     memory->globalVars->frametime = oldFrametime;
+}
+
+void EnginePrediction::store() noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    int tickbase = localPlayer->tickBase();
+
+    NetvarData netvars{ };
+
+    netvars.tickbase = tickbase;
+
+    netvars.aimPunchAngle = localPlayer->aimPunchAngle();
+    netvars.aimPunchAngleVelocity = localPlayer->aimPunchAngleVelocity();
+    netvars.viewPunchAngle = localPlayer->viewPunchAngle();
+    netvars.viewOffset = localPlayer->viewOffset();
+
+    netvarData.at(tickbase % 150) = netvars;
+}
+
+void EnginePrediction::apply(FrameStage stage) noexcept
+{
+    if (stage != FrameStage::NET_UPDATE_END)
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (netvarData.empty())
+        return;
+
+    int tickbase = localPlayer->tickBase();
+
+    auto netvars = netvarData.at(tickbase % 150);
+
+    if (!&netvars)
+        return;
+
+    if (netvars.tickbase != tickbase)
+        return;
+
+    localPlayer->aimPunchAngle() = NetvarData::checkDifference(localPlayer->aimPunchAngle(), netvars.aimPunchAngle);
+    localPlayer->aimPunchAngleVelocity() = NetvarData::checkDifference(localPlayer->aimPunchAngleVelocity(), netvars.aimPunchAngleVelocity);
+    localPlayer->viewPunchAngle() = NetvarData::checkDifference(localPlayer->viewPunchAngle(), netvars.viewPunchAngle);
+    localPlayer->viewOffset() = NetvarData::checkDifference(localPlayer->viewOffset(), netvars.viewOffset);
 }
 
 int EnginePrediction::getFlags() noexcept

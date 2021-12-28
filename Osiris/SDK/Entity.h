@@ -543,7 +543,9 @@ public:
     NETVAR(flags, "CBasePlayer", "m_fFlags", int)
     NETVAR(tickBase, "CBasePlayer", "m_nTickBase", int)
     NETVAR(aimPunchAngle, "CBasePlayer", "m_aimPunchAngle", Vector)
+    NETVAR(aimPunchAngleVelocity, "CBasePlayer", "m_aimPunchAngleVel", Vector)
     NETVAR(viewPunchAngle, "CBasePlayer", "m_viewPunchAngle", Vector)
+    NETVAR(viewOffset, "CBasePlayer", "m_vecViewOffset[0]", Vector)
     NETVAR(velocity, "CBasePlayer", "m_vecVelocity[0]", Vector)
     NETVAR(lastPlaceName, "CBasePlayer", "m_szLastPlaceName", char[18])
     NETVAR(getLadderNormal, "CBasePlayer", "m_vecLadderNormal", Vector)
@@ -566,6 +568,7 @@ public:
     NETVAR(isStrafing, "CCSPlayer", "m_bStrafing", bool)
     NETVAR(moveState, "CCSPlayer", "m_iMoveState", int)
     NETVAR(duckAmount, "CCSPlayer", "m_flDuckAmount", float)
+    NETVAR(duckSpeed, "CCSPlayer", "m_flDuckSpeed", float)
     NETVAR(duckOverride, "CCSPlayer", "m_bDuckOverride", bool)
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)

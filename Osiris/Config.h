@@ -34,6 +34,7 @@ public:
         bool enabled{ false };
         bool aimlock{ false };
         bool silent{ false };
+        bool resolver{ false };
         bool friendlyFire{ false };
         bool visibleOnly{ true };
         bool scopedOnly{ true };
@@ -188,6 +189,7 @@ public:
         bool noShadows{ false };
         bool wireframeSmoke{ false };
         bool zoom{ false };
+        bool noZoom{ false };
         KeyBindToggle zoomKey = KeyBind::NONE;
         bool thirdperson{ false };
         KeyBindToggle thirdpersonKey = KeyBind::NONE;

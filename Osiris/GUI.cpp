@@ -419,6 +419,7 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::SetColumnOffset(1, 220.0f);
     ImGui::Checkbox("Aimlock", &config->ragebot[currentWeapon].aimlock);
     ImGui::Checkbox("Silent", &config->ragebot[currentWeapon].silent);
+    ImGui::Checkbox("Resolver", &config->ragebot[currentWeapon].resolver);
     ImGui::Checkbox("Friendly fire", &config->ragebot[currentWeapon].friendlyFire);
     ImGui::Checkbox("Visible only", &config->ragebot[currentWeapon].visibleOnly);
     ImGui::Checkbox("Scoped only", &config->ragebot[currentWeapon].scopedOnly);
@@ -1177,6 +1178,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("No shadows", &config->visuals.noShadows);
     ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
     ImGui::NextColumn();
+    ImGui::Checkbox("No zoom", &config->visuals.noZoom);
     ImGui::Checkbox("Zoom", &config->visuals.zoom);
     ImGui::SameLine();
     ImGui::PushID("Zoom Key");

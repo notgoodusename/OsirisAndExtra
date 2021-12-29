@@ -172,7 +172,7 @@ void Animations::fake() noexcept
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
         
-        gotMatrix = localPlayer->setupBones(fakematrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
+        gotMatrix = localPlayer->setupBones(fakematrix.data(), localPlayer->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
         const auto origin = localPlayer->getRenderOrigin();
         if (gotMatrix)
         {

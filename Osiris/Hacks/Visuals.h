@@ -9,6 +9,7 @@ struct ImDrawList;
 namespace Visuals
 {
     void fullBright() noexcept;
+    void playerModel(FrameStage stage) noexcept;
     void modifySmoke(FrameStage stage) noexcept;
     void thirdperson() noexcept;
     void removeVisualRecoil(FrameStage stage) noexcept;

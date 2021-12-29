@@ -201,6 +201,8 @@ public:
         float hitMarkerTime{ 0.6f };
         ColorToggle bulletImpacts{ 0.0f, 0.0f, 1.f, 0.5f };
         float bulletImpactsTime{ 4.f };
+        int playerModelT{ 0 };
+        int playerModelCT{ 0 };
         BulletTracers bulletTracers;
         ColorToggle molotovHull{ 1.0f, 0.27f, 0.0f, 0.3f };
     } visuals;

@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <array>
 struct UserCmd;
 class Entity;
 
@@ -17,13 +18,12 @@ namespace Resolver
         float eyeAnglesOnUpdate = 0.0f;
         float PreviousDesyncAng = 0.0f;
 
-
         bool wasUpdated = false;
 	};
 
-	void run(UserCmd* cmd) noexcept;
+	void frameStageUpdate() noexcept;
 	void basic(Entity* entity) noexcept;
 
-	inline std::vector<Record> records;
-    inline Record invalidRecord;
+	inline std::array<Record, 66> records{};
+    inline Record invalidRecord{};
 }

@@ -102,7 +102,7 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
         std::memcpy(&sendPacketLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         footYaw = localPlayer->getAnimstate()->footYaw;
         poseParameters = localPlayer->poseParameters();
-        gotMatrixReal = localPlayer->setupBones(realmatrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
+        gotMatrixReal = localPlayer->setupBones(realmatrix.data(), localPlayer->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
         const auto origin = localPlayer->getRenderOrigin();
         if (gotMatrixReal)
         {
@@ -364,7 +364,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             player.simulationTime = entity->simulationTime();
             player.mins = entity->getCollideable()->obbMins();
             player.maxs = entity->getCollideable()->obbMaxs();
-            player.gotMatrix = entity->setupBones(player.matrix.data(), MAXSTUDIOBONES, 0x7FF00, memory->globalVars->currenttime);
+            player.gotMatrix = entity->setupBones(player.matrix.data(), entity->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
         }
 
         memory->globalVars->frametime = frameTime;

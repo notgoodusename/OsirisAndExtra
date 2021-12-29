@@ -15,6 +15,7 @@ namespace Visuals
     void removeGrass(FrameStage stage) noexcept;
     void remove3dSky() noexcept;
     void removeShadows() noexcept;
+    void noZoom(FrameStage stage);
     void applyZoom(FrameStage stage) noexcept;
     void applyScreenEffects() noexcept;
     void hitEffect(GameEvent* event = nullptr) noexcept;

@@ -265,7 +265,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Backtrack::run(cmd);
     Triggerbot::run(cmd);
     Ragebot::run(cmd);
-    //Resolver::run(cmd);
 
     Misc::autoPeek(cmd, currentViewAngles);
 
@@ -372,9 +371,13 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
+        if (stage == FrameStage::NET_UPDATE_POSTDATAUPDATE_START) {
+            Resolver::frameStageUpdate();
+        }
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
+        Visuals::noZoom(stage);
         Misc::oppositeHandKnife(stage);
         Visuals::removeGrass(stage);
         Visuals::modifySmoke(stage);

@@ -160,7 +160,7 @@ static int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexc
 {
     if (config->misc.svPureBypass)
         return 1;
-    return hooks->fileSystem.callOriginal<int, 127>(thisPointer);
+    return hooks->fileSystem.callOriginal<int, 128>(thisPointer);
 }
 
 static int __fastcall sendDatagramHook(NetworkChannel* network, void* edx, void* datagram)
@@ -972,7 +972,7 @@ void Hooks::install() noexcept
 
     fileSystem.init(interfaces->fileSystem);
     fileSystem.hookAt(101, getUnverifiedFileHashes);
-    fileSystem.hookAt(127, canLoadThirdPartyFiles);
+    fileSystem.hookAt(128, canLoadThirdPartyFiles);
 
     gameMovement.init(interfaces->gameMovement);
     gameMovement.hookAt(32, onJump);

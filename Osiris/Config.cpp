@@ -384,6 +384,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Playermodel T", v.playerModelT);
     read(j, "Playermodel CT", v.playerModelCT);
     read(j, "Custom Playermodel", v.playerModel, sizeof(v.playerModel));
+    read(j, "Disable jiggle bones", v.disableJiggleBones);
     read<value_t::object>(j, "Bullet Tracers", v.bulletTracers);
     read<value_t::object>(j, "Bullet Impacts", v.bulletImpacts);
     read(j, "Bullet Impacts time", v.bulletImpactsTime);
@@ -1008,6 +1009,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Playermodel CT", playerModelCT);
     if (o.playerModel[0])
         j["Custom Playermodel"] = o.playerModel;
+    WRITE("Disable jiggle bones", disableJiggleBones);
     WRITE("Bullet Tracers", bulletTracers);
     WRITE("Bullet Impacts", bulletImpacts);
     WRITE("Bullet Impacts time", bulletImpactsTime);

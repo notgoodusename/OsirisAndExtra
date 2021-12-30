@@ -1159,6 +1159,7 @@ void GUI::renderVisualsWindow() noexcept
     if (ImGui::IsItemHovered())
         ImGui::SetTooltip("file must be in csgo/models/ directory and must start with models/...");
     ImGui::Checkbox("Disable post-processing", &config->visuals.disablePostProcessing);
+    ImGui::Checkbox("Disable jiggle bones", &config->visuals.disableJiggleBones);
     ImGui::Checkbox("Inverse ragdoll gravity", &config->visuals.inverseRagdollGravity);
     ImGui::Checkbox("No fog", &config->visuals.noFog);
     ImGui::Checkbox("No 3d sky", &config->visuals.no3dSky);

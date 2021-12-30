@@ -136,7 +136,7 @@ void Visuals::playerModel(FrameStage stage) noexcept
         if (stat(path.c_str(), &buf) != -1)
             return true;
 
-        return false; playerModel,
+        return false;
     };
     
     const bool custom = isValidModel(static_cast<std::string>(config->visuals.playerModel));

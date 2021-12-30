@@ -57,6 +57,7 @@ Config::Config() noexcept
     path /= "Osiris";
     listConfigs();
     misc.clanTag[0] = '\0';
+    visuals.playerModel[0] = '\0';
 
     load(u8"default.json", false);
 
@@ -382,6 +383,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Hit marker time", v.hitMarkerTime);
     read(j, "Playermodel T", v.playerModelT);
     read(j, "Playermodel CT", v.playerModelCT);
+    read(j, "Custom Playermodel", v.playerModel, sizeof(v.playerModel));
     read<value_t::object>(j, "Bullet Tracers", v.bulletTracers);
     read<value_t::object>(j, "Bullet Impacts", v.bulletImpacts);
     read(j, "Bullet Impacts time", v.bulletImpactsTime);
@@ -1004,6 +1006,8 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Hit marker time", hitMarkerTime);
     WRITE("Playermodel T", playerModelT);
     WRITE("Playermodel CT", playerModelCT);
+    if (o.playerModel[0])
+        j["Custom Playermodel"] = o.playerModel;
     WRITE("Bullet Tracers", bulletTracers);
     WRITE("Bullet Impacts", bulletImpacts);
     WRITE("Bullet Impacts time", bulletImpactsTime);

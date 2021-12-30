@@ -1,6 +1,7 @@
 #include <array>
 #include <cstring>
 #include <deque>
+#include <sys/stat.h>
 
 #include "../imgui/imgui.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -117,11 +118,37 @@ void Visuals::playerModel(FrameStage stage) noexcept
         }
     };
 
-    if (const auto model = getModel(localPlayer->getTeamNumber())) {
+    auto isValidModel = [](std::string name) noexcept -> bool
+    {
+        if (name.empty() || name.front() == ' ' || name.back() == ' ' || !name.ends_with(".mdl"))
+            return false;
+
+        if (!name.starts_with("models") && !name.starts_with("/models") && !name.starts_with("\\models"))
+            return false;
+
+        //Check if file exists within directory
+        std::string path = interfaces->engine->getGameDirectory();
+        if (config->visuals.playerModel[0] != '\\' && config->visuals.playerModel[0] != '/')
+            path += "/";
+        path += config->visuals.playerModel;
+
+        struct stat buf;
+        if (stat(path.c_str(), &buf) != -1)
+            return true;
+
+        return false; playerModel,
+    };
+    
+    const bool custom = isValidModel(static_cast<std::string>(config->visuals.playerModel));
+
+    if (const auto model = custom ? config->visuals.playerModel : getModel(localPlayer->getTeamNumber())) {
         if (stage == FrameStage::NET_UPDATE_END) {
             originalIdx = localPlayer->modelIndex();
             if (const auto modelprecache = interfaces->networkStringTableContainer->findTable("modelprecache")) {
-                modelprecache->addString(false, model);
+                const auto index = modelprecache->addString(false, model);
+                if (index == -1)
+                    return;
+
                 const auto viewmodelArmConfig = memory->getPlayerViewmodelArmConfigForPlayerModel(model);
                 modelprecache->addString(false, viewmodelArmConfig[2]);
                 modelprecache->addString(false, viewmodelArmConfig[3]);

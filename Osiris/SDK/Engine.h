@@ -61,6 +61,7 @@ public:
     VIRTUAL_METHOD(bool, isInGame, 26, (), (this))
     VIRTUAL_METHOD(bool, isConnected, 27, (), (this))
     VIRTUAL_METHOD(bool, cullBox, 34, (const Vector& mins, const Vector& maxs), (this, std::cref(mins), std::cref(maxs)))
+    VIRTUAL_METHOD(const char*, getGameDirectory, 36, (), (this))
     VIRTUAL_METHOD(const Matrix4x4&, worldToScreenMatrix, 37, (), (this))
     VIRTUAL_METHOD(void*, getBSPTreeQuery, 43, (), (this))
     VIRTUAL_METHOD(const char*, getLevelName, 53, (), (this))

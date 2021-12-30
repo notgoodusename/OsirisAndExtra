@@ -203,6 +203,7 @@ public:
         float bulletImpactsTime{ 4.f };
         int playerModelT{ 0 };
         int playerModelCT{ 0 };
+        char playerModel[256] { };
         BulletTracers bulletTracers;
         ColorToggle molotovHull{ 1.0f, 0.27f, 0.0f, 0.3f };
     } visuals;

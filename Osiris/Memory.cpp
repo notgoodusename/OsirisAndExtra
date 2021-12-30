@@ -100,7 +100,7 @@ Memory::Memory() noexcept
     clearHudWeapon = relativeToAbsolute<decltype(clearHudWeapon)>(findPattern(CLIENT_DLL, "\xE8????\x8B\xF0\xC6\x44\x24??\xC6\x44\x24") + 1);
     itemSystem = relativeToAbsolute<decltype(itemSystem)>(findPattern(CLIENT_DLL, "\xE8????\x0F\xB7\x0F") + 1);
     setAbsOrigin = relativeToAbsolute<decltype(setAbsOrigin)>(findPattern(CLIENT_DLL, "\xE8????\xEB\x19\x8B\x07") + 1);
-    insertIntoTree = findPattern(CLIENT_DLL, "\x56\x52\xFF\x50\x18") + 5; 
+    insertIntoTree = findPattern(CLIENT_DLL, "\x56\x52\xFF\x50\x18") + 5;
     dispatchSound = reinterpret_cast<int*>(findPattern(ENGINE_DLL, "\x74\x0B\xE8????\x8B\x3D") + 3);
     traceToExit = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x4C\xF3\x0F\x10\x75");
     viewRender = **reinterpret_cast<ViewRender***>(findPattern(CLIENT_DLL, "\x8B\x0D????\xFF\x75\x0C\x8B\x45\x08") + 2);
@@ -143,7 +143,7 @@ Memory::Memory() noexcept
     memalloc = *reinterpret_cast<MemAlloc**>(GetProcAddress(GetModuleHandleA("tier0.dll"), "g_pMemAlloc"));
     setAbsAngle = reinterpret_cast<decltype(setAbsAngle)>(reinterpret_cast<DWORD*>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x64\x53\x56\x57\x8B\xF1")));
     createState = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\xB9????\xC7");
-    updateState = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x18\x56\x57\x8B\xF9\xF3"); 
+    updateState = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x18\x56\x57\x8B\xF9\xF3");
     resetState = findPattern(CLIENT_DLL, "\x56\x6A\x01\x68????\x8B\xF1");
     invalidateBoneCache = findPattern(CLIENT_DLL, "\x80\x3D?????\x74\x16\xA1????\x48\xC7\x81");
 
@@ -155,7 +155,7 @@ Memory::Memory() noexcept
     doExtraBoneProcessing = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x53\x56\x8B\xF1\x57\x89\x74\x24\x1C\x80");
     shouldSkipAnimationFrame = findPattern(CLIENT_DLL, "\x57\x8B\xF9\x8B\x07\x8B\x80????\xFF\xD0\x84\xC0\x75\x02");
     updateClientSideAnimation = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x56\x8B\xF1\x80\xBE?????\x74\x36");
-   
+
     checkForSequenceChange = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x57\x85");
 
     sendDatagram = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8????\xE8????\x56\x57\x8B\xF9\x89\x7C\x24\x18");
@@ -181,13 +181,14 @@ Memory::Memory() noexcept
     getLayerActivity = reinterpret_cast<decltype(getLayerActivity)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\x35????\x57\x8B\xF9\x8B\xCE\x8B\x06\xFF\x90????\x8B\x7F\x60\x83"));
     getLayerIdealWeightFromSeqCycle = reinterpret_cast<decltype(getLayerIdealWeightFromSeqCycle)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\x35????\x57\x8B\xF9\x8B\xCE\x8B\x06\xFF\x90????\x8B\x7F\x60\x0F"));
     selectWeightedSequenceFromModifiers = reinterpret_cast<decltype(selectWeightedSequenceFromModifiers)>(findPattern(SERVER_DLL, "\x55\x8B\xEC\x83\xEC\x2C\x53\x56\x8B\x75\x08\x8B\xD9\x57\x89\x5D\xF4\x8B"));
-    
+
     lookUpSequence = relativeToAbsolute<decltype(lookUpSequence)>(findPattern(CLIENT_DLL, "\xE8????\x5E\x83\xF8\xFF") + 1);
     seqdesc = relativeToAbsolute<decltype(seqdesc)>(findPattern(CLIENT_DLL, "\xE8????\x03\x40\x04") + 1);
     getFirstSequenceAnimTag = relativeToAbsolute<decltype(getFirstSequenceAnimTag)>(findPattern(CLIENT_DLL, "\xE8????\xF3\x0F\x11\x86????\x0F\x57\xDB") + 1);
     getSequenceLinearMotion = relativeToAbsolute<decltype(getSequenceLinearMotion)>(findPattern(CLIENT_DLL, "\xE8????\xF3\x0F\x10\x4D?\x83\xC4\x08\xF3\x0F\x10\x45?\xF3\x0F\x59\xC0") + 1);
 
-    initPoseParameter = relativeToAbsolute<decltype(initPoseParameter)>(findPattern(CLIENT_DLL,"\xE8????\x80\x3E\x00\x74\x3A") + 1);
+    initPoseParameter = relativeToAbsolute<decltype(initPoseParameter)>(findPattern(CLIENT_DLL, "\xE8????\x80\x3E\x00\x74\x3A") + 1);
+    lookUpPoseParameter = relativeToAbsolute<decltype(lookUpPoseParameter)>(findPattern(CLIENT_DLL, "\xE8????\x85\xC0\x79\x08") + 1);
     studioSetPoseParameter = relativeToAbsolute<decltype(studioSetPoseParameter)>(findPattern(CLIENT_DLL, "\xE8????\x0F\x28\xD8\x83\xC4\x04") + 1);
     notifyOnLayerChangeWeight = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x45\x08\x85\xC0\x74\x38\x80\xB9?????\x74\x2F\x56\x8B\xB1????\x85\xF6\x74\x23\x8D\x4D\x08\x51\x50\x8B\xCE\xE8????\x84\xC0\x74\x13\x83\x7D\x08\x06\x75\x0D\xF3\x0F\x10\x45?\xF3\x0F\x11\x86????\x5E\x5D\xC2\x08\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55\x8B\xEC\x8B\x45\x08");
     calcAbsoluteVelocity = relativeToAbsolute<decltype(calcAbsoluteVelocity)>(findPattern(CLIENT_DLL, "\xE8????\x83\x7B\x30\x00") + 1);

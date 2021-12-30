@@ -872,6 +872,18 @@ void AnimState::updateAnimLayer(size_t layerIndex, int sequence, float playbackR
     }
 }
 
+bool animstatePoseParamCache::init(Entity* player, char* poseParamName) noexcept
+{
+    interfaces->mdlCache->beginLock();
+    name = poseParamName;
+    int poseIndex = memory->lookUpPoseParameter(player->getModelPtr(), poseParamName);
+    index = poseIndex;
+    if (poseIndex != -1)
+        initialized = true;
+    interfaces->mdlCache->endLock();
+    return initialized;
+}
+
 void animstatePoseParamCache::setValue(Entity* player, float value) noexcept
 {
     if (!initialized)

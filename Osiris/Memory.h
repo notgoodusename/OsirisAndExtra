@@ -30,6 +30,7 @@ class UtlVector;
 
 struct ActiveChannels;
 struct Channel;
+struct CStudioHdr;
 struct GlobalVars;
 struct GlowObjectManager;
 struct PanoramaEventRegistration;
@@ -164,6 +165,7 @@ public:
     void(__fastcall* getSequenceLinearMotion)(void*, int, float*, Vector*); // void __fastcall GetSequenceLinearMotion(_DWORD *studioHdr@<ecx>, int sequence@<edx>, int poseParameter, _DWORD *vectorReturn)
     
     bool(__thiscall* initPoseParameter)(void*, void*, const char*); //char __thiscall InitPoseParameter(_DWORD *poseParameter, int player, int name)
+    int(__stdcall* lookUpPoseParameter)(CStudioHdr*, const char*);
     std::uintptr_t studioSetPoseParameter;
     std::uintptr_t notifyOnLayerChangeWeight;
     void(__thiscall* calcAbsoluteVelocity)(void*);

@@ -86,11 +86,7 @@ public:
 	int index; //4
 	char* name; //8
 
-	bool init(Entity* player, const char* poseParamName) noexcept
-	{
-		return memory->initPoseParameter(this, player, poseParamName);
-	}
-
+	bool init(Entity* player, char* poseParamName) noexcept;
 	void setValue(Entity* player, float value) noexcept;
 }; //Size: 0xC(12)
 

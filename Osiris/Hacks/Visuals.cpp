@@ -35,7 +35,7 @@ void Visuals::fullBright() noexcept
 
 void Visuals::playerModel(FrameStage stage) noexcept
 {
-    if (stage != FrameStage::NET_UPDATE_END && stage != FrameStage::RENDER_END)
+    if (stage != FrameStage::NET_UPDATE_POSTDATAUPDATE_START && stage != FrameStage::RENDER_END)
         return;
 
     static int originalIdx = 0;
@@ -142,7 +142,7 @@ void Visuals::playerModel(FrameStage stage) noexcept
     const bool custom = isValidModel(static_cast<std::string>(config->visuals.playerModel));
 
     if (const auto model = custom ? config->visuals.playerModel : getModel(localPlayer->getTeamNumber())) {
-        if (stage == FrameStage::NET_UPDATE_END) {
+        if (stage == FrameStage::NET_UPDATE_POSTDATAUPDATE_START) {
             originalIdx = localPlayer->modelIndex();
             if (const auto modelprecache = interfaces->networkStringTableContainer->findTable("modelprecache")) {
                 const auto index = modelprecache->addString(false, model);

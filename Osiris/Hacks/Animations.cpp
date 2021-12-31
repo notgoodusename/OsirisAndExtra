@@ -50,9 +50,8 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    viewangles = cmd->viewangles;
-    sendPacket = _sendPacket;
-    localPlayer->getAnimstate()->buttons = cmd->buttons;
+    if (interfaces->engine->isHLTV())
+        return;
 
     if (spawnTime != localPlayer->spawnTime())
     {
@@ -76,6 +75,10 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
 
     if (!localPlayer->getAnimstate())
         return;
+
+    viewangles = cmd->viewangles;
+    sendPacket = _sendPacket;
+    localPlayer->getAnimstate()->buttons = cmd->buttons;
 
     updatingLocal = true;
 
@@ -122,6 +125,9 @@ void Animations::fake() noexcept
     static float spawnTime = 0.f;
 
     if (!localPlayer || !localPlayer->isAlive() || !localPlayer->getAnimstate())
+        return;
+
+    if (interfaces->engine->isHLTV())
         return;
 
     if (spawnTime != localPlayer->spawnTime() || updateFakeAnim)
@@ -195,6 +201,9 @@ void Animations::renderStart(FrameStage stage) noexcept
         return;
 
     if (!localPlayer)
+        return;
+
+    if (interfaces->engine->isHLTV())
         return;
 
     for (int i = 0; i < 13; i++)
@@ -374,6 +383,9 @@ void Animations::packetStart() noexcept
     if (!localPlayer || !localPlayer->animOverlays())
         return;
 
+    if (interfaces->engine->isHLTV())
+        return;
+
     std::memcpy(&staticLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
 
     if (!localPlayer->getAnimstate())
@@ -430,6 +442,9 @@ void verifyLayer(int32_t layer) noexcept
 void Animations::postDataUpdate() noexcept
 {
     if (!localPlayer || !localPlayer->animOverlays())
+        return;
+
+    if (interfaces->engine->isHLTV())
         return;
 
     for (int i = 0; i < 13; i++)

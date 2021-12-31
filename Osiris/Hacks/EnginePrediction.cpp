@@ -18,7 +18,7 @@ static std::array<EnginePrediction::NetvarData, 150> netvarData;
 
 void EnginePrediction::run(UserCmd* cmd) noexcept
 {
-    if (!localPlayer)
+    if (!localPlayer || !localPlayer->isAlive())
         return;
     
     localPlayerFlags = localPlayer->flags();

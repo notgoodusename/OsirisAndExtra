@@ -611,7 +611,7 @@ static void __fastcall updateClientSideAnimationHook(void* thisPointer, void* ed
 
     auto entity = reinterpret_cast<Entity*>(thisPointer);
 
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer)
+    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || interfaces->engine->isHLTV())
         return original(thisPointer);
 
     if (entity != localPlayer.get())
@@ -789,7 +789,7 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
     auto entity = reinterpret_cast<Entity*>(reinterpret_cast<uintptr_t>(thisPointer) - 4);
 
-    if (!entity || !localPlayer || localPlayer.get() != entity)
+    if (!entity || !localPlayer || localPlayer.get() != entity || interfaces->engine->isHLTV())
         return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
 
     if (!memory->input->isCameraInThirdPerson)

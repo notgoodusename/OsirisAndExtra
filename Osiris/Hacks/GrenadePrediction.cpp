@@ -330,6 +330,12 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 		return;
 	}
 
+	if (interfaces->engine->isHLTV())
+	{
+		renderMutex.unlock();
+		return;
+	}
+
 	Tick(cmd->buttons);
 	if (localPlayer->moveType() == MoveType::NOCLIP)
 	{
@@ -413,6 +419,9 @@ void NadePrediction::draw() noexcept
 		return;
 
 	if (!localPlayer || !localPlayer->isAlive())
+		return;
+
+	if (interfaces->engine->isHLTV())
 		return;
 
 	if (renderMutex.try_lock())

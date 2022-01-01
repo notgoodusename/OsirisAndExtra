@@ -187,7 +187,6 @@ Memory::Memory() noexcept
     getFirstSequenceAnimTag = relativeToAbsolute<decltype(getFirstSequenceAnimTag)>(findPattern(CLIENT_DLL, "\xE8????\xF3\x0F\x11\x86????\x0F\x57\xDB") + 1);
     getSequenceLinearMotion = relativeToAbsolute<decltype(getSequenceLinearMotion)>(findPattern(CLIENT_DLL, "\xE8????\xF3\x0F\x10\x4D?\x83\xC4\x08\xF3\x0F\x10\x45?\xF3\x0F\x59\xC0") + 1);
 
-    initPoseParameter = relativeToAbsolute<decltype(initPoseParameter)>(findPattern(CLIENT_DLL, "\xE8????\x80\x3E\x00\x74\x3A") + 1);
     lookUpPoseParameter = relativeToAbsolute<decltype(lookUpPoseParameter)>(findPattern(CLIENT_DLL, "\xE8????\x85\xC0\x79\x08") + 1);
     studioSetPoseParameter = relativeToAbsolute<decltype(studioSetPoseParameter)>(findPattern(CLIENT_DLL, "\xE8????\x0F\x28\xD8\x83\xC4\x04") + 1);
     notifyOnLayerChangeWeight = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x45\x08\x85\xC0\x74\x38\x80\xB9?????\x74\x2F\x56\x8B\xB1????\x85\xF6\x74\x23\x8D\x4D\x08\x51\x50\x8B\xCE\xE8????\x84\xC0\x74\x13\x83\x7D\x08\x06\x75\x0D\xF3\x0F\x10\x45?\xF3\x0F\x11\x86????\x5E\x5D\xC2\x08\x00\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55\x8B\xEC\x8B\x45\x08");

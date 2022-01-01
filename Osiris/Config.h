@@ -64,8 +64,9 @@ public:
     struct RageAntiAimConfig {
         bool enabled = false;
         int pitch = 0; //Off, Down, Zero, Up
-        int yawBase = 0; //Off, Forward, Backward, Right, Left
+        int yawBase = 0; //Off, Forward, Backward, Right, Left, Spin
         int yawAdd = 0; //-180/180
+        int spinBase = 0; //-180/180
         bool atTargets = false;
     } rageAntiAim;
 

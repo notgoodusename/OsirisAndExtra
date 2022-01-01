@@ -100,6 +100,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             && config->rageAntiAim.enabled)   //AntiAim
         {
             float yaw = 0.f;
+            static float staticYaw = 0.f;
             if (config->rageAntiAim.atTargets)
             {
                 Vector localPlayerEyePosition = localPlayer->getEyePosition();
@@ -123,6 +124,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw = yawAngle;
             }
 
+            if (config->rageAntiAim.yawBase != 5)
+                staticYaw = 0.f;
+
             switch (config->rageAntiAim.yawBase)
             {
             case 1: //Forward
@@ -137,10 +141,14 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             case 4: //Left
                 yaw += 90.f;
                 break;
+            case 5:
+                staticYaw += static_cast<float>(config->rageAntiAim.spinBase);
+                yaw += staticYaw;
+                break;
             default:
                 break;
             }
-            yaw += config->rageAntiAim.yawAdd;
+            yaw += static_cast<float>(config->rageAntiAim.yawAdd);
             cmd->viewangles.y += yaw;
         }
         if (config->fakeAngle.enabled) //Fakeangle

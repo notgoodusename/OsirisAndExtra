@@ -42,6 +42,7 @@ void Visuals::runFreeCam(UserCmd* cmd) noexcept
         if (hasSetAngles)
         {
             interfaces->engine->setViewAngles(currentViewAngles);
+            cmd->viewangles = currentViewAngles;
             hasSetAngles = false;
         }
         currentViewAngles = Vector{};

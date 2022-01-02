@@ -34,9 +34,16 @@ static int buttons = 0;
 void Visuals::runFreeCam(UserCmd* cmd) noexcept
 {
     static Vector currentViewAngles = Vector{ };
+    static bool hasSetAngles = false;
+
     buttons = cmd->buttons;
     if (!config->visuals.freeCam || (!config->visuals.freeCamKey.isToggled() && config->visuals.freeCamKey.isSet()))
     {
+        if (hasSetAngles)
+        {
+            interfaces->engine->setViewAngles(currentViewAngles);
+            hasSetAngles = false;
+        }
         currentViewAngles = Vector{};
         return;
     }
@@ -51,6 +58,7 @@ void Visuals::runFreeCam(UserCmd* cmd) noexcept
     cmd->sidemove = 0;
     cmd->buttons = 0;
     cmd->viewangles = currentViewAngles;
+    hasSetAngles = true;
 }
 
 void Visuals::freeCam(ViewSetup* setup) noexcept

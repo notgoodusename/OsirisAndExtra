@@ -64,6 +64,7 @@
 #include "SDK/StudioRender.h"
 #include "SDK/Surface.h"
 #include "SDK/UserCmd.h"
+#include "SDK/ViewSetup.h"
 
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
@@ -261,6 +262,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Misc::fakeDuck(cmd, sendPacket);
     Misc::autoStrafe(cmd, currentViewAngles);
     Misc::jumpBug(cmd);
+    Visuals::runFreeCam(cmd);
     Misc::moonwalk(cmd);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
@@ -272,9 +274,10 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 
     cmd->viewangles.normalize();
 
-    if (currentViewAngles != cmd->viewangles
+    if ((currentViewAngles != cmd->viewangles
         || cmd->forwardmove != currentCmd.forwardmove
         || cmd->sidemove != currentCmd.sidemove)
+        && cmd->sidemove != 0 && cmd->forwardmove != 0)
     {
         Misc::fixMovement(cmd, currentViewAngles.y);
     }
@@ -294,7 +297,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 static void __stdcall doPostScreenEffects(void* param) noexcept
 {
     if (interfaces->engine->isInGame()) {
-        Visuals::thirdperson();
         Misc::inverseRagdollGravity();
         Visuals::reduceFlashEffect();
         Visuals::remove3dSky();
@@ -331,7 +333,7 @@ static void __stdcall drawModelExecute(void* ctx, void* state, const ModelRender
 
 static bool __fastcall svCheatsGetBool(void* _this) noexcept
 {
-    if (std::uintptr_t(_ReturnAddress()) == memory->cameraThink && config->visuals.thirdperson)
+    if (std::uintptr_t(_ReturnAddress()) == memory->cameraThink && (config->visuals.thirdperson || config->visuals.freeCam))
         return true;
 
     return hooks->svCheats.getOriginal<bool, 13>()(_this);
@@ -355,6 +357,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
+        Visuals::thirdperson();
         EnginePrediction::apply(stage);
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
@@ -423,16 +426,6 @@ static void __stdcall setDrawColor(int r, int g, int b, int a) noexcept
     hooks->surface.callOriginal<void, 15>(r, g, b, a);
 }
 
-struct ViewSetup {
-    PAD(172);
-    void* csm;
-    float fov;
-    PAD(4);
-    Vector origin;
-    PAD(16);
-    float farZ;
-};
-
 static void __stdcall overrideView(ViewSetup* setup) noexcept
 {
     if (localPlayer && !localPlayer->isScoped())
@@ -441,7 +434,10 @@ static void __stdcall overrideView(ViewSetup* setup) noexcept
 
     if (localPlayer && localPlayer->isAlive() && config->misc.fakeduck && config->misc.fakeduckKey.isToggled() && localPlayer->flags() & 1)
         setup->origin.z = localPlayer->getAbsOrigin().z + interfaces->gameMovement->getPlayerViewOffset(false).z;
+
     hooks->clientMode.callOriginal<void, 18>(setup);
+
+    Visuals::freeCam(setup);
 }
 
 struct RenderableInfo {

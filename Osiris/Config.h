@@ -189,6 +189,9 @@ public:
         bool thirdperson{ false };
         KeyBindToggle thirdpersonKey = KeyBind::NONE;
         int thirdpersonDistance{ 0 };
+        bool freeCam{ false };
+        KeyBindToggle freeCamKey = KeyBind::NONE;
+        int freeCamSpeed{ 2 };
         int viewmodelFov{ 0 };
         int fov{ 0 };
         int farZ{ 0 };

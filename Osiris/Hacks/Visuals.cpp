@@ -25,7 +25,87 @@
 #include "../SDK/NetworkStringTable.h"
 #include "../SDK/RenderContext.h"
 #include "../SDK/Surface.h"
+#include "../SDK/UserCmd.h"
 #include "../SDK/ViewRenderBeams.h"
+#include "../SDK/ViewSetup.h"
+
+static int buttons = 0;
+
+void Visuals::runFreeCam(UserCmd* cmd) noexcept
+{
+    static Vector currentViewAngles = Vector{ };
+    buttons = cmd->buttons;
+    if (!config->visuals.freeCam || (!config->visuals.freeCamKey.isToggled() && config->visuals.freeCamKey.isSet()))
+    {
+        currentViewAngles = Vector{};
+        return;
+    }
+
+    if (!localPlayer)
+        return;
+
+    if (currentViewAngles.null())
+        currentViewAngles = cmd->viewangles;
+
+    cmd->forwardmove = 0;
+    cmd->sidemove = 0;
+    cmd->buttons = 0;
+    cmd->viewangles = currentViewAngles;
+}
+
+void Visuals::freeCam(ViewSetup* setup) noexcept
+{
+    static Vector newOrigin = Vector{ };
+
+    if (!config->visuals.freeCam || (!config->visuals.freeCamKey.isToggled() && config->visuals.freeCamKey.isSet()))
+    {
+        newOrigin = Vector{ };
+        return;
+    }
+
+    if (!localPlayer)
+        return;
+
+    float freeCamSpeed = fabsf(static_cast<float>(config->visuals.freeCamSpeed));
+
+    if (newOrigin.null())
+        newOrigin = setup->origin;
+
+    Vector forward{ }, right{ }, up{ };
+
+    Vector::fromAngleAll(setup->angles, &forward, &right, &up);
+
+    const bool backBtn = buttons & UserCmd::IN_BACK;
+    const bool forwardBtn = buttons & UserCmd::IN_FORWARD;
+    const bool rightBtn = buttons & UserCmd::IN_MOVERIGHT;
+    const bool leftBtn = buttons & UserCmd::IN_MOVELEFT;
+    const bool shiftBtn = buttons & UserCmd::IN_WALK;
+    const bool duckBtn = buttons & UserCmd::IN_DUCK;
+    const bool jumpBtn = buttons & UserCmd::IN_JUMP;
+
+    if (duckBtn)
+        freeCamSpeed *= 0.45;
+
+    if (shiftBtn)
+        freeCamSpeed *= 1.65;
+
+    if (forwardBtn)
+        newOrigin += forward * freeCamSpeed;
+
+    if (rightBtn)
+        newOrigin += right * freeCamSpeed;
+
+    if (leftBtn)
+        newOrigin -= right * freeCamSpeed;
+
+    if (backBtn)
+        newOrigin -= forward * freeCamSpeed;
+
+    if (jumpBtn)
+        newOrigin += up * freeCamSpeed;
+
+    setup->origin = newOrigin;
+}
 
 void Visuals::fullBright() noexcept
 {
@@ -185,11 +265,17 @@ void Visuals::modifySmoke(FrameStage stage) noexcept
 
 void Visuals::thirdperson() noexcept
 {
-    if (!config->visuals.thirdperson)
+    if (!config->visuals.thirdperson && !config->visuals.freeCam)
         return;
 
-    memory->input->isCameraInThirdPerson = (!config->visuals.thirdpersonKey.isSet() || config->visuals.thirdpersonKey.isToggled()) && localPlayer && localPlayer->isAlive();
-    memory->input->cameraOffset.z = static_cast<float>(config->visuals.thirdpersonDistance); 
+    const bool freeCamming = config->visuals.freeCam && (!config->visuals.freeCamKey.isSet() || config->visuals.freeCamKey.isToggled()) && localPlayer && localPlayer->isAlive();
+    const bool thirdPerson = config->visuals.thirdperson && (!config->visuals.thirdpersonKey.isSet() || config->visuals.thirdpersonKey.isToggled()) && localPlayer && localPlayer->isAlive();
+
+    memory->input->isCameraInThirdPerson = freeCamming || thirdPerson;
+    if (!freeCamming && thirdPerson)
+        memory->input->cameraOffset.z = static_cast<float>(config->visuals.thirdpersonDistance);
+    if (freeCamming)
+        memory->input->cameraOffset.z = 0;
 }
 
 void Visuals::removeVisualRecoil(FrameStage stage) noexcept
@@ -621,6 +707,7 @@ void Visuals::updateEventListeners(bool forceRemove) noexcept
 
 void Visuals::updateInput() noexcept
 {
+    config->visuals.freeCamKey.handleToggle();
     config->visuals.thirdpersonKey.handleToggle();
     config->visuals.zoomKey.handleToggle();
 }

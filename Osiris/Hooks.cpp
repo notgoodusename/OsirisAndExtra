@@ -276,8 +276,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 
     if ((currentViewAngles != cmd->viewangles
         || cmd->forwardmove != currentCmd.forwardmove
-        || cmd->sidemove != currentCmd.sidemove)
-        && cmd->sidemove != 0 && cmd->forwardmove != 0)
+        || cmd->sidemove != currentCmd.sidemove) && (cmd->sidemove != 0 || cmd->forwardmove != 0))
     {
         Misc::fixMovement(cmd, currentViewAngles.y);
     }

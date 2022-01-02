@@ -5,13 +5,9 @@
 enum class FrameStage;
 class GameEvent;
 struct ImDrawList;
-struct ViewSetup;
-struct UserCmd;
 
 namespace Visuals
 {
-    void runFreeCam(UserCmd* cmd) noexcept;
-    void freeCam(ViewSetup* setup) noexcept;
     void fullBright() noexcept;
     void playerModel(FrameStage stage) noexcept;
     void modifySmoke(FrameStage stage) noexcept;

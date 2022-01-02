@@ -214,6 +214,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     bool& sendPacket = *reinterpret_cast<bool*>(*framePointer - 0x1C);
 
     static auto previousViewAngles{ cmd->viewangles };
+    const auto viewAngles{ cmd->viewangles };
     auto currentViewAngles{ cmd->viewangles };
     auto currentCmd{ *cmd };
 
@@ -262,7 +263,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Misc::fakeDuck(cmd, sendPacket);
     Misc::autoStrafe(cmd, currentViewAngles);
     Misc::jumpBug(cmd);
-    Visuals::runFreeCam(cmd);
+    Misc::runFreeCam(cmd, viewAngles);
     Misc::moonwalk(cmd);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
@@ -436,7 +437,7 @@ static void __stdcall overrideView(ViewSetup* setup) noexcept
 
     hooks->clientMode.callOriginal<void, 18>(setup);
 
-    Visuals::freeCam(setup);
+    Misc::freeCam(setup);
 }
 
 struct RenderableInfo {

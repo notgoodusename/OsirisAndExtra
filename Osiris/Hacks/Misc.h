@@ -5,9 +5,12 @@ class GameEvent;
 struct ImDrawList;
 struct UserCmd;
 struct Vector;
+struct ViewSetup;
 
 namespace Misc
 {
+    void runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept;
+    void freeCam(ViewSetup* setup) noexcept;
     void drawAutoPeek(ImDrawList* drawList) noexcept;
     void autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept;
     void jumpBug(UserCmd* cmd) noexcept;

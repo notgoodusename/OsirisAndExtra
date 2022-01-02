@@ -201,7 +201,6 @@ struct Vector {
             out->x = std::cos(Helpers::deg2rad(angle.x)) * std::cos(Helpers::deg2rad(angle.y));
             out->y = std::cos(Helpers::deg2rad(angle.x)) * std::sin(Helpers::deg2rad(angle.y));
             out->z = -std::sin(Helpers::deg2rad(angle.x));
-
         }
     }
 

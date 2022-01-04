@@ -88,18 +88,18 @@ namespace Resolver
         if (entity->velocity().length2D() > 3.0f) {
             record->PreviousEyeAngle = entity->eyeAngles().y;
             return;
-        }      
+        }       
 
-        float DesyncAng = 0;
+        float desyncAng = 0;
 
-        auto Animstate = entity->getAnimstate();
+        auto animstate = entity->getAnimstate();
 
-        if (!Animstate)
+        if (!animstate)
             return;
 
         if (!record->FiredUpon || !record->wasTargeted) {
 
-            entity->updateState(Animstate, entity->eyeAngles());
+            entity->updateState(animstate, entity->eyeAngles());
             if ((record->wasUpdated == false) && (entity->eyeAngles().y != record->PreviousEyeAngle)) {
                 //record->PreviousEyeAngle = entity->eyeAngles().y;
                 record->eyeAnglesOnUpdate = entity->eyeAngles().y;
@@ -108,77 +108,57 @@ namespace Resolver
                 record->wasUpdated = true;
             }
 
-            if ((record->wasUpdated == true) && (entity->eyeAngles().y != record->PreviousEyeAngle) && (record->prevSimTime != entity->simulationTime())) {
-                //record->PreviousEyeAngle = entity->eyeAngles().y;
-                /*
+            /*if ((record->wasUpdated == true) && (entity->eyeAngles().y != record->PreviousEyeAngle) && (record->prevSimTime != entity->simulationTime())) {
+                record->PreviousEyeAngle = entity->eyeAngles().y;
+                
                 record->eyeAnglesOnUpdate = entity->eyeAngles().y;
                 record->PreviousEyeAngle = entity->eyeAngles().y + record->PreviousDesyncAng;
                 record->prevSimTime = entity->simulationTime();
-                */
-            }
+            }*/
 
             entity->eyeAngles().y = record->PreviousEyeAngle;
-            entity->updateState(Animstate, entity->eyeAngles());
+            entity->updateState(animstate, entity->eyeAngles());
 
             return;
         }
 
-        entity->updateState(Animstate, entity->eyeAngles());
+        entity->updateState(animstate, entity->eyeAngles());
 
         int missed = record->missedshots;
-
         if (record->lastworkingshot != -1)
             missed = record->lastworkingshot;
 
-
-        switch (missed) {
+        switch (missed % 9) {
         case 1:
-            DesyncAng += 25.0f;
+            desyncAng += 30.0f;
             break;
         case 2:
-            DesyncAng -= 25.0f;
+            desyncAng -= 30.0f;
             break;
         case 3:
-            DesyncAng += 58.0f;
+            desyncAng += 60.0f;
             break;
         case 4:
-            DesyncAng -= 58.0f;
+            desyncAng -= 60.0f;
             break;
         case 5:
-            DesyncAng = 70;
+            desyncAng = animstate->footYaw;
             break;
         case 6:
-            DesyncAng = -70;
+            desyncAng = desyncAng + (entity->getMaxDesyncAngle() * -1);
             break;
         case 7:
-            DesyncAng = Animstate->footYaw;
-            break;
-        case 8:
-            DesyncAng += -116.0f;
-            break;
-        case 9:
-            DesyncAng += +116.0f;
-            break;
-        case 10:
-            DesyncAng = DesyncAng + (entity->getMaxDesyncAngle() * -1);
-            break;
-        case 11:
-            DesyncAng = DesyncAng + entity->getMaxDesyncAngle();
-            break;
-        case 12:
-            DesyncAng = -15;
-            break;
-        case 13:
-            DesyncAng = 15;
+            desyncAng = desyncAng + entity->getMaxDesyncAngle();
             break;
         default:
-            DesyncAng = Animstate->footYaw;
+            desyncAng = animstate->footYaw;
             break;
         }
 
-        entity->eyeAngles().y += DesyncAng;
-        Animstate->footYaw += DesyncAng;
-        entity->updateState(Animstate, entity->eyeAngles());
+        
+        entity->eyeAngles().y += desyncAng;
+        animstate->footYaw += desyncAng;
+        entity->updateState(animstate, entity->eyeAngles());
         record->PreviousEyeAngle = entity->eyeAngles().y;
 
         if (record->PreviousEyeAngle > 180) {
@@ -188,7 +168,7 @@ namespace Resolver
             record->PreviousEyeAngle += 180;
         }
 
-        record->PreviousDesyncAng = DesyncAng;
+        record->PreviousDesyncAng = desyncAng;
         record->wasUpdated = true;
         record->FiredUpon = false;
 	}

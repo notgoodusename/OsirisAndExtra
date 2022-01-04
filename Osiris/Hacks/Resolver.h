@@ -24,6 +24,6 @@ namespace Resolver
 	void frameStageUpdate() noexcept;
 	void basic(Entity* entity) noexcept;
 
-	inline std::array<Record, 66> records{};
+	inline std::array<Record, 65> records{};
     inline Record invalidRecord{};
 }

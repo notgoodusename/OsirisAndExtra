@@ -324,7 +324,13 @@ static void renderPlayerBox(const PlayerData& playerData, const Player& config) 
 
     ImVec2 offsetMins{}, offsetMaxs{};
 
-    drawHealthBar(config.healthBar, bbox.min - ImVec2{ 5.0f, 0.0f }, (bbox.max.y - bbox.min.y), playerData.health);
+    const auto height = (bbox.max.y - bbox.min.y);
+    drawHealthBar(config.healthBar, bbox.min - ImVec2{ 5.0f, 0.0f }, height, playerData.health);
+    if (config.healthBar.enabled && playerData.health < 100)
+    {
+        const auto position = bbox.min - ImVec2{ 5.0f, 0.0f } + ImVec2{ 0.0f, (100 - playerData.health) / 100.0f * height };
+        renderText(playerData.distanceToLocal, config.textCullDistance, Color4(), std::to_string(playerData.health).c_str(), { position.x , position.y });
+    }
 
     FontPush font{ config.font.name, playerData.distanceToLocal };
 

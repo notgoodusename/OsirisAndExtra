@@ -273,7 +273,7 @@ static void read(const json& j, const char* key, KeyMode& o) noexcept
 
 static void read(const json& j, const char* key, KeyBind& o) noexcept
 {
-    if (!j.contains(key))
+    if (!j.contains(key) || !j[key].contains("Key"))
         return;
 
     if (const auto& val = j[key]["Key"]; val.is_string())

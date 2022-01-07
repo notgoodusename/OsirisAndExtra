@@ -15,6 +15,9 @@ static bool keyPressed;
 
 void Triggerbot::run(UserCmd* cmd) noexcept
 {
+    if (!config->triggerbotKey.isActive())
+        return;
+
     if (!localPlayer || !localPlayer->isAlive() || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return;
 
@@ -44,9 +47,6 @@ void Triggerbot::run(UserCmd* cmd) noexcept
     static auto lastContact = 0.0f;
 
     const auto now = memory->globalVars->realtime;
-
-    if (!keyPressed)
-        return;
 
     if (now - lastTime < cfg.shotDelay / 1000.0f)
         return;
@@ -271,5 +271,5 @@ void Triggerbot::run(UserCmd* cmd) noexcept
 
 void Triggerbot::updateInput() noexcept
 {
-    keyPressed = config->triggerbotHoldKey == KeyBind::NONE || config->triggerbotHoldKey.isDown();
+    config->triggerbotKey.handleToggle();
 }

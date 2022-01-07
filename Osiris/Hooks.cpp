@@ -432,7 +432,7 @@ static void __stdcall overrideView(ViewSetup* setup) noexcept
         setup->fov += config->visuals.fov;
     setup->farZ += config->visuals.farZ * 10;
 
-    if (localPlayer && localPlayer->isAlive() && config->misc.fakeduck && config->misc.fakeduckKey.isToggled() && localPlayer->flags() & 1)
+    if (localPlayer && localPlayer->isAlive() && config->misc.fakeduck && config->misc.fakeduckKey.isActive() && localPlayer->flags() & 1)
         setup->origin.z = localPlayer->getAbsOrigin().z + interfaces->gameMovement->getPlayerViewOffset(false).z;
 
     hooks->clientMode.callOriginal<void, 18>(setup);

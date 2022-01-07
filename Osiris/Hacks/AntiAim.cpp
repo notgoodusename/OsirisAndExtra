@@ -153,7 +153,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
         }
         if (config->fakeAngle.enabled) //Fakeangle
         {
-            bool isInvertToggled = config->fakeAngle.invert.isToggled();
+            bool isInvertToggled = config->fakeAngle.invert.isActive();
             static bool invert = true;
             if (config->fakeAngle.peekMode != 3)
                 invert = isInvertToggled;
@@ -243,7 +243,7 @@ void AntiAim::legit(UserCmd* cmd, const Vector& previousViewAngles, const Vector
 {
     if (cmd->viewangles.y == currentViewAngles.y) 
     {
-        bool invert = config->legitAntiAim.invert.isToggled();
+        bool invert = config->legitAntiAim.invert.isActive();
         float desyncAngle = localPlayer->getMaxDesyncAngle() * 2.f;
         if (updateLby() && config->legitAntiAim.extend)
         {

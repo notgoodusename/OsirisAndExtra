@@ -1,5 +1,13 @@
 #pragma once
 
+enum KeyMode
+{
+    Off,
+    Always,
+    Hold,
+    Toggle
+};
+
 class KeyBind {
 public:
     enum KeyCode {
@@ -114,7 +122,7 @@ public:
     KeyBind(const char* keyName) noexcept;
 
     bool operator==(KeyCode keyCode) const noexcept { return this->keyCode == keyCode; }
-    bool operator==(const KeyBind& other) const noexcept { return this->keyCode == other.keyCode; }
+    bool operator==(const KeyBind& other) const noexcept { return this->keyCode == other.keyCode || this->keyMode == other.keyMode; }
 
     const char* toString() const noexcept;
     bool isPressed() const noexcept;
@@ -122,17 +130,15 @@ public:
     bool isSet() const noexcept { return keyCode != KeyCode::NONE; }
 
     bool setToPressedKey() noexcept;
-private:
-    KeyCode keyCode;
-};
-
-class KeyBindToggle : public KeyBind {
-public:
-    using KeyBind::KeyBind;
 
     void handleToggle() noexcept;
     bool isToggled() const noexcept { return toggledOn; }
     void setToggleTo(bool value) noexcept { toggledOn = value; }
+
+    bool isActive() const noexcept;
+
+    KeyMode keyMode = KeyMode::Always;
 private:
+    KeyCode keyCode;
     bool toggledOn = true;
 };

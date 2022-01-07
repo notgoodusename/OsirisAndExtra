@@ -26,8 +26,7 @@ struct PlayerGlow {
 
 static std::unordered_map<std::string, PlayerGlow> playerGlowConfig;
 static std::unordered_map<std::string, GlowItem> glowConfig;
-static KeyBindToggle glowToggleKey = KeyBind::NONE;
-static KeyBind glowHoldKey = KeyBind::NONE;
+static KeyBind glowKey = KeyBind::NONE;
 
 static std::vector<std::pair<int, int>> customGlowEntities;
 
@@ -40,12 +39,8 @@ void Glow::render() noexcept
 
     Glow::clearCustomObjects();
 
-    if (glowToggleKey != KeyBind::NONE) {
-        if (!glowToggleKey.isToggled() && !glowHoldKey.isDown())
-            return;
-    } else if (glowHoldKey != KeyBind::NONE && !glowHoldKey.isDown()) {
+    if (glowKey != KeyBind::NONE && !glowKey.isActive())
         return;
-    }
 
     for (int i = interfaces->engine->getMaxClients() + 1; i <= interfaces->entityList->getHighestEntityIndex(); ++i) {
         const auto entity = interfaces->entityList->getEntity(i);
@@ -158,13 +153,12 @@ void Glow::clearCustomObjects() noexcept
 
 void Glow::updateInput() noexcept
 {
-    glowToggleKey.handleToggle();
+    glowKey.handleToggle();
 }
 
 void Glow::drawGUI() noexcept
 {
-    ImGui::hotkey("Toggle Key", glowToggleKey, 80.0f);
-    ImGui::hotkey("Hold Key", glowHoldKey, 80.0f);
+    ImGui::hotkey("Key", glowKey, 80.0f);
     ImGui::Separator();
 
     static int currentCategory{ 0 };
@@ -226,8 +220,7 @@ json Glow::toJson() noexcept
     json j;
     j["Items"] = glowConfig;
     j["Players"] = playerGlowConfig;
-    to_json(j["Toggle Key"], glowToggleKey, KeyBind::NONE);
-    to_json(j["Hold Key"], glowHoldKey, KeyBind::NONE);
+    //to_json(j["Key"], glowKey, KeyBind::NONE);
     return j;
 }
 
@@ -251,14 +244,12 @@ void Glow::fromJson(const json& j) noexcept
 {
     read(j, "Items", glowConfig);
     read(j, "Players", playerGlowConfig);
-    read(j, "Toggle Key", glowToggleKey);
-    read(j, "Hold Key", glowHoldKey);
+    read(j, "Key", glowKey);
 }
 
 void Glow::resetConfig() noexcept
 {
     glowConfig = {};
     playerGlowConfig = {};
-    glowToggleKey = KeyBind::NONE;
-    glowHoldKey = KeyBind::NONE;
+    glowKey = KeyBind::NONE;
 }

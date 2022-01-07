@@ -6,18 +6,16 @@
 #include "../SDK/Vector.h"
 #include "../SDK/ModelInfo.h"
 
-static bool keyPressed = false;
-
 void Legitbot::updateInput() noexcept
 {
-    if (config->legitbotKeyMode == 0)
-        keyPressed = config->legitbotKey.isDown();
-    if (config->legitbotKeyMode == 1 && config->legitbotKey.isPressed())
-        keyPressed = !keyPressed;
+    config->legitbotKey.handleToggle();
 }
 
 void Legitbot::run(UserCmd* cmd) noexcept
 {
+    if (!config->legitbotKey.isActive())
+        return;
+
     if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return;
 
@@ -45,9 +43,6 @@ void Legitbot::run(UserCmd* cmd) noexcept
         return;
 
     if (!cfg[weaponIndex].ignoreFlash && localPlayer->isFlashed())
-        return;
-
-    if (config->legitbotOnKey && !keyPressed)
         return;
 
     if (cfg[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg[weaponIndex].aimlock)) {

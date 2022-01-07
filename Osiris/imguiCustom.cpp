@@ -327,3 +327,87 @@ void ImGui::hotkey(const char* label, KeyBind& key, float samelineOffset, const 
 
     PopID();
 }
+
+
+#include "InputUtil.h"
+
+void ImGui::hotkey2(const char* label, KeyBind& key, float samelineOffset, const ImVec2& size) noexcept
+{
+    const auto id = ImGui::GetID(label);
+
+    ImGui::PushID(label);
+
+    if (ImGui::GetActiveID() == id)
+    {
+        ImGui::Button("...");
+        if ((!ImGui::IsItemHovered() && ImGui::GetIO().MouseClicked[0]) || key.setToPressedKey())
+            ImGui::ClearActiveID();
+    }
+    else
+    {
+        if (key.keyMode == KeyMode::Always)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+            ImGui::ButtonEx("On", {}, ImGuiButtonFlags_Disabled);
+            ImGui::PopStyleColor();
+        }
+        else if (key.keyMode == KeyMode::Off)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+            ImGui::ButtonEx("Off", {}, ImGuiButtonFlags_Disabled);
+            ImGui::PopStyleColor();
+        }
+        else if (key.isSet())
+        {
+            if (ImGui::Button(key.toString(), size))
+                ImGui::SetActiveID(id, ImGui::GetCurrentWindow());
+        }
+        else
+        {
+            if (ImGui::Button("Bind"))
+                ImGui::SetActiveID(id, ImGui::GetCurrentWindow());
+        }
+
+        if (ImGui::BeginPopup("##mode", ImGuiWindowFlags_AlwaysUseWindowPadding))
+        {
+            bool selected = key.keyMode == KeyMode::Off;
+            ImGui::Selectable("Off", &selected);
+            if (selected)
+                key.keyMode = KeyMode::Off;
+
+            selected = key.keyMode == KeyMode::Always;
+            ImGui::Selectable("Always", &selected);
+            if (selected)
+                key.keyMode = KeyMode::Always;
+
+            selected = key.keyMode == KeyMode::Hold;
+            ImGui::Selectable("Hold", &selected);
+            if (selected)
+                key.keyMode = KeyMode::Hold;
+
+            selected = key.keyMode == KeyMode::Toggle;
+            ImGui::Selectable("Toggle", &selected);
+            if (selected)
+                key.keyMode = KeyMode::Toggle;
+
+            if (ImGui::Selectable("Unset"))
+                key = KeyBind::NONE;
+
+            ImGui::EndPopup();
+        }
+        else if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Right click for options");
+
+            if (ImGui::GetIO().MouseClicked[1])
+                ImGui::OpenPopup("##mode");
+        }
+    }
+
+    ImGui::SameLine();
+
+    ImGui::AlignTextToFramePadding();
+    if (std::strncmp(label, "##", 2))
+        ImGui::TextUnformatted(label, std::strstr(label, "##"));
+    ImGui::PopID();
+}

@@ -21,15 +21,15 @@ static bool keyPressed = false;
 
 void Ragebot::updateInput() noexcept
 {
-    if (config->ragebotKeyMode == 0)
-        keyPressed = config->ragebotKey.isDown();
-    if (config->ragebotKeyMode == 1 && config->ragebotKey.isPressed())
-        keyPressed = !keyPressed;
+    config->ragebotKey.handleToggle();
 }
 
 void Ragebot::run(UserCmd* cmd) noexcept
 {
     const auto& cfg = config->ragebot;
+
+    if (!config->ragebotKey.isActive())
+        return;
 
     if (!localPlayer || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return;
@@ -56,9 +56,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
         return;
 
     if (!cfg[weaponIndex].ignoreFlash && localPlayer->isFlashed())
-        return;
-
-    if (config->ragebotOnKey && !keyPressed)
         return;
 
     if (!(cfg[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg[weaponIndex].autoShot || cfg[weaponIndex].aimlock)))

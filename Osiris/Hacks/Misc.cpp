@@ -63,7 +63,7 @@ void Misc::runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept
     static bool hasSetAngles = false;
 
     buttons = cmd->buttons;
-    if (!config->visuals.freeCam || (!config->visuals.freeCamKey.isToggled() && config->visuals.freeCamKey.isSet()))
+    if (!config->visuals.freeCam || !config->visuals.freeCamKey.isActive())
     {
         if (hasSetAngles)
         {
@@ -102,7 +102,7 @@ void Misc::freeCam(ViewSetup* setup) noexcept
 {
     static Vector newOrigin = Vector{ };
 
-    if (!config->visuals.freeCam || (!config->visuals.freeCamKey.isToggled() && config->visuals.freeCamKey.isSet()))
+    if (!config->visuals.freeCam || !config->visuals.freeCamKey.isActive())
     {
         newOrigin = Vector{ };
         return;
@@ -129,10 +129,10 @@ void Misc::freeCam(ViewSetup* setup) noexcept
     const bool jumpBtn = buttons & UserCmd::IN_JUMP;
 
     if (duckBtn)
-        freeCamSpeed *= 0.45;
+        freeCamSpeed *= 0.45f;
 
     if (shiftBtn)
-        freeCamSpeed *= 1.65;
+        freeCamSpeed *= 1.65f;
 
     if (forwardBtn)
         newOrigin += forward * freeCamSpeed;
@@ -204,7 +204,7 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
     if (const auto mt = localPlayer->moveType(); mt == MoveType::LADDER || mt == MoveType::NOCLIP || !(localPlayer->flags() & 1))
         return;
 
-    if (config->misc.autoPeekKey.isToggled() && config->misc.autoPeekKey.isSet())
+    if (config->misc.autoPeekKey.isActive())
     {
         if (peekPosition.null())
             peekPosition = localPlayer->getRenderOrigin();
@@ -231,7 +231,8 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
             {
                 hasShot = false;
                 peekPosition = Vector{};
-                config->misc.autoPeekKey.setToggleTo(false);
+                if (config->misc.autoPeekKey.keyMode == KeyMode::Toggle)
+                    config->misc.autoPeekKey.setToggleTo(false);
             }
         }
     }
@@ -244,7 +245,7 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
 
 void Misc::jumpBug(UserCmd* cmd) noexcept
 {
-    if (!config->misc.jumpBug || (!config->misc.jumpBugKey.isDown() && config->misc.jumpBugKey.isSet()))
+    if (!config->misc.jumpBug || !config->misc.jumpBugKey.isActive())
         return;
 
     if (!localPlayer || !localPlayer->isAlive())
@@ -277,7 +278,7 @@ void Misc::unlockHiddenCvars() noexcept
 
 void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
 {
-    if (!config->misc.fakeduck || !config->misc.fakeduckKey.isToggled())
+    if (!config->misc.fakeduck || !config->misc.fakeduckKey.isActive())
         return;
 
     if (!localPlayer || !localPlayer->isAlive() || !(localPlayer->flags() & 1))
@@ -299,7 +300,7 @@ void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
 
 void Misc::edgejump(UserCmd* cmd) noexcept
 {
-    if (!config->misc.edgejump || (!config->misc.edgejumpkey.isDown() && config->misc.edgejumpkey.isSet()))
+    if (!config->misc.edgejump || !config->misc.edgejumpkey.isActive())
         return;
 
     if (!localPlayer || !localPlayer->isAlive())
@@ -314,7 +315,7 @@ void Misc::edgejump(UserCmd* cmd) noexcept
 
 void Misc::slowwalk(UserCmd* cmd) noexcept
 {
-    if (!config->misc.slowwalk || !config->misc.slowwalkKey.isDown())
+    if (!config->misc.slowwalk || !config->misc.slowwalkKey.isActive())
         return;
 
     if (!localPlayer || !localPlayer->isAlive())
@@ -508,16 +509,23 @@ void Misc::prepareRevolver(UserCmd* cmd) noexcept
     constexpr float revolverPrepareTime{ 0.234375f };
 
     static float readyTime;
-    if (config->misc.prepareRevolver && localPlayer && (config->misc.prepareRevolverKey == KeyBind::NONE || config->misc.prepareRevolverKey.isDown())) {
-        const auto activeWeapon = localPlayer->getActiveWeapon();
-        if (activeWeapon && activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver) {
-            if (!readyTime) readyTime = memory->globalVars->serverTime() + revolverPrepareTime;
-            auto ticksToReady = timeToTicks(readyTime - memory->globalVars->serverTime() - interfaces->engine->getNetworkChannel()->getLatency(0));
-            if (ticksToReady > 0 && ticksToReady <= timeToTicks(revolverPrepareTime))
-                cmd->buttons |= UserCmd::IN_ATTACK;
-            else
-                readyTime = 0.0f;
-        }
+    if (!config->misc.prepareRevolver)
+        return;
+
+    if (!config->misc.prepareRevolverKey.isActive())
+        return;
+
+    if (!localPlayer)
+        return;
+
+    const auto activeWeapon = localPlayer->getActiveWeapon();
+    if (activeWeapon && activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver) {
+        if (!readyTime) readyTime = memory->globalVars->serverTime() + revolverPrepareTime;
+        auto ticksToReady = timeToTicks(readyTime - memory->globalVars->serverTime() - interfaces->engine->getNetworkChannel()->getLatency(0));
+        if (ticksToReady > 0 && ticksToReady <= timeToTicks(revolverPrepareTime))
+            cmd->buttons |= UserCmd::IN_ATTACK;
+        else
+            readyTime = 0.0f;
     }
 }
 
@@ -1392,6 +1400,10 @@ void Misc::updateEventListeners(bool forceRemove) noexcept
 
 void Misc::updateInput() noexcept
 {
+    config->misc.edgejumpkey.handleToggle();
+    config->misc.jumpBugKey.handleToggle();
+    config->misc.slowwalkKey.handleToggle();
     config->misc.fakeduckKey.handleToggle();
     config->misc.autoPeekKey.handleToggle();
+    config->misc.prepareRevolverKey.handleToggle();
 }

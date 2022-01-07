@@ -98,7 +98,7 @@ void GUI::render() noexcept
 
 #include "InputUtil.h"
 
-static void hotkey2(const char* label, KeyBind& key, float samelineOffset = 0.0f, const ImVec2& size = { 100.0f, 0.0f }) noexcept
+static void hotkey3(const char* label, KeyBind& key, float samelineOffset = 0.0f, const ImVec2& size = { 100.0f, 0.0f }) noexcept
 {
     const auto id = ImGui::GetID(label);
     ImGui::PushID(label);
@@ -114,12 +114,14 @@ static void hotkey2(const char* label, KeyBind& key, float samelineOffset = 0.0f
         ImGui::GetCurrentContext()->ActiveIdAllowOverlap = true;
         if ((!ImGui::IsItemHovered() && ImGui::GetIO().MouseClicked[0]) || key.setToPressedKey())
             ImGui::ClearActiveID();
-    } else if (ImGui::Button(key.toString(), size)) {
+    }
+    else if (ImGui::Button(key.toString(), size)) {
         ImGui::SetActiveID(id, ImGui::GetCurrentWindow());
     }
 
     ImGui::PopID();
 }
+
 
 void GUI::handleToggle() noexcept
 {
@@ -146,16 +148,8 @@ void GUI::renderLegitbotWindow() noexcept
     static std::string previewvalue = "";
     bool once = false;
 
-    ImGui::Checkbox("On key", &config->legitbotOnKey);
-    ImGui::SameLine();
-    ImGui::PushID("legitbot Key");
-    hotkey2("", config->legitbotKey);
-    ImGui::PopID();
-    ImGui::SameLine();
-    ImGui::PushID(2);
-    ImGui::PushItemWidth(70.0f);
-    ImGui::Combo("", &config->legitbotKeyMode, "Hold\0Toggle\0");
-    ImGui::PopItemWidth();
+    ImGui::PushID("Key");
+    ImGui::hotkey2("Key", config->legitbotKey);
     ImGui::PopID();
     ImGui::Separator();
     static int currentCategory{ 0 };
@@ -309,16 +303,11 @@ void GUI::renderRagebotWindow() noexcept
     static std::string previewvalue = "";
     bool once = false;
 
-    ImGui::Checkbox("On key", &config->ragebotOnKey);
-    ImGui::SameLine();
     ImGui::PushID("Ragebot Key");
-    hotkey2("", config->ragebotKey);
+    ImGui::hotkey2("Key", config->ragebotKey);
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::PushID(2);
-    ImGui::PushItemWidth(70.0f);
-    ImGui::Combo("", &config->ragebotKeyMode, "Hold\0Toggle\0");
-    ImGui::PopItemWidth();
     ImGui::PopID();
     ImGui::Separator();
     static int currentCategory{ 0 };
@@ -575,7 +564,7 @@ void GUI::renderTriggerbotWindow() noexcept
     ImGui::SameLine();
     ImGui::Checkbox("Enabled", &config->triggerbot[currentWeapon].enabled);
     ImGui::Separator();
-    hotkey2("Hold Key", config->triggerbotHoldKey);
+    ImGui::hotkey2("Hold Key", config->triggerbotKey);
     ImGui::Checkbox("Friendly fire", &config->triggerbot[currentWeapon].friendlyFire);
     ImGui::Checkbox("Scoped only", &config->triggerbot[currentWeapon].scopedOnly);
     ImGui::Checkbox("Ignore flash", &config->triggerbot[currentWeapon].ignoreFlash);
@@ -639,7 +628,7 @@ void GUI::renderLegitAntiAimWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
-    hotkey2("Invert Key", config->legitAntiAim.invert, 80.0f);
+    ImGui::hotkey2("Invert Key", config->legitAntiAim.invert, 80.0f);
     ImGui::Checkbox("Enabled", &config->legitAntiAim.enabled);
     ImGui::Checkbox("Extend", &config->legitAntiAim.extend);
     ImGui::NextColumn();
@@ -673,7 +662,7 @@ void GUI::renderFakeAngleWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
-    hotkey2("Invert Key", config->fakeAngle.invert, 80.0f);
+    ImGui::hotkey2("Invert Key", config->fakeAngle.invert, 80.0f);
     ImGui::Checkbox("Enabled", &config->fakeAngle.enabled);
 
     ImGui::PushItemWidth(220.0f);
@@ -713,8 +702,7 @@ void GUI::renderChamsWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.0f);
-    hotkey2("Toggle Key", config->chamsToggleKey, 80.0f);
-    hotkey2("Hold Key", config->chamsHoldKey, 80.0f);
+    ImGui::hotkey2("Key", config->chamsKey, 80.0f);
     ImGui::Separator();
 
     static int currentCategory{ 0 };
@@ -766,8 +754,7 @@ void GUI::renderChamsWindow() noexcept
 
 void GUI::renderStreamProofESPWindow() noexcept
 {
-    hotkey2("Toggle Key", config->streamProofESP.toggleKey, 80.0f);
-    hotkey2("Hold Key", config->streamProofESP.holdKey, 80.0f);
+    ImGui::hotkey2("Key", config->streamProofESP.key, 80.0f);
     ImGui::Separator();
 
     static std::size_t currentCategory;
@@ -1187,12 +1174,12 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Zoom", &config->visuals.zoom);
     ImGui::SameLine();
     ImGui::PushID("Zoom Key");
-    hotkey2("", config->visuals.zoomKey);
+    ImGui::hotkey2("", config->visuals.zoomKey);
     ImGui::PopID();
     ImGui::Checkbox("Thirdperson", &config->visuals.thirdperson);
     ImGui::SameLine();
     ImGui::PushID("Thirdperson Key");
-    hotkey2("", config->visuals.thirdpersonKey);
+    ImGui::hotkey2("", config->visuals.thirdpersonKey);
     ImGui::PopID();
     ImGui::PushItemWidth(290.0f);
     ImGui::PushID(0);
@@ -1201,7 +1188,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Freecam", &config->visuals.freeCam);
     ImGui::SameLine();
     ImGui::PushID("Freecam Key");
-    hotkey2("", config->visuals.freeCamKey);
+    ImGui::hotkey2("", config->visuals.freeCamKey);
     ImGui::PopID();
     ImGui::PushItemWidth(290.0f);
     ImGui::PushID(1);
@@ -1440,7 +1427,7 @@ void GUI::renderMiscWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 230.0f);
-    hotkey2("Menu Key", config->misc.menuKey);
+    hotkey3("Menu Key", config->misc.menuKey);
     ImGui::Checkbox("Anti AFK kick", &config->misc.antiAfkKick);
     ImGui::Checkbox("Auto strafe", &config->misc.autoStrafe);
     ImGui::Checkbox("Bunny hop", &config->misc.bunnyHop);
@@ -1452,27 +1439,27 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Edge Jump", &config->misc.edgejump);
     ImGui::SameLine();
     ImGui::PushID("Edge Jump Key");
-    hotkey2("", config->misc.edgejumpkey);
+    ImGui::hotkey2("", config->misc.edgejumpkey);
     ImGui::PopID();
     ImGui::Checkbox("Jump Bug", &config->misc.jumpBug);
     ImGui::SameLine();
     ImGui::PushID("Jump Bug Key");
-    hotkey2("", config->misc.jumpBugKey);
+    ImGui::hotkey2("", config->misc.jumpBugKey);
     ImGui::PopID();
     ImGui::Checkbox("Slowwalk", &config->misc.slowwalk);
     ImGui::SameLine();
     ImGui::PushID("Slowwalk Key");
-    hotkey2("", config->misc.slowwalkKey);
+    ImGui::hotkey2("", config->misc.slowwalkKey);
     ImGui::PopID();
     ImGui::Checkbox("Fakeduck", &config->misc.fakeduck);
     ImGui::SameLine();
     ImGui::PushID("Fakeduck Key");
-    hotkey2("", config->misc.fakeduckKey);
+    ImGui::hotkey2("", config->misc.fakeduckKey);
     ImGui::PopID();
     ImGuiCustom::colorPicker("Auto peek", config->misc.autoPeek.color.data(), &config->misc.autoPeek.color[3], nullptr, nullptr, &config->misc.autoPeek.enabled);
     ImGui::SameLine();
     ImGui::PushID("Auto peek Key");
-    hotkey2("", config->misc.autoPeekKey);
+    ImGui::hotkey2("", config->misc.autoPeekKey);
     ImGui::PopID();
     ImGuiCustom::colorPicker("Noscope crosshair", config->misc.noscopeCrosshair);
     ImGuiCustom::colorPicker("Recoil crosshair", config->misc.recoilCrosshair);
@@ -1544,7 +1531,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Prepare revolver", &config->misc.prepareRevolver);
     ImGui::SameLine();
     ImGui::PushID("Prepare revolver Key");
-    hotkey2("", config->misc.prepareRevolverKey);
+    ImGui::hotkey2("", config->misc.prepareRevolverKey);
     ImGui::PopID();
     ImGui::Combo("Hit Sound", &config->misc.hitSound, "None\0Metal\0Gamesense\0Bell\0Glass\0Custom\0");
     if (config->misc.hitSound == 5) {

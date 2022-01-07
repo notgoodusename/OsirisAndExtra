@@ -338,8 +338,7 @@ static void from_json(const json& j, Config::Chams& c)
 
 static void from_json(const json& j, Config::StreamProofESP& e)
 {
-    read(j, "Toggle Key", e.toggleKey);
-    read(j, "Hold Key", e.holdKey);
+    read(j, "Key", e.key);
     read(j, "Allies", e.allies);
     read(j, "Enemies", e.enemies);
     read(j, "Weapons", e.weapons);
@@ -557,17 +556,13 @@ void Config::load(const char8_t* name, bool incremental) noexcept
         reset();
 
     read(j, "Legitbot", legitbot);
-    read(j, "Legitbot On key", legitbotOnKey);
     read(j, "Legitbot Key", legitbotKey);
-    read(j, "Legitbot Key mode", legitbotKeyMode);
 
     read(j, "Ragebot", ragebot);
-    read(j, "Ragebot On key", ragebotOnKey);
     read(j, "Ragebot Key", ragebotKey);
-    read(j, "Ragebot Key mode", ragebotKeyMode);
 
     read(j, "Triggerbot", triggerbot);
-    read(j, "Triggerbot Key", triggerbotHoldKey);
+    read(j, "Triggerbot Key", triggerbotKey);
 
     read<value_t::object>(j, "Legit Anti aim", legitAntiAim);
     read<value_t::object>(j, "Rage Anti aim", rageAntiAim);
@@ -576,8 +571,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read<value_t::object>(j, "Backtrack", backtrack);
     Glow::fromJson(j["Glow"]);
     read(j, "Chams", chams);
-    read(j["Chams"], "Toggle Key", chamsToggleKey);
-    read(j["Chams"], "Hold Key", chamsHoldKey);
+    read(j["Chams"], "Key", chamsKey);
     read<value_t::object>(j, "ESP", streamProofESP);
     read<value_t::object>(j, "Visuals", visuals);
     read(j, "Skin changer", skinChanger);
@@ -796,8 +790,7 @@ static void to_json(json& j, const Config::Chams& o)
 
 static void to_json(json& j, const Config::StreamProofESP& o, const Config::StreamProofESP& dummy = {})
 {
-    WRITE("Toggle Key", toggleKey);
-    WRITE("Hold Key", holdKey);
+    WRITE("Key", key);
     j["Allies"] = o.allies;
     j["Enemies"] = o.enemies;
     j["Weapons"] = o.weapons;
@@ -1082,17 +1075,13 @@ void Config::save(size_t id) const noexcept
         json j;
 
         j["Legitbot"] = legitbot;
-        j["Legitbot On key"] = legitbotOnKey;
         to_json(j["Legitbot Key"], legitbotKey, KeyBind::NONE);
-        j["Legitbot Key mode"] = legitbotKeyMode;
 
         j["Ragebot"] = ragebot;
-        j["Ragebot On key"] = ragebotOnKey;
         to_json(j["Ragebot Key"], ragebotKey, KeyBind::NONE);
-        j["Ragebot Key mode"] = ragebotKeyMode;
 
         j["Triggerbot"] = triggerbot;
-        to_json(j["Triggerbot Key"], triggerbotHoldKey, KeyBind::NONE);
+        to_json(j["Triggerbot Key"], triggerbotKey, KeyBind::NONE);
 
         j["Legit Anti aim"] = legitAntiAim;
         j["Rage Anti aim"] = rageAntiAim;
@@ -1101,8 +1090,7 @@ void Config::save(size_t id) const noexcept
         j["Backtrack"] = backtrack;
         j["Glow"] = Glow::toJson();
         j["Chams"] = chams;
-        to_json(j["Chams"]["Toggle Key"], chamsToggleKey, KeyBind::NONE);
-        to_json(j["Chams"]["Hold Key"], chamsHoldKey, KeyBind::NONE);
+        to_json(j["Chams"]["Key"], chamsKey, KeyBind::NONE);
         j["ESP"] = streamProofESP;
         j["Sound"] = ::Sound::toJson();
         j["Visuals"] = visuals;

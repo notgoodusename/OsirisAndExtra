@@ -188,8 +188,8 @@ void Visuals::thirdperson() noexcept
     if (!config->visuals.thirdperson && !config->visuals.freeCam)
         return;
 
-    const bool freeCamming = config->visuals.freeCam && (!config->visuals.freeCamKey.isSet() || config->visuals.freeCamKey.isToggled()) && localPlayer && localPlayer->isAlive();
-    const bool thirdPerson = config->visuals.thirdperson && (!config->visuals.thirdpersonKey.isSet() || config->visuals.thirdpersonKey.isToggled()) && localPlayer && localPlayer->isAlive();
+    const bool freeCamming = config->visuals.freeCam && config->visuals.freeCamKey.isActive() && localPlayer && localPlayer->isAlive();
+    const bool thirdPerson = config->visuals.thirdperson && config->visuals.thirdpersonKey.isActive() && localPlayer && localPlayer->isAlive();
 
     memory->input->isCameraInThirdPerson = freeCamming || thirdPerson;
     if (!freeCamming && thirdPerson)
@@ -268,7 +268,7 @@ void Visuals::applyZoom(FrameStage stage) noexcept
 {
     if (config->visuals.zoom && localPlayer) {
         if (stage == FrameStage::RENDER_START && (localPlayer->fov() == 90 || localPlayer->fovStart() == 90)) {
-            if (config->visuals.zoomKey.isToggled()) {
+            if (config->visuals.zoomKey.isActive()) {
                 localPlayer->fov() = 40;
                 localPlayer->fovStart() = 40;
             }

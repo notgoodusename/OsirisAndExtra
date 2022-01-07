@@ -51,9 +51,7 @@ public:
         int minDamage{ 1 };
     };
     std::array<Ragebot, 40> ragebot;
-    bool ragebotOnKey{ false };
     KeyBind ragebotKey = KeyBind::NONE;
-    int ragebotKeyMode{ 0 };
 
     struct Fakelag {
         bool enabled = false;
@@ -72,7 +70,7 @@ public:
 
     struct FakeAngle {
         bool enabled = false;
-        KeyBindToggle invert = KeyBind::NONE;
+        KeyBind invert = KeyBind::NONE;
         int leftLimit = 60;
         int rightLimit = 60;
         int peekMode = 0; //Off, Peek real, Peek fake
@@ -82,7 +80,7 @@ public:
     struct LegitAntiAimConfig {
         bool enabled = false;
         bool extend = false;
-        KeyBindToggle invert = KeyBind::NONE;
+        KeyBind invert = KeyBind::NONE;
     } legitAntiAim;
 
     struct Legitbot {
@@ -104,9 +102,7 @@ public:
         bool betweenShots{ true };
     };
     std::array<Legitbot, 40> legitbot;
-    bool legitbotOnKey{ false };
     KeyBind legitbotKey = KeyBind::NONE;
-    int legitbotKeyMode{ 0 };
 
     struct Triggerbot {
         bool enabled = false;
@@ -121,7 +117,7 @@ public:
         int minDamage = 1;
     };
     std::array<Triggerbot, 40> triggerbot;
-    KeyBind triggerbotHoldKey = KeyBind::NONE;
+    KeyBind triggerbotKey = KeyBind::NONE;
 
     struct Backtrack {
         bool enabled = false;
@@ -146,12 +142,10 @@ public:
     };
 
     std::unordered_map<std::string, Chams> chams;
-    KeyBindToggle chamsToggleKey = KeyBind::NONE;
-    KeyBind chamsHoldKey = KeyBind::NONE;
+    KeyBind chamsKey = KeyBind::NONE;
 
     struct StreamProofESP {
-        KeyBindToggle toggleKey = KeyBind::NONE;
-        KeyBind holdKey = KeyBind::NONE;
+        KeyBind key = KeyBind::NONE;
 
         std::unordered_map<std::string, Player> allies;
         std::unordered_map<std::string, Player> enemies;
@@ -185,12 +179,12 @@ public:
         bool fullBright{ false };
         bool wireframeSmoke{ false };
         bool zoom{ false };
-        KeyBindToggle zoomKey = KeyBind::NONE;
+        KeyBind zoomKey = KeyBind::NONE;
         bool thirdperson{ false };
-        KeyBindToggle thirdpersonKey = KeyBind::NONE;
+        KeyBind thirdpersonKey = KeyBind::NONE;
         int thirdpersonDistance{ 0 };
         bool freeCam{ false };
-        KeyBindToggle freeCamKey = KeyBind::NONE;
+        KeyBind freeCamKey = KeyBind::NONE;
         int freeCamSpeed{ 2 };
         int viewmodelFov{ 0 };
         int fov{ 0 };
@@ -216,7 +210,7 @@ public:
     std::array<item_setting, 36> skinChanger;
 
     struct Misc {
-        Misc() { clanTag[0] = '\0'; }
+        Misc() { clanTag[0] = '\0'; menuKey.keyMode = KeyMode::Toggle; }
 
         KeyBind menuKey = KeyBind::INSERT;
         bool antiAfkKick{ false };
@@ -256,10 +250,10 @@ public:
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];
         KeyBind edgejumpkey = KeyBind::NONE;
-        KeyBindToggle jumpBugKey = KeyBind::NONE;
+        KeyBind jumpBugKey = KeyBind::NONE;
         KeyBind slowwalkKey = KeyBind::NONE;
-        KeyBindToggle fakeduckKey = KeyBind::NONE;
-        KeyBindToggle autoPeekKey = KeyBind::NONE;
+        KeyBind fakeduckKey = KeyBind::NONE;
+        KeyBind autoPeekKey = KeyBind::NONE;
         ColorToggleThickness noscopeCrosshair;
         ColorToggleThickness recoilCrosshair;
 

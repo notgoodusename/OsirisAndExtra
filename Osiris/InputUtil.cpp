@@ -213,8 +213,26 @@ bool KeyBind::setToPressedKey() noexcept
     return false;
 }
 
-void KeyBindToggle::handleToggle() noexcept
+void KeyBind::handleToggle() noexcept
 {
     if (isPressed())
         toggledOn = !toggledOn;
+}
+
+bool KeyBind::isActive() const noexcept
+{
+    switch (keyMode)
+    {
+    case KeyMode::Off:
+        return false;
+    case KeyMode::Always:
+        return true;
+    case KeyMode::Hold:
+        return isDown();
+    case KeyMode::Toggle:
+        return isToggled();
+    default:
+        break;
+    }
+    return false;
 }

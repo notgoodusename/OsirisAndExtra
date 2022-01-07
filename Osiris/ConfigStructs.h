@@ -210,13 +210,10 @@ static void to_json(json& j, const Color4& o, const Color4& dummy = {})
 static void to_json(json& j, const KeyBind& o, const KeyBind& dummy)
 {
     if (o != dummy)
-        j = o.toString();
-}
-
-static void to_json(json& j, const KeyBindToggle& o, const KeyBindToggle& dummy)
-{
-    if (o != dummy)
-        j = o.toString();
+    {
+        j["Key"] = o.toString();
+        j["Key mode"] = o.keyMode;
+    }
 }
 
 template <value_t Type, typename T>
@@ -265,13 +262,25 @@ static void read(const json& j, const char* key, WeaponId& o) noexcept
         val.get_to(o);
 }
 
+static void read(const json& j, const char* key, KeyMode& o) noexcept
+{
+    if (!j.contains(key))
+        return;
+
+    if (const auto& val = j[key]; val.is_number_integer())
+        val.get_to(o);
+}
+
 static void read(const json& j, const char* key, KeyBind& o) noexcept
 {
     if (!j.contains(key))
         return;
 
-    if (const auto& val = j[key]; val.is_string())
+    if (const auto& val = j[key]["Key"]; val.is_string())
         o = val.get<std::string>().c_str();
+
+    if (const auto& val = j[key]["Key mode"]; val.is_number_integer())
+        val.get_to(o.keyMode);
 }
 
 static void read(const json& j, const char* key, char* o, std::size_t size) noexcept

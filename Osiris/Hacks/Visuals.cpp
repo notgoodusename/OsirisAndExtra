@@ -191,11 +191,16 @@ void Visuals::thirdperson() noexcept
     const bool freeCamming = config->visuals.freeCam && config->visuals.freeCamKey.isActive() && localPlayer && localPlayer->isAlive();
     const bool thirdPerson = config->visuals.thirdperson && config->visuals.thirdpersonKey.isActive() && localPlayer && localPlayer->isAlive();
 
+    static auto distVar = interfaces->cvar->findVar("cam_idealdist");
+    static auto curDist = 0.0f;
+
     memory->input->isCameraInThirdPerson = freeCamming || thirdPerson;
-    if (!freeCamming)
-        memory->input->cameraOffset.z = static_cast<float>(config->visuals.thirdpersonDistance);
-    else
-        memory->input->cameraOffset.z = 0.0f;
+    if (!freeCamming && thirdPerson)
+        curDist = Helpers::approachValueSmooth(static_cast<float>(config->visuals.thirdpersonDistance), curDist, memory->globalVars->frametime * 7.0f);
+    if (freeCamming || !thirdPerson)
+        curDist = 0.0f;
+
+    distVar->setValue(curDist);
 }
 
 void Visuals::removeVisualRecoil(FrameStage stage) noexcept

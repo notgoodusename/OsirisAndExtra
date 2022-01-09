@@ -21,6 +21,7 @@ namespace Helpers
     float smoothStepBounds(float edge0, float edge1, float x) noexcept;
     float clampCycle(float clycle) noexcept;
     float approach(float target, float value, float speed) noexcept;
+    float approachValueSmooth(float target, float value, float fraction) noexcept;
     float angleDiff(float destAngle, float srcAngle) noexcept;
     Vector approach(Vector target, Vector value, float speed) noexcept;
     float angleNormalize(float angle) noexcept;

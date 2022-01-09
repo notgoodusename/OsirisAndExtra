@@ -97,6 +97,14 @@ float Helpers::approach(float target, float value, float speed) noexcept
     return value;
 }
 
+float Helpers::approachValueSmooth(float target, float value, float fraction) noexcept
+{
+    float delta = target - value;
+    fraction = std::clamp(fraction, 0.0f, 1.0f);
+    delta *= fraction;
+    return value + delta;
+}
+
 float Helpers::angleDiff(float destAngle, float srcAngle) noexcept
 {
     float delta = std::fmodf(destAngle - srcAngle, 360.0f);

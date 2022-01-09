@@ -12,6 +12,5 @@ public:
     PAD(178)
     bool isCameraInThirdPerson;
     bool cameraMovingWithMouse;
-	PAD(1)
     Vector cameraOffset;
 };

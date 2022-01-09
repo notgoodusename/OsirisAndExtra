@@ -192,10 +192,10 @@ void Visuals::thirdperson() noexcept
     const bool thirdPerson = config->visuals.thirdperson && config->visuals.thirdpersonKey.isActive() && localPlayer && localPlayer->isAlive();
 
     memory->input->isCameraInThirdPerson = freeCamming || thirdPerson;
-    if (!freeCamming && thirdPerson)
+    if (!freeCamming)
         memory->input->cameraOffset.z = static_cast<float>(config->visuals.thirdpersonDistance);
-    if (freeCamming)
-        memory->input->cameraOffset.z = 0;
+    else
+        memory->input->cameraOffset.z = 0.0f;
 }
 
 void Visuals::removeVisualRecoil(FrameStage stage) noexcept

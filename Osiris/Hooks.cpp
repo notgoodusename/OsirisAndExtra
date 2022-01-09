@@ -297,6 +297,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 static void __stdcall doPostScreenEffects(void* param) noexcept
 {
     if (interfaces->engine->isInGame()) {
+        Visuals::thirdperson();
         Misc::inverseRagdollGravity();
         Visuals::reduceFlashEffect();
         Visuals::remove3dSky();
@@ -357,7 +358,6 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
-        Visuals::thirdperson();
         EnginePrediction::apply(stage);
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);

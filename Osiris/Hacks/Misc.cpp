@@ -259,6 +259,15 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
     }
 }
 
+void Misc::forceRelayCluster() noexcept
+{
+    const std::string dataCentersList[] = { "", "syd", "vie", "gru", "scl", "dxb", "par", "fra", "hkg",
+    "maa", "bom", "tyo", "lux", "ams", "limc", "man", "waw", "sgp", "jnb",
+    "mad", "sto", "lhr", "atl", "eat", "ord", "lax", "mwh", "okc", "sea", "iad" };
+
+    *memory->relayCluster = dataCentersList[config->misc.forceRelayCluster];
+}
+
 void Misc::jumpBug(UserCmd* cmd) noexcept
 {
     if (!config->misc.jumpBug || !config->misc.jumpBugKey.isActive())

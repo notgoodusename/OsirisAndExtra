@@ -214,6 +214,7 @@ public:
 
         KeyBind menuKey = KeyBind::INSERT;
         bool antiAfkKick{ false };
+        int forceRelayCluster{ 0 };
         bool autoStrafe{ false };
         bool bunnyHop{ false };
         bool customClanTag{ false };

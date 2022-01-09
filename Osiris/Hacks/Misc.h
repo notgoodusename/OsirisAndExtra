@@ -14,6 +14,7 @@ namespace Misc
     void freeCam(ViewSetup* setup) noexcept;
     void drawAutoPeek(ImDrawList* drawList) noexcept;
     void autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept;
+    void forceRelayCluster() noexcept;
     void jumpBug(UserCmd* cmd) noexcept;
     void unlockHiddenCvars() noexcept;
     void fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept;

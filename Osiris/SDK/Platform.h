@@ -15,6 +15,7 @@ constexpr auto LOCALIZE_DLL = "localize";
 constexpr auto MATERIALSYSTEM_DLL = "materialsystem";
 constexpr auto PANORAMA_DLL = "panorama";
 constexpr auto SOUNDEMITTERSYSTEM_DLL = "soundemittersystem";
+constexpr auto STEAMNETWORKINGSOCKETS_DLL = "steamnetworkingsockets";
 constexpr auto STUDIORENDER_DLL = "studiorender";
 constexpr auto TIER0_DLL = "tier0";
 constexpr auto DATACACHE_DLL = "datacache";

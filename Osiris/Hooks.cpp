@@ -352,6 +352,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         GameData::update();
 
     if (stage == FrameStage::RENDER_START) {
+        Misc::forceRelayCluster();
         Misc::preserveKillfeed();
         Misc::disablePanoramablur();
         Misc::updateEventListeners();

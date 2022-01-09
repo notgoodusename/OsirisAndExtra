@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <type_traits>
+#include <string>
 
 #include "SDK/Platform.h"
 
@@ -181,6 +182,7 @@ public:
     void(__thiscall* clMsgMoveSetData)(void*, unsigned char*, std::size_t);
     void(__thiscall* clMsgMoveDescontructor)(void*);
     std::uintptr_t chokeLimit;
+    std::string* relayCluster;
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

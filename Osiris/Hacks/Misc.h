@@ -9,6 +9,7 @@ struct ViewSetup;
 
 namespace Misc
 {
+    bool isInChat() noexcept;
     void runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept;
     void freeCam(ViewSetup* setup) noexcept;
     void drawAutoPeek(ImDrawList* drawList) noexcept;

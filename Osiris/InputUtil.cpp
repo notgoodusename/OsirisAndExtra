@@ -5,6 +5,8 @@
 
 #include "imgui/imgui.h"
 
+#include "Hacks/Misc.h"
+
 #include "InputUtil.h"
 #include "SDK/Platform.h"
 
@@ -146,6 +148,9 @@ const char* KeyBind::toString() const noexcept
 
 bool KeyBind::isPressed() const noexcept
 {
+    if (Misc::isInChat())
+        return false;
+
     if (keyCode == KeyCode::NONE)
         return false;
 
@@ -163,6 +168,9 @@ bool KeyBind::isPressed() const noexcept
 
 bool KeyBind::isDown() const noexcept
 {
+    if (Misc::isInChat())
+        return false;
+
     if (keyCode == KeyCode::NONE)
         return false;
 

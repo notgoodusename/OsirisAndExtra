@@ -53,6 +53,22 @@ static bool worldToScreen(const Vector& in, ImVec2& out) noexcept
     return true;
 }
 
+bool Misc::isInChat() noexcept
+{
+    if (!localPlayer)
+        return false;
+
+    const auto hudChat = memory->findHudElement(memory->hud, "CCSGO_HudChat");
+    if (!hudChat)
+        return false;
+
+    bool isInChat = *(bool*)((uintptr_t)hudChat + 0x58);
+    if (isInChat)
+        return true;
+
+    return false;
+}
+
 static int buttons = 0;
 
 void Misc::runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept

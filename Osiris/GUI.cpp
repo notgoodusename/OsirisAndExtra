@@ -1195,15 +1195,12 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::SliderInt("", &config->visuals.freeCamSpeed, 1, 10, "Freecam speed: %d");
     ImGui::PopID();
     ImGui::PushID(2);
-    ImGui::SliderInt("", &config->visuals.viewmodelFov, -60, 60, "Viewmodel FOV: %d");
-    ImGui::PopID();
-    ImGui::PushID(3);
     ImGui::SliderInt("", &config->visuals.fov, -60, 60, "FOV: %d");
     ImGui::PopID();
-    ImGui::PushID(4);
+    ImGui::PushID(3);
     ImGui::SliderInt("", &config->visuals.farZ, 0, 2000, "Far Z: %d");
     ImGui::PopID();
-    ImGui::PushID(5);
+    ImGui::PushID(4);
     ImGui::SliderInt("", &config->visuals.flashReduction, 0, 100, "Flash reduction: %d%%");
     ImGui::PopID();
     ImGui::Combo("Skybox", &config->visuals.skybox, Visuals::skyboxList.data(), Visuals::skyboxList.size());
@@ -1217,6 +1214,25 @@ void GUI::renderVisualsWindow() noexcept
     ImGuiCustom::colorPicker("Bullet Impacts", config->visuals.bulletImpacts.color.data(), &config->visuals.bulletImpacts.color[3], nullptr, nullptr, &config->visuals.bulletImpacts.enabled);
     ImGui::SliderFloat("Bullet Impacts time", &config->visuals.bulletImpactsTime, 0.1f, 5.0f, "%.2fs");
     ImGuiCustom::colorPicker("Molotov Hull", config->visuals.molotovHull);
+
+    ImGui::Checkbox("Viewmodel", &config->visuals.viewModel.enabled);
+    ImGui::SameLine();
+
+    if (bool ccPopup = ImGui::Button("Edit"))
+        ImGui::OpenPopup("##viewmodel");
+
+    if (ImGui::BeginPopup("##viewmodel"))
+    {
+        ImGui::PushItemWidth(290.0f);
+        ImGui::SliderFloat("##x", &config->visuals.viewModel.x, -20.0f, 20.0f, "X: %.4f");
+        ImGui::SliderFloat("##y", &config->visuals.viewModel.y, -20.0f, 20.0f, "Y: %.4f");
+        ImGui::SliderFloat("##z", &config->visuals.viewModel.z, -20.0f, 20.0f, "Z: %.4f");
+        ImGui::SliderInt("##fov", &config->visuals.viewModel.fov, -60, 60, "Viewmodel FOV: %d");
+        ImGui::SliderFloat("##roll", &config->visuals.viewModel.roll, -90.0f, 90.0f, "Viewmodel roll: %.2f");
+        ImGui::PopItemWidth();
+        ImGui::EndPopup();
+    }
+
     ImGui::Columns(1);
 }
 

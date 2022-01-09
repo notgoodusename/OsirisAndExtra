@@ -12,6 +12,7 @@ namespace Misc
     bool isInChat() noexcept;
     void runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept;
     void freeCam(ViewSetup* setup) noexcept;
+    void viewModelChanger(ViewSetup* setup) noexcept;
     void drawAutoPeek(ImDrawList* drawList) noexcept;
     void autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept;
     void forceRelayCluster() noexcept;

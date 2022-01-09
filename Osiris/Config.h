@@ -186,7 +186,6 @@ public:
         bool freeCam{ false };
         KeyBind freeCamKey = KeyBind::NONE;
         int freeCamSpeed{ 2 };
-        int viewmodelFov{ 0 };
         int fov{ 0 };
         int farZ{ 0 };
         int flashReduction{ 0 };
@@ -205,6 +204,15 @@ public:
         bool disableJiggleBones{ false };
         BulletTracers bulletTracers;
         ColorToggle molotovHull{ 1.0f, 0.27f, 0.0f, 0.3f };
+        struct Viewmodel
+        {
+            bool enabled { false };
+            int fov{ 0 };
+            float x { 0.0f };
+            float y { 0.0f };
+            float z { 0.0f };
+            float roll { 0.0f };
+        } viewModel;
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

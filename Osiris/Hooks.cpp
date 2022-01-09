@@ -308,11 +308,14 @@ static void __stdcall doPostScreenEffects(void* param) noexcept
 
 static float __stdcall getViewModelFov() noexcept
 {
-    float additionalFov = static_cast<float>(config->visuals.viewmodelFov);
+    float additionalFov = static_cast<float>(config->visuals.viewModel.fov);
     if (localPlayer) {
         if (const auto activeWeapon = localPlayer->getActiveWeapon(); activeWeapon && activeWeapon->getClientClass()->classId == ClassId::Tablet)
             additionalFov = 0.0f;
     }
+
+    if (!config->visuals.viewModel.enabled)
+        additionalFov = 0.f;
 
     return hooks->clientMode.callOriginal<float, 35>() + additionalFov;
 }
@@ -435,6 +438,8 @@ static void __stdcall overrideView(ViewSetup* setup) noexcept
 
     if (localPlayer && localPlayer->isAlive() && config->misc.fakeduck && config->misc.fakeduckKey.isActive() && localPlayer->flags() & 1)
         setup->origin.z = localPlayer->getAbsOrigin().z + interfaces->gameMovement->getPlayerViewOffset(false).z;
+
+    Misc::viewModelChanger(setup);
 
     hooks->clientMode.callOriginal<void, 18>(setup);
 

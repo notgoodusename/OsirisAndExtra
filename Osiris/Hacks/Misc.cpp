@@ -21,6 +21,7 @@
 #include "../SDK/FrameStage.h"
 #include "../SDK/GameEvent.h"
 #include "../SDK/GlobalVars.h"
+#include "../SDK/Input.h"
 #include "../SDK/ItemSchema.h"
 #include "../SDK/Localize.h"
 #include "../SDK/LocalPlayer.h"
@@ -166,6 +167,36 @@ void Misc::freeCam(ViewSetup* setup) noexcept
         newOrigin += up * freeCamSpeed;
 
     setup->origin = newOrigin;
+}
+
+void Misc::viewModelChanger(ViewSetup* setup) noexcept
+{
+    if (!localPlayer)
+        return;
+
+    constexpr auto setViewmodel = [](Entity* viewModel, const Vector& angles) constexpr noexcept
+    {
+        if (viewModel)
+        {
+            Vector forward = Vector::fromAngle(angles);
+            Vector up = Vector::fromAngle(angles - Vector{ 90.0f, 0.0f, 0.0f });
+            Vector side = forward.cross(up);
+            Vector offset = side * config->visuals.viewModel.x + forward * config->visuals.viewModel.y + up * config->visuals.viewModel.z;
+            memory->setAbsOrigin(viewModel, viewModel->getRenderOrigin() + offset);
+            memory->setAbsAngle(viewModel, angles + Vector{ 0.0f, 0.0f, config->visuals.viewModel.roll });
+        }
+    };
+
+    if (localPlayer->isAlive())
+    {
+        if (config->visuals.viewModel.enabled && !localPlayer->isScoped() && !memory->input->isCameraInThirdPerson)
+            setViewmodel(interfaces->entityList->getEntityFromHandle(localPlayer->viewModel()), setup->angles);
+    }
+    else if (auto observed = localPlayer->getObserverTarget(); observed && localPlayer->getObserverMode() == ObsMode::InEye)
+    {
+        if (config->visuals.viewModel.enabled && !observed->isScoped())
+            setViewmodel(interfaces->entityList->getEntityFromHandle(observed->viewModel()), setup->angles);
+    }
 }
 
 static Vector peekPosition{};

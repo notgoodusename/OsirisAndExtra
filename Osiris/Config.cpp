@@ -373,7 +373,6 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Freecam", v.freeCam);
     read(j, "Freecam key", v.freeCamKey);
     read(j, "Freecam speed", v.freeCamSpeed);
-    read(j, "Viewmodel FOV", v.viewmodelFov);
     read(j, "FOV", v.fov);
     read(j, "Far Z", v.farZ);
     read(j, "Flash reduction", v.flashReduction);
@@ -392,6 +391,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Bullet Impacts", v.bulletImpacts);
     read(j, "Bullet Impacts time", v.bulletImpactsTime);
     read<value_t::object>(j, "Molotov Hull", v.molotovHull);
+    read<value_t::object>(j, "Viewmodel", v.viewModel);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -455,6 +455,16 @@ static void from_json(const json& j, AutoBuy& o)
     read(j, "Armor", o.armor);
     read(j, "Utility", o.utility);
     read(j, "Grenades", o.grenades);
+}
+
+static void from_json(const json& j, Config::Visuals::Viewmodel& vxyz)
+{
+    read(j, "Enabled", vxyz.enabled);
+    read(j, "Fov", vxyz.fov);
+    read(j, "X", vxyz.x);
+    read(j, "Y", vxyz.y);
+    read(j, "Z", vxyz.z);
+    read(j, "Roll", vxyz.roll);
 }
 
 static void from_json(const json& j, Config::Misc& m)
@@ -898,6 +908,16 @@ static void to_json(json& j, const AutoBuy& o, const AutoBuy& dummy = {})
     WRITE("Grenades", grenades);
 }
 
+static void to_json(json& j, const Config::Visuals::Viewmodel& o, const Config::Visuals::Viewmodel& dummy)
+{
+    WRITE("Enabled", enabled);
+    WRITE("Fov", fov);
+    WRITE("X", x);
+    WRITE("Y", y);
+    WRITE("Z", z);
+    WRITE("Roll", roll);
+}
+
 static void to_json(json& j, const Config::Misc& o)
 {
     const Config::Misc dummy;
@@ -997,7 +1017,6 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Freecam", freeCam);
     WRITE("Freecam key", freeCamKey);
     WRITE("Freecam speed", freeCamSpeed);
-    WRITE("Viewmodel FOV", viewmodelFov);
     WRITE("FOV", fov);
     WRITE("Far Z", farZ);
     WRITE("Flash reduction", flashReduction);
@@ -1017,6 +1036,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Bullet Impacts", bulletImpacts);
     WRITE("Bullet Impacts time", bulletImpactsTime);
     WRITE("Molotov Hull", molotovHull);
+    WRITE("Viewmodel", viewModel);
 }
 
 static void to_json(json& j, const ImVec4& o)

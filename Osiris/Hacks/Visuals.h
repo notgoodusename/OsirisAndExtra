@@ -8,6 +8,7 @@ struct ImDrawList;
 
 namespace Visuals
 {
+    void visualizeSpread(ImDrawList* drawList) noexcept;
     void fullBright() noexcept;
     void playerModel(FrameStage stage) noexcept;
     void modifySmoke(FrameStage stage) noexcept;

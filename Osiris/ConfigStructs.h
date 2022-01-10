@@ -32,6 +32,10 @@ struct ColorToggle : Color4 {
     bool enabled = false;
 };
 
+struct ColorToggleOutline : ColorToggle {
+    bool outline = true;
+};
+
 struct ColorToggleThickness : ColorToggle {
     ColorToggleThickness() = default;
     ColorToggleThickness(float thickness) : thickness{ thickness } { }

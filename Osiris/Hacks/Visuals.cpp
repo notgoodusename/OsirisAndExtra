@@ -25,7 +25,50 @@
 #include "../SDK/NetworkStringTable.h"
 #include "../SDK/RenderContext.h"
 #include "../SDK/Surface.h"
+#include "../SDK/Vector.h"
 #include "../SDK/ViewRenderBeams.h"
+
+static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noexcept
+{
+    const auto& matrix = GameData::toScreenMatrix();
+
+    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
+    if (w < 0.001f)
+        return false;
+
+    out = ImGui::GetIO().DisplaySize / 2.0f;
+    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
+    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
+    if (floor)
+        out = ImFloor(out);
+    return true;
+}
+
+void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
+{
+    if (!config->visuals.spreadCircle.enabled)
+        return;
+
+    GameData::Lock lock;
+    const auto& local = GameData::local();
+
+    if (!local.exists || !local.alive || local.inaccuracy.null())
+        return;
+
+    if (ImVec2 edge; worldToScreen(local.inaccuracy, edge))
+    {
+        const auto& displaySize = ImGui::GetIO().DisplaySize;
+        const auto radius = std::sqrtf(ImLengthSqr(edge - displaySize / 2.0f));
+
+        if (radius > displaySize.x || radius > displaySize.y || !std::isfinite(radius))
+            return;
+
+        const auto color = Helpers::calculateColor(config->visuals.spreadCircle);
+        drawList->AddCircleFilled(displaySize / 2, radius, color);
+        if (config->visuals.spreadCircle.outline)
+            drawList->AddCircle(displaySize / 2, radius, color | IM_COL32_A_MASK);
+    }
+}
 
 void Visuals::fullBright() noexcept
 {
@@ -545,22 +588,6 @@ void Visuals::bulletImpact(GameEvent& event) noexcept
 
     Vector endPos = Vector{ event.getFloat("x"), event.getFloat("y"), event.getFloat("z") };
     positions.push_front(endPos);
-}
-
-static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noexcept
-{
-    const auto& matrix = GameData::toScreenMatrix();
-
-    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
-    if (w < 0.001f)
-        return false;
-
-    out = ImGui::GetIO().DisplaySize / 2.0f;
-    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
-    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
-    if (floor)
-        out = ImFloor(out);
-    return true;
 }
 
 void Visuals::drawMolotovHull(ImDrawList* drawList) noexcept

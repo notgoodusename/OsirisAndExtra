@@ -104,6 +104,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     StreamProofESP::render();
     NadePrediction::draw();
     Misc::purchaseList();
+    Visuals::visualizeSpread(ImGui::GetBackgroundDrawList());
     Misc::noscopeCrosshair(ImGui::GetBackgroundDrawList());
     Misc::recoilCrosshair(ImGui::GetBackgroundDrawList());
     Misc::drawOffscreenEnemies(ImGui::GetBackgroundDrawList());

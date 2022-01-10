@@ -71,6 +71,7 @@ struct LocalPlayerData {
     float flashDuration;
     Vector aimPunch;
     Vector origin;
+    Vector inaccuracy;
 };
 
 class Entity;

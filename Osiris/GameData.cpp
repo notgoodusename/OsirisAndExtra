@@ -283,8 +283,10 @@ void LocalPlayerData::update() noexcept
 
     exists = true;
     alive = localPlayer->isAlive();
+    inaccuracy = Vector{};
 
     if (const auto activeWeapon = localPlayer->getActiveWeapon()) {
+        inaccuracy = localPlayer->getEyePosition() + Vector::fromAngle(interfaces->engine->getViewAngles() + Vector{ Helpers::rad2deg(activeWeapon->getInaccuracy() + activeWeapon->getSpread()), 0.0f, 0.0f }) * 1000.0f;
         inReload = activeWeapon->isInReload();
         noScope = activeWeapon->isSniperRifle() && !localPlayer->isScoped();
         nextWeaponAttack = activeWeapon->nextPrimaryAttack();

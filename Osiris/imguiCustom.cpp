@@ -4,7 +4,7 @@
 
 #include "imguiCustom.h"
 
-void ImGuiCustom::colorPicker(const char* name, float color[3], float* alpha, bool* rainbow, float* rainbowSpeed, bool* enable, float* thickness, float* rounding) noexcept
+void ImGuiCustom::colorPicker(const char* name, float color[3], float* alpha, bool* rainbow, float* rainbowSpeed, bool* enable, float* thickness, float* rounding, bool* outline) noexcept
 {
     ImGui::PushID(name);
     if (enable) {
@@ -68,6 +68,9 @@ void ImGuiCustom::colorPicker(const char* name, float color[3], float* alpha, bo
                     *thickness = std::max(*thickness, 1.0f);
                 }
 
+                if (outline)
+                    ImGui::Checkbox("Outline", outline);
+
                 ImGui::PopItemWidth();
             }
             ImGui::EndChild();
@@ -90,6 +93,11 @@ void ImGuiCustom::colorPicker(const char* name, Color4& colorConfig, bool* enabl
 void ImGuiCustom::colorPicker(const char* name, ColorToggle& colorConfig) noexcept
 {
     colorPicker(name, colorConfig.color.data(), &colorConfig.color[3], &colorConfig.rainbow, &colorConfig.rainbowSpeed, &colorConfig.enabled);
+}
+
+void ImGuiCustom::colorPicker(const char* name, ColorToggleOutline& colorConfig, bool* enable, float* thickness) noexcept
+{
+    colorPicker(name, colorConfig.color.data(), &colorConfig.color[3], &colorConfig.rainbow, &colorConfig.rainbowSpeed, &colorConfig.enabled, thickness, nullptr, &colorConfig.outline);
 }
 
 void ImGuiCustom::colorPicker(const char* name, ColorToggleRounding& colorConfig) noexcept

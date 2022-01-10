@@ -98,6 +98,13 @@ static void from_json(const json& j, ColorToggleRounding& ctr)
     read(j, "Rounding", ctr.rounding);
 }
 
+static void from_json(const json& j, ColorToggleOutline& cto)
+{
+    from_json(j, static_cast<ColorToggle&>(cto));
+
+    read(j, "Outline", cto.outline);
+}
+
 static void from_json(const json& j, ColorToggleThickness& ctt)
 {
     from_json(j, static_cast<ColorToggle&>(ctt));
@@ -392,6 +399,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Bullet Impacts time", v.bulletImpactsTime);
     read<value_t::object>(j, "Molotov Hull", v.molotovHull);
     read<value_t::object>(j, "Viewmodel", v.viewModel);
+    read<value_t::object>(j, "Spread circle", v.spreadCircle);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -623,6 +631,12 @@ static void to_json(json& j, const ColorToggleThickness& o, const ColorToggleThi
 {
     to_json(j, static_cast<const ColorToggle&>(o), dummy);
     WRITE("Thickness", thickness);
+}
+
+static void to_json(json& j, const ColorToggleOutline& o, const ColorToggleOutline& dummy = {})
+{
+    to_json(j, static_cast<const ColorToggle&>(o), dummy);
+    WRITE("Outline", outline);
 }
 
 static void to_json(json& j, const ColorToggleThicknessRounding& o, const ColorToggleThicknessRounding& dummy = {})
@@ -1037,6 +1051,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Bullet Impacts time", bulletImpactsTime);
     WRITE("Molotov Hull", molotovHull);
     WRITE("Viewmodel", viewModel);
+    WRITE("Spread circle", spreadCircle);
 }
 
 static void to_json(json& j, const ImVec4& o)

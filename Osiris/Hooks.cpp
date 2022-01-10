@@ -217,9 +217,9 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     static auto previousViewAngles{ cmd->viewangles };
     const auto viewAngles{ cmd->viewangles };
     auto currentViewAngles{ cmd->viewangles };
-    auto currentCmd{ *cmd };
+    const auto currentCmd{ *cmd };
 
-    if (auto gameRules = (*memory->gameRules); gameRules)
+    if (const auto gameRules = (*memory->gameRules); gameRules)
         maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
 
     memory->globalVars->serverTime(cmd);
@@ -631,11 +631,11 @@ static void __fastcall updateClientSideAnimationHook(void* thisPointer, void* ed
     }
 }
 
-static void __fastcall checkForSequenceChangeHook(void* thisPointer, void* edx, void* hdr, int curSequence, bool forceNewSequence, bool interpolate) noexcept
+static void __fastcall checkForSequenceChangeHook(void* thisPointer, void* edx, void* hdr, int currentSequence, bool forceNewSequence, bool interpolate) noexcept
 {
-    static auto original = hooks->checkForSequenceChange.getOriginal<void>(hdr, curSequence, forceNewSequence, interpolate);
+    static auto original = hooks->checkForSequenceChange.getOriginal<void>(hdr, currentSequence, forceNewSequence, interpolate);
 
-    return original(thisPointer, hdr, curSequence, forceNewSequence, false);
+    return original(thisPointer, hdr, currentSequence, forceNewSequence, true);
 }
 
 static void __fastcall modifyEyePositionHook(void* thisPointer, void* edx, unsigned int* pos) noexcept
@@ -944,9 +944,7 @@ void Hooks::install() noexcept
 
     modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
     calculateView.detour(memory->calculateView, calculateViewHook);
-    /*
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
-    */
 
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
 

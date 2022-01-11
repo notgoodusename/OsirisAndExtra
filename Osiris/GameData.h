@@ -22,6 +22,7 @@ struct LootCrateData;
 struct ProjectileData;
 struct BombData;
 struct InfernoData;
+struct SmokeData;
 
 struct Matrix4x4;
 
@@ -55,6 +56,7 @@ namespace GameData
     const std::forward_list<ProjectileData>& projectiles() noexcept;
     const BombData& plantedC4() noexcept;
     const std::vector<InfernoData>& infernos() noexcept;
+    const std::vector<SmokeData>& smokes() noexcept;
 }
 
 struct LocalPlayerData {
@@ -185,4 +187,10 @@ struct InfernoData {
     InfernoData(Entity* inferno) noexcept;
 
     std::vector<Vector> points;
+};
+
+struct SmokeData {
+    SmokeData(Entity* smoke) noexcept;
+
+    Vector origin;
 };

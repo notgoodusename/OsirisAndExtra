@@ -518,6 +518,8 @@ public:
     bool canSee(Entity* other, const Vector& pos) noexcept;
     bool visibleTo(Entity* other) noexcept;
 
+    NETVAR(didSmokeEffect, "CSmokeGrenadeProjectile", "m_bDidSmokeEffect", bool)
+
     NETVAR(clientSideAnimation, "CBaseAnimating", "m_bClientSideAnimation", bool)
 
     NETVAR(pinPulled, "CBaseCSGrenade", "m_bPinPulled", bool);

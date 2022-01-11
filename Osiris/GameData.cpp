@@ -39,6 +39,7 @@ static std::vector<LootCrateData> lootCrateData;
 static std::forward_list<ProjectileData> projectileData;
 static BombData bombData;
 static std::vector<InfernoData> infernoData;
+static std::vector<SmokeData> smokeData;
 static std::atomic_int netOutgoingLatency;
 
 static auto playerByHandleWritable(int handle) noexcept
@@ -78,6 +79,7 @@ void GameData::update() noexcept
     entityData.clear();
     lootCrateData.clear();
     infernoData.clear();
+    smokeData.clear();
 
     localPlayerData.update();
     bombData.update();
@@ -119,7 +121,8 @@ void GameData::update() noexcept
                 if (entity->ownerEntity() == -1)
                     weaponData.emplace_back(entity);
             } else {
-                switch (entity->getClientClass()->classId) {
+                const auto classId = entity->getClientClass()->classId;
+                switch (classId) {
                 case ClassId::BaseCSGrenadeProjectile:
                     if (!entity->shouldDraw()) {
                         if (const auto it = std::find(projectileData.begin(), projectileData.end(), entity->handle()); it != projectileData.end())
@@ -161,6 +164,9 @@ void GameData::update() noexcept
                     infernoData.emplace_back(entity);
                     break;
                 }
+
+                if (classId == ClassId::SmokeGrenadeProjectile && entity->didSmokeEffect())
+                    smokeData.emplace_back(entity);
             }
         }
     }
@@ -272,6 +278,11 @@ const BombData& GameData::plantedC4() noexcept
 const std::vector<InfernoData>& GameData::infernos() noexcept
 {
     return infernoData;
+}
+
+const std::vector<SmokeData>& GameData::smokes() noexcept
+{
+    return smokeData;
 }
 
 void LocalPlayerData::update() noexcept
@@ -689,4 +700,9 @@ InfernoData::InfernoData(Entity* inferno) noexcept
         if (inferno->fireIsBurning()[i])
             points.emplace_back(inferno->fireXDelta()[i] + origin.x, inferno->fireYDelta()[i] + origin.y, inferno->fireZDelta()[i] + origin.z);
     }
+}
+
+SmokeData::SmokeData(Entity* smoke) noexcept
+{
+    origin = smoke->getAbsOrigin();
 }

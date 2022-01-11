@@ -635,6 +635,52 @@ void Visuals::drawMolotovHull(ImDrawList* drawList) noexcept
     }
 }
 
+void Visuals::drawSmokeHull(ImDrawList* drawList) noexcept
+{
+    if (!config->visuals.smokeHull.enabled)
+        return;
+
+    const auto color = Helpers::calculateColor(config->visuals.smokeHull);
+
+    GameData::Lock lock;
+
+    static const auto smokeCircumference = [] {
+        std::array<Vector, 72> points;
+        for (std::size_t i = 0; i < points.size(); ++i) {
+            constexpr auto smokeRadius = 150.0f; // https://github.com/perilouswithadollarsign/cstrike15_src/blob/f82112a2388b841d72cb62ca48ab1846dfcc11c8/game/server/cstrike15/Effects/inferno.cpp#L889
+            points[i] = Vector{ smokeRadius * std::cos(Helpers::deg2rad(i * (360.0f / points.size()))),
+                                smokeRadius* std::sin(Helpers::deg2rad(i * (360.0f / points.size()))),
+                                0.0f };
+        }
+        return points;
+    }();
+
+    for (const auto& smoke : GameData::smokes())
+    {
+        std::array<ImVec2, smokeCircumference.size()> screenPoints;
+        std::size_t count = 0;
+
+        for (const auto& point : smokeCircumference)
+        {
+            if (worldToScreen(smoke.origin + point, screenPoints[count]))
+                ++count;
+        }
+
+        if (count < 1)
+            continue;
+
+        std::swap(screenPoints[0], *std::min_element(screenPoints.begin(), screenPoints.begin() + count, [](const auto& a, const auto& b) { return a.y < b.y || (a.y == b.y && a.x < b.x); }));
+
+        constexpr auto orientation = [](const ImVec2& a, const ImVec2& b, const ImVec2& c)
+        {
+            return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+        };
+
+        std::sort(screenPoints.begin() + 1, screenPoints.begin() + count, [&](const auto& a, const auto& b) { return orientation(screenPoints[0], a, b) > 0.0f; });
+        drawList->AddConvexPolyFilled(screenPoints.data(), count, color);
+    }
+}
+
 void Visuals::updateEventListeners(bool forceRemove) noexcept
 {
     class ImpactEventListener : public GameEventListener {

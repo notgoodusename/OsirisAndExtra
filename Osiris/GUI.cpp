@@ -1214,7 +1214,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGuiCustom::colorPicker("Bullet Impacts", config->visuals.bulletImpacts.color.data(), &config->visuals.bulletImpacts.color[3], nullptr, nullptr, &config->visuals.bulletImpacts.enabled);
     ImGui::SliderFloat("Bullet Impacts time", &config->visuals.bulletImpactsTime, 0.1f, 5.0f, "%.2fs");
     ImGuiCustom::colorPicker("Molotov Hull", config->visuals.molotovHull);
-
+    ImGuiCustom::colorPicker("Smoke Hull", config->visuals.smokeHull);
     ImGuiCustom::colorPicker("Spread circle", config->visuals.spreadCircle);
 
     ImGui::Checkbox("Viewmodel", &config->visuals.viewModel.enabled);

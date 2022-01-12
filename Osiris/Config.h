@@ -215,6 +215,7 @@ public:
             float roll { 0.0f };
         } viewModel;
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
+        ColorToggle3 mapColor;
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

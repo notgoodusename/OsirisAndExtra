@@ -54,6 +54,9 @@ public:
 
     MinHook clSendMove;
 
+    MinHook getColorModulation;
+    MinHook isUsingStaticPropDebugModes;
+
     HookType fileSystem;
     HookType bspQuery;
     HookType client;

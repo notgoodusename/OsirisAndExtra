@@ -899,6 +899,52 @@ static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, 
     EnginePrediction::store();
 }
 
+static void __fastcall getColorModulationHook(void* thisPointer, void* edx, float* r, float* g, float* b) noexcept
+{
+    static auto original = hooks->getColorModulation.getOriginal<void>(r, g, b);
+
+    if (!localPlayer || !interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+        return original(thisPointer, r, g, b);
+
+    original(thisPointer, r, g, b);
+
+    const auto material = reinterpret_cast<Material*>(thisPointer);
+    if (!material)
+        return;
+
+    const std::string_view textureGroup = material->getTextureGroupName();
+    if (!textureGroup.starts_with("World") && !textureGroup.starts_with("StaticProp"))
+        return;
+
+    const auto isProp = textureGroup.starts_with("StaticProp");
+
+    if (config->visuals.mapColor.enabled)
+    {
+        if (config->visuals.mapColor.rainbow)
+        {
+            const auto [colorR, colorG, colorB] { rainbowColor(config->visuals.mapColor.rainbowSpeed) };
+            *r *= colorR;
+            *g *= colorG;
+            *b *= colorB;
+        }
+        else
+        {
+            *r *= config->visuals.mapColor.color.at(0);
+            *g *= config->visuals.mapColor.color.at(1);
+            *b *= config->visuals.mapColor.color.at(2);
+        }
+
+        isProp ? *r *= 0.5f : *r *= 0.23f;
+        isProp ? *g *= 0.5f : *g *= 0.23f;
+        isProp ? *b *= 0.5f : *b *= 0.23f;
+    }
+}
+
+static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* edx) noexcept
+{
+    return config->visuals.mapColor.enabled;
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -946,6 +992,9 @@ void Hooks::install() noexcept
     modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
     calculateView.detour(memory->calculateView, calculateViewHook);
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
+
+    getColorModulation.detour(memory->getColorModulation, getColorModulationHook);
+    isUsingStaticPropDebugModes.detour(memory->isUsingStaticPropDebugModes, isUsingStaticPropDebugModesHook);
 
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
 

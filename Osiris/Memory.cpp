@@ -204,4 +204,6 @@ Memory::Memory() noexcept
     clMsgMoveDescontructor = relativeToAbsolute<decltype(clMsgMoveDescontructor)>(findPattern(ENGINE_DLL, "\xE8????\x5F\x5E\x5B\x8B\xE5\x5D\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55\x8B\xEC\x81\xEC????") + 1);
     chokeLimit = findPattern(ENGINE_DLL, "\xB8????\x3B\xF0\x0F\x4F\xF0\x89\x5D\xFC") + 1;
     relayCluster = *reinterpret_cast<std::string**>(findPattern(STEAMNETWORKINGSOCKETS_DLL, "\xB8????\xB9????\x0F\x43") + 1);
+    getColorModulation = findPattern(MATERIALSYSTEM_DLL, "\x55\x8B\xEC\x83\xEC?\x56\x8B\xF1\x8A\x46");
+    isUsingStaticPropDebugModes = findPattern(ENGINE_DLL, "\x8B\x0D????\x81\xF9????\x75?\xA1????\x35????\xEB?\x8B\x01\xFF\x50?\x83\xF8?\x0F\x85????\x8B\x0D");
 }

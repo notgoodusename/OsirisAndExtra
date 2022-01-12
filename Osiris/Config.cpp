@@ -401,6 +401,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Smoke Hull", v.smokeHull);
     read<value_t::object>(j, "Viewmodel", v.viewModel);
     read<value_t::object>(j, "Spread circle", v.spreadCircle);
+    read<value_t::object>(j, "Map color", v.mapColor);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -1054,6 +1055,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Smoke Hull", smokeHull);
     WRITE("Viewmodel", viewModel);
     WRITE("Spread circle", spreadCircle);
+    WRITE("Map color", mapColor);
 }
 
 static void to_json(json& j, const ImVec4& o)

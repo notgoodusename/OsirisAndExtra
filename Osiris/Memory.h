@@ -185,6 +185,8 @@ public:
     std::string* relayCluster;
     std::uintptr_t getColorModulation;
     std::uintptr_t isUsingStaticPropDebugModes;
+
+    std::uintptr_t eyePositionAndVectors;
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

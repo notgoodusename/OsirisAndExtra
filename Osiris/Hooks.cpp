@@ -1108,6 +1108,7 @@ void Hooks::uninstall() noexcept
     viewRender.restore();
     fileSystem.restore();
 
+    Animations::restore();
     Netvars::restore();
 
     Glow::clearCustomObjects();

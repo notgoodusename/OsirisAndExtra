@@ -206,4 +206,6 @@ Memory::Memory() noexcept
     relayCluster = *reinterpret_cast<std::string**>(findPattern(STEAMNETWORKINGSOCKETS_DLL, "\xB8????\xB9????\x0F\x43") + 1);
     getColorModulation = findPattern(MATERIALSYSTEM_DLL, "\x55\x8B\xEC\x83\xEC?\x56\x8B\xF1\x8A\x46");
     isUsingStaticPropDebugModes = findPattern(ENGINE_DLL, "\x8B\x0D????\x81\xF9????\x75?\xA1????\x35????\xEB?\x8B\x01\xFF\x50?\x83\xF8?\x0F\x85????\x8B\x0D");
+
+    eyePositionAndVectors = findPattern(CLIENT_DLL, "\x8B\x55\x0C\x8B\xC8\xE8????\x83\xC4\x08\x5E\x8B\xE5");
 }

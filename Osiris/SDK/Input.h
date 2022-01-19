@@ -9,7 +9,7 @@ public:
     bool isTrackIRAvailable;
     bool isMouseInitialized;
     bool isMouseActive;
-    PAD(158)
+    PAD(178)
     bool isCameraInThirdPerson;
     bool cameraMovingWithMouse;
     Vector cameraOffset;

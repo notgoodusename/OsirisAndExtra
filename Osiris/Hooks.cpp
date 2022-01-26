@@ -903,9 +903,6 @@ static void __fastcall getColorModulationHook(void* thisPointer, void* edx, floa
 {
     static auto original = hooks->getColorModulation.getOriginal<void>(r, g, b);
 
-    if (!localPlayer || !interfaces->engine->isInGame() || !interfaces->engine->isConnected())
-        return original(thisPointer, r, g, b);
-
     original(thisPointer, r, g, b);
 
     const auto material = reinterpret_cast<Material*>(thisPointer);

@@ -776,6 +776,9 @@ void Misc::bunnyHop(UserCmd* cmd) noexcept
     if (!localPlayer)
         return;
 
+    if (config->misc.jumpBugKey.isActive())
+        return;
+
     static auto wasLastTimeOnGround{ localPlayer->flags() & 1 };
 
     if (config->misc.bunnyHop && !(localPlayer->flags() & 1) && localPlayer->moveType() != MoveType::LADDER && !wasLastTimeOnGround)

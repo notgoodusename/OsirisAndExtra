@@ -301,7 +301,7 @@ void Misc::forceRelayCluster() noexcept
 
 void Misc::jumpBug(UserCmd* cmd) noexcept
 {
-    if (!config->misc.jumpBug || !config->misc.jumpBugKey.isActive())
+    if (!config->misc.jumpBug || !config->misc.jumpBugKey.isDown())
         return;
 
     if (!localPlayer || !localPlayer->isAlive())
@@ -776,7 +776,7 @@ void Misc::bunnyHop(UserCmd* cmd) noexcept
     if (!localPlayer)
         return;
 
-    if (config->misc.jumpBugKey.isActive())
+    if (config->misc.jumpBugKey.isDown())
         return;
 
     static auto wasLastTimeOnGround{ localPlayer->flags() & 1 };

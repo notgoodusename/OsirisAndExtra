@@ -586,6 +586,20 @@ static bool __fastcall canUnduck(void* thisPointer, void* edx) noexcept
     return true;
 }
 
+static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CStudioHdr* hdr, void* pos, void* q, matrix3x4* cameraTransform, int boneMask, void* boneComputed) noexcept
+{
+    static auto original = hooks->buildTransformations.getOriginal<void>(hdr, pos, q, cameraTransform, boneMask, boneComputed);
+
+    const UtlVector<int> backupFlags = hdr->boneFlags;
+
+    for (int i = 0; i < hdr->boneFlags.size; i++)
+        hdr->boneFlags.elements[i] &= ~0x04;
+
+    original(thisPointer, hdr, pos, q, cameraTransform, boneMask, boneComputed);
+
+    hdr->boneFlags = backupFlags;
+}
+
 static void __fastcall doExtraBoneProcessingHook(void* thisPointer, void* edx, void* hdr, void* pos, void* q, const matrix3x4& matrix, uint8_t* bone_list, void* context) noexcept
 {
     return;
@@ -969,6 +983,7 @@ void Hooks::install() noexcept
 
     sendDatagram.detour(memory->sendDatagram, sendDatagramHook);
     
+    buildTransformations.detour(memory->buildTransformations, buildTransformationsHook);
     doExtraBoneProcessing.detour(memory->doExtraBoneProcessing, doExtraBoneProcessingHook);
     shouldSkipAnimationFrame.detour(memory->shouldSkipAnimationFrame, shouldSkipAnimationFrameHook);
     standardBlendingRules.detour(memory->standardBlendingRules, standardBlendingRulesHook);

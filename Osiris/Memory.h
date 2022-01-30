@@ -130,6 +130,7 @@ public:
     void* setupVelocityAddress;
     void* accumulateLayersAddress;
 
+    std::uintptr_t buildTransformations;
     std::uintptr_t doExtraBoneProcessing;
     std::uintptr_t standardBlendingRules;
     std::uintptr_t shouldSkipAnimationFrame;

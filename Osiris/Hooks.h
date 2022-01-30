@@ -28,6 +28,7 @@ public:
 
     std::add_pointer_t<int __fastcall(SoundInfo&)> originalDispatchSound;
 
+    MinHook buildTransformations;
     MinHook doExtraBoneProcessing;
     MinHook shouldSkipAnimationFrame;
     MinHook standardBlendingRules;

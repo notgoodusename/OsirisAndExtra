@@ -38,9 +38,6 @@ void Animations::init() noexcept
 
     static auto extrapolate = interfaces->cvar->findVar("cl_extrapolate");
     extrapolate->setValue(0);
-
-    static auto jiggleBones = interfaces->cvar->findVar("r_jiggle_bones");
-    jiggleBones->setValue(!config->visuals.disableJiggleBones);
 }
 
 void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept

@@ -184,6 +184,7 @@ public:
     void(__thiscall* clMsgMoveDescontructor)(void*);
     std::uintptr_t chokeLimit;
     std::string* relayCluster;
+    uintptr_t UnlockInventory;
     std::uintptr_t getColorModulation;
     std::uintptr_t isUsingStaticPropDebugModes;
     //

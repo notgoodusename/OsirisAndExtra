@@ -166,6 +166,14 @@ static int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexc
     return hooks->fileSystem.callOriginal<int, 128>(thisPointer);
 }
 
+static bool __stdcall isConnected() noexcept
+{
+    if (config->misc.InventoryUnlocker && RETURN_ADDRESS() == memory->UnlockInventory)
+        return false;
+
+    return hooks->engine.callOriginal<bool, 27>();
+}
+
 static int __fastcall sendDatagramHook(NetworkChannel* network, void* edx, void* datagram)
 {
     static auto original = hooks->sendDatagram.getOriginal<int>(datagram);
@@ -1033,6 +1041,7 @@ void Hooks::install() noexcept
     clientState.hookAt(5, packetStart);
 
     engine.init(interfaces->engine);
+    engine.hookAt(27, isConnected);
     engine.hookAt(82, isPlayingDemo);
     engine.hookAt(93, isHltv);
     engine.hookAt(101, getScreenAspectRatio);

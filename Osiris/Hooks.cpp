@@ -168,7 +168,7 @@ static int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexc
 
 static bool __stdcall isConnected() noexcept
 {
-    if (config->misc.InventoryUnlocker && RETURN_ADDRESS() == memory->UnlockInventory)
+    if (config->misc.inventoryUnlocker && RETURN_ADDRESS() == memory->unlockInventory)
         return false;
 
     return hooks->engine.callOriginal<bool, 27>();

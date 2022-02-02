@@ -187,6 +187,11 @@ public:
     std::uintptr_t unlockInventory;
     std::uintptr_t getColorModulation;
     std::uintptr_t isUsingStaticPropDebugModes;
+
+    std::uintptr_t newFunctionClientDLL;
+    std::uintptr_t newFunctionEngineDLL;
+    std::uintptr_t newFunctionStudioRenderDLL;
+    std::uintptr_t newFunctionMaterialSystemDLL;
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

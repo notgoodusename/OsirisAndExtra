@@ -58,6 +58,11 @@ public:
     MinHook getColorModulation;
     MinHook isUsingStaticPropDebugModes;
 
+    MinHook newFunctionClientDLL;
+    MinHook newFunctionEngineDLL;
+    MinHook newFunctionStudioRenderDLL;
+    MinHook newFunctionMaterialSystemDLL;
+
     HookType fileSystem;
     HookType bspQuery;
     HookType client;

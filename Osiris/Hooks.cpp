@@ -969,6 +969,26 @@ static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* 
     return config->visuals.mapColor.enabled;
 }
 
+static char __fastcall newFunctionClientBypass(void* thisPointer, void* edx, const char* moduleName) noexcept
+{
+    return 1;
+}
+
+static char __fastcall newFunctionEngineBypass(void* thisPointer, void* edx, const char* moduleName) noexcept
+{
+    return 1;
+}
+
+static char __fastcall newFunctionStudioRenderBypass(void* thisPointer, void* edx, const char* moduleName) noexcept
+{
+    return 1;
+}
+
+static char __fastcall newFunctionMaterialSystemBypass(void* thisPointer, void* edx, const char* moduleName) noexcept
+{
+    return 1;
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -993,6 +1013,11 @@ void Hooks::install() noexcept
 
     if constexpr (std::is_same_v<HookType, MinHook>)
         MH_Initialize();
+
+    newFunctionClientDLL.detour(memory->newFunctionClientDLL, newFunctionClientBypass);
+    newFunctionEngineDLL.detour(memory->newFunctionEngineDLL, newFunctionEngineBypass);
+    newFunctionStudioRenderDLL.detour(memory->newFunctionStudioRenderDLL, newFunctionStudioRenderBypass);
+    newFunctionMaterialSystemDLL.detour(memory->newFunctionMaterialSystemDLL, newFunctionMaterialSystemBypass);
 
     sendDatagram.detour(memory->sendDatagram, sendDatagramHook);
     

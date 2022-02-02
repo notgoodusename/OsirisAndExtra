@@ -208,4 +208,9 @@ Memory::Memory() noexcept
     unlockInventory = findPattern(CLIENT_DLL, "\x84\xC0\x75\x05\xB0\x01\x5F");
     getColorModulation = findPattern(MATERIALSYSTEM_DLL, "\x55\x8B\xEC\x83\xEC?\x56\x8B\xF1\x8A\x46");
     isUsingStaticPropDebugModes = findPattern(ENGINE_DLL, "\x8B\x0D????\x81\xF9????\x75?\xA1????\x35????\xEB?\x8B\x01\xFF\x50?\x83\xF8?\x0F\x85????\x8B\x0D");
+
+    newFunctionClientDLL = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
+    newFunctionEngineDLL = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
+    newFunctionStudioRenderDLL = findPattern(STUDIORENDER_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
+    newFunctionMaterialSystemDLL = findPattern(MATERIALSYSTEM_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
 }

@@ -1004,6 +1004,7 @@ static char __fastcall newFunctionStudioRenderBypass(void* thisPointer, void* ed
 static char __fastcall newFunctionMaterialSystemBypass(void* thisPointer, void* edx, const char* moduleName) noexcept
 {
     return 1;
+}
 static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
 {
     using clMoveFn = void(__cdecl*)(float, bool);

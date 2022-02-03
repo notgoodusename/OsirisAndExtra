@@ -186,7 +186,7 @@ public:
         bool wireframeSmoke{ false };
         bool zoom{ false };
         bool noZoom{ false };
-        KeyBindToggle zoomKey = KeyBind::NONE;
+        KeyBind zoomKey = KeyBind::NONE;
         bool thirdperson{ false };
         KeyBind thirdpersonKey = KeyBind::NONE;
         int thirdpersonDistance{ 0 };

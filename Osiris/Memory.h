@@ -179,6 +179,8 @@ public:
 
     void(__thiscall* markSurroundingBoundsDirty)(void*);
 
+    std::uintptr_t clMove;
+
     std::uintptr_t clSendMove;
     void(__thiscall* clMsgMoveSetData)(void*, unsigned char*, std::size_t);
     void(__thiscall* clMsgMoveDescontructor)(void*);

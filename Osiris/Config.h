@@ -34,6 +34,7 @@ public:
         bool enabled{ false };
         bool aimlock{ false };
         bool silent{ false };
+        bool resolver{ false };
         bool friendlyFire{ false };
         bool visibleOnly{ true };
         bool scopedOnly{ true };
@@ -52,6 +53,11 @@ public:
     };
     std::array<Ragebot, 40> ragebot;
     KeyBind ragebotKey = KeyBind::NONE;
+
+    struct Tickbase {
+        bool enabled = false;
+        bool teleport = false;
+    } tickbase;
 
     struct Fakelag {
         bool enabled = false;
@@ -179,7 +185,8 @@ public:
         bool fullBright{ false };
         bool wireframeSmoke{ false };
         bool zoom{ false };
-        KeyBind zoomKey = KeyBind::NONE;
+        bool noZoom{ false };
+        KeyBindToggle zoomKey = KeyBind::NONE;
         bool thirdperson{ false };
         KeyBind thirdpersonKey = KeyBind::NONE;
         int thirdpersonDistance{ 0 };

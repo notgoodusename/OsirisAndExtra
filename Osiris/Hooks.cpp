@@ -36,8 +36,10 @@
 #include "Hacks/Ragebot.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
+#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
+#include "Hacks/Resolver.h"
 
 #include "SDK/Client.h"
 #include "SDK/ClientState.h"
@@ -232,6 +234,27 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
         maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
 
     memory->globalVars->serverTime(cmd);
+    if (Tickbase::isShifting && config->tickbase.enabled)
+    {
+        sendPacket = Tickbase::ticksToShift == 1;
+        Misc::autoPeek(cmd, currentViewAngles);
+        if (!config->tickbase.teleport)
+        {
+            cmd->tickCount += 200;
+            cmd->hasbeenpredicted = true;
+        }
+
+        cmd->viewangles.normalize();
+
+        cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
+        cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
+        cmd->viewangles.z = 0.0f;
+        cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
+        cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
+
+        return false;
+    }
+
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
     Misc::prepareRevolver(cmd);
@@ -299,6 +322,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
 
     previousViewAngles = cmd->viewangles;
+    Tickbase::run(cmd);
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;
@@ -373,9 +397,13 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
     }
     if (interfaces->engine->isInGame()) {
         EnginePrediction::apply(stage);
+        if (stage == FrameStage::NET_UPDATE_POSTDATAUPDATE_START) {
+            Resolver::frameStageUpdate();
+        }
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
+        Visuals::noZoom(stage);
         Misc::oppositeHandKnife(stage);
         Visuals::removeGrass(stage);
         Visuals::modifySmoke(stage);
@@ -914,17 +942,6 @@ static void __cdecl clSendMoveHook() noexcept
     }
 }
 
-static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
-{
-    static auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
-
-    if (!entity || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, entity, cmd, moveHelper);
-
-    original(thisPointer, entity, cmd, moveHelper);
-
-    EnginePrediction::store();
-}
 
 static void __fastcall getColorModulationHook(void* thisPointer, void* edx, float* r, float* g, float* b) noexcept
 {
@@ -987,6 +1004,66 @@ static char __fastcall newFunctionStudioRenderBypass(void* thisPointer, void* ed
 static char __fastcall newFunctionMaterialSystemBypass(void* thisPointer, void* edx, const char* moduleName) noexcept
 {
     return 1;
+static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
+{
+    using clMoveFn = void(__cdecl*)(float, bool);
+    static auto original = (clMoveFn)hooks->clMove.getDetour();
+
+    static float realTime = 0.0f;
+
+    if (!config->tickbase.enabled)
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (Tickbase::doubletapCharge < Tickbase::shiftAmount && memory->globalVars->realtime - realTime > 1.0f)
+    {
+        Tickbase::doubletapCharge++;
+        return;
+    }
+
+    original(accumulatedExtraSamples, finalTick);
+
+    if (Tickbase::lastShift == 0)
+        return;
+
+    Tickbase::isShifting = true;
+    {
+        for (Tickbase::ticksToShift = min(Tickbase::doubletapCharge, Tickbase::lastShift); Tickbase::ticksToShift > 0; Tickbase::ticksToShift--, Tickbase::doubletapCharge--)
+            original(accumulatedExtraSamples, finalTick);
+    }
+    Tickbase::isShifting = false;
+    Tickbase::lastShift = 0;
+    realTime = memory->globalVars->realtime;
+}
+
+static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
+{
+    static auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
+
+    if (!entity || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, entity, cmd, moveHelper);
+
+    if (abs(cmd->tickCount - memory->globalVars->tickCount) >= 50)
+        return;
+
+    int tickbase = entity->tickBase();
+    auto currentime = memory->globalVars->currenttime;
+
+    if (cmd->commandNumber == Tickbase::commandNumber)
+        entity->tickBase() -= Tickbase::lastShift;
+
+    original(thisPointer, entity, cmd, moveHelper);
+
+    if (cmd->commandNumber == Tickbase::commandNumber)
+    {
+        entity->tickBase() = tickbase;
+        memory->globalVars->currenttime = currentime;
+    }
 }
 
 Hooks::Hooks(HMODULE moduleHandle) noexcept
@@ -1047,6 +1124,7 @@ void Hooks::install() noexcept
     isUsingStaticPropDebugModes.detour(memory->isUsingStaticPropDebugModes, isUsingStaticPropDebugModesHook);
 
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
+    clMove.detour(memory->clMove, clMoveHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 

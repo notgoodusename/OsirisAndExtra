@@ -776,7 +776,7 @@ void Misc::bunnyHop(UserCmd* cmd) noexcept
     if (!localPlayer)
         return;
 
-    if (config->misc.jumpBugKey.isActive())
+    if (config->misc.jumpBug && config->misc.jumpBugKey.isActive())
         return;
 
     static auto wasLastTimeOnGround{ localPlayer->flags() & 1 };

@@ -272,6 +272,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Misc::slowwalk(cmd);
     Backtrack::updateIncomingSequences();
 
+    EnginePrediction::update();
     EnginePrediction::run(cmd);
     NadePrediction::run(cmd);
 

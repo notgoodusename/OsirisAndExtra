@@ -12,7 +12,8 @@ static const float epsilon = 0.03125f;
 
 namespace EnginePrediction
 {
-    void run(UserCmd* cmd) noexcept;
+	void update() noexcept;
+	void run(UserCmd* cmd) noexcept;
 
     void store() noexcept;
     void apply(FrameStage) noexcept;

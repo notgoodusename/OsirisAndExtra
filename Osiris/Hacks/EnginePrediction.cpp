@@ -1,6 +1,7 @@
 #include "../Interfaces.h"
 #include "../Memory.h"
 
+#include "../SDK/ClientState.h"
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
@@ -15,6 +16,17 @@
 static int localPlayerFlags;
 static Vector localPlayerVelocity;
 static std::array<EnginePrediction::NetvarData, 150> netvarData;
+
+void EnginePrediction::update() noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    const auto deltaTick = memory->clientState->deltaTick;
+    const auto start = memory->clientState->lastCommandAck;
+    const auto stop = memory->clientState->lastOutgoingCommand + memory->clientState->chokedCommands;
+    interfaces->prediction->update(deltaTick, deltaTick > 0, start, stop);
+}
 
 void EnginePrediction::run(UserCmd* cmd) noexcept
 {

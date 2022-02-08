@@ -267,7 +267,8 @@ static void post_data_update_start(int localHandle) noexcept
                 auto entry = interfaces->entityList->getHighestEntityIndex() + 1;
 #define HIJACK_ENTITY 1
 #if HIJACK_ENTITY == 1
-                for (int i = 65; i <= interfaces->entityList->getHighestEntityIndex(); i++) {
+                const auto highestEntityIndex = interfaces->entityList->getHighestEntityIndex();
+                for (int i = 65; i <= highestEntityIndex; i++) {
                     auto entity = interfaces->entityList->getEntity(i);
 
                     if (entity && entity->getClientClass()->classId == ClassId{ 70 }) {

@@ -2090,7 +2090,7 @@ void GUI::renderGuiStyle() noexcept
                     ImGui::BeginChild("##Text", ImVec2{ 700, 20 }, false);
                     {
                         ImGui::SetCursorPos(ImVec2{ 580, 2 });
-                        ImGui::Text("Osiris - 2021 (c)");
+                        ImGui::Text("Osiris - 2022 (c)");
                     }
                     ImGui::EndChild();
                 }

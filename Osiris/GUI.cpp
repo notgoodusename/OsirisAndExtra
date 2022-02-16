@@ -470,6 +470,10 @@ void GUI::renderTriggerbotWindow() noexcept
 
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.0f);
+
+    ImGui::hotkey2("Key", config->triggerbotKey, 80.0f);
+    ImGui::Separator();
+
     static int currentCategory{ 0 };
     ImGui::PushItemWidth(110.0f);
     ImGui::PushID(0);
@@ -564,8 +568,6 @@ void GUI::renderTriggerbotWindow() noexcept
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::Checkbox("Enabled", &config->triggerbot[currentWeapon].enabled);
-    ImGui::Separator();
-    ImGui::hotkey2("Hold Key", config->triggerbotKey);
     ImGui::Checkbox("Friendly fire", &config->triggerbot[currentWeapon].friendlyFire);
     ImGui::Checkbox("Scoped only", &config->triggerbot[currentWeapon].scopedOnly);
     ImGui::Checkbox("Ignore flash", &config->triggerbot[currentWeapon].ignoreFlash);

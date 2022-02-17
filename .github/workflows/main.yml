@@ -12,16 +12,15 @@ jobs:
   msvc:
     # The type of runner that the job will run on
     runs-on: windows-latest
-    
-    env:
-      MSBUILD_PATH: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+      
     # Build command
     - name: Build
       shell: cmd
-      run: '"%MSBUILD_PATH%\MSBuild.exe" Osiris/Osiris.vcxproj /p:Platform=Win32 /p:Configuration=Release'
+      run: msbuild Osiris/Osiris.vcxproj /p:Platform=Win32 /p:Configuration=Release'

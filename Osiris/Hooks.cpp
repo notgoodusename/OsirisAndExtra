@@ -443,8 +443,35 @@ static void __stdcall setDrawColor(int r, int g, int b, int a) noexcept
 
 static void __stdcall overrideView(ViewSetup* setup) noexcept
 {
-    if (localPlayer && !localPlayer->isScoped())
+    const auto zoomSensitivity = interfaces->cvar->findVar("zoom_sensitivity_ratio_mouse");
+    static auto zoomSensitivityBackUp = zoomSensitivity->getFloat();
+    if (localPlayer)
+    {
+        static bool once = true;
+        const auto activeWeapon = localPlayer->getActiveWeapon();
+        if (activeWeapon && activeWeapon->isSniperRifle() && localPlayer->isScoped())
+        {
+            if (config->visuals.keepFov)
+            {
+                if (once)
+                {
+                    zoomSensitivityBackUp = zoomSensitivity->getFloat();
+                    once = false;
+                }
+                zoomSensitivity->setValue(0.f);
+                setup->fov = 90.f;
+            }
+        }
+        else if (!once)
+        {
+            zoomSensitivity->setValue(zoomSensitivityBackUp);
+            once = true;
+        }
+    }
+
+    if (localPlayer && ((localPlayer->isScoped() && config->visuals.keepFov) || !localPlayer->isScoped()))
         setup->fov += config->visuals.fov;
+
     setup->farZ += config->visuals.farZ * 10;
 
     if (localPlayer && localPlayer->isAlive() && config->misc.fakeduck && config->misc.fakeduckKey.isActive() && localPlayer->flags() & 1)

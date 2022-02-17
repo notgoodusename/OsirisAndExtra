@@ -965,10 +965,10 @@ static void __fastcall getColorModulationHook(void* thisPointer, void* edx, floa
         return;
 
     const auto textureGroup = fnv::hashRuntime(material->getTextureGroupName());
-    if (textureGroup != fnv::hash("World textures") || textureGroup != fnv::hash("StaticProp textures"))
+    if (textureGroup != fnv::hash("World") || textureGroup != fnv::hash("StaticProp"))
         return;
 
-    const auto isProp = textureGroup == fnv::hash("StaticProp textures");
+    const auto isProp = textureGroup == fnv::hash("StaticProp");
 
     if (config->visuals.mapColor.enabled)
     {

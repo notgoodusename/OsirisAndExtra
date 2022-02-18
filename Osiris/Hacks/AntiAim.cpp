@@ -72,7 +72,13 @@ bool autoDirection(Vector eyeAngle) noexcept
         return false;
     return true;
 }
-
+float RandomFloat(float a, float b) {
+    float random = ((float)rand()) / (float)RAND_MAX;
+    float diff = b - a;
+    float r = random * diff;
+    float result = a + r;
+    return result * 2.f;
+}
 void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
     if (cmd->viewangles.x == currentViewAngles.x && config->rageAntiAim.enabled)
@@ -159,7 +165,6 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 invert = isInvertToggled;
             float leftDesyncAngle = config->fakeAngle.leftLimit * 2.f;
             float rightDesyncAngle = config->fakeAngle.rightLimit * 2.f;
-
             switch (config->fakeAngle.peekMode)
             {
             case 0:
@@ -198,7 +203,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             case 1: // Opposite (Lby break)
                 if (updateLby())
                 {
-                    cmd->viewangles.y += !invert ? leftDesyncAngle : -rightDesyncAngle;
+                    cmd->viewangles.y += !invert ? RandomFloat(0, 60) : RandomFloat(-60, 0);
                     sendPacket = false;
                     if (fabsf(cmd->sidemove) < 5.0f)
                     {

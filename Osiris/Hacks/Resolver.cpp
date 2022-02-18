@@ -130,13 +130,43 @@ namespace Resolver
 
         switch (missed % 9) {
         case 1:
-            desyncAng = animstate->footYaw;
+            desyncAng = +25.0f;
             break;
         case 2:
-            desyncAng = desyncAng + (entity->getMaxDesyncAngle() * -1);
+            desyncAng = -25.0f;
             break;
         case 3:
+            desyncAng = +58.0f;
+            break;
+        case 4:
+            desyncAng = -58.0f;
+            break;
+        case 5:
+            desyncAng = +70;
+            break;
+        case 6:
+            desyncAng = -70;
+            break;
+        case 7:
+            desyncAng = animstate->footYaw;
+            break;
+        case 8:
+            desyncAng = -116.0f;
+            break;
+        case 9:
+            desyncAng = +116.0f;
+            break;
+        case 10:
+            desyncAng = desyncAng + (entity->getMaxDesyncAngle() * -1);
+            break;
+        case 11:
             desyncAng = desyncAng + entity->getMaxDesyncAngle();
+            break;
+        case 12:
+            desyncAng = -15;
+            break;
+        case 13:
+            desyncAng = +15;
             break;
         default:
             desyncAng = animstate->footYaw;

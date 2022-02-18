@@ -388,6 +388,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Freecam", v.freeCam);
     read(j, "Freecam key", v.freeCamKey);
     read(j, "Freecam speed", v.freeCamSpeed);
+    read(j, "Keep FOV", v.keepFov);
     read(j, "FOV", v.fov);
     read(j, "Far Z", v.farZ);
     read(j, "Flash reduction", v.flashReduction);
@@ -1052,6 +1053,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Freecam", freeCam);
     WRITE("Freecam key", freeCamKey);
     WRITE("Freecam speed", freeCamSpeed);
+    WRITE("Keep FOV", keepFov);
     WRITE("FOV", fov);
     WRITE("Far Z", farZ);
     WRITE("Flash reduction", flashReduction);

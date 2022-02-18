@@ -193,6 +193,7 @@ public:
         bool freeCam{ false };
         KeyBind freeCamKey = KeyBind::NONE;
         int freeCamSpeed{ 2 };
+        bool keepFov{ false };
         int fov{ 0 };
         int farZ{ 0 };
         int flashReduction{ 0 };

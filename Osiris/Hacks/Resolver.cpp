@@ -133,12 +133,13 @@ namespace Resolver
             if (eye_feet > 0.f)
             {
                 desyncAng = record->PreviousDesyncAng - 60.0f;
+                break;
             }
             else
             {
                 desyncAng = record->PreviousDesyncAng + 60.0f;
+                break;
             }
-            break;
         case 2:
             desyncAng = +50.0f;
             break;

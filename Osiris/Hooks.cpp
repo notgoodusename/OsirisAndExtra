@@ -223,7 +223,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
 
     uintptr_t* framePointer;
     __asm mov framePointer, ebp;
-    bool& sendPacket = *reinterpret_cast<bool*>(*framePointer - 0x1C);
+    bool& sendPacket = *reinterpret_cast<bool*>(*framePointer - 0x34);
 
     static auto previousViewAngles{ cmd->viewangles };
     const auto viewAngles{ cmd->viewangles };
@@ -977,36 +977,35 @@ static void __fastcall getColorModulationHook(void* thisPointer, void* edx, floa
 
     original(thisPointer, r, g, b);
 
+    if (!config->visuals.mapColor.enabled)
+        return;
+
     const auto material = reinterpret_cast<Material*>(thisPointer);
     if (!material)
         return;
 
-    const auto textureGroup = fnv::hashRuntime(material->getTextureGroupName());
-    if (textureGroup != fnv::hash("World") || textureGroup != fnv::hash("StaticProp"))
+    const std::string_view textureGroup = material->getTextureGroupName();
+    if (!textureGroup.starts_with("World") && !textureGroup.starts_with("StaticProp"))
         return;
 
-    const auto isProp = textureGroup == fnv::hash("StaticProp");
-
-    if (config->visuals.mapColor.enabled)
+    const auto isProp = textureGroup.starts_with("StaticProp");
+    if (config->visuals.mapColor.rainbow)
     {
-        if (config->visuals.mapColor.rainbow)
-        {
-            const auto [colorR, colorG, colorB] { rainbowColor(config->visuals.mapColor.rainbowSpeed) };
-            *r *= colorR;
-            *g *= colorG;
-            *b *= colorB;
-        }
-        else
-        {
-            *r *= config->visuals.mapColor.color.at(0);
-            *g *= config->visuals.mapColor.color.at(1);
-            *b *= config->visuals.mapColor.color.at(2);
-        }
-
-        isProp ? *r *= 0.5f : *r *= 0.23f;
-        isProp ? *g *= 0.5f : *g *= 0.23f;
-        isProp ? *b *= 0.5f : *b *= 0.23f;
+        const auto [colorR, colorG, colorB] { rainbowColor(config->visuals.mapColor.rainbowSpeed) };
+        *r *= colorR;
+        *g *= colorG;
+        *b *= colorB;
     }
+    else
+    {
+        *r *= config->visuals.mapColor.color.at(0);
+        *g *= config->visuals.mapColor.color.at(1);
+        *b *= config->visuals.mapColor.color.at(2);
+    }
+
+    isProp ? *r *= 0.5f : *r *= 0.23f;
+    isProp ? *g *= 0.5f : *g *= 0.23f;
+    isProp ? *b *= 0.5f : *b *= 0.23f;
 }
 
 static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* edx) noexcept

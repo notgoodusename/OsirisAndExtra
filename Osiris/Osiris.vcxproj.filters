@@ -244,6 +244,8 @@
     </ClCompile>
     <ClCompile Include="Hacks\Resolver.cpp">
       <Filter>Hacks</Filter>
+    <ClCompile Include="SDK\checksum_crc.cpp">
+      <Filter>SDK</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -632,6 +634,9 @@
       <Filter>SDK</Filter>
     <ClInclude Include="Hacks\Resolver.h">
       <Filter>Hacks</Filter>
+    </ClInclude>
+    <ClInclude Include="SDK\checksum_crc.h">
+      <Filter>SDK</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -214,17 +214,8 @@ static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int upda
     return;
 }
 
-static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
+static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& sendPacket) noexcept
 {
-    auto result = hooks->clientMode.callOriginal<bool, 24>(inputSampleTime, cmd);
-
-    if (!cmd->commandNumber)
-        return result;
-
-    uintptr_t* framePointer;
-    __asm mov framePointer, ebp;
-    bool& sendPacket = *reinterpret_cast<bool*>(*framePointer - 0x34);
-
     static auto previousViewAngles{ cmd->viewangles };
     const auto viewAngles{ cmd->viewangles };
     auto currentViewAngles{ cmd->viewangles };
@@ -327,6 +318,46 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd) noexcept
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;
+}
+
+static void __stdcall CHLCreateMove(int sequenceNumber, float inputSampleTime, bool active, bool& sendPacket) noexcept
+{
+    static auto original = hooks->client.getOriginal<void, 22>(sequenceNumber, inputSampleTime, active);
+
+    original(interfaces->client, sequenceNumber, inputSampleTime, active);
+
+    UserCmd* cmd = memory->input->getUserCmd(0, sequenceNumber);
+    if (!cmd || !cmd->commandNumber)
+        return;
+
+    VerifiedUserCmd* verified = memory->input->getVerifiedUserCmd(sequenceNumber);
+    if (!verified)
+        return;
+
+    bool cmoveactive = createMove(inputSampleTime, cmd, sendPacket);
+
+    verified->cmd = *cmd;
+    verified->crc = cmd->getChecksum();
+}
+
+#pragma warning(disable : 4409)
+__declspec(naked) void __stdcall createMoveProxy(int sequenceNumber, float inputSampleTime, bool active)
+{
+    __asm
+    {
+        PUSH	EBP
+        MOV		EBP, ESP
+        PUSH	EBX
+        LEA		ECX, [ESP]
+        PUSH	ECX
+        PUSH	active
+        PUSH	inputSampleTime
+        PUSH	sequenceNumber
+        CALL	CHLCreateMove
+        POP		EBX
+        POP		EBP
+        RETN	0xC
+    }
 }
 
 static void __stdcall doPostScreenEffects(void* param) noexcept
@@ -1142,12 +1173,12 @@ void Hooks::install() noexcept
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 
     client.init(interfaces->client);
+    client.hookAt(22, createMoveProxy);
     client.hookAt(37, frameStageNotify);
     
     clientMode.init(memory->clientMode);
     clientMode.hookAt(17, shouldDrawFog);
     clientMode.hookAt(18, overrideView);
-    clientMode.hookAt(24, createMove);
     clientMode.hookAt(27, shouldDrawViewModel);
     clientMode.hookAt(35, getViewModelFov);
     clientMode.hookAt(44, doPostScreenEffects);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "UserCmd.h"
 #include "Pad.h"
 #include "Vector.h"
 
@@ -11,6 +12,16 @@ public:
     bool isMouseActive;
     PAD(158)
     bool isCameraInThirdPerson;
-    bool cameraMovingWithMouse;
+    PAD(2)
     Vector cameraOffset;
+    PAD(56)
+    UserCmd* commands;
+    VerifiedUserCmd* verifiedCommands;
+
+    VIRTUAL_METHOD(UserCmd*, getUserCmd, 8, (int slot, int sequenceNumber), (this, slot, sequenceNumber))
+
+    VerifiedUserCmd* getVerifiedUserCmd(int sequenceNumber) noexcept
+    {
+        return &verifiedCommands[sequenceNumber % 150];
+    }
 };

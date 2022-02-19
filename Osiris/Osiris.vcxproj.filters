@@ -239,6 +239,9 @@
     <ClCompile Include="Hacks\Knifebot.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
+    <ClCompile Include="SDK\checksum_crc.cpp">
+      <Filter>SDK</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -620,6 +623,9 @@
       <Filter>SDK</Filter>
     </ClInclude>
     <ClInclude Include="SDK\ViewSetup.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="SDK\checksum_crc.h">
       <Filter>SDK</Filter>
     </ClInclude>
   </ItemGroup>

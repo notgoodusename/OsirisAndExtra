@@ -349,6 +349,17 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 		renderMutex.unlock();
 		return;
 	}
+	const auto itemDefinition = activeWeapon->itemDefinitionIndex2();
+	if (itemDefinition != WeaponId::SmokeGrenade
+		&& itemDefinition != WeaponId::Decoy
+		&& itemDefinition != WeaponId::Molotov
+		&& itemDefinition != WeaponId::IncGrenade
+		&& itemDefinition != WeaponId::Flashbang
+		&& itemDefinition != WeaponId::HeGrenade)
+	{
+		renderMutex.unlock();
+		return;
+	}
 
 	Vector vecSrc, vecThrow;
 	Setup(vecSrc, vecThrow, cmd->viewangles);

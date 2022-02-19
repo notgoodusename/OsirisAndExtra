@@ -123,32 +123,41 @@ namespace Resolver
         }
 
         entity->updateState(animstate, entity->eyeAngles());
-
+        float eye_feet = (entity->eyeAngles().y - animstate->footYaw);
         int missed = record->missedshots;
         if (record->lastworkingshot != -1)
             missed = record->lastworkingshot;
 
         switch (missed % 9) {
-        
         case 1:
-            desyncAng = +50.0f;
+            if (eye_feet > 0.f)
+            {
+                desyncAng = record->PreviousDesyncAng - 60.0f;
+            }
+            else
+            {
+                desyncAng = record->PreviousDesyncAng + 60.0f;
+            }
             break;
         case 2:
-            desyncAng = -50.0f;
+            desyncAng = +50.0f;
             break;
         case 3:
-            desyncAng = animstate->footYaw;
+            desyncAng = -50.0f;
             break;
         case 4:
-            desyncAng = -116.0f;
+            desyncAng = animstate->footYaw;
             break;
         case 5:
-            desyncAng = +116.0f;
+            desyncAng = -116.0f;
             break;
         case 6:
-            desyncAng = desyncAng + (entity->getMaxDesyncAngle() * -1);
+            desyncAng = +116.0f;
             break;
         case 7:
+            desyncAng = desyncAng + (entity->getMaxDesyncAngle() * -1);
+            break;
+        case 8:
             desyncAng = desyncAng + entity->getMaxDesyncAngle();
             break;
         default:

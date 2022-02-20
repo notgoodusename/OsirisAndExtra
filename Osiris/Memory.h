@@ -189,7 +189,7 @@ public:
     std::uintptr_t unlockInventory;
     std::uintptr_t getColorModulation;
     std::uintptr_t isUsingStaticPropDebugModes;
-
+    std::uintptr_t eyePositionAndVectors;
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;
     std::uintptr_t newFunctionStudioRenderDLL;

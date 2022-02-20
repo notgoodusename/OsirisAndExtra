@@ -1,8 +1,10 @@
+#include <intrin.h>
 #include "Animations.h"
 #include "EnginePrediction.h"
 
 #include "../Memory.h"
 #include "../Interfaces.h"
+#include "../Hooks.h"
 
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/Cvar.h"
@@ -23,6 +25,7 @@ static bool sendPacket{ true };
 static bool gotMatrix{ false };
 static bool gotMatrixReal{ false };
 static Vector viewangles{};
+static Vector sentViewangles{};
 static std::array<AnimationLayer, 13> staticLayers{};
 static std::array<AnimationLayer, 13> layers{};
 static float primaryCycle{0.f};
@@ -31,6 +34,10 @@ static float footYaw{};
 static std::array<float, 24> poseParameters{};
 static std::array<AnimationLayer, 13> sendPacketLayers{};
 
+static VmtSwap vmt{};
+static Entity* oldLocal{ nullptr };
+static bool isHooked{ false };
+
 void Animations::init() noexcept
 {
     static auto threadedBoneSetup = interfaces->cvar->findVar("cl_threaded_bone_setup");
@@ -38,6 +45,15 @@ void Animations::init() noexcept
 
     static auto extrapolate = interfaces->cvar->findVar("cl_extrapolate");
     extrapolate->setValue(0);
+}
+static Vector* __fastcall getEyeAngles(Entity* entity, uint32_t edx) noexcept
+{
+    static auto original = vmt.getOriginal<Vector*, 170>();
+
+    if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors)
+        return original(entity);
+
+    return &sentViewangles;
 }
 
 void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
@@ -76,7 +92,15 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
     viewangles = cmd->viewangles;
     sendPacket = _sendPacket;
     localPlayer->getAnimstate()->buttons = cmd->buttons;
+    if (sendPacket)
+        sentViewangles = cmd->viewangles;
 
+    if (!isHooked || oldLocal != localPlayer.get()) {
+        oldLocal = localPlayer.get();
+        vmt.init(localPlayer.get());
+        vmt.hookAt(170, getEyeAngles);
+        isHooked = true;
+    }
     updatingLocal = true;
 
     // allow animations to be animated in the same frame
@@ -461,6 +485,14 @@ void Animations::postDataUpdate() noexcept
         return;
 
     localPlayer->getAnimstate()->primaryCycle = primaryCycle;
+
+}
+void Animations::restore() noexcept
+{
+    if (isHooked) {
+        vmt.restore();
+        isHooked = false;
+    }
 }
 
 bool Animations::isLocalUpdating() noexcept

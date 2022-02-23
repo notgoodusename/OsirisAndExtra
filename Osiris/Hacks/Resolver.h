@@ -3,15 +3,12 @@
 #include <array>
 struct UserCmd;
 class Entity;
-class GameEvent;
 
 namespace Resolver
 {
 	struct Record {
         float prevSimTime = 0.0f;
         int prevhealth = 0;
-        int mystartinghealth = 0;
-        int myhealth = 0;
         int lastworkingshot = -1;
         int missedshots = 0;
         bool wasTargeted = false;
@@ -26,8 +23,6 @@ namespace Resolver
 
 	void frameStageUpdate() noexcept;
 	void basic(Entity* entity) noexcept;
-    void hurt(GameEvent& event) noexcept;
-    void Msg(const char* msg, ...);
 
 	inline std::array<Record, 65> records{};
     inline Record invalidRecord{};

@@ -7,6 +7,7 @@
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Visuals.h"
 #include "Interfaces.h"
+#include "Hacks/Resolver.h"
 #include "Memory.h"
 
 EventListener::EventListener() noexcept
@@ -57,6 +58,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::playHitSound(*event);
         Visuals::hitEffect(event);
         Visuals::hitMarker(event);
+        Resolver::hurt(*event);
         break;
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);

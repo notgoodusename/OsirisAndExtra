@@ -3,28 +3,41 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/Entity.h"
 #include "../SDK/LocalPlayer.h"
-
+#include "../SDK/GameEvent.h"
 #include "../Interfaces.h"
 
 namespace Resolver
 {
+    bool universalhurt = false;
+    typedef void(__cdecl* MsgFn)(const char* msg, va_list);
+    void Msg(const char* msg, ...)
+    {
+        if (msg == nullptr)
+            return; //If no string was passed, or it was null then don't do anything
+        static MsgFn fn = (MsgFn)GetProcAddress(GetModuleHandleA("tier0.dll"), "Msg"); //This gets the address of export "Msg" in the dll "tier0.dll". The static keyword means it's only called once and then isn't called again (but the variable is still there)
+        char buffer[989];
+        va_list list;
+        va_start(list, msg);
+        vsprintf(buffer, msg, list);
+        va_end(list);
+        fn(buffer, list);
+    }
 	void frameStageUpdate() noexcept
 	{
 		if (!localPlayer || !localPlayer->isAlive())
 			return;
-
         for (int i = 0; i < records.size(); i++) {
             auto record = &records.at(i);
 
             if (!record)
                 continue;
-
+           
             auto entity = interfaces->entityList->getEntity(i);
 
             if (!entity || entity->isDormant() || !entity->isAlive()) {
 
                 if (record->FiredUpon || record->wasTargeted) {
-
+                    universalhurt = false;
                     record->lastworkingshot = record->missedshots;
                 }
                 record->invalid = true;
@@ -44,6 +57,7 @@ namespace Resolver
 
                 record->lastworkingshot = -1;
                 record->missedshots = (record->missedshots >= 12 ? 0 : ++record->missedshots);
+                Msg("Missed: %d", record->missedshots);
                 record->wasUpdated = false;
             }
 
@@ -77,7 +91,7 @@ namespace Resolver
             }
 		}
 	}
-
+   
 	void basic(Entity* entity) noexcept
 	{
         auto record = &records.at(entity->index());
@@ -124,6 +138,7 @@ namespace Resolver
 
         entity->updateState(animstate, entity->eyeAngles());
         float eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+        record->FiredUpon = universalhurt;
         int missed = record->missedshots;
         if (record->lastworkingshot != -1)
             missed = record->lastworkingshot;
@@ -133,41 +148,99 @@ namespace Resolver
             if (eye_feet == 0)
             {
                 desyncAng = animstate->footYaw;
-                break;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc11\n");
+                goto A;
+                
             }
             else if (eye_feet > 0.f)
             {
-                desyncAng = animstate->footYaw - 60.0f;
-                break;
+                desyncAng = animstate->footYaw - entity->getMaxDesyncAngle();
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc12\n");
+                goto A;
+                
             }
             else
             {
-                desyncAng = animstate->footYaw + 60.0f;
-                break;
+                desyncAng = animstate->footYaw + entity->getMaxDesyncAngle();
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc13\n");
+                goto A;
             }
+            A:
+            break;
         case 2:
-            desyncAng += 60.0f;
+            if (eye_feet == 0)
+            {
+                desyncAng = animstate->footYaw;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc21\n");
+                goto B;
+            }
+            else if (eye_feet > 0.f)
+            {
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() * 2)-2;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc22\n");
+                goto B;
+            }
+            else
+            {
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() * 2)-2;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc23\n");
+                goto B;
+            }
+            B:
             break;
         case 3:
-            desyncAng -= 60.0f;
-            break;
-        case 4:
-            desyncAng = animstate->footYaw;
-            break;
-        case 5:
-            desyncAng += 116.0f;
-            break;
-        case 6:
-            desyncAng -= 116.0f;
-            break;
-        case 7:
-            desyncAng = desyncAng + (entity->getMaxDesyncAngle() * -1);
-            break;
-        case 8:
-            desyncAng = desyncAng + entity->getMaxDesyncAngle();
+            if (eye_feet == 0)
+            {
+                desyncAng = animstate->footYaw;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc31\n");
+                goto C;
+            }
+            else if (eye_feet > 0.f)
+            {
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 2) - 2;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc32\n");
+                goto C;
+            }
+            else
+            {
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 2) - 2;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missc33\n");
+                goto C;
+            }
+            C:
             break;
         default:
-            desyncAng = animstate->footYaw;
+            if (eye_feet == 0)
+            {
+                desyncAng = animstate->footYaw;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missDF1\n");
+                goto D;
+            }
+            else if (eye_feet > 0.f)
+            {
+                desyncAng = animstate->footYaw - 60;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missDF2\n");
+                goto D;
+            }
+            else
+            {
+                desyncAng = animstate->footYaw + 60;
+                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
+                Msg("missDF3\n");
+                goto D;
+            }
+            D:
             break;
         }
 
@@ -188,4 +261,16 @@ namespace Resolver
         record->wasUpdated = true;
         record->FiredUpon = false;
 	}
+    
+    
+    void hurt(GameEvent& event) noexcept
+    {
+        if (const auto localUserId = localPlayer->getUserId(); event.getInt("attacker") != localUserId && event.getInt("userid") == localUserId)
+        {
+           // universalhurt = true; CHANGEME
+            //Msg("Ouch: %d", 8);
+            Msg("Ouch\n");
+        }
+       
+    }
 }

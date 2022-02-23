@@ -20,6 +20,7 @@ EventListener::EventListener() noexcept
     interfaces->gameEventManager->addListener(this, "round_start");
     interfaces->gameEventManager->addListener(this, "round_freeze_end");
     interfaces->gameEventManager->addListener(this, "player_hurt");
+    interfaces->gameEventManager->addListener(this, "weapon_fire");
 
     interfaces->gameEventManager->addListener(this, "player_death");
     interfaces->gameEventManager->addListener(this, "vote_cast");
@@ -60,8 +61,12 @@ void EventListener::fireGameEvent(GameEvent* event)
         Visuals::hitMarker(event);
         Resolver::hurt(*event);
         break;
+    case fnv::hash("weapon_fire"):
+        Resolver::shott(*event);
+        break;
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);
         break;
+  
     }
 }

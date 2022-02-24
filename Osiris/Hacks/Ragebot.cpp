@@ -111,6 +111,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
         enemies.emplace_back(i, health, distance, fov);
     }
 
+    if (enemies.empty())
+        return;
+
     switch (cfg[weaponIndex].priority)
     {
     case 0:

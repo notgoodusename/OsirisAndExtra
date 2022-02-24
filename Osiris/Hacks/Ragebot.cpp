@@ -126,7 +126,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         break;
     }
 
-    for (const auto& target : enemies) 
+    for (const auto& target : enemies)
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
@@ -174,66 +174,103 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!hitbox)
                 continue;
 
-            for (auto &bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, i, cfg[weaponIndex].multiPoint))
+            bool runFullScan = cfg[weaponIndex].multiPoint <= 0;
+
+            if (!runFullScan)
             {
-                const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
-                const auto fov{ angle.length2D() };
-                if (fov > cfg[weaponIndex].fov)
-                    continue;
-
-                if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
-                    continue;
-
-                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
-                damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
-                if (damage <= 0.f)
-                    continue;
-
-                if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
-                    continue;
-
-                if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
-                    cmd->buttons |= UserCmd::IN_ZOOM;
-
-                if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
+                for (const auto& bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, i, 0))
                 {
-                    resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);;
-                    return;
-                }
+                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
+                    const auto fov{ angle.length2D() };
+                    if (fov > cfg[weaponIndex].fov)
+                        continue;
 
-                if (cfg[weaponIndex].autoStop && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
-                {
-                    const auto velocity = EnginePrediction::getVelocity();
-                    const auto speed = velocity.length2D();
-                    if (speed >= 15.0f)
+                    if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                        continue;
+
+                    float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                    damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
+                    if (damage <= 0.f)
+                        continue;
+
+                    if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
+                        continue;
+
+                    if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+                        cmd->buttons |= UserCmd::IN_ZOOM;
+
+                    if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                     {
-                        Vector direction = velocity.toAngle();
-                        direction.y = cmd->viewangles.y - direction.y;
-
-                        const auto negatedDirection = Vector::fromAngle(direction) * -speed;
-                        cmd->forwardmove = negatedDirection.x;
-                        cmd->sidemove = negatedDirection.y;
+                        resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);;
+                        return;
                     }
-                }
-
-                if (std::fabsf((float)target.health - damage) <= damageDiff)
-                {
-                    bestAngle = angle;
-                    damageDiff = std::fabsf((float)target.health - damage);
-                    bestTarget = bonePosition;
-                    bestSimulationTime = entity->simulationTime();
+                    runFullScan = true;
                 }
             }
-        }
 
-        if (bestTarget.notNull())
-        {
-            if (!Aimbot::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
+            if (runFullScan)
             {
-                bestTarget = Vector{ };
-                bestAngle = Vector{ };
-                bestSimulationTime = 0;
-                damageDiff = FLT_MAX;
+                for (const auto& bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, i, cfg[weaponIndex].multiPoint))
+                {
+                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
+                    const auto fov{ angle.length2D() };
+                    if (fov > cfg[weaponIndex].fov)
+                        continue;
+
+                    if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                        continue;
+
+                    float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                    damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
+                    if (damage <= 0.f)
+                        continue;
+
+                    if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
+                        continue;
+
+                    if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+                        cmd->buttons |= UserCmd::IN_ZOOM;
+
+                    if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
+                    {
+                        resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);;
+                        return;
+                    }
+
+                    if (cfg[weaponIndex].autoStop && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+                    {
+                        const auto velocity = EnginePrediction::getVelocity();
+                        const auto speed = velocity.length2D();
+                        if (speed >= 15.0f)
+                        {
+                            Vector direction = velocity.toAngle();
+                            direction.y = cmd->viewangles.y - direction.y;
+
+                            const auto negatedDirection = Vector::fromAngle(direction) * -speed;
+                            cmd->forwardmove = negatedDirection.x;
+                            cmd->sidemove = negatedDirection.y;
+                        }
+                    }
+
+                    if (std::fabsf((float)target.health - damage) <= damageDiff)
+                    {
+                        bestAngle = angle;
+                        damageDiff = std::fabsf((float)target.health - damage);
+                        bestTarget = bonePosition;
+                        bestSimulationTime = entity->simulationTime();
+                    }
+                }
+            }
+
+            if (bestTarget.notNull())
+            {
+                if (!Aimbot::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
+                {
+                    bestTarget = Vector{ };
+                    bestAngle = Vector{ };
+                    bestSimulationTime = 0;
+                    damageDiff = FLT_MAX;
+                }
             }
         }
 
@@ -306,67 +343,103 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!hitbox)
                 continue;
 
-            for (auto& bonePosition : Aimbot::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, cfg[weaponIndex].multiPoint))
+            bool runFullScan = cfg[weaponIndex].multiPoint <= 0;
+            if (!runFullScan)
             {
-                const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, (cmd->viewangles + aimPunch)) };
-                const auto fov{ angle.length2D() };
-                if (fov > cfg[weaponIndex].fov)
-                    continue;
-
-                if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
-                    continue;
-
-                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
-                damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
-                if (damage <= 0.f)
-                    continue;
-
-                if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
-                    continue;
-
-                if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
-                    cmd->buttons |= UserCmd::IN_ATTACK2;
-
-                if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
+                for (const auto& bonePosition : Aimbot::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, 0))
                 {
-                    resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
-                    return;
-                }
+                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, (cmd->viewangles + aimPunch)) };
+                    const auto fov{ angle.length2D() };
+                    if (fov > cfg[weaponIndex].fov)
+                        continue;
 
-                if (cfg[weaponIndex].autoStop && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
-                {
-                    const auto velocity = EnginePrediction::getVelocity();
-                    const auto speed = velocity.length2D();
-                    if (speed >= 15.0f)
+                    if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                        continue;
+
+                    float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                    damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
+                    if (damage <= 0.f)
+                        continue;
+
+                    if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
+                        continue;
+
+                    if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+                        cmd->buttons |= UserCmd::IN_ATTACK2;
+
+                    if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                     {
-                        Vector direction = velocity.toAngle();
-                        direction.y = cmd->viewangles.y - direction.y;
-
-                        const auto negatedDirection = Vector::fromAngle(direction) * -speed;
-                        cmd->forwardmove = negatedDirection.x;
-                        cmd->sidemove = negatedDirection.y;
+                        resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
+                        return;
                     }
-                
-                }
-
-                if (std::fabsf((float)target.health - damage) <= damageDiff)
-                {
-                    bestAngle = angle;
-                    damageDiff = std::fabsf((float)target.health - damage);
-                    bestTarget = bonePosition;
-                    bestSimulationTime = record.simulationTime;
+                    runFullScan = true;
                 }
             }
-        }
 
-        if (bestTarget.notNull())
-        {
-            if (!Aimbot::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
+            if (runFullScan)
             {
-                bestTarget = Vector{ };
-                bestAngle = Vector{ };
-                bestSimulationTime = 0;
-                damageDiff = FLT_MAX;
+                for (const auto& bonePosition : Aimbot::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, cfg[weaponIndex].multiPoint))
+                {
+                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, (cmd->viewangles + aimPunch)) };
+                    const auto fov{ angle.length2D() };
+                    if (fov > cfg[weaponIndex].fov)
+                        continue;
+
+                    if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
+                        continue;
+
+                    float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                    damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
+                    if (damage <= 0.f)
+                        continue;
+
+                    if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
+                        continue;
+
+                    if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+                        cmd->buttons |= UserCmd::IN_ATTACK2;
+
+                    if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
+                    {
+                        resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
+                        return;
+                    }
+
+                    if (cfg[weaponIndex].autoStop && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+                    {
+                        const auto velocity = EnginePrediction::getVelocity();
+                        const auto speed = velocity.length2D();
+                        if (speed >= 15.0f)
+                        {
+                            Vector direction = velocity.toAngle();
+                            direction.y = cmd->viewangles.y - direction.y;
+
+                            const auto negatedDirection = Vector::fromAngle(direction) * -speed;
+                            cmd->forwardmove = negatedDirection.x;
+                            cmd->sidemove = negatedDirection.y;
+                        }
+
+                    }
+
+                    if (std::fabsf((float)target.health - damage) <= damageDiff)
+                    {
+                        bestAngle = angle;
+                        damageDiff = std::fabsf((float)target.health - damage);
+                        bestTarget = bonePosition;
+                        bestSimulationTime = record.simulationTime;
+                    }
+                }
+            }
+
+            if (bestTarget.notNull())
+            {
+                if (!Aimbot::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
+                {
+                    bestTarget = Vector{ };
+                    bestAngle = Vector{ };
+                    bestSimulationTime = 0;
+                    damageDiff = FLT_MAX;
+                }
             }
         }
 

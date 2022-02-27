@@ -205,6 +205,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 {
                     float desyncangle = RandomFloat(10, leftDesyncAngle);
                     cmd->viewangles.y += !invert ? desyncangle : -desyncangle;
+                    cmd->viewangles.z += RandomFloat(-30, 30);
                     sendPacket = false;
                     if (fabsf(cmd->sidemove) < 5.0f)
                     {

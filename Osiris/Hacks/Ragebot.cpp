@@ -129,6 +129,13 @@ void Ragebot::run(UserCmd* cmd) noexcept
         break;
     }
 
+    static auto frameRate = 1.0f;
+    frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
+
+    auto multiPoint = cfg[weaponIndex].multiPoint;
+    if (cfg[weaponIndex].disableMultipointIfLowFPS && static_cast<int>(1 / frameRate) <= 60)
+        multiPoint = 0;
+
     for (const auto& target : enemies) 
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
@@ -177,7 +184,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!hitbox)
                 continue;
 
-            for (auto &bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, i, cfg[weaponIndex].multiPoint))
+            for (auto &bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, i, multiPoint))
             {
                 const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
                 const auto fov{ angle.length2D() };
@@ -309,7 +316,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!hitbox)
                 continue;
 
-            for (auto& bonePosition : Aimbot::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, cfg[weaponIndex].multiPoint))
+            for (auto& bonePosition : Aimbot::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, multiPoint))
             {
                 const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, (cmd->viewangles + aimPunch)) };
                 const auto fov{ angle.length2D() };

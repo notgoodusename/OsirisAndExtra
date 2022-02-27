@@ -418,6 +418,7 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::Checkbox("Auto stop", &config->ragebot[currentWeapon].autoStop);
     ImGui::SameLine();
     ImGui::Checkbox("Between shots", &config->ragebot[currentWeapon].betweenShots);
+    ImGui::Checkbox("Disable multipoint if low fps", &config->ragebot[currentWeapon].disableMultipointIfLowFPS);
     ImGui::Combo("Priority", &config->ragebot[currentWeapon].priority, "Health\0Distance\0Fov\0");
 
     for (size_t i = 0; i < ARRAYSIZE(hitbox); i++)

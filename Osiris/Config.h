@@ -43,6 +43,7 @@ public:
         bool autoScope{ false };
         bool autoStop{ false };
         bool disableMultipointIfLowFPS{ false };
+        bool disableBacktrackIfLowFPS{ false };
         bool betweenShots{ false };
         int priority{ 0 };
         float fov{ 0.0f };

@@ -252,6 +252,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
         if (bestTarget.notNull())
             break;
 
+        if (cfg[weaponIndex].disableBacktrackIfLowFPS && static_cast<int>(1 / frameRate) <= 60)
+            continue;
+
         if (!config->backtrack.enabled)
             continue;
 

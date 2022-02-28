@@ -1788,16 +1788,16 @@ void GUI::renderConfigWindow() noexcept
                 if (ImGui::Selectable(names[i])) {
                     switch (i) {
                     case 0: config->reset(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
-                    case 1: config->legitbot = { }; break;
+                    case 1: config->legitbot = { }; config->legitbotKey = KeyBind::NONE; break;
                     case 2: config->legitAntiAim = { }; break;
-                    case 3: config->ragebot = { }; break;
+                    case 3: config->ragebot = { }; config->ragebotKey = KeyBind::NONE;  break;
                     case 4: config->rageAntiAim = { };  break;
                     case 5: config->fakeAngle = { }; break;
                     case 6: config->fakelag = { }; break;
                     case 7: config->backtrack = { }; break;
-                    case 8: config->triggerbot = { }; break;
+                    case 8: config->triggerbot = { }; config->triggerbotKey = KeyBind::NONE; break;
                     case 9: Glow::resetConfig(); break;
-                    case 10: config->chams = { }; break;
+                    case 10: config->chams = { }; config->chamsKey = KeyBind::NONE; break;
                     case 11: config->streamProofESP = { }; break;
                     case 12: config->visuals = { }; break;
                     case 13: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;

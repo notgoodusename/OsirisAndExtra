@@ -159,7 +159,7 @@ void Glow::updateInput() noexcept
 
 void Glow::drawGUI() noexcept
 {
-    ImGui::hotkey("Key", glowKey, 80.0f);
+    ImGui::hotkey2("Key", glowKey, 80.0f);
     ImGui::Separator();
 
     static int currentCategory{ 0 };

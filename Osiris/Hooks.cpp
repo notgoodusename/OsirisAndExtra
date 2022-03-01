@@ -1022,6 +1022,22 @@ static void __fastcall getColorModulationHook(void* thisPointer, void* edx, floa
     isProp ? *b *= 0.5f : *b *= 0.23f;
 }
 
+static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void*, Entity* player, unsigned int traceParams) noexcept
+{
+    static auto original = hooks->traceFilterForHeadCollision.getOriginal<bool>(player, traceParams);
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return original(thisPointer, player, traceParams);
+
+    if (!player || !player->isPlayer() || player == localPlayer.get())
+        return original(thisPointer, player, traceParams);
+
+    if (fabsf(player->getAbsOrigin().z - localPlayer->getAbsOrigin().z) < 10.0f)
+        return false;
+
+    return original(thisPointer, player, traceParams);
+}
+
 static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* edx) noexcept
 {
     return config->visuals.mapColor.enabled;
@@ -1104,6 +1120,7 @@ void Hooks::install() noexcept
     getColorModulation.detour(memory->getColorModulation, getColorModulationHook);
     isUsingStaticPropDebugModes.detour(memory->isUsingStaticPropDebugModes, isUsingStaticPropDebugModesHook);
 
+    traceFilterForHeadCollision.detour(memory->traceFilterForHeadCollision, traceFilterForHeadCollisionHook);
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());

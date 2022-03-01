@@ -228,6 +228,7 @@ public:
 
         KeyBind menuKey = KeyBind::INSERT;
         bool antiAfkKick{ false };
+        bool adBlock{ false };
         int forceRelayCluster{ 0 };
         bool autoStrafe{ false };
         bool bunnyHop{ false };

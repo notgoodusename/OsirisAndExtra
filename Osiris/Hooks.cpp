@@ -1022,7 +1022,7 @@ static void __fastcall getColorModulationHook(void* thisPointer, void* edx, floa
     isProp ? *b *= 0.5f : *b *= 0.23f;
 }
 
-static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void*, Entity* player, unsigned int traceParams) noexcept
+static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void* edx, Entity* player, unsigned int traceParams) noexcept
 {
     static auto original = hooks->traceFilterForHeadCollision.getOriginal<bool>(player, traceParams);
 
@@ -1036,6 +1036,27 @@ static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void*,
         return false;
 
     return original(thisPointer, player, traceParams);
+}
+
+static bool __fastcall dispatchUserMessage(void* thisPointer, void* edx, int messageType, int argument, int secondArgument, void* data) noexcept
+{
+    static auto original = hooks->client.getOriginal<bool, 38>(messageType, argument, secondArgument, data);
+
+    if (messageType == CS_UM_TextMsg || messageType == CS_UM_HudMsg || messageType == CS_UM_SayText)
+    {
+        if (config->misc.adBlock && !(*(memory->gameRules))->isValveDS())
+            return true;
+    }
+
+    return original(thisPointer, messageType, argument, secondArgument, data);
+}
+
+static void __fastcall performScreenOverlayHook(void* thisPointer, void* edx, int x, int y, int width, int height) noexcept
+{
+    static auto original = hooks->performScreenOverlay.getOriginal<void>(x, y, width, height);
+
+    if (!config->misc.adBlock || (*(memory->gameRules))->isValveDS())
+        return original(thisPointer, x, y, width, height);
 }
 
 static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* edx) noexcept
@@ -1121,6 +1142,7 @@ void Hooks::install() noexcept
     isUsingStaticPropDebugModes.detour(memory->isUsingStaticPropDebugModes, isUsingStaticPropDebugModesHook);
 
     traceFilterForHeadCollision.detour(memory->traceFilterForHeadCollision, traceFilterForHeadCollisionHook);
+    performScreenOverlay.detour(memory->performScreenOverlay, performScreenOverlayHook);
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
@@ -1128,6 +1150,7 @@ void Hooks::install() noexcept
     client.init(interfaces->client);
     client.hookAt(22, createMoveProxy);
     client.hookAt(37, frameStageNotify);
+    client.hookAt(38, dispatchUserMessage);
     
     clientMode.init(memory->clientMode);
     clientMode.hookAt(17, shouldDrawFog);

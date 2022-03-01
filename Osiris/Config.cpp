@@ -484,6 +484,7 @@ static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
     read(j, "Anti AFK kick", m.antiAfkKick);
+    read(j, "Adblock", m.adBlock);
     read(j, "Force relay", m.forceRelayCluster);
     read(j, "Auto strafe", m.autoStrafe);
     read(j, "Bunny hop", m.bunnyHop);
@@ -946,6 +947,7 @@ static void to_json(json& j, const Config::Misc& o)
 
     WRITE("Menu key", menuKey);
     WRITE("Anti AFK kick", antiAfkKick);
+    WRITE("Adblock", adBlock);
     WRITE("Force relay", forceRelayCluster);
     WRITE("Auto strafe", autoStrafe);
     WRITE("Bunny hop", bunnyHop);

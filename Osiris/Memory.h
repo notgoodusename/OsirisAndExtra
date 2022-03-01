@@ -188,6 +188,7 @@ public:
     std::uintptr_t getColorModulation;
     std::uintptr_t isUsingStaticPropDebugModes;
     std::uintptr_t traceFilterForHeadCollision;
+    std::uintptr_t performScreenOverlay;
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;

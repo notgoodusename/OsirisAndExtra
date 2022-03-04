@@ -43,6 +43,8 @@ public:
         bool autoShot{ false };
         bool autoScope{ false };
         bool autoStop{ false };
+        bool disableMultipointIfLowFPS{ false };
+        bool disableBacktrackIfLowFPS{ false };
         bool betweenShots{ false };
         int priority{ 0 };
         float fov{ 0.0f };
@@ -233,6 +235,7 @@ public:
 
         KeyBind menuKey = KeyBind::INSERT;
         bool antiAfkKick{ false };
+        bool adBlock{ false };
         int forceRelayCluster{ 0 };
         bool autoStrafe{ false };
         bool bunnyHop{ false };

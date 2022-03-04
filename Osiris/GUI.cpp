@@ -419,6 +419,8 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::Checkbox("Auto stop", &config->ragebot[currentWeapon].autoStop);
     ImGui::SameLine();
     ImGui::Checkbox("Between shots", &config->ragebot[currentWeapon].betweenShots);
+    ImGui::Checkbox("Disable multipoint if low fps", &config->ragebot[currentWeapon].disableMultipointIfLowFPS);
+    ImGui::Checkbox("Disable backtrack if low fps", &config->ragebot[currentWeapon].disableBacktrackIfLowFPS);
     ImGui::Combo("Priority", &config->ragebot[currentWeapon].priority, "Health\0Distance\0Fov\0");
 
     for (size_t i = 0; i < ARRAYSIZE(hitbox); i++)
@@ -1462,6 +1464,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::SetColumnOffset(1, 230.0f);
     hotkey3("Menu Key", config->misc.menuKey);
     ImGui::Checkbox("Anti AFK kick", &config->misc.antiAfkKick);
+    ImGui::Checkbox("Adblock", &config->misc.adBlock);
     ImGui::Combo("Force region", &config->misc.forceRelayCluster, "Off\0Australia\0Austria\0Brazil\0Chile\0Dubai\0France\0Germany\0Hong Kong\0India (Chennai)\0India (Mumbai)\0Japan\0Luxembourg\0Netherlands\0Peru\0Philipines\0Poland\0Singapore\0South Africa\0Spain\0Sweden\0UK\0USA (Atlanta)\0USA (Seattle)\0USA (Chicago)\0USA (Los Angeles)\0USA (Moses Lake)\0USA (Oklahoma)\0USA (Seattle)\0USA (Washington DC)\0");
     ImGui::Checkbox("Auto strafe", &config->misc.autoStrafe);
     ImGui::Checkbox("Bunny hop", &config->misc.bunnyHop);
@@ -1797,17 +1800,17 @@ void GUI::renderConfigWindow() noexcept
                 if (ImGui::Selectable(names[i])) {
                     switch (i) {
                     case 0: config->reset(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
-                    case 1: config->legitbot = { }; break;
+                    case 1: config->legitbot = { }; config->legitbotKey = KeyBind::NONE; break;
                     case 2: config->legitAntiAim = { }; break;
-                    case 3: config->ragebot = { }; break;
+                    case 3: config->ragebot = { }; config->ragebotKey = KeyBind::NONE;  break;
                     case 4: config->rageAntiAim = { };  break;
                     case 5: config->fakeAngle = { }; break;
                     case 6: config->fakelag = { }; break;
                     case 7: config->tickbase = { }; break;
                     case 8: config->backtrack = { }; break;
-                    case 9: config->triggerbot = { }; break;
+                    case 9: config->triggerbot = { }; config->triggerbotKey = KeyBind::NONE; break;
                     case 10: Glow::resetConfig(); break;
-                    case 11: config->chams = { }; break;
+                    case 11: config->chams = { }; config->chamsKey = KeyBind::NONE; break;
                     case 12: config->streamProofESP = { }; break;
                     case 13: config->visuals = { }; break;
                     case 14: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;

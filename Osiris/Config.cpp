@@ -260,6 +260,8 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Auto scope", r.autoScope);
     read(j, "Auto stop", r.autoStop);
     read(j, "Between shots", r.betweenShots);
+    read(j, "Disable multipoint if low fps", r.disableMultipointIfLowFPS);
+    read(j, "Disable backtrack if low fps", r.disableBacktrackIfLowFPS);
     read(j, "Priority", r.priority);
     read(j, "Fov", r.fov);
     read(j, "Hitboxes", r.hitboxes);
@@ -490,6 +492,7 @@ static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
     read(j, "Anti AFK kick", m.antiAfkKick);
+    read(j, "Adblock", m.adBlock);
     read(j, "Force relay", m.forceRelayCluster);
     read(j, "Auto strafe", m.autoStrafe);
     read(j, "Bunny hop", m.bunnyHop);
@@ -786,6 +789,8 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Auto scope", autoScope);
     WRITE("Auto stop", autoStop);
     WRITE("Between shots", betweenShots);
+    WRITE("Disable multipoint if low fps", disableMultipointIfLowFPS);
+    WRITE("Disable backtrack if low fps", disableMultipointIfLowFPS);
     WRITE("Priority", priority);
     WRITE("Fov", fov);
     WRITE("Hitboxes", hitboxes);
@@ -958,6 +963,7 @@ static void to_json(json& j, const Config::Misc& o)
 
     WRITE("Menu key", menuKey);
     WRITE("Anti AFK kick", antiAfkKick);
+    WRITE("Adblock", adBlock);
     WRITE("Force relay", forceRelayCluster);
     WRITE("Auto strafe", autoStrafe);
     WRITE("Bunny hop", bunnyHop);

@@ -58,6 +58,8 @@ public:
 
     MinHook getColorModulation;
     MinHook isUsingStaticPropDebugModes;
+    MinHook traceFilterForHeadCollision;
+    MinHook performScreenOverlay;
 
     MinHook newFunctionClientDLL;
     MinHook newFunctionEngineDLL;

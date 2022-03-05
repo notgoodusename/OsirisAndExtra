@@ -16,7 +16,7 @@ void Fakelag::run(bool& sendPacket) noexcept
     if (!netChannel)
         return;
 
-    auto chokedPackets = config->legitAntiAim.enabled ? 1 : 0;
+    auto chokedPackets = config->legitAntiAim.enabled ? 2 : 0;
     if (config->fakelag.enabled)
     {
         switch (config->fakelag.mode) {

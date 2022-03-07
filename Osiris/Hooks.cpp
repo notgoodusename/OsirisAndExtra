@@ -34,7 +34,7 @@
 #include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
 #include "Hacks/Ragebot.h"
-#include "Hacks/SkinChanger.h"
+#include "InventoryChanger/InventoryChanger.h"
 #include "Hacks/Sound.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
@@ -147,7 +147,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
 static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* params) noexcept
 {
     ImGui_ImplDX9_InvalidateDeviceObjects();
-    SkinChanger::clearItemIconTextures();
+    InventoryChanger::clearItemIconTextures();
     GameData::clearTextures();
     return hooks->originalReset(device, params);
 }
@@ -415,7 +415,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::disablePostProcessing(stage);
         Visuals::removeVisualRecoil(stage);
         Visuals::applyZoom(stage);
-        SkinChanger::run(stage);
+        InventoryChanger::run(stage);
         Misc::fixAnimationLOD(stage);
         Animations::renderStart(stage);
         Animations::handlePlayers(stage);

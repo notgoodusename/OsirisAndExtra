@@ -516,6 +516,16 @@ public:
         return name;
     }
 
+    std::uint64_t itemID() noexcept
+    {
+        return (std::uint64_t(itemIDHigh()) << 32) | itemIDLow();
+    }
+
+    std::uint64_t originalOwnerXuid() noexcept
+    {
+        return (std::uint64_t(originalOwnerXuidHigh()) << 32) | originalOwnerXuidLow();
+    }
+
     bool canSee(Entity* other, const Vector& pos) noexcept;
     bool visibleTo(Entity* other) noexcept;
 
@@ -573,6 +583,7 @@ public:
     NETVAR(duckAmount, "CCSPlayer", "m_flDuckAmount", float)
     NETVAR(duckSpeed, "CCSPlayer", "m_flDuckSpeed", float)
     NETVAR(duckOverride, "CCSPlayer", "m_bDuckOverride", bool)
+    NETVAR(playerPatchIndices, "CCSPlayer", "m_vecPlayerPatchEconIndices", int[5])
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)
     NETVAR(worldModelIndex, "CBaseCombatWeapon", "m_iWorldModelIndex", int)
@@ -595,7 +606,8 @@ public:
     NETVAR(accountID, "CBaseAttributableItem", "m_iAccountID", int)
     NETVAR(itemDefinitionIndex, "CBaseAttributableItem", "m_iItemDefinitionIndex", short)
     NETVAR(itemDefinitionIndex2, "CBaseAttributableItem", "m_iItemDefinitionIndex", WeaponId)
-    NETVAR(itemIDHigh, "CBaseAttributableItem", "m_iItemIDHigh", int)
+    NETVAR(itemIDHigh, "CBaseAttributableItem", "m_iItemIDHigh", std::uint32_t)
+    NETVAR(itemIDLow, "CBaseAttributableItem", "m_iItemIDLow", std::uint32_t)
     NETVAR(entityQuality, "CBaseAttributableItem", "m_iEntityQuality", int)
     NETVAR(customName, "CBaseAttributableItem", "m_szCustomName", char[32])
     NETVAR(fallbackPaintKit, "CBaseAttributableItem", "m_nFallbackPaintKit", unsigned)

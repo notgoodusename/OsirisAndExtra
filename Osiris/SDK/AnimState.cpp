@@ -688,25 +688,6 @@ void AnimState::setupAliveLoop() noexcept
     }
 }
 
-void AnimState::addActivityModifier(const char* name) noexcept
-{
-    activityModifiersWrapper().addModifier(name);
-}
-
-void AnimState::updateActivityModifiers() noexcept
-{
-    auto entity = reinterpret_cast<Entity*>(player);
-
-    activityModifiersWrapper modifierWrapper{};
-    modifierWrapper.addModifier(memory->getWeaponPrefix(this));
-
-    if (speedAsPortionOfWalkTopSpeed > .25f)
-        modifierWrapper.addModifier("moving");
-
-    if (animDuckAmount > .55f)
-        modifierWrapper.addModifier("crouch");
-}
-
 void AnimState::doAnimationEvent(int animationEvent) noexcept
 {
     auto entity = reinterpret_cast<Entity*>(player);
@@ -717,7 +698,7 @@ void AnimState::doAnimationEvent(int animationEvent) noexcept
         return;
     case PLAYERANIMEVENT_THROW_GRENADE_UNDERHAND:
     {
-        addActivityModifier("underhand");
+        //addActivityModifier("underhand");
     }
     case PLAYERANIMEVENT_FIRE_GUN_PRIMARY:
     case PLAYERANIMEVENT_THROW_GRENADE:

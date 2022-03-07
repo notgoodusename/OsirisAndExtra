@@ -22,6 +22,7 @@
 #include "SDK/InputSystem.h"
 #include "Hacks/Visuals.h"
 #include "Hacks/Glow.h"
+#include "InventoryChanger/InventoryChanger.h"
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"
 #include "Hacks/Sound.h"
@@ -1243,11 +1244,6 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Columns(1);
 }
 
-void GUI::renderSkinChangerWindow() noexcept
-{
-InventoryChanger::d
-}
-
 void GUI::renderMiscWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
@@ -1589,7 +1585,7 @@ void GUI::renderConfigWindow() noexcept
 
                 if (ImGui::Selectable(names[i])) {
                     switch (i) {
-                    case 0: config->reset(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
+                    case 0: config->reset(); Misc::updateClanTag(true); InventoryChanger::scheduleHudUpdate(); break;
                     case 1: config->legitbot = { }; config->legitbotKey = KeyBind::NONE; break;
                     case 2: config->legitAntiAim = { }; break;
                     case 3: config->ragebot = { }; config->ragebotKey = KeyBind::NONE;  break;
@@ -1602,7 +1598,7 @@ void GUI::renderConfigWindow() noexcept
                     case 10: config->chams = { }; config->chamsKey = KeyBind::NONE; break;
                     case 11: config->streamProofESP = { }; break;
                     case 12: config->visuals = { }; break;
-                    case 13: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
+                    case 13: InventoryChanger::resetConfig(); InventoryChanger::scheduleHudUpdate(); break;
                     case 14: Sound::resetConfig(); break;
                     case 15: config->misc = { };  Misc::updateClanTag(true); break;
                     }
@@ -1613,7 +1609,7 @@ void GUI::renderConfigWindow() noexcept
         if (currentConfig != -1) {
             if (ImGui::Button("Load selected", { 100.0f, 25.0f })) {
                 config->load(currentConfig, incrementalLoad);
-                SkinChanger::scheduleHudUpdate();
+                InventoryChanger::scheduleHudUpdate();
                 Misc::updateClanTag(true);
             }
             if (ImGui::Button("Save selected", { 100.0f, 25.0f }))
@@ -1841,7 +1837,7 @@ void GUI::renderGuiStyle() noexcept
                                     break;
                                 case 5:
                                     //Skins
-                                    renderSkinChangerWindow();
+                                    InventoryChanger::drawGUI();
                                     break;
                                 default:
                                     break;

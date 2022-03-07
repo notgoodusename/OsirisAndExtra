@@ -114,7 +114,7 @@ static void applyGloves(CSPlayerInventory& localInventory, Entity* local) noexce
     local->body() = 1;
 
     bool dataUpdated = false;
-    if (auto& definitionIndex = glove->itemDefinitionIndex(); definitionIndex != item->get().getWeaponID()) {
+    if (auto& definitionIndex = glove->itemDefinitionIndex2(); definitionIndex != item->get().getWeaponID()) {
         definitionIndex = item->get().getWeaponID();
 
         if (const auto def = memory->itemSystem()->getItemSchema()->getItemDefinitionInterface(item->get().getWeaponID()))
@@ -167,7 +167,7 @@ static void applyKnife(CSPlayerInventory& localInventory, Entity* local) noexcep
         if (!weapon)
             continue;
 
-        auto& definitionIndex = weapon->itemDefinitionIndex();
+        auto& definitionIndex = weapon->itemDefinitionIndex2();
         if (!Helpers::isKnife(definitionIndex))
             continue;
 
@@ -226,7 +226,7 @@ static void applyWeapons(CSPlayerInventory& localInventory, Entity* local) noexc
         if (weapon->originalOwnerXuid() != localXuid)
             continue;
 
-        const auto& definitionIndex = weapon->itemDefinitionIndex();
+        const auto& definitionIndex = weapon->itemDefinitionIndex2();
         if (Helpers::isKnife(definitionIndex))
             continue;
 
@@ -519,25 +519,6 @@ void InventoryChanger::onRoundMVP(GameEvent& event) noexcept
     }
 }
 
-static bool windowOpen = false;
-
-void InventoryChanger::menuBarItem() noexcept
-{
-    if (ImGui::MenuItem("Inventory Changer")) {
-        windowOpen = true;
-        ImGui::SetWindowFocus("Inventory Changer");
-        ImGui::SetWindowPos("Inventory Changer", { 100.0f, 100.0f });
-    }
-}
-
-void InventoryChanger::tabItem() noexcept
-{
-    if (ImGui::BeginTabItem("Inventory Changer")) {
-        drawGUI(true);
-        ImGui::EndTabItem();
-    }
-}
-
 static ImTextureID getItemIconTexture(std::string_view iconpath) noexcept;
 
 namespace ImGui
@@ -753,18 +734,8 @@ namespace ImGui
     }
 }
 
-void InventoryChanger::drawGUI(bool contentOnly) noexcept
+void InventoryChanger::drawGUI() noexcept
 {
-    if (!contentOnly) {
-        if (!windowOpen)
-            return;
-        ImGui::SetNextWindowSize({ 700.0f, 400.0f });
-        if (!ImGui::Begin("Inventory Changer", &windowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse)) {
-            ImGui::End();
-            return;
-        }
-    }
-
     static std::string filter;
 
     static bool isInAddMode = false;
@@ -833,7 +804,7 @@ void InventoryChanger::drawGUI(bool contentOnly) noexcept
             return true;
         };
 
-        if (ImGui::BeginChild("##scrollarea", ImVec2{ 0.0f, contentOnly ? 400.0f : 0.0f })) {
+        if (ImGui::BeginChild("##scrollarea", ImVec2{ 0.0f, 400.0f })) {
             static auto itemIndices = StaticData::getItemIndices();
             if (static bool sorted = false; !sorted) {
                 std::ranges::sort(itemIndices, [](const auto aIndex, const auto bIndex) {
@@ -872,7 +843,7 @@ void InventoryChanger::drawGUI(bool contentOnly) noexcept
         }
         ImGui::EndChild();
     } else {
-        if (ImGui::BeginChild("##scrollarea2", ImVec2{ 0.0f, contentOnly ? 400.0f : 0.0f })) {
+        if (ImGui::BeginChild("##scrollarea2", ImVec2{ 0.0f,  400.0f })) {
             auto& inventory = Inventory::get();
             for (std::size_t i = inventory.size(); i-- > 0;) {
                 if (inventory[i].isDeleted() || inventory[i].shouldDelete())
@@ -888,9 +859,6 @@ void InventoryChanger::drawGUI(bool contentOnly) noexcept
         }
         ImGui::EndChild();
     }
-
-    if (!contentOnly)
-        ImGui::End();
 }
 
 void InventoryChanger::clearInventory() noexcept
@@ -1272,7 +1240,7 @@ void InventoryChanger::fixKnifeAnimation(Entity* viewModelWeapon, long& sequence
     if (!localPlayer)
         return;
 
-    if (!Helpers::isKnife(viewModelWeapon->itemDefinitionIndex()))
+    if (!Helpers::isKnife(viewModelWeapon->itemDefinitionIndex2()))
         return;
 
     const auto localInventory = memory->inventoryManager->getLocalInventory();
@@ -1286,5 +1254,5 @@ void InventoryChanger::fixKnifeAnimation(Entity* viewModelWeapon, long& sequence
     if (const auto soc = memory->getSOCData(itemView); !soc || Inventory::getItem(soc->itemID) == nullptr)
         return;
 
-    sequence = remapKnifeAnim(viewModelWeapon->itemDefinitionIndex(), sequence);
+    sequence = remapKnifeAnim(viewModelWeapon->itemDefinitionIndex2(), sequence);
 }

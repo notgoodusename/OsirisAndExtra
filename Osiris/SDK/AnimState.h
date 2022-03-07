@@ -49,35 +49,6 @@
 #define FIRSTPERSON_TO_THIRDPERSON_VERTICAL_TOLERANCE_MIN 4.0f
 #define FIRSTPERSON_TO_THIRDPERSON_VERTICAL_TOLERANCE_MAX 10.0f
 
-class activityModifiersWrapper
-{
-private:
-	uint32_t gap[0x4D]{ 0 };
-	UtlVector<uint16_t> modifiers{};
-
-public:
-	activityModifiersWrapper() = default;
-
-	explicit activityModifiersWrapper(UtlVector<uint16_t> currentModifiers) noexcept
-	{
-		modifiers.removeAll();
-		modifiers.growVector(currentModifiers.size);
-
-		for (auto i = 0; i < currentModifiers.size; i++)
-			modifiers[i] = currentModifiers[i];
-	}
-
-	void addModifier(const char* name) noexcept
-	{
-		memory->addActivityModifier(this, name);
-	}
-
-	UtlVector<uint16_t> get() noexcept
-	{
-		return modifiers;
-	}
-};
-
 struct animstatePoseParamCache
 {
 public:
@@ -243,8 +214,6 @@ struct AnimState //This is the client one
 	void setupAliveLoop() noexcept;
 
 	void doAnimationEvent(int animationEvent) noexcept;
-	void updateActivityModifiers() noexcept;
-	void addActivityModifier(const char* name) noexcept;
 
 	void updateAnimLayer(size_t layerIndex, int sequence, float playbackRate, float weight, float cycle) noexcept;
 

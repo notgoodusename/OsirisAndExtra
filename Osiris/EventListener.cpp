@@ -4,7 +4,7 @@
 #include "fnv.h"
 #include "GameData.h"
 #include "Hacks/Misc.h"
-#include "Hacks/SkinChanger.h"
+#include "InventoryChanger/InventoryChanger.h"
 #include "Hacks/Visuals.h"
 #include "Interfaces.h"
 #include "Memory.h"
@@ -48,8 +48,8 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::purchaseList(event);
         break;
     case fnv::hash("player_death"):
-        SkinChanger::updateStatTrak(*event);
-        SkinChanger::overrideHudIcon(*event);
+        InventoryChanger::updateStatTrak(*event);
+        InventoryChanger::overrideHudIcon(*event);
         Misc::killMessage(*event);
         Misc::killSound(*event);
         break;

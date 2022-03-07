@@ -13,9 +13,7 @@ class SharedObject;
 namespace InventoryChanger
 {
     // GUI
-    void menuBarItem() noexcept;
-    void tabItem() noexcept;
-    void drawGUI(bool contentOnly) noexcept;
+    void drawGUI() noexcept;
 
     void run(FrameStage) noexcept;
     void scheduleHudUpdate() noexcept;

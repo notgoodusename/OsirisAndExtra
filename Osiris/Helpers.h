@@ -1,12 +1,17 @@
 #pragma once
 
+#include <concepts>
+#include <mutex>
 #include <array>
 #include <numbers>
+#include <random>
 #include <string>
 #include <vector>
 
 #include "imgui/imgui.h"
 #include "Config.h"
+
+#include "SDK/WeaponId.h"
 
 struct Color4;
 struct Vector;
@@ -69,4 +74,57 @@ namespace Helpers
 
     constexpr auto deg2rad(float degrees) noexcept { return degrees * (std::numbers::pi_v<float> / 180.0f); }
     constexpr auto rad2deg(float radians) noexcept { return radians * (180.0f / std::numbers::pi_v<float>); }
+
+    constexpr auto isKnife(WeaponId id) noexcept
+    {
+        return (id >= WeaponId::Bayonet && id <= WeaponId::SkeletonKnife) || id == WeaponId::KnifeT || id == WeaponId::Knife;
+    }
+
+    constexpr auto isSouvenirToken(WeaponId id) noexcept
+    {
+        switch (id) {
+        case WeaponId::Berlin2019SouvenirToken:
+        case WeaponId::Stockholm2021SouvenirToken:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    [[nodiscard]] constexpr auto isMP5LabRats(WeaponId weaponID, int paintKit) noexcept
+    {
+        return weaponID == WeaponId::Mp5sd && paintKit == 800;
+    }
+
+    class RandomGenerator {
+    public:
+        template <std::integral T>
+        [[nodiscard]] static T random(T min, T max) noexcept
+        {
+            std::scoped_lock lock{ mutex };
+            return std::uniform_int_distribution{ min, max }(gen);
+        }
+
+        template <std::floating_point T>
+        [[nodiscard]] static T random(T min, T max) noexcept
+        {
+            std::scoped_lock lock{ mutex };
+            return std::uniform_real_distribution{ min, max }(gen);
+        }
+
+        template <typename T>
+        [[nodiscard]] static std::enable_if_t<std::is_enum_v<T>, T> random(T min, T max) noexcept
+        {
+            return static_cast<T>(random(static_cast<std::underlying_type_t<T>>(min), static_cast<std::underlying_type_t<T>>(max)));
+        }
+    private:
+        inline static std::mt19937 gen{ std::random_device{}() };
+        inline static std::mutex mutex;
+    };
+
+    template <typename T>
+    [[nodiscard]] T random(T min, T max) noexcept
+    {
+        return RandomGenerator::random(min, max);
+    }
 }

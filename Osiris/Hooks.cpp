@@ -52,6 +52,7 @@
 #include "SDK/GlobalVars.h"
 #include "SDK/Input.h"
 #include "SDK/InputSystem.h"
+#include "SDK/ItemSchema.h"
 #include "SDK/MaterialSystem.h"
 #include "SDK/ModelRender.h"
 #include "SDK/NetworkChannel.h"
@@ -140,6 +141,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     }
 
     GameData::clearUnusedAvatars();
+    InventoryChanger::clearUnusedItemIconTextures();
 
     return hooks->originalPresent(device, src, dest, windowOverride, dirtyRegion);
 }
@@ -415,12 +417,13 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::disablePostProcessing(stage);
         Visuals::removeVisualRecoil(stage);
         Visuals::applyZoom(stage);
-        InventoryChanger::run(stage);
         Misc::fixAnimationLOD(stage);
         Animations::renderStart(stage);
         Animations::handlePlayers(stage);
         Backtrack::update(stage);
     }
+    InventoryChanger::run(stage);
+
     hooks->client.callOriginal<void, 37>(stage);
 }
 
@@ -1084,6 +1087,35 @@ static char __fastcall newFunctionMaterialSystemBypass(void* thisPointer, void* 
     return 1;
 }
 
+static double __stdcall getArgAsNumber(void* params, int index) noexcept
+{
+    const auto result = hooks->panoramaMarshallHelper.callOriginal<double, 5>(params, index);
+    InventoryChanger::getArgAsNumberHook(static_cast<int>(result), RETURN_ADDRESS());
+    return result;
+}
+
+static const char* __stdcall getArgAsString(void* params, int index) noexcept
+{
+    const auto result = hooks->panoramaMarshallHelper.callOriginal<const char*, 7>(params, index);
+
+    if (result)
+        InventoryChanger::getArgAsStringHook(result, RETURN_ADDRESS());
+
+    return result;
+}
+
+static bool __stdcall equipItemInLoadout(Team team, int slot, std::uint64_t itemID, bool swap) noexcept
+{
+    InventoryChanger::onItemEquip(team, slot, itemID);
+    return hooks->inventoryManager.callOriginal<bool, WIN32_LINUX(20, 21)>(team, slot, itemID, swap);
+}
+
+static void __stdcall soUpdated(SOID owner, SharedObject* object, int event) noexcept
+{
+    InventoryChanger::onSoUpdated(object);
+    hooks->inventory.callOriginal<void, 1>(owner, object, event);
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -1178,8 +1210,18 @@ void Hooks::install() noexcept
     gameMovement.hookAt(32, onJump);
     //gameMovement.hookAt(61, canUnduck);
 
+    inventory.init(memory->inventoryManager->getLocalInventory());
+    inventory.hookAt(1, &soUpdated);
+
+    inventoryManager.init(memory->inventoryManager);
+    inventoryManager.hookAt(20, &equipItemInLoadout);
+
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);
+
+    panoramaMarshallHelper.init(memory->panoramaMarshallHelper);
+    panoramaMarshallHelper.hookAt(5, &getArgAsNumber);
+    panoramaMarshallHelper.hookAt(7, &getArgAsString);
 
     prediction.init(interfaces->prediction);
     prediction.hookAt(19, runCommand);

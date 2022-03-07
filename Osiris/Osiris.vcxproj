@@ -42,7 +42,6 @@
     <ClCompile Include="Hacks\Knifebot.cpp" />
     <ClCompile Include="Hacks\Legitbot.cpp" />
     <ClCompile Include="Hacks\Ragebot.cpp" />
-    <ClCompile Include="Hacks\SkinChanger.cpp" />
     <ClCompile Include="Hacks\Sound.cpp" />
     <ClCompile Include="Hacks\StreamProofESP.cpp" />
     <ClCompile Include="Hacks\Triggerbot.cpp" />
@@ -56,6 +55,12 @@
     <ClCompile Include="imgui\imgui_stdlib.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="InputUtil.cpp" />
+    <ClCompile Include="InventoryChanger\Inventory.cpp" />
+    <ClCompile Include="InventoryChanger\InventoryChanger.cpp" />
+    <ClCompile Include="InventoryChanger\InventoryConfig.cpp" />
+    <ClCompile Include="InventoryChanger\ItemGenerator.cpp" />
+    <ClCompile Include="InventoryChanger\StaticData.cpp" />
+    <ClCompile Include="InventoryChanger\ToolUser.cpp" />
     <ClCompile Include="MinHook\buffer.c" />
     <ClCompile Include="MinHook\hde\hde32.c" />
     <ClCompile Include="MinHook\hde\hde64.c" />
@@ -102,7 +107,6 @@
     <ClInclude Include="Hacks\Legitbot.h" />
     <ClInclude Include="Hacks\Misc.h" />
     <ClInclude Include="Hacks\Ragebot.h" />
-    <ClInclude Include="Hacks\SkinChanger.h" />
     <ClInclude Include="Hacks\Sound.h" />
     <ClInclude Include="Hacks\StreamProofESP.h" />
     <ClInclude Include="Hacks\Triggerbot.h" />
@@ -115,6 +119,17 @@
     <ClInclude Include="imgui\imgui_freetype.h" />
     <ClInclude Include="imgui\imgui_stdlib.h" />
     <ClInclude Include="InputUtil.h" />
+    <ClInclude Include="InventoryChanger\GameItems\Item.h" />
+    <ClInclude Include="InventoryChanger\GameItems\Lookup.h" />
+    <ClInclude Include="InventoryChanger\GameItems\Storage.h" />
+    <ClInclude Include="InventoryChanger\Inventory.h" />
+    <ClInclude Include="InventoryChanger\InventoryChanger.h" />
+    <ClInclude Include="InventoryChanger\InventoryConfig.h" />
+    <ClInclude Include="InventoryChanger\ItemGenerator.h" />
+    <ClInclude Include="InventoryChanger\StaticData.h" />
+    <ClInclude Include="InventoryChanger\ToolUser.h" />
+    <ClInclude Include="InventoryChanger\TournamentMatches.h" />
+    <ClInclude Include="JsonForward.h" />
     <ClInclude Include="MinHook\buffer.h" />
     <ClInclude Include="MinHook\hde\hde32.h" />
     <ClInclude Include="MinHook\hde\hde64.h" />

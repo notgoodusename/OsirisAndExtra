@@ -33,6 +33,12 @@
     <Filter Include="freetype">
       <UniqueIdentifier>{15481d2e-5516-4ece-9b00-79e32710804c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="InventoryChanger">
+      <UniqueIdentifier>{5c9552e6-2f8e-4999-90db-d2e43495fa85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InventoryChanger\GameItems">
+      <UniqueIdentifier>{1d67b58f-839e-493b-95a6-045b1ae0105e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GUI.cpp">
@@ -87,9 +93,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Hacks\Visuals.cpp">
-      <Filter>Hacks</Filter>
-    </ClCompile>
-    <ClCompile Include="Hacks\SkinChanger.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
     <ClCompile Include="Hacks\Backtrack.cpp">
@@ -242,6 +245,24 @@
     <ClCompile Include="SDK\checksum_crc.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
+    <ClCompile Include="InventoryChanger\Inventory.cpp">
+      <Filter>InventoryChanger</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryChanger\InventoryChanger.cpp">
+      <Filter>InventoryChanger</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryChanger\InventoryConfig.cpp">
+      <Filter>InventoryChanger</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryChanger\ItemGenerator.cpp">
+      <Filter>InventoryChanger</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryChanger\StaticData.cpp">
+      <Filter>InventoryChanger</Filter>
+    </ClCompile>
+    <ClCompile Include="InventoryChanger\ToolUser.cpp">
+      <Filter>InventoryChanger</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -384,9 +405,6 @@
     </ClInclude>
     <ClInclude Include="SDK\GameUI.h">
       <Filter>SDK</Filter>
-    </ClInclude>
-    <ClInclude Include="Hacks\SkinChanger.h">
-      <Filter>Hacks</Filter>
     </ClInclude>
     <ClInclude Include="SDK\FrameStage.h">
       <Filter>SDK</Filter>
@@ -627,6 +645,39 @@
     </ClInclude>
     <ClInclude Include="SDK\checksum_crc.h">
       <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\GameItems\Item.h">
+      <Filter>InventoryChanger\GameItems</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\GameItems\Lookup.h">
+      <Filter>InventoryChanger\GameItems</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\GameItems\Storage.h">
+      <Filter>InventoryChanger\GameItems</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\Inventory.h">
+      <Filter>InventoryChanger</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\InventoryChanger.h">
+      <Filter>InventoryChanger</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\InventoryConfig.h">
+      <Filter>InventoryChanger</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\ItemGenerator.h">
+      <Filter>InventoryChanger</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\StaticData.h">
+      <Filter>InventoryChanger</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\ToolUser.h">
+      <Filter>InventoryChanger</Filter>
+    </ClInclude>
+    <ClInclude Include="InventoryChanger\TournamentMatches.h">
+      <Filter>InventoryChanger</Filter>
+    </ClInclude>
+    <ClInclude Include="JsonForward.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

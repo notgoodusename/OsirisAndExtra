@@ -7,7 +7,6 @@
 #include <unordered_map>
 
 #include "imgui/imgui.h"
-#include "Hacks/SkinChanger.h"
 #include "ConfigStructs.h"
 #include "InputUtil.h"
 
@@ -221,7 +220,7 @@ public:
         ColorToggle3 mapColor;
     } visuals;
 
-    std::array<item_setting, 36> skinChanger;
+    //std::array<item_setting, 36> skinChanger;
 
     struct Misc {
         Misc() { clanTag[0] = '\0'; menuKey.keyMode = KeyMode::Toggle; }

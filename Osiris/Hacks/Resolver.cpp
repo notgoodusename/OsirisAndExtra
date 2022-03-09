@@ -150,8 +150,8 @@ namespace Resolver
         record->FiredUpon = universalhurt;
         missed = record->missedshots;
         if (record->lastworkingshot != -1)
-            missed = record->lastworkingshot;
-
+        missed = record->lastworkingshot;
+        float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;
         switch (missed % 3) {
         case 1:
             if (eye_feet == 0)
@@ -160,15 +160,15 @@ namespace Resolver
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
-            else if (eye_feet > 0.f)
+            else if (desyncSide < 1)
             {
-                desyncAng = animstate->footYaw - entity->getMaxDesyncAngle();
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle()) / 1.3;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
             else
             {
-                desyncAng = animstate->footYaw + entity->getMaxDesyncAngle();
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle()) / 1.3;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
@@ -180,15 +180,15 @@ namespace Resolver
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
-            else if (eye_feet > 0.f)
+            else if (desyncSide < 1)
             {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() * 2)-2;
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle()) / 1.5;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
             else
             {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() * 2)-2;
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle()) / 1.5;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
@@ -200,15 +200,15 @@ namespace Resolver
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
-            else if (eye_feet > 0.f)
+            else if (desyncSide < 1)
             {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 2) - 2;
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle()) / 1.9;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
             else
             {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 2) - 2;
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle()) / 1.9;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
@@ -220,16 +220,15 @@ namespace Resolver
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
-            else if (eye_feet > 0.f)
+            else if (desyncSide < 1)
             {
-                break;
-                desyncAng = animstate->footYaw - 60;
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle()) / 2;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
             else
             {
-                desyncAng = animstate->footYaw + 60;
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle()) / 2;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }

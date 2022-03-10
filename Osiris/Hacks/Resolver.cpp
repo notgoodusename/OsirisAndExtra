@@ -10,8 +10,10 @@ namespace Resolver
 {
     bool universalhurt = false;
     int shots = 0;
+    float lastFireTime = -1.f;
+    float tickHitWall = .0f;
+    float tickHitPlayer = .0f;
     int missed = 0;
-    bool enemyhit = false;
     typedef void(__cdecl* MsgFn)(const char* msg, va_list);
     void Msg(const char* msg, ...)
     {
@@ -41,7 +43,6 @@ namespace Resolver
 
                 if (record->FiredUpon || record->wasTargeted) {
                     universalhurt = false;
-                    record->lastworkingshot = record->missedshots;
                 }
                 record->invalid = true;
 
@@ -55,18 +56,8 @@ namespace Resolver
             if (!record->FiredUpon)
                 continue;
 
-            if (shots>0 && record->prevhealth == entity->health()) {
+            if (missed>0 && record->prevhealth == entity->health()) {
 
-                record->lastworkingshot = -1;
-                if (shots > record->missedshots)
-                {
-                    record->missedshots = shots;
-                }
-                else if (shots > 12)
-                {
-                    record->missedshots = 1;
-                    shots = 1;
-                }
                 record->wasUpdated = false;
             }
 
@@ -149,26 +140,25 @@ namespace Resolver
         float eye_feet = (entity->eyeAngles().y - animstate->footYaw);
         record->FiredUpon = universalhurt;
         missed = record->missedshots;
-        if (record->lastworkingshot != -1)
-        missed = record->lastworkingshot;
+       
         float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;
-        switch (missed % 3) {
+        switch (missed % 4) {
         case 1:
             if (eye_feet == 0)
             {
-                desyncAng = animstate->footYaw;
+                desyncAng = 0;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
-            else if (desyncSide < 1)
+            else if (desyncSide == -1)
             {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle()) / 1.3;
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.3);
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
             else
             {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle()) / 1.3;
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.3);
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
@@ -176,19 +166,19 @@ namespace Resolver
         case 2:
             if (eye_feet == 0)
             {
-                desyncAng = animstate->footYaw;
+                desyncAng = 0;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
-            else if (desyncSide < 1)
+            else if (desyncSide == -1)
             {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle()) / 1.5;
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.7);
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
             else
             {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle()) / 1.5;
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.7);
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
@@ -196,19 +186,19 @@ namespace Resolver
         case 3:
             if (eye_feet == 0)
             {
-                desyncAng = animstate->footYaw;
+                desyncAng = 0;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
-            else if (desyncSide < 1)
+            else if (desyncSide == -1)
             {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle()) / 1.9;
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 2.2);
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
             else
             {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle()) / 1.9;
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 2.2);
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
@@ -216,19 +206,19 @@ namespace Resolver
         default:
             if (eye_feet == 0)
             {
-                desyncAng = animstate->footYaw;
+                desyncAng = 0;
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
-            else if (desyncSide < 1)
+            else if (desyncSide == -1)
             {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle()) / 2;
+                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() * 1.9);
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
             else
             {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle()) / 2;
+                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() * 1.9);
                 eye_feet = (entity->eyeAngles().y - animstate->footYaw);
                 break;
             }
@@ -260,36 +250,59 @@ namespace Resolver
         const auto localUserId = localPlayer->getUserId();
         if ( event.getInt("attacker") != localUserId && event.getInt("userid") == localUserId)
         {
-             //universalhurt = true;
-            //Msg("Ouch: %d", 8);
+             universalhurt = true;
             Msg("Damage taken\n");
 
         }
         else if (event.getInt("attacker") == localUserId && event.getInt("userid") != localUserId)
         {
-            enemyhit = true;
-            Msg("HIT\n");
+            int tickcount = memory->globalVars->tickCount;
+            if (tickcount != tickHitPlayer)
+            {
+                tickHitPlayer = memory->globalVars->tickCount;
+                if (event.getInt("hitgroup") == HitGroup::Head)
+                {
+                    missed = 0;
+                    Msg("Headshot\n");
+                }
+                else 
+                {
+                    Msg("baim\n");
+                }
+
+            }
+         
         }
        
     }
-    void shott(GameEvent& event) noexcept
+   
+    void thru(GameEvent& event) noexcept //bullet_impact
+    {
+        if (!localPlayer || !localPlayer->isAlive())
+            return;
+        const auto localUserIdz = localPlayer->getUserId();
+        if (event.getInt("userid") == localUserIdz)
+        {
+            int tickcount = memory->globalVars->tickCount;
+            if (tickcount != tickHitPlayer)
+            {
+                tickHitWall = tickcount;
+                missed++;
+                Msg("Missed due to resolver\n");
+            }
+        }
+
+    }
+    void shott(GameEvent& event) noexcept //weapon_fire
     {
         if (!localPlayer || !localPlayer->isAlive())
             return;
         const auto localUserIds = localPlayer->getUserId();
-        if (event.getInt("userid")  == localUserIds)
+        if (event.getInt("userid") == localUserIds)
         {
-            if (enemyhit)
-            {
-                shots = 0;
-                enemyhit = false;
-            }
-            else {
-                shots++;
-                Msg("Missed due to resolver\n");
-            }
-           
-
+            shots++;
+            lastFireTime = memory->globalVars->serverTime();
+            
         }
 
     }

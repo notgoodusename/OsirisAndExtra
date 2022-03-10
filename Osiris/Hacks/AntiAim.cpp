@@ -132,11 +132,11 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
 
             if (config->rageAntiAim.yawBase != 5)
                 staticYaw = 0.f;
-
+            bool isInvertToggled = config->fakeAngle.invert.isActive();
             switch (config->rageAntiAim.yawBase)
             {
-            case 1: //Forward
-                yaw += 0.f;
+            case 1: //Paranoia
+                yaw += (isInvertToggled ? -15 : +15) + 180.f;
                 break;
             case 2: //Back
                 yaw += 180.f;

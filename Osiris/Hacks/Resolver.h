@@ -28,6 +28,7 @@ namespace Resolver
 	void basic(Entity* entity) noexcept;
     void hurt(GameEvent& event) noexcept;
     void shott(GameEvent& event) noexcept;
+    void thru(GameEvent& event) noexcept;
     void Msg(const char* msg, ...);
 
 	inline std::array<Record, 65> records{};

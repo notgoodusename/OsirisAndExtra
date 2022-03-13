@@ -139,91 +139,47 @@ namespace Resolver
         entity->updateState(animstate, entity->eyeAngles());
         float eye_feet = (entity->eyeAngles().y - animstate->footYaw);
         record->FiredUpon = universalhurt;
-        missed = record->missedshots;
        
         float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;
-        switch (missed % 4) {
-        case 1:
+        if (missed > 0)
+        {
             if (eye_feet == 0)
             {
                 desyncAng = 0;
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
             }
             else if (desyncSide == -1)
             {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.3);
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
+                switch (missed % 3) {
+                case 1:
+                    desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.3f);
+                    break;
+                case 2:
+                    desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.6f);
+                    break;
+                case 3:
+                    desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 2.0f);
+                    break;
+                }
+                
             }
             else
             {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.3);
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
+                switch (missed % 3) {
+                case 1:
+                    desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.3f);
+                    break;
+                case 2:
+                    desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.6f);
+                    break;
+                case 3:
+                    desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 2.0f);
+                    break;
+                }
             }
-
-        case 2:
-            if (eye_feet == 0)
-            {
-                desyncAng = 0;
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-            else if (desyncSide == -1)
-            {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.7);
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-            else
-            {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.7);
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-
-        case 3:
-            if (eye_feet == 0)
-            {
-                desyncAng = 0;
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-            else if (desyncSide == -1)
-            {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 2.2);
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-            else
-            {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 2.2);
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-
-        default:
-            if (eye_feet == 0)
-            {
-                desyncAng = 0;
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-            else if (desyncSide == -1)
-            {
-                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() * 1.9);
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-            else
-            {
-                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() * 1.9);
-                eye_feet = (entity->eyeAngles().y - animstate->footYaw);
-                break;
-            }
-
         }
+     
+
+        
 
         
         entity->eyeAngles().y += desyncAng;

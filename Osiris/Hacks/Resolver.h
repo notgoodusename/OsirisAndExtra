@@ -13,7 +13,6 @@ namespace Resolver
         int mystartinghealth = 0;
         int myhealth = 0;
         int lastworkingshot = -1;
-        int missedshots = 0;
         bool wasTargeted = false;
         bool invalid = true;
         bool FiredUpon = false;

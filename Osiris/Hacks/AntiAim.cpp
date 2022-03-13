@@ -156,6 +156,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             }
             yaw += static_cast<float>(config->rageAntiAim.yawAdd);
             cmd->viewangles.y += yaw;
+            cmd->viewangles.z += RandomFloat(-45.f, 45.f);
         }
         if (config->fakeAngle.enabled) //Fakeangle
         {
@@ -205,7 +206,6 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 {
                     float desyncangle = RandomFloat(10, leftDesyncAngle);
                     cmd->viewangles.y += !invert ? desyncangle : -desyncangle;
-                    cmd->viewangles.z += RandomFloat(-30, 30);
                     sendPacket = false;
                     if (fabsf(cmd->sidemove) < 5.0f)
                     {

@@ -261,23 +261,17 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
 
         if (hasShot)
         {
+            
             const float yaw = currentViewAngles.y;
-            const auto difference = localPlayer->getRenderOrigin() - peekPosition;
-            if (config->tickbase.enabled && config->tickbase.teleport)
-            {
-                cmd->tickCount += 11;
-                cmd->hasbeenpredicted = true;
-            }
+            const auto difference = localPlayer->getRenderOrigin() - peekPosition;            
             if (difference.length2D() > 5.0f)
             {
                 const auto velocity = Vector{
                     difference.x * std::cos(yaw / 180.0f * 3.141592654f) + difference.y * std::sin(yaw / 180.0f * 3.141592654f),
                     difference.y * std::cos(yaw / 180.0f * 3.141592654f) - difference.x * std::sin(yaw / 180.0f * 3.141592654f),
                     difference.z };
-
                 cmd->forwardmove = -velocity.x * 20.f;
                 cmd->sidemove = velocity.y * 20.f;
-                
             }
             else
             {

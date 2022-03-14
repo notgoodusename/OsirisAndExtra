@@ -5,6 +5,8 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/GameEvent.h"
 #include "../Interfaces.h"
+#include "AntiAim.h"
+#include <vector>
 
 namespace Resolver
 {
@@ -14,6 +16,8 @@ namespace Resolver
     float tickHitWall = .0f;
     float tickHitPlayer = .0f;
     int missed = 0;
+    float missedang = 0.f;
+    std::vector<float> blacklisted;
     typedef void(__cdecl* MsgFn)(const char* msg, va_list);
     void Msg(const char* msg, ...)
     {
@@ -91,7 +95,7 @@ namespace Resolver
             }
 		}
 	}
-   
+    float desyncAng = 0;
 	void basic(Entity* entity) noexcept
 	{
         auto record = &records.at(entity->index());
@@ -104,7 +108,7 @@ namespace Resolver
             return;
         }       
 
-        float desyncAng = 0;
+        desyncAng = 0;
 
         auto animstate = entity->getAnimstate();
 
@@ -139,43 +143,84 @@ namespace Resolver
         entity->updateState(animstate, entity->eyeAngles());
         float eye_feet = (entity->eyeAngles().y - animstate->footYaw);
         record->FiredUpon = universalhurt;
-       
+        int tickcount = 0;
         float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;
-        if (missed > 0)
+        if (missed >= 0)
         {
             if (eye_feet == 0)
             {
                 desyncAng = 0;
             }
-            else if (desyncSide == -1)
+            else 
             {
-                switch (missed % 3) {
-                case 1:
-                    desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.3f);
-                    break;
-                case 2:
-                    desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.6f);
-                    break;
-                case 3:
-                    desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 2.0f);
-                    break;
+                if (desyncSide == -1)
+                {
+                     desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.9f);
+                     tickcount == memory->globalVars->tickCount;
+                     if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+                            desyncAng -= 15.f;
+                     }
+                     if (tickcount == tickHitWall)
+                     {
+                        desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() / 1.9f);
+                        tickcount == memory->globalVars->tickCount;
+                        if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+                            desyncAng += 15.f;
+                        }
+                        if (tickcount == tickHitWall)
+                        {
+                            desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() - 2.f);
+                            tickcount == memory->globalVars->tickCount;
+                            if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+                                desyncAng -= 15.f;
+                            }
+                            if (tickcount == tickHitWall)
+                            {
+                                desyncAng = animstate->footYaw - (entity->getMaxDesyncAngle() - 2.f);
+                                tickcount == memory->globalVars->tickCount;
+                                if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+                                    desyncAng -= 15.f;
+                                }
+                            }
+                        }
+                     }
+
                 }
-                
-            }
-            else
-            {
-                switch (missed % 3) {
-                case 1:
-                    desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.3f);
-                    break;
-                case 2:
-                    desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.6f);
-                    break;
-                case 3:
-                    desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 2.0f);
-                    break;
+                if (desyncSide == 1)
+                {
+
+                    desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.9f);
+                    tickcount == memory->globalVars->tickCount;
+                    if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+                        desyncAng -= 15.f;
+                    }
+                    if (tickcount == tickHitWall)
+                    {
+                        desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() / 1.9f);
+                        tickcount == memory->globalVars->tickCount;
+                        if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+                            desyncAng += 15.f;
+                        }
+                        if (tickcount == tickHitWall)
+                        {
+                            desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() - 2.f);
+                            tickcount == memory->globalVars->tickCount;
+                            if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+                                desyncAng -= 15.f;
+                            }
+                            if (tickcount == tickHitWall)
+                            {
+                                desyncAng = animstate->footYaw + (entity->getMaxDesyncAngle() - 2.f);
+                                tickcount == memory->globalVars->tickCount;
+                                if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+                                    desyncAng -= 15.f;
+                                }
+                            }
+                        }
+                    }
                 }
             }
+           
         }
      
 
@@ -204,8 +249,10 @@ namespace Resolver
         if (!localPlayer || !localPlayer->isAlive())
             return;
         const auto localUserId = localPlayer->getUserId();
-        if ( event.getInt("attacker") != localUserId && event.getInt("userid") == localUserId)
+        if (event.getInt("attacker") != localUserId && event.getInt("userid") == localUserId)
         {
+            if (config->fakeAngle.enabled && localPlayer->isAlive()){ AntiAim::switchOnHurt(); }
+
              universalhurt = true;
             Msg("Damage taken\n");
 
@@ -219,6 +266,7 @@ namespace Resolver
                 if (event.getInt("hitgroup") == HitGroup::Head)
                 {
                     missed = 0;
+                    blacklisted = { -1.f };
                     Msg("Headshot\n");
                 }
                 else 
@@ -240,11 +288,20 @@ namespace Resolver
         if (event.getInt("userid") == localUserIdz)
         {
             int tickcount = memory->globalVars->tickCount;
-            if (tickcount != tickHitPlayer)
+            if (tickcount != tickHitPlayer && tickcount != tickHitWall)
             {
                 tickHitWall = tickcount;
                 missed++;
-                Msg("Missed due to resolver\n");
+                missedang = desyncAng;
+                if (std::count(blacklisted.begin(), blacklisted.end(), missedang)) {
+                    Msg("Missed due to resolver\n");
+                }
+                else 
+                {
+                    Msg("Resolver Updated\n");
+                    blacklisted.push_back(missedang);
+                }
+               
             }
         }
 

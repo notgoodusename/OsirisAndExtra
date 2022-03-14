@@ -12,7 +12,6 @@ bool updateLby(bool update = false) noexcept
 {
     static float timer = 0.f;
     static bool lastValue = false;
-
     if (!update)
         return lastValue;
 
@@ -34,7 +33,7 @@ bool updateLby(bool update = false) noexcept
     lastValue = false;
     return false;
 }
-
+bool invert = false;
 bool autoDirection(Vector eyeAngle) noexcept
 {
     constexpr float maxRange{ 8192.0f };
@@ -156,7 +155,6 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             }
             yaw += static_cast<float>(config->rageAntiAim.yawAdd);
             cmd->viewangles.y += yaw;
-            cmd->viewangles.z += RandomFloat(-45.f, 45.f);
         }
         if (config->fakeAngle.enabled) //Fakeangle
         {
@@ -206,6 +204,8 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 {
                     float desyncangle = RandomFloat(10, leftDesyncAngle);
                     cmd->viewangles.y += !invert ? desyncangle : -desyncangle;
+                    if (config->tickbase.teleport)
+                    cmd->viewangles.z += !invert ? 45.f : -45.f;
                     sendPacket = false;
                     if (fabsf(cmd->sidemove) < 5.0f)
                     {
@@ -250,7 +250,7 @@ void AntiAim::legit(UserCmd* cmd, const Vector& previousViewAngles, const Vector
 {
     if (cmd->viewangles.y == currentViewAngles.y) 
     {
-        bool invert = config->legitAntiAim.invert.isActive();
+        invert = config->legitAntiAim.invert.isActive();
         float desyncAngle = localPlayer->getMaxDesyncAngle() * 2.f;
         if (updateLby() && config->legitAntiAim.extend)
         {
@@ -356,4 +356,9 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
         return true;
 
     return true;
+}
+
+void AntiAim::switchOnHurt()
+{
+    invert = !invert;
 }

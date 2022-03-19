@@ -141,6 +141,13 @@ KeyBind::KeyBind(const char* keyName) noexcept
         keyCode = KeyCode::NONE;
 }
 
+KeyBind::KeyBind(const std::string name, KeyMode keyMode) noexcept
+{
+    this->keyCode = KeyCode::NONE;
+    this->keyMode = keyMode;
+    this->activeName = name;
+}
+
 const char* KeyBind::toString() const noexcept
 {
     return keyMap[static_cast<std::size_t>(keyCode) < keyMap.size() ? keyCode : KeyCode::NONE].name.data();
@@ -243,4 +250,22 @@ bool KeyBind::isActive() const noexcept
         break;
     }
     return false;
+}
+
+void KeyBind::showKeybind() noexcept
+{
+    if (!isActive())
+        return;
+
+    switch (keyMode)
+    {
+    case KeyMode::Hold:
+        ImGui::TextWrapped("%s %s", "[hold]", this->activeName.c_str());
+        break;
+    case KeyMode::Toggle:
+        ImGui::TextWrapped("%s %s", "[toggled]", this->activeName.c_str());
+        break;
+    default:
+        break;
+    }
 }

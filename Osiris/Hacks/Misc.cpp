@@ -63,11 +63,9 @@ bool Misc::isInChat() noexcept
     if (!hudChat)
         return false;
 
-    bool isInChat = *(bool*)((uintptr_t)hudChat + 0x58);
-    if (isInChat)
-        return true;
+    const bool isInChat = *(bool*)((uintptr_t)hudChat + 0x58);
 
-    return false;
+    return isInChat;
 }
 
 static int buttons = 0;

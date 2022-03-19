@@ -78,6 +78,7 @@
     <ClCompile Include="SDK\Entity.cpp" />
     <ClCompile Include="SDK\GlobalVars.cpp" />
     <ClCompile Include="SDK\KeyValues.cpp" />
+    <ClCompile Include="SDK\PredictionCopy.cpp" />
     <ClCompile Include="SDK\Utils.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
@@ -188,6 +189,7 @@
     <ClInclude Include="SDK\Platform.h" />
     <ClInclude Include="SDK\PlayerResource.h" />
     <ClInclude Include="SDK\Prediction.h" />
+    <ClInclude Include="SDK\PredictionCopy.h" />
     <ClInclude Include="SDK\Recv.h" />
     <ClInclude Include="SDK\RenderContext.h" />
     <ClInclude Include="SDK\RenderView.h" />

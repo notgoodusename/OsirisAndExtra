@@ -240,6 +240,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::slowwalk(cmd);
     Backtrack::updateIncomingSequences();
 
+    //EnginePrediction::save();
     EnginePrediction::update();
     EnginePrediction::run(cmd);
     NadePrediction::run(cmd);
@@ -291,6 +292,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
 
     previousViewAngles = cmd->viewangles;
+    //EnginePrediction::restore();
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;

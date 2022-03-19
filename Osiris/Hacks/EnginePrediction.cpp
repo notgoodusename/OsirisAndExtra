@@ -10,12 +10,14 @@
 #include "../SDK/GlobalVars.h"
 #include "../SDK/MoveHelper.h"
 #include "../SDK/Prediction.h"
+#include "../SDK/PredictionCopy.h"
 
 #include "EnginePrediction.h"
 
 static int localPlayerFlags;
 static Vector localPlayerVelocity;
 static std::array<EnginePrediction::NetvarData, 150> netvarData;
+__int8* storedData;
 
 void EnginePrediction::update() noexcept
 {
@@ -54,6 +56,25 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
 
     memory->globalVars->currenttime = oldCurrenttime;
     memory->globalVars->frametime = oldFrametime;
+}
+
+void EnginePrediction::save() noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    PredictionCopy helper((byte*)storedData, true, (byte*)localPlayer.get(), false, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
+    helper.TransferData("EnginePrediction::save", localPlayer->index(), localPlayer->getPredDescMap());
+}
+
+
+void EnginePrediction::restore() noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    PredictionCopy helper((byte*)localPlayer.get(), false, (byte*)storedData, true, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
+    helper.TransferData("EnginePrediction::restore", localPlayer->index(), localPlayer->getPredDescMap());
 }
 
 void EnginePrediction::store() noexcept

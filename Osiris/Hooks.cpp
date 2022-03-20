@@ -291,6 +291,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     cmd->viewangles.z = 0.0f;
     cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
+    cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
     previousViewAngles = cmd->viewangles;
     //EnginePrediction::restore();

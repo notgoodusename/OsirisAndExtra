@@ -215,5 +215,5 @@ Memory::Memory() noexcept
     newFunctionEngineDLL = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionStudioRenderDLL = findPattern(STUDIORENDER_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionMaterialSystemDLL = findPattern(MATERIALSYSTEM_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
-    transferData = relativeToAbsolute<decltype(transferData)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x45\x10\x53\x56\x8B\xF1\x57") + 1);
+    transferData = reinterpret_cast<decltype(transferData)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x45\x10\x53\x56\x8B\xF1\x57"));
 }

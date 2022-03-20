@@ -63,7 +63,7 @@ void EnginePrediction::save() noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    PredictionCopy helper((byte*)storedData, true, (byte*)localPlayer.get(), false, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
+    PredictionCopy helper(PC_EVERYTHING, (byte*)storedData, true, (byte*)localPlayer.get(), false, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
     helper.TransferData("EnginePrediction::save", localPlayer->index(), localPlayer->getPredDescMap());
 }
 
@@ -73,7 +73,7 @@ void EnginePrediction::restore() noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    PredictionCopy helper((byte*)localPlayer.get(), false, (byte*)storedData, true, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
+    PredictionCopy helper(PC_EVERYTHING, (byte*)localPlayer.get(), false, (byte*)storedData, true, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
     helper.TransferData("EnginePrediction::restore", localPlayer->index(), localPlayer->getPredDescMap());
 }
 

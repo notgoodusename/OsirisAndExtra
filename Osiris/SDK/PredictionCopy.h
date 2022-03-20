@@ -26,7 +26,7 @@ public:
 		TRANSFERDATA_ERRORCHECK_DESCRIBE, // used by hud_pdump, dumps values, etc, for all fields
 	} optype_t;
 
-	PredictionCopy(byte* dest, bool dest_packed, const byte* src, bool src_packed,
+	PredictionCopy(int type, byte* dest, bool dest_packed, const byte* src, bool src_packed,
 		optype_t opType, FN_FIELD_COMPARE func = NULL) noexcept;
 
 	int	 TransferData(const char* operation, int entindex, datamap* dmap) noexcept;

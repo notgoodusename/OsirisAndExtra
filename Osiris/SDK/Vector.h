@@ -109,6 +109,11 @@ struct Vector {
         return *this;
     }
 
+    constexpr auto operator/(float div) const noexcept
+    {
+        return Vector{ x / div, y / div, z / div };
+    }
+
     constexpr auto operator*(float mul) const noexcept
     {
         return Vector{ x * mul, y * mul, z * mul };

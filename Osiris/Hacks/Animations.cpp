@@ -274,7 +274,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             const auto simDifference = fabsf(entity->simulationTime() - player.simulationTime);
 
             player.simulationTime != entity->simulationTime() ?
-                player.chokedPackets = static_cast<int>(simDifference) / memory->globalVars->intervalPerTick) - 1 : player.chokedPackets = 0;
+                player.chokedPackets = static_cast<int>(simDifference / memory->globalVars->intervalPerTick) - 1 : player.chokedPackets = 0;
             player.chokedPackets = std::clamp(player.chokedPackets, 0, maxUserCmdProcessTicks);
 
             if (player.origin.notNull())

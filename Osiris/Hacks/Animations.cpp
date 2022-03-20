@@ -277,8 +277,8 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 player.chokedPackets = static_cast<int>(simDifference / memory->globalVars->intervalPerTick) - 1 : player.chokedPackets = 0;
             player.chokedPackets = std::clamp(player.chokedPackets, 0, maxUserCmdProcessTicks);
 
-            if (player.origin.notNull())
-                player.velocity = (entity->origin() - player.origin) * static_cast<float>(player.chokedPackets + 1);
+            if (player.origin.notNull() && player.simulationTime != entity->simulationTime())
+                player.velocity = (entity->origin() - player.origin) * (1.0f / simDifference);
 
             player.origin = entity->origin();
 

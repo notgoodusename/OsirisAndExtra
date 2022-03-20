@@ -1,15 +1,4 @@
-#pragma warning(disable : 4828)
-// Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
-//
-// Purpose: Generic CRC functions
-//
-// $NoKeywords: $
-//=============================================================================//
-#ifndef CHECKSUM_CRC_H
-#define CHECKSUM_CRC_H
-#ifdef _WIN32
 #pragma once
-#endif
 
 typedef unsigned long CRC32_t;
 
@@ -31,5 +20,3 @@ inline CRC32_t CRC32_ProcessSingleBuffer( const void* p, int len )
 
 	return crc;
 }
-
-#endif // CHECKSUM_CRC_H

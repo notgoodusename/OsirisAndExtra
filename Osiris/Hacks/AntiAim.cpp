@@ -71,12 +71,12 @@ bool autoDirection(Vector eyeAngle) noexcept
         return false;
     return true;
 }
-float RandomFloat(float a, float b) {
+float RandomFloat(float a, float b ,float multiplier) {
     float random = ((float)rand()) / (float)RAND_MAX;
     float diff = b - a;
     float r = random * diff;
     float result = a + r;
-    return result * 2.f;
+    return result * multiplier;
 }
 void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
@@ -191,21 +191,36 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             switch (config->fakeAngle.lbyMode)
             {
             case 0: // Normal(sidemove)
-                if (fabsf(cmd->sidemove) < 5.0f)
+                if (updateLby())
                 {
-                    if (cmd->buttons & UserCmd::IN_DUCK)
-                        cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
-                    else
-                        cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
+                    if (config->tickbase.teleport)
+                    {
+                        float roll = !invert ? 45.f : -45.f;
+                        memory->setAbsAngle(localPlayer.get(), Vector{ 0.f, 0.f , roll });
+                        cmd->viewangles.z = roll;
+                    }
+                       
+                    float desyncangle = RandomFloat(1, leftDesyncAngle, 1.f);
+                    cmd->viewangles.y += !invert ? desyncangle : -desyncangle;
+                    sendPacket = false;
+                    if (fabsf(cmd->sidemove) < 5.0f)
+                    {
+                        if (cmd->buttons & UserCmd::IN_DUCK)
+                            cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
+                        else
+                            cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
+                    }
+                    return;
                 }
+                    
+            
+                
                 break;
             case 1: // Opposite (Lby break)
                 if (updateLby())
                 {
-                    float desyncangle = RandomFloat(10, leftDesyncAngle);
+                    float desyncangle = RandomFloat(10, leftDesyncAngle, 2.f);
                     cmd->viewangles.y += !invert ? desyncangle : -desyncangle;
-                    if (config->tickbase.teleport)
-                    cmd->viewangles.z += !invert ? 45.f : -45.f;
                     sendPacket = false;
                     if (fabsf(cmd->sidemove) < 5.0f)
                     {

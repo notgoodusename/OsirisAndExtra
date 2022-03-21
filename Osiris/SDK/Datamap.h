@@ -93,7 +93,7 @@ struct optimized_datamap_t;
 struct datamap
 {
 	typedescription_t* dataDesc;
-	int					dataNumFields;
+	int dataNumFields;
 	char const* dataClassName;
 	datamap* baseMap;
 

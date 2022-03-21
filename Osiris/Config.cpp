@@ -457,6 +457,14 @@ static void from_json(const json& j, Config::Misc::SpectatorList& sl)
     read<value_t::object>(j, "Pos", sl.pos);
 }
 
+static void from_json(const json& j, Config::Misc::KeyBindList& sl)
+{
+    read(j, "Enabled", sl.enabled);
+    read(j, "No Title Bar", sl.noTitleBar);
+    read<value_t::object>(j, "Pos", sl.pos);
+}
+
+
 static void from_json(const json& j, Config::Misc::Watermark& o)
 {
     read(j, "Enabled", o.enabled);
@@ -525,6 +533,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Reveal suspect", m.revealSuspect);
     read(j, "Reveal votes", m.revealVotes);
     read<value_t::object>(j, "Spectator list", m.spectatorList);
+    read<value_t::object>(j, "Keybind list", m.keybindList);
     read<value_t::object>(j, "Watermark", m.watermark);
     read<value_t::object>(j, "Offscreen Enemies", m.offscreenEnemies);
     read(j, "Disable model occlusion", m.disableModelOcclusion);
@@ -926,6 +935,17 @@ static void to_json(json& j, const Config::Misc::SpectatorList& o, const Config:
     }
 }
 
+static void to_json(json& j, const Config::Misc::KeyBindList& o, const Config::Misc::KeyBindList& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("No Title Bar", noTitleBar);
+
+    if (const auto window = ImGui::FindWindowByName("Keybind list")) {
+        j["Pos"] = window->Pos;
+        j["Size"] = window->SizeFull;
+    }
+}
+
 static void to_json(json& j, const Config::Misc::Watermark& o, const Config::Misc::Watermark& dummy = {})
 {
     WRITE("Enabled", enabled);
@@ -999,6 +1019,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Reveal suspect", revealSuspect);
     WRITE("Reveal votes", revealVotes);
     WRITE("Spectator list", spectatorList);
+    WRITE("Keybind list", keybindList);
     WRITE("Watermark", watermark);
     WRITE("Offscreen Enemies", offscreenEnemies);
     WRITE("Disable model occlusion", disableModelOcclusion);

@@ -63,11 +63,9 @@ bool Misc::isInChat() noexcept
     if (!hudChat)
         return false;
 
-    bool isInChat = *(bool*)((uintptr_t)hudChat + 0x58);
-    if (isInChat)
-        return true;
+    const bool isInChat = *(bool*)((uintptr_t)hudChat + 0x58);
 
-    return false;
+    return isInChat;
 }
 
 static int buttons = 0;
@@ -439,6 +437,63 @@ void Misc::updateClanTag(bool tagChanged) noexcept
         lastTime = memory->globalVars->realtime;
         memory->setClanTag(clanTag.c_str(), clanTag.c_str());
     }
+}
+
+void Misc::showKeybinds() noexcept
+{
+    if (!config->misc.keybindList.enabled)
+        return;
+
+    if (config->misc.keybindList.pos != ImVec2{}) {
+        ImGui::SetNextWindowPos(config->misc.keybindList.pos);
+        config->misc.keybindList.pos = {};
+    }
+
+    ImGui::SetNextWindowSize({ 250.f, 0.f }, ImGuiCond_Once);
+    ImGui::SetNextWindowSizeConstraints({ 250.f, 0.f }, { 250.f, FLT_MAX });
+
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+    if (!gui->isOpen())
+        windowFlags |= ImGuiWindowFlags_NoInputs;
+
+    if (config->misc.keybindList.noTitleBar)
+        windowFlags |= ImGuiWindowFlags_NoTitleBar;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowTitleAlign, { 0.5f, 0.5f });
+    ImGui::Begin("Keybind list", nullptr, windowFlags);
+    ImGui::PopStyleVar();
+
+    config->ragebotKey.showKeybind();
+    if (config->fakeAngle.enabled)
+        config->fakeAngle.invert.showKeybind();
+    if (config->legitAntiAim.enabled)
+        config->legitAntiAim.invert.showKeybind();
+    config->legitbotKey.showKeybind();
+    config->triggerbotKey.showKeybind();
+    config->chamsKey.showKeybind();
+    config->streamProofESP.key.showKeybind();
+
+    if (config->visuals.zoom)
+        config->visuals.zoomKey.showKeybind();
+    if (config->visuals.thirdperson)
+        config->visuals.thirdpersonKey.showKeybind();
+    if (config->visuals.freeCam)
+        config->visuals.freeCamKey.showKeybind();
+
+    if (config->misc.edgejump)
+        config->misc.edgejumpkey.showKeybind();
+    if (config->misc.jumpBug)
+        config->misc.jumpBugKey.showKeybind();
+    if (config->misc.slowwalk)
+        config->misc.slowwalkKey.showKeybind();
+    if (config->misc.fakeduck)
+        config->misc.fakeduckKey.showKeybind();
+    if (config->misc.autoPeek.enabled)
+        config->misc.autoPeekKey.showKeybind();
+    if (config->misc.prepareRevolver)
+        config->misc.prepareRevolverKey.showKeybind();
+
+    ImGui::End();
 }
 
 void Misc::spectatorList() noexcept

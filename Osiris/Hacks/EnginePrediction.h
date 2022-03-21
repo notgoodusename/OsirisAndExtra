@@ -15,7 +15,10 @@ namespace EnginePrediction
 	void update() noexcept;
 	void run(UserCmd* cmd) noexcept;
 
-    void store() noexcept;
+	void save() noexcept;
+	void restore() noexcept;
+
+	void store() noexcept;
     void apply(FrameStage) noexcept;
     
     int getFlags() noexcept;

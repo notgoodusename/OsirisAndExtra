@@ -23,6 +23,7 @@ namespace Misc
     void slowwalk(UserCmd* cmd) noexcept;
     void inverseRagdollGravity() noexcept;
     void updateClanTag(bool = false) noexcept;
+    void showKeybinds() noexcept;
     void spectatorList() noexcept;
     void noscopeCrosshair(ImDrawList* drawlist) noexcept;
     void recoilCrosshair(ImDrawList* drawList) noexcept;

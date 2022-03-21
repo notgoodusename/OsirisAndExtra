@@ -62,6 +62,7 @@ namespace Animations
 		void clear()
 		{
 			gotMatrix = false;
+			simulationTime = -1.0f;
 			origin = Vector{};
 			absAngle = Vector{};
 			velocity = Vector{};

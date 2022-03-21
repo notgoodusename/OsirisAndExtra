@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 enum KeyMode
 {
@@ -120,6 +121,7 @@ public:
 
     KeyBind(KeyCode keyCode) noexcept;
     KeyBind(const char* keyName) noexcept;
+    KeyBind(const std::string name, KeyMode keyMode = KeyMode::Always) noexcept;
 
     bool operator==(KeyCode keyCode) const noexcept { return this->keyCode == keyCode; }
     bool operator==(const KeyBind& other) const noexcept { return this->keyCode == other.keyCode && this->keyMode == other.keyMode; }
@@ -136,8 +138,10 @@ public:
     void setToggleTo(bool value) noexcept { toggledOn = value; }
 
     bool isActive() const noexcept;
+    void showKeybind() noexcept;
 
     KeyMode keyMode = KeyMode::Always;
+    std::string activeName = { };
 private:
     KeyCode keyCode;
     bool toggledOn = true;

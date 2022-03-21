@@ -280,11 +280,15 @@ static void read(const json& j, const char* key, KeyBind& o) noexcept
     if (!j.contains(key) || !j[key].contains("Key"))
         return;
 
+    const auto backupName = o.activeName;
+
     if (const auto& val = j[key]["Key"]; val.is_string())
         o = val.get<std::string>().c_str();
 
     if (const auto& val = j[key]["Key mode"]; val.is_number_integer())
         val.get_to(o.keyMode);
+
+    o.activeName = backupName;
 }
 
 static void read(const json& j, const char* key, char* o, std::size_t size) noexcept

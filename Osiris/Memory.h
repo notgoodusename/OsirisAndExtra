@@ -197,6 +197,7 @@ public:
     std::uintptr_t newFunctionEngineDLL;
     std::uintptr_t newFunctionStudioRenderDLL;
     std::uintptr_t newFunctionMaterialSystemDLL;
+    int(__thiscall* transferData)(void*, const char*, int, void*);
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

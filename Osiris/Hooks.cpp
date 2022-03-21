@@ -112,6 +112,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     Misc::drawOffscreenEnemies(ImGui::GetBackgroundDrawList());
     Misc::drawBombTimer();
     Misc::spectatorList();
+    Misc::showKeybinds();
     Visuals::hitMarker(nullptr, ImGui::GetBackgroundDrawList());
     Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
     Visuals::drawSmokeHull(ImGui::GetBackgroundDrawList());
@@ -263,6 +264,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::slowwalk(cmd);
     Backtrack::updateIncomingSequences();
 
+    //EnginePrediction::save();
     EnginePrediction::update();
     EnginePrediction::run(cmd);
     NadePrediction::run(cmd);
@@ -312,9 +314,11 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     cmd->viewangles.z = 0.0f;
     cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
+    cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
     previousViewAngles = cmd->viewangles;
     Tickbase::run(cmd);
+    //EnginePrediction::restore();
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;

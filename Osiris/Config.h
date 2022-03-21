@@ -54,7 +54,7 @@ public:
         int minDamage{ 1 };
     };
     std::array<Ragebot, 40> ragebot;
-    KeyBind ragebotKey = KeyBind::NONE;
+    KeyBind ragebotKey{ std::string("ragebot") };
 
     struct Tickbase {
         bool enabled = false;
@@ -78,7 +78,7 @@ public:
 
     struct FakeAngle {
         bool enabled = false;
-        KeyBind invert = KeyBind::NONE;
+        KeyBind invert{ std::string("fake angle invert") };
         int leftLimit = 60;
         int rightLimit = 60;
         int peekMode = 0; //Off, Peek real, Peek fake
@@ -88,7 +88,7 @@ public:
     struct LegitAntiAimConfig {
         bool enabled = false;
         bool extend = false;
-        KeyBind invert = KeyBind::NONE;
+        KeyBind invert{ std::string("legit aa invert") };
     } legitAntiAim;
 
     struct Legitbot {
@@ -110,7 +110,7 @@ public:
         bool betweenShots{ true };
     };
     std::array<Legitbot, 40> legitbot;
-    KeyBind legitbotKey = KeyBind::NONE;
+    KeyBind legitbotKey{ std::string("legitbot") };
 
     struct Triggerbot {
         bool enabled = false;
@@ -125,7 +125,7 @@ public:
         int minDamage = 1;
     };
     std::array<Triggerbot, 40> triggerbot;
-    KeyBind triggerbotKey = KeyBind::NONE;
+    KeyBind triggerbotKey{ std::string("triggerbot") };
 
     struct Backtrack {
         bool enabled = false;
@@ -150,10 +150,10 @@ public:
     };
 
     std::unordered_map<std::string, Chams> chams;
-    KeyBind chamsKey = KeyBind::NONE;
+    KeyBind chamsKey{ std::string("chams") };
 
     struct StreamProofESP {
-        KeyBind key = KeyBind::NONE;
+        KeyBind key{ std::string("esp") };
 
         std::unordered_map<std::string, Player> allies;
         std::unordered_map<std::string, Player> enemies;
@@ -188,12 +188,12 @@ public:
         bool wireframeSmoke{ false };
         bool zoom{ false };
         bool noZoom{ false };
-        KeyBind zoomKey = KeyBind::NONE;
+        KeyBind zoomKey{ std::string("zoom") };
         bool thirdperson{ false };
-        KeyBind thirdpersonKey = KeyBind::NONE;
+        KeyBind thirdpersonKey{ std::string("thirdperson") };
         int thirdpersonDistance{ 0 };
         bool freeCam{ false };
-        KeyBind freeCamKey = KeyBind::NONE;
+        KeyBind freeCamKey{ std::string("freecam") };
         int freeCamSpeed{ 2 };
         bool keepFov{ false };
         int fov{ 0 };
@@ -273,11 +273,11 @@ public:
         bool inventoryUnlocker{ false };
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];
-        KeyBind edgejumpkey = KeyBind::NONE;
-        KeyBind jumpBugKey = KeyBind::NONE;
-        KeyBind slowwalkKey = KeyBind::NONE;
-        KeyBind fakeduckKey = KeyBind::NONE;
-        KeyBind autoPeekKey = KeyBind::NONE;
+        KeyBind edgejumpkey{ std::string("edgejump") };
+        KeyBind jumpBugKey{ std::string("jump bug") };
+        KeyBind slowwalkKey{ std::string("slowwalk") };
+        KeyBind fakeduckKey{ std::string("fakeduck") };
+        KeyBind autoPeekKey{ std::string("autopeek") };
         ColorToggleThickness noscopeCrosshair;
         ColorToggleThickness recoilCrosshair;
 
@@ -288,6 +288,14 @@ public:
         };
 
         SpectatorList spectatorList;
+
+        struct KeyBindList {
+            bool enabled = false;
+            bool noTitleBar = false;
+            ImVec2 pos;
+        };
+
+        KeyBindList keybindList;
         struct Watermark {
             bool enabled = false;
         };
@@ -295,7 +303,7 @@ public:
         float aspectratio{ 0 };
         std::string killMessageString{ "Gotcha!" };
         ColorToggle3 bombTimer{ 1.0f, 0.55f, 0.0f };
-        KeyBind prepareRevolverKey = KeyBind::NONE;
+        KeyBind prepareRevolverKey{ std::string("prepare revolver") };
         int hitSound{ 0 };
         int quickHealthshotKey{ 0 };
         float maxAngleDelta{ 255.0f };

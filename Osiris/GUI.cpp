@@ -1522,6 +1522,19 @@ void GUI::renderMiscWindow() noexcept
     }
     ImGui::PopID();
 
+    ImGui::Checkbox("Keybinds list", &config->misc.keybindList.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Keybinds list");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::Checkbox("No Title Bar", &config->misc.keybindList.noTitleBar);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     ImGui::Checkbox("Watermark", &config->misc.watermark.enabled);
     ImGuiCustom::colorPicker("Offscreen Enemies", config->misc.offscreenEnemies, &config->misc.offscreenEnemies.enabled);
     ImGui::SameLine();

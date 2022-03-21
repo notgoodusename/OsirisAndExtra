@@ -97,8 +97,8 @@ struct datamap
 	char const* dataClassName;
 	datamap* baseMap;
 
-	int					m_nPackedSize;
-	optimized_datamap_t* m_pOptimizedDataMap;
+	int packedSize;
+	optimized_datamap_t* optimizedDataMap;
 };
 
 namespace DataMap

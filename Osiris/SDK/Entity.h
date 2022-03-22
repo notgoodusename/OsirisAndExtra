@@ -581,6 +581,7 @@ public:
     NETVAR(lby, "CCSPlayer", "m_flLowerBodyYawTarget", float)
     NETVAR(ragdoll, "CCSPlayer", "m_hRagdoll", int)
     NETVAR(shotsFired, "CCSPlayer", "m_iShotsFired", int)
+    NETVAR(money, "CCSPlayer", "m_iAccount", int)
     NETVAR(waitForNoAttack, "CCSPlayer", "m_bWaitForNoAttack", bool)
     NETVAR(isStrafing, "CCSPlayer", "m_bStrafing", bool)
     NETVAR(moveState, "CCSPlayer", "m_iMoveState", int)

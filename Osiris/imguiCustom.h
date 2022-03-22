@@ -31,4 +31,11 @@ namespace ImGui
     bool SelectableWithBullet(const char* label, ImU32 bulletColor, bool selected = false, ImGuiSelectableFlags flags = 0, const ImVec2& size = ImVec2(0, 0));
     void hotkey(const char* label, KeyBind& key, float samelineOffset = 0.0f, const ImVec2& size = { 100.0f, 0.0f }) noexcept;
     void hotkey2(const char* label, KeyBind& key, float samelineOffset = 0.0f, const ImVec2& size = { 100.0f, 0.0f }) noexcept;
+
+    bool smallButtonFullWidth(const char* label, bool disabled) noexcept;
+
+    bool beginTable(const char* str_id, int columns_count, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0, 0), float inner_width = 0.0f) noexcept;
+    bool beginTableEx(const char* name, ImGuiID id, int columns_count, ImGuiTableFlags flags = 0, const ImVec2& outer_size = ImVec2(0, 0), float inner_width = 0.0f) noexcept;
+    
+    void textEllipsisInTableCell(const char* text) noexcept;
 }

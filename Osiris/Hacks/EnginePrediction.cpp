@@ -17,7 +17,7 @@
 static int localPlayerFlags;
 static Vector localPlayerVelocity;
 static std::array<EnginePrediction::NetvarData, 150> netvarData;
-__int8* storedData;
+static void* storedData = nullptr;
 
 void EnginePrediction::update() noexcept
 {
@@ -63,14 +63,25 @@ void EnginePrediction::save() noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
+    if (!storedData)
+    {
+        const auto allocSize = localPlayer->getIntermidateDataSize();
+        storedData = new byte[allocSize];
+    }
+
+    if (!storedData)
+        return;
+
     PredictionCopy helper(PC_EVERYTHING, (byte*)storedData, true, (byte*)localPlayer.get(), false, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
     helper.TransferData("EnginePrediction::save", localPlayer->index(), localPlayer->getPredDescMap());
 }
 
-
 void EnginePrediction::restore() noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (!storedData)
         return;
 
     PredictionCopy helper(PC_EVERYTHING, (byte*)localPlayer.get(), false, (byte*)storedData, true, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);

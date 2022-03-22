@@ -255,6 +255,17 @@ bool KeyBind::isActive() const noexcept
     return false;
 }
 
+bool KeyBind::canShowKeybind() noexcept
+{
+    if (!isActive())
+        return false;
+
+    if (keyMode != KeyMode::Hold && keyMode != KeyMode::Toggle)
+        return false;
+
+    return true;
+}
+
 void KeyBind::showKeybind() noexcept
 {
     if (!isActive())

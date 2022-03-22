@@ -440,9 +440,37 @@ void Misc::updateClanTag(bool tagChanged) noexcept
     }
 }
 
+const bool anyActiveKeybinds() noexcept
+{
+    const bool rageBot = config->ragebotKey.canShowKeybind();
+    const bool fakeAngle = config->fakeAngle.enabled && config->fakeAngle.invert.canShowKeybind();
+    const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
+    const bool legitBot = config->legitbotKey.canShowKeybind();
+    const bool triggerBot = config->triggerbotKey.canShowKeybind();
+    const bool chams = config->chamsKey.canShowKeybind();
+    const bool esp = config->streamProofESP.key.canShowKeybind();
+
+    const bool zoom = config->visuals.zoom && config->visuals.zoomKey.canShowKeybind();
+    const bool thirdperson = config->visuals.thirdperson && config->visuals.thirdpersonKey.canShowKeybind();
+    const bool freeCam = config->visuals.freeCam && config->visuals.freeCamKey.canShowKeybind();
+
+    const bool edgejump = config->misc.edgejump && config->misc.edgejumpkey.canShowKeybind();
+    const bool jumpBug = config->misc.jumpBug && config->misc.jumpBugKey.canShowKeybind();
+    const bool slowwalk = config->misc.slowwalk && config->misc.slowwalkKey.canShowKeybind();
+    const bool fakeduck = config->misc.fakeduck && config->misc.fakeduckKey.canShowKeybind();
+    const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
+    const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
+
+    return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
+        || zoom || thirdperson || freeCam || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
+}
+
 void Misc::showKeybinds() noexcept
 {
     if (!config->misc.keybindList.enabled)
+        return;
+
+    if (!anyActiveKeybinds() && !gui->isOpen())
         return;
 
     if (config->misc.keybindList.pos != ImVec2{}) {

@@ -138,6 +138,7 @@ public:
     void setToggleTo(bool value) noexcept { toggledOn = value; }
 
     bool isActive() const noexcept;
+    bool canShowKeybind() noexcept;
     void showKeybind() noexcept;
 
     KeyMode keyMode = KeyMode::Always;

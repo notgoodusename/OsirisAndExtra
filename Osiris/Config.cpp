@@ -1029,7 +1029,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Reveal votes", revealVotes);
     WRITE("Spectator list", spectatorList);
     WRITE("Keybind list", keybindList);
-    WRITE("Player List", playerList);
+    WRITE("Player list", playerList);
     WRITE("Watermark", watermark);
     WRITE("Offscreen Enemies", offscreenEnemies);
     WRITE("Disable model occlusion", disableModelOcclusion);

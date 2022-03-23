@@ -296,6 +296,7 @@ void LocalPlayerData::update() noexcept
     exists = true;
     alive = localPlayer->isAlive();
     inaccuracy = Vector{};
+    team = localPlayer->getTeamNumber();
 
     if (const auto activeWeapon = localPlayer->getActiveWeapon()) {
         inaccuracy = localPlayer->getEyePosition() + Vector::fromAngle(interfaces->engine->getViewAngles() + Vector{ Helpers::rad2deg(activeWeapon->getInaccuracy() + activeWeapon->getSpread()), 0.0f, 0.0f }) * 1000.0f;
@@ -410,10 +411,6 @@ void PlayerData::update(Entity* entity) noexcept
 {
     name = entity->getPlayerName();
     const auto idx = entity->index();
-
-    if (*memory->playerResource) {
-
-    }
 
     dormant = entity->isDormant();
     if (dormant) {

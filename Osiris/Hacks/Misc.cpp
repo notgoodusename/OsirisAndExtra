@@ -1,6 +1,7 @@
 #include <mutex>
 #include <numeric>
 #include <sstream>
+#include <string>
 
 #include "../imgui/imgui.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -84,7 +85,7 @@ void Misc::drawPlayerList() noexcept
         windowFlags |= ImGuiWindowFlags_NoInputs;
         return;
     }
- 
+
     GameData::Lock lock;
     if ((GameData::players().empty()) && !gui->isOpen())
         return;
@@ -92,11 +93,12 @@ void Misc::drawPlayerList() noexcept
     ImGui::SetNextWindowSize(ImVec2(300.0f, 300.0f), ImGuiCond_Once);
 
     if (ImGui::Begin("Player List", nullptr, windowFlags)) {
-        if (ImGui::beginTable("", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
+        if (ImGui::beginTable("", 5, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
             ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide);
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide, 120.0f);
             ImGui::TableSetupColumn("Steam ID", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupColumn("Health", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
+            ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupScrollFreeze(0, 1);
             ImGui::TableSetColumnEnabled(2, config->misc.playerList.steamID);
             ImGui::TableSetColumnEnabled(3, config->misc.playerList.health);
@@ -136,6 +138,32 @@ void Misc::drawPlayerList() noexcept
                         ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, "%s", "Dead");
                     else
                         ImGui::Text("%d HP", player.health);
+                }
+
+                if (ImGui::TableNextColumn()){
+                    if (ImGui::Button("..."))
+                        ImGui::OpenPopup("");
+
+                    if (ImGui::BeginPopup("")) {
+                        /*
+                        if (ImGui::Button("Steal name"))
+                            changeName(false, (std::string{ player.name } + '\x1').c_str(), 0.0f);
+
+                        if (ImGui::Button("Steal clantag"))
+                            memory->setClanTag(player.name.c_str(), player.name.c_str());
+                        */
+
+                        if (GameData::local().exists && player.team == GameData::local().team && player.steamID != 0)
+                        {
+                            if (ImGui::Button("Kick"))
+                            {
+                                const std::string cmd = "callvote kick " + std::to_string(player.userId);
+                                interfaces->engine->clientCmdUnrestricted(cmd.c_str());
+                            }
+                        }
+
+                        ImGui::EndPopup();
+                    }
                 }
 
                 ImGui::PopID();

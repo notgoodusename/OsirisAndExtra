@@ -59,6 +59,8 @@ namespace GameData
     const std::vector<SmokeData>& smokes() noexcept;
 }
 
+enum class Team;
+
 struct LocalPlayerData {
     void update() noexcept;
 
@@ -74,6 +76,7 @@ struct LocalPlayerData {
     Vector aimPunch;
     Vector origin;
     Vector inaccuracy;
+    Team team;
 };
 
 class Entity;
@@ -114,8 +117,6 @@ struct ProjectileData : BaseData {
     const char* name = nullptr;
     std::vector<std::pair<float, Vector>> trajectory;
 };
-
-enum class Team;
 
 struct PlayerData : BaseData {
     PlayerData(Entity* entity) noexcept;

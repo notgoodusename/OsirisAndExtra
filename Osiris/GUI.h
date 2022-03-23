@@ -9,6 +9,7 @@ class GUI {
 public:
     GUI() noexcept;
     void render() noexcept;
+    ImFont* getUnicodeFont() const noexcept;
     void handleToggle() noexcept;
     bool isOpen() noexcept { return open; }
 private:
@@ -34,6 +35,7 @@ private:
     struct {
         ImFont* normal15px = nullptr;
         ImFont* tahoma34 = nullptr;
+        ImFont* unicodeFont = nullptr;
     } fonts;
 
     float timeToNextConfigRefresh = 0.1f;

@@ -139,6 +139,7 @@ struct PlayerData : BaseData {
     float flashDuration;
     float lastContactTime = 0.0f;
     int health;
+    int userId;
     int handle;
     Team team;
     std::string name;

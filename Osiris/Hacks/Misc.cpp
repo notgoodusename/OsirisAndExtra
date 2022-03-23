@@ -68,6 +68,82 @@ bool Misc::isInChat() noexcept
     return isInChat;
 }
 
+void Misc::drawPlayerList() noexcept
+{
+    if (!config->misc.playerList.enabled)
+        return;
+
+    if (config->misc.playerList.pos != ImVec2{}) {
+        ImGui::SetNextWindowPos(config->misc.playerList.pos);
+        config->misc.playerList.pos = {};
+    }
+
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+    if (!gui->isOpen())
+    {
+        windowFlags |= ImGuiWindowFlags_NoInputs;
+        return;
+    }
+ 
+    GameData::Lock lock;
+    if ((GameData::players().empty()) && !gui->isOpen())
+        return;
+
+    ImGui::SetNextWindowSize(ImVec2(300.0f, 300.0f), ImGuiCond_Once);
+
+    if (ImGui::Begin("Player List", nullptr, windowFlags)) {
+        if (ImGui::beginTable("", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
+            ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide);
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide, 120.0f);
+            ImGui::TableSetupColumn("Health", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
+            ImGui::TableSetupScrollFreeze(0, 1);
+            ImGui::TableSetColumnEnabled(1, config->misc.playerList.health);
+
+            ImGui::TableHeadersRow();
+
+            std::vector<std::reference_wrapper<const PlayerData>> playersOrdered{ GameData::players().begin(), GameData::players().end() };
+            std::ranges::sort(playersOrdered, [](const PlayerData& a, const PlayerData& b) {
+                // enemies first
+                if (a.enemy != b.enemy)
+                    return a.enemy && !b.enemy;
+
+                return a.handle < b.handle;
+                });
+
+            ImGui::PushFont(gui->getUnicodeFont());
+
+            for (const PlayerData& player : playersOrdered) {
+                ImGui::TableNextRow();
+                ImGui::PushID(ImGui::TableGetRowIndex());
+
+                if (ImGui::TableNextColumn())
+                    ImGui::Text("%d", player.userId);
+
+                if (ImGui::TableNextColumn())
+                {
+                    ImGui::Image(player.getAvatarTexture(), { ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() });
+                    ImGui::SameLine();
+                    ImGui::textEllipsisInTableCell(player.name.c_str());
+                }
+
+                if (ImGui::TableNextColumn()) {
+                    if (!player.alive)
+                        ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, "%s", "Dead");
+                    else
+                        ImGui::Text("%d HP", player.health);
+                }
+
+                ImGui::PopID();
+            }
+
+            ImGui::PopFont();
+            ImGui::EndTable();
+        }
+    }
+    ImGui::End();
+}
+
+
 static int buttons = 0;
 
 void Misc::runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept
@@ -439,9 +515,37 @@ void Misc::updateClanTag(bool tagChanged) noexcept
     }
 }
 
+const bool anyActiveKeybinds() noexcept
+{
+    const bool rageBot = config->ragebotKey.canShowKeybind();
+    const bool fakeAngle = config->fakeAngle.enabled && config->fakeAngle.invert.canShowKeybind();
+    const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
+    const bool legitBot = config->legitbotKey.canShowKeybind();
+    const bool triggerBot = config->triggerbotKey.canShowKeybind();
+    const bool chams = config->chamsKey.canShowKeybind();
+    const bool esp = config->streamProofESP.key.canShowKeybind();
+
+    const bool zoom = config->visuals.zoom && config->visuals.zoomKey.canShowKeybind();
+    const bool thirdperson = config->visuals.thirdperson && config->visuals.thirdpersonKey.canShowKeybind();
+    const bool freeCam = config->visuals.freeCam && config->visuals.freeCamKey.canShowKeybind();
+
+    const bool edgejump = config->misc.edgejump && config->misc.edgejumpkey.canShowKeybind();
+    const bool jumpBug = config->misc.jumpBug && config->misc.jumpBugKey.canShowKeybind();
+    const bool slowwalk = config->misc.slowwalk && config->misc.slowwalkKey.canShowKeybind();
+    const bool fakeduck = config->misc.fakeduck && config->misc.fakeduckKey.canShowKeybind();
+    const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
+    const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
+
+    return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
+        || zoom || thirdperson || freeCam || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
+}
+
 void Misc::showKeybinds() noexcept
 {
     if (!config->misc.keybindList.enabled)
+        return;
+
+    if (!anyActiveKeybinds() && !gui->isOpen())
         return;
 
     if (config->misc.keybindList.pos != ImVec2{}) {

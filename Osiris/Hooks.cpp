@@ -128,7 +128,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     Glow::updateInput();
     Ragebot::updateInput();
     AntiAim::updateInput();
-
+    Misc::drawPlayerList();
     gui->handleToggle();
 
     if (gui->isOpen())
@@ -264,7 +264,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::slowwalk(cmd);
     Backtrack::updateIncomingSequences();
 
-    //EnginePrediction::save();
     EnginePrediction::update();
     EnginePrediction::run(cmd);
     NadePrediction::run(cmd);
@@ -318,7 +317,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
 
     previousViewAngles = cmd->viewangles;
     Tickbase::run(cmd);
-    //EnginePrediction::restore();
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;

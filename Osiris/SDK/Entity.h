@@ -327,6 +327,21 @@ public:
         resetAnimState(state);
     }
 
+    const size_t getIntermidateDataSize() noexcept
+    {
+        const auto datamap = getPredDescMap();
+        /*
+        TODO: complete this
+        if (datamap && !datamap->optimizedDataMap)
+            BuildFlattenedChains(datamap);
+        */
+        size_t intermediateDataSize = 4;
+        
+        if (datamap->packedSize > 4)
+            intermediateDataSize = datamap->packedSize;
+        return intermediateDataSize;
+    }
+
     float spawnTime() noexcept
     {
         return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + 0x103C0);
@@ -566,6 +581,7 @@ public:
     NETVAR(lby, "CCSPlayer", "m_flLowerBodyYawTarget", float)
     NETVAR(ragdoll, "CCSPlayer", "m_hRagdoll", int)
     NETVAR(shotsFired, "CCSPlayer", "m_iShotsFired", int)
+    NETVAR(money, "CCSPlayer", "m_iAccount", int)
     NETVAR(waitForNoAttack, "CCSPlayer", "m_bWaitForNoAttack", bool)
     NETVAR(isStrafing, "CCSPlayer", "m_bStrafing", bool)
     NETVAR(moveState, "CCSPlayer", "m_iMoveState", int)

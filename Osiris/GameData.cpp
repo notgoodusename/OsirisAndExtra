@@ -390,7 +390,7 @@ void ProjectileData::update(Entity* projectile) noexcept
         trajectory.emplace_back(memory->globalVars->realtime, pos);
 }
 
-PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, handle{ entity->handle() }
+PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, userId{ entity->getUserId() }, handle{ entity->handle() }
 {
     if (const auto steamID = entity->getSteamId()) {
         const auto ctx = interfaces->engine->getSteamAPIContext();

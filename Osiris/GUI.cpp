@@ -89,6 +89,8 @@ GUI::GUI() noexcept
         io.Fonts->AddFontDefault(&cfg);
     addFontFromVFONT("csgo/panorama/fonts/notosanskr-regular.vfont", 15.0f, io.Fonts->GetGlyphRangesKorean(), true);
     addFontFromVFONT("csgo/panorama/fonts/notosanssc-regular.vfont", 15.0f, io.Fonts->GetGlyphRangesChineseFull(), true);
+    constexpr auto unicodeFontSize = 16.0f;
+    fonts.unicodeFont = addFontFromVFONT("csgo/panorama/fonts/notosans-bold.vfont", unicodeFontSize, Helpers::getFontGlyphRanges(), false);
 }
 
 void GUI::render() noexcept
@@ -122,6 +124,10 @@ static void hotkey3(const char* label, KeyBind& key, float samelineOffset = 0.0f
     ImGui::PopID();
 }
 
+ImFont* GUI::getUnicodeFont() const noexcept
+{
+    return fonts.unicodeFont;
+}
 
 void GUI::handleToggle() noexcept
 {
@@ -1531,6 +1537,24 @@ void GUI::renderMiscWindow() noexcept
 
     if (ImGui::BeginPopup("")) {
         ImGui::Checkbox("No Title Bar", &config->misc.keybindList.noTitleBar);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
+    ImGui::PushID("Player List");
+    ImGui::Checkbox("Player List", &config->misc.playerList.enabled);
+    ImGui::SameLine();
+
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        //ImGui::Checkbox("Steam ID", &config->misc.playerList.steamID);
+        //ImGui::Checkbox("Rank", &config->misc.playerList.rank);
+        //ImGui::Checkbox("Wins", &config->misc.playerList.wins);
+        //ImGui::Checkbox("Money", &config->misc.playerList.money);
+        ImGui::Checkbox("Health", &config->misc.playerList.health);
+        //ImGui::Checkbox("Armor", &config->misc.playerList.armor);
         ImGui::EndPopup();
     }
     ImGui::PopID();

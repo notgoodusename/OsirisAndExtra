@@ -20,5 +20,5 @@ PredictionCopy::PredictionCopy(int type, byte* dest, bool dest_packed, const byt
 
 int PredictionCopy::TransferData(const char* operation, int entindex, datamap* dmap) noexcept
 {
-	return memory->transferData(this, operation, entindex, dmap); //crash here
+	return memory->transferData(this, operation, entindex, dmap);
 }

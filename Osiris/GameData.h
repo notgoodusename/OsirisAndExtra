@@ -142,6 +142,7 @@ struct PlayerData : BaseData {
     int userId;
     int handle;
     Team team;
+    std::uint64_t steamID;
     std::string name;
     Vector headMins, headMaxs;
     Vector origin;

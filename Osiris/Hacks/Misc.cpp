@@ -92,12 +92,14 @@ void Misc::drawPlayerList() noexcept
     ImGui::SetNextWindowSize(ImVec2(300.0f, 300.0f), ImGuiCond_Once);
 
     if (ImGui::Begin("Player List", nullptr, windowFlags)) {
-        if (ImGui::beginTable("", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
+        if (ImGui::beginTable("", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
             ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide);
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide, 120.0f);
+            ImGui::TableSetupColumn("Steam ID", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupColumn("Health", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupScrollFreeze(0, 1);
-            ImGui::TableSetColumnEnabled(1, config->misc.playerList.health);
+            ImGui::TableSetColumnEnabled(2, config->misc.playerList.steamID);
+            ImGui::TableSetColumnEnabled(3, config->misc.playerList.health);
 
             ImGui::TableHeadersRow();
 
@@ -125,6 +127,9 @@ void Misc::drawPlayerList() noexcept
                     ImGui::SameLine();
                     ImGui::textEllipsisInTableCell(player.name.c_str());
                 }
+
+                if (ImGui::TableNextColumn() && ImGui::smallButtonFullWidth("Copy", player.steamID == 0))
+                    ImGui::SetClipboardText(std::to_string(player.steamID).c_str());
 
                 if (ImGui::TableNextColumn()) {
                     if (!player.alive)

@@ -390,9 +390,9 @@ void ProjectileData::update(Entity* projectile) noexcept
         trajectory.emplace_back(memory->globalVars->realtime, pos);
 }
 
-PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, userId{ entity->getUserId() }, handle{ entity->handle() }
+PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, userId{ entity->getUserId() }, steamID{ entity->getSteamId() }, handle{ entity->handle() }
 {
-    if (const auto steamID = entity->getSteamId()) {
+    if (steamID) {
         const auto ctx = interfaces->engine->getSteamAPIContext();
         const auto avatar = ctx->steamFriends->getSmallFriendAvatar(steamID);
         constexpr auto rgbaDataSize = 4 * 32 * 32;
@@ -409,10 +409,22 @@ PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, userId{ en
 void PlayerData::update(Entity* entity) noexcept
 {
     name = entity->getPlayerName();
+    const auto idx = entity->index();
+
+    if (*memory->playerResource) {
+
+    }
 
     dormant = entity->isDormant();
-    if (dormant)
+    if (dormant) {
+        if (const auto pr = *memory->playerResource) {
+            alive = pr->getIPlayerResource()->isAlive(idx);
+            if (!alive)
+                lastContactTime = 0.0f;
+            health = pr->getIPlayerResource()->getPlayerHealth(idx);
+        }
         return;
+    }
 
     team = entity->getTeamNumber();
     static_cast<BaseData&>(*this) = { entity };

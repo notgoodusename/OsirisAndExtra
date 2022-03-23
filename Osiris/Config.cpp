@@ -456,6 +456,17 @@ static void from_json(const json& j, Config::Misc::KeyBindList& sl)
     read<value_t::object>(j, "Pos", sl.pos);
 }
 
+static void from_json(const json& j, Config::Misc::PlayerList& o)
+{
+    read(j, "Enabled", o.enabled);
+    read(j, "Steam ID", o.steamID);
+    read(j, "Rank", o.rank);
+    read(j, "Wins", o.wins);
+    read(j, "Money", o.money);
+    read(j, "Health", o.health);
+    read(j, "Armor", o.armor);
+    read<value_t::object>(j, "Pos", o.pos);
+}
 
 static void from_json(const json& j, Config::Misc::Watermark& o)
 {
@@ -526,6 +537,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Reveal votes", m.revealVotes);
     read<value_t::object>(j, "Spectator list", m.spectatorList);
     read<value_t::object>(j, "Keybind list", m.keybindList);
+    read<value_t::object>(j, "Player list", m.playerList);
     read<value_t::object>(j, "Watermark", m.watermark);
     read<value_t::object>(j, "Offscreen Enemies", m.offscreenEnemies);
     read(j, "Disable model occlusion", m.disableModelOcclusion);
@@ -915,7 +927,6 @@ static void to_json(json& j, const Config::Misc::SpectatorList& o, const Config:
 
     if (const auto window = ImGui::FindWindowByName("Spectator list")) {
         j["Pos"] = window->Pos;
-        j["Size"] = window->SizeFull;
     }
 }
 
@@ -926,7 +937,21 @@ static void to_json(json& j, const Config::Misc::KeyBindList& o, const Config::M
 
     if (const auto window = ImGui::FindWindowByName("Keybind list")) {
         j["Pos"] = window->Pos;
-        j["Size"] = window->SizeFull;
+    }
+}
+
+static void to_json(json& j, const Config::Misc::PlayerList& o, const Config::Misc::PlayerList& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Steam ID", steamID);
+    WRITE("Rank", rank);
+    WRITE("Wins", wins);
+    WRITE("Money", money);
+    WRITE("Health", health);
+    WRITE("Armor", armor);
+
+    if (const auto window = ImGui::FindWindowByName("Player List")) {
+        j["Pos"] = window->Pos;
     }
 }
 
@@ -1004,6 +1029,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Reveal votes", revealVotes);
     WRITE("Spectator list", spectatorList);
     WRITE("Keybind list", keybindList);
+    WRITE("Player List", playerList);
     WRITE("Watermark", watermark);
     WRITE("Offscreen Enemies", offscreenEnemies);
     WRITE("Disable model occlusion", disableModelOcclusion);

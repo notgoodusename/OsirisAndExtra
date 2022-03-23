@@ -317,6 +317,19 @@ public:
             int rounds = 1;
         } reportbot;
 
+        struct PlayerList {
+            bool enabled = false;
+            bool steamID = false;
+            bool rank = false;
+            bool wins = false;
+            bool money = true;
+            bool health = true;
+            bool armor = false;
+
+            ImVec2 pos;
+        };
+
+        PlayerList playerList;
         OffscreenEnemies offscreenEnemies;
         AutoBuy autoBuy;
     } misc;

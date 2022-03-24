@@ -79,6 +79,12 @@ void Misc::drawPlayerList() noexcept
         config->misc.playerList.pos = {};
     }
 
+    static bool changedName = true;
+    static std::string nameToChange = "";
+
+    if (!changedName && nameToChange != "")
+        changedName = changeName(false, (nameToChange + '\x1').c_str(), 1.0f);
+
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
     if (!gui->isOpen())
     {
@@ -89,16 +95,6 @@ void Misc::drawPlayerList() noexcept
     GameData::Lock lock;
     if ((GameData::players().empty()) && !gui->isOpen())
         return;
-
-    static bool changedName = true;
-    static std::string nameToChange = "";
-
-    if (!changedName && nameToChange != "")
-    {
-        changedName = changeName(false, (nameToChange + '\x1').c_str(), 0.0f);
-        if (changedName)
-            nameToChange = "";
-    }
 
     ImGui::SetNextWindowSize(ImVec2(300.0f, 300.0f), ImGuiCond_Once);
 
@@ -164,6 +160,10 @@ void Misc::drawPlayerList() noexcept
                         {
                             changedName = changeName(false, (std::string{ player.name } + '\x1').c_str(), 1.0f);
                             nameToChange = player.name;
+
+                            if (PlayerInfo playerInfo; interfaces->engine->isInGame() && localPlayer
+                                && interfaces->engine->getPlayerInfo(localPlayer->index(), playerInfo) && (playerInfo.name == std::string{ "?empty" } || playerInfo.name == std::string{ "\n\xAD\xAD\xAD" }))
+                                changedName = false;
                         }
 
                         //if (ImGui::Button("Steal clantag"))

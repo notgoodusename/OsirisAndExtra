@@ -414,6 +414,7 @@ void PlayerData::update(Entity* entity) noexcept
 
     if (const auto pr = *memory->playerResource) {
         armor = pr->armor()[idx];
+        competitiveWins = pr->competitiveWins()[idx];
     }
 
     dormant = entity->isDormant();

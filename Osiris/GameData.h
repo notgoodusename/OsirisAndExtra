@@ -147,6 +147,7 @@ struct PlayerData : BaseData {
     Team team;
     std::uint64_t steamID;
     std::string name;
+    std::string clanTag;
     Vector headMins, headMaxs;
     Vector origin;
     std::string activeWeapon;

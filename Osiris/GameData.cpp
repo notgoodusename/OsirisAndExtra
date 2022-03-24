@@ -415,6 +415,13 @@ void PlayerData::update(Entity* entity) noexcept
     if (const auto pr = *memory->playerResource) {
         armor = pr->armor()[idx];
         competitiveWins = pr->competitiveWins()[idx];
+        if (const auto clantag = pr->getClan(idx); 
+            clantag && clantag[0] != '\0')
+        {
+            clanTag = std::string(clantag);
+        }
+        else
+            clanTag = "";
     }
 
     dormant = entity->isDormant();

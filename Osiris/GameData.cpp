@@ -412,6 +412,10 @@ void PlayerData::update(Entity* entity) noexcept
     name = entity->getPlayerName();
     const auto idx = entity->index();
 
+    if (const auto pr = *memory->playerResource) {
+        armor = pr->armor()[idx];
+    }
+
     dormant = entity->isDormant();
     if (dormant) {
         if (const auto pr = *memory->playerResource) {

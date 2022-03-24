@@ -1543,7 +1543,7 @@ void GUI::renderMiscWindow() noexcept
         //ImGui::Checkbox("Wins", &config->misc.playerList.wins);
         //ImGui::Checkbox("Money", &config->misc.playerList.money);
         ImGui::Checkbox("Health", &config->misc.playerList.health);
-        //ImGui::Checkbox("Armor", &config->misc.playerList.armor);
+        ImGui::Checkbox("Armor", &config->misc.playerList.armor);
         ImGui::EndPopup();
     }
     ImGui::PopID();

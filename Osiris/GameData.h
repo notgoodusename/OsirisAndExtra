@@ -140,6 +140,7 @@ struct PlayerData : BaseData {
     float flashDuration;
     float lastContactTime = 0.0f;
     int health;
+    int armor;
     int userId;
     int handle;
     Team team;

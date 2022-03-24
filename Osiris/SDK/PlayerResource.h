@@ -29,5 +29,12 @@ public:
     NETVAR(assists, "CCSPlayerResource", "m_iAssists", int[65])
     NETVAR(deaths, "CCSPlayerResource", "m_iDeaths", int[65])
     NETVAR(ping, "CCSPlayerResource", "m_iPing", int[65])
-    NETVAR(clanTag, "CCSPlayerResource", "m_szClan", std::string[65])
+
+    const char* getClan(int idx) noexcept
+    {
+        if (!this)
+            return nullptr;
+        static auto m_szClan = Netvars::get(fnv::hash("CCSPlayerResource->m_szClan"));
+        return reinterpret_cast<char*>(reinterpret_cast<uintptr_t>(this) + m_szClan + (idx * 16));
+    }
 };

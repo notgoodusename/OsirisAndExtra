@@ -391,7 +391,7 @@ void ProjectileData::update(Entity* projectile) noexcept
         trajectory.emplace_back(memory->globalVars->realtime, pos);
 }
 
-PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, userId{ entity->getUserId() }, steamID{ entity->getSteamId() }, handle{ entity->handle() }
+PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, userId{ entity->getUserId() }, steamID{ entity->getSteamId() }, handle{ entity->handle() }, money{ entity->money() }
 {
     if (steamID) {
         const auto ctx = interfaces->engine->getSteamAPIContext();
@@ -414,6 +414,14 @@ void PlayerData::update(Entity* entity) noexcept
 
     if (const auto pr = *memory->playerResource) {
         armor = pr->armor()[idx];
+        competitiveWins = pr->competitiveWins()[idx];
+        if (const auto clantag = pr->getClan(idx); 
+            clantag && clantag[0] != '\0')
+        {
+            clanTag = std::string(clantag);
+        }
+        else
+            clanTag = "";
     }
 
     dormant = entity->isDormant();
@@ -427,6 +435,7 @@ void PlayerData::update(Entity* entity) noexcept
         return;
     }
 
+    money = entity->money();
     team = entity->getTeamNumber();
     static_cast<BaseData&>(*this) = { entity };
     origin = entity->getAbsOrigin();

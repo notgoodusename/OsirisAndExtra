@@ -1551,8 +1551,8 @@ void GUI::renderMiscWindow() noexcept
     if (ImGui::BeginPopup("")) {
         ImGui::Checkbox("Steam ID", &config->misc.playerList.steamID);
         //ImGui::Checkbox("Rank", &config->misc.playerList.rank);
-        //ImGui::Checkbox("Wins", &config->misc.playerList.wins);
-        //ImGui::Checkbox("Money", &config->misc.playerList.money);
+        ImGui::Checkbox("Wins", &config->misc.playerList.wins);
+        ImGui::Checkbox("Money", &config->misc.playerList.money);
         ImGui::Checkbox("Health", &config->misc.playerList.health);
         ImGui::Checkbox("Armor", &config->misc.playerList.armor);
         ImGui::EndPopup();

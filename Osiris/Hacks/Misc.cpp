@@ -99,17 +99,21 @@ void Misc::drawPlayerList() noexcept
     ImGui::SetNextWindowSize(ImVec2(300.0f, 300.0f), ImGuiCond_Once);
 
     if (ImGui::Begin("Player List", nullptr, windowFlags)) {
-        if (ImGui::beginTable("", 6, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
+        if (ImGui::beginTable("", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
             ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide);
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide, 120.0f);
             ImGui::TableSetupColumn("Steam ID", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
+            ImGui::TableSetupColumn("Wins", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupColumn("Health", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupColumn("Armor", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
+            ImGui::TableSetupColumn("Money", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupScrollFreeze(0, 1);
             ImGui::TableSetColumnEnabled(2, config->misc.playerList.steamID);
-            ImGui::TableSetColumnEnabled(3, config->misc.playerList.health);
-            ImGui::TableSetColumnEnabled(4, config->misc.playerList.armor);
+            ImGui::TableSetColumnEnabled(3, config->misc.playerList.wins);
+            ImGui::TableSetColumnEnabled(4, config->misc.playerList.health);
+            ImGui::TableSetColumnEnabled(5, config->misc.playerList.armor);
+            ImGui::TableSetColumnEnabled(6, config->misc.playerList.money);
 
             ImGui::TableHeadersRow();
 
@@ -141,6 +145,9 @@ void Misc::drawPlayerList() noexcept
                 if (ImGui::TableNextColumn() && ImGui::smallButtonFullWidth("Copy", player.steamID == 0))
                     ImGui::SetClipboardText(std::to_string(player.steamID).c_str());
 
+                if (ImGui::TableNextColumn())
+                    ImGui::Text("%d", player.competitiveWins);
+
                 if (ImGui::TableNextColumn()) {
                     if (!player.alive)
                         ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, "%s", "Dead");
@@ -151,8 +158,11 @@ void Misc::drawPlayerList() noexcept
                 if (ImGui::TableNextColumn())
                     ImGui::Text("%d", player.armor);
 
+                if (ImGui::TableNextColumn())
+                    ImGui::TextColored({ 0.0f, 1.0f, 0.0f, 1.0f }, "$%d", player.money);
+
                 if (ImGui::TableNextColumn()){
-                    if (ImGui::Button("..."))
+                    if (ImGui::smallButtonFullWidth("...", false))
                         ImGui::OpenPopup("");
 
                     if (ImGui::BeginPopup("")) {
@@ -166,8 +176,11 @@ void Misc::drawPlayerList() noexcept
                                 changedName = false;
                         }
 
-                        //if (ImGui::Button("Steal clantag"))
-                        //    memory->setClanTag(player.clanTag.c_str(), player.clanTag.c_str());
+                        if (player.clanTag != "")
+                        {
+                            if (ImGui::Button("Steal clantag"))
+                                memory->setClanTag(player.clanTag.c_str(), player.clanTag.c_str());
+                        }
 
                         if (GameData::local().exists && player.team == GameData::local().team && player.steamID != 0)
                         {

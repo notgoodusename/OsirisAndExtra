@@ -143,9 +143,12 @@ struct PlayerData : BaseData {
     int armor;
     int userId;
     int handle;
+    int money;
+    int competitiveWins;
     Team team;
     std::uint64_t steamID;
     std::string name;
+    std::string clanTag;
     Vector headMins, headMaxs;
     Vector origin;
     std::string activeWeapon;

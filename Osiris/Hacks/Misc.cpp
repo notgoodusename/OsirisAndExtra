@@ -157,7 +157,7 @@ void Misc::drawPlayerList() noexcept
                     ImGui::Text("%d", player.armor);
 
                 if (ImGui::TableNextColumn()){
-                    if (ImGui::Button("..."))
+                    if (ImGui::smallButtonFullWidth("...", false))
                         ImGui::OpenPopup("");
 
                     if (ImGui::BeginPopup("")) {

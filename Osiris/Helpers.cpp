@@ -21,6 +21,15 @@ static auto rainbowColor(float time, float speed, float alpha) noexcept
                        alpha };
 }
 
+void Helpers::logConsole(std::string_view msg, const std::array<std::uint8_t, 4> color) noexcept
+{
+    static constexpr int LS_MESSAGE = 0;
+
+    static const auto channelId = memory->findLoggingChannel("Console");
+
+    memory->logDirect(channelId, LS_MESSAGE, color, msg.data());
+}
+
 float Helpers::simpleSpline(float value) noexcept
 {
     float valueSquared = value * value;

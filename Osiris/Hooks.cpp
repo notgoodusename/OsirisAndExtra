@@ -58,6 +58,7 @@
 #include "SDK/NetworkMessage.h"
 #include "SDK/Panel.h"
 #include "SDK/Platform.h"
+#include "SDK/PredictionCopy.h"
 #include "SDK/RenderContext.h"
 #include "SDK/SoundInfo.h"
 #include "SDK/SoundEmitter.h"
@@ -1086,6 +1087,53 @@ static char __fastcall newFunctionMaterialSystemBypass(void* thisPointer, void* 
     return 1;
 }
 
+static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx, int commandsAcknowledged) noexcept
+{
+    const auto entity = reinterpret_cast<Entity*>(reinterpret_cast<uintptr_t>(thisPointer));
+    static auto original = hooks->postNetworkDataReceived.getOriginal<bool>(commandsAcknowledged);
+    if (!localPlayer || entity != localPlayer.get())
+        return original(thisPointer, commandsAcknowledged);
+
+    if (commandsAcknowledged <= 0)
+        return false;
+
+    static auto cl_showerror = interfaces->cvar->findVar("cl_showerror");
+
+    bool haderrors = false;
+
+    // Store network data into post networking pristine state slot (slot 64)
+    memory->saveData(thisPointer, "PostNetworkDataReceived", -1, PC_EVERYTHING);
+
+    // Show any networked fields that are different
+    bool showthis = cl_showerror->getInt() >= 2;
+
+    if (cl_showerror->getInt() < 0)
+    {
+        if (entity->index() == -cl_showerror->getInt())
+        {
+            showthis = true;
+        }
+        else
+        {
+            showthis = false;
+        }
+    }
+
+    byte* predictedStateData = (byte*)entity->getPredictedFrame(commandsAcknowledged - 1);
+    const byte* originalStateData = (const byte*)entity->getOriginalNetworkDataObject();
+
+    PredictionCopy errorCheckHelper(PC_NETWORKED_ONLY,
+        predictedStateData, TD_OFFSET_PACKED,
+        originalStateData, TD_OFFSET_PACKED,
+        showthis ?
+        PredictionCopy::TRANSFERDATA_ERRORCHECK_SPEW :
+        PredictionCopy::TRANSFERDATA_ERRORCHECK_NOSPEW);
+
+    haderrors = errorCheckHelper.TransferData("", -1, entity->getPredDescMap()) > 0 ? true : false;
+
+    return haderrors;
+}
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -1146,6 +1194,7 @@ void Hooks::install() noexcept
     traceFilterForHeadCollision.detour(memory->traceFilterForHeadCollision, traceFilterForHeadCollisionHook);
     performScreenOverlay.detour(memory->performScreenOverlay, performScreenOverlayHook);
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
+    //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 

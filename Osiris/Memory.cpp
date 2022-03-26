@@ -213,10 +213,14 @@ Memory::Memory() noexcept
     eyePositionAndVectors = findPattern(CLIENT_DLL, "\x8B\x55\x0C\x8B\xC8\xE8????\x83\xC4\x08\x5E\x8B\xE5");
     traceFilterForHeadCollision = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\x75\x0C\x57\x8B\xF9\xF7\xC6????");
     performScreenOverlay = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\xA1????\x53\x56\x8B\xD9");
+    postNetworkDataReceived = relativeToAbsolute<decltype(postNetworkDataReceived)>(findPattern(CLIENT_DLL, "\xE8????\x33\xF6\x6A\x02") + 1);
+    saveData = relativeToAbsolute<decltype(saveData)>(findPattern(CLIENT_DLL, "\xE8????\x6B\x45\x08\x34") + 1);
 
     newFunctionClientDLL = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionEngineDLL = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionStudioRenderDLL = findPattern(STUDIORENDER_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionMaterialSystemDLL = findPattern(MATERIALSYSTEM_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     transferData = reinterpret_cast<decltype(transferData)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x45\x10\x53\x56\x8B\xF1\x57"));
+    findLoggingChannel = reinterpret_cast<decltype(findLoggingChannel)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_FindChannel"));
+    logDirect = reinterpret_cast<decltype(logDirect)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_LogDirect"));
 }

@@ -192,12 +192,16 @@ public:
     std::uintptr_t eyePositionAndVectors;
     std::uintptr_t traceFilterForHeadCollision;
     std::uintptr_t performScreenOverlay;
+    std::uintptr_t postNetworkDataReceived;
+    void(__thiscall* saveData)(void*, const char*, int, int);
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;
     std::uintptr_t newFunctionStudioRenderDLL;
     std::uintptr_t newFunctionMaterialSystemDLL;
     int(__thiscall* transferData)(void*, const char*, int, void*);
+    int(__cdecl* findLoggingChannel)(const char* name);
+    int(__cdecl* logDirect)(int id, int severity, const std::array<std::uint8_t, 4> color, const char* msg);
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);

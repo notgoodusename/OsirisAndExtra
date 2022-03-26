@@ -176,11 +176,8 @@ void Misc::drawPlayerList() noexcept
                                 changedName = false;
                         }
 
-                        if (player.clanTag != "")
-                        {
-                            if (ImGui::Button("Steal clantag"))
-                                memory->setClanTag(player.clanTag.c_str(), player.clanTag.c_str());
-                        }
+                        if (ImGui::Button("Steal clantag"))
+                            memory->setClanTag(player.clanTag.c_str(), player.clanTag.c_str());
 
                         if (GameData::local().exists && player.team == GameData::local().team && player.steamID != 0)
                         {

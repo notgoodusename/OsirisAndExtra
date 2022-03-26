@@ -342,6 +342,18 @@ public:
         return intermediateDataSize;
     }
 
+    void* getOriginalNetworkDataObject() noexcept
+    {
+        return reinterpret_cast<void*>(reinterpret_cast<uintptr_t>(this) + 0x92C);
+    }
+
+    void* getPredictedFrame(int frameNumber) noexcept
+    {
+        if (!getOriginalNetworkDataObject())
+            return nullptr;
+        return reinterpret_cast<void**>(this)[(frameNumber % 150) + 286];
+    }
+
     float spawnTime() noexcept
     {
         return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + 0x103C0);

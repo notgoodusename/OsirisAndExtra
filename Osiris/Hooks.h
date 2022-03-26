@@ -60,6 +60,7 @@ public:
     MinHook isUsingStaticPropDebugModes;
     MinHook traceFilterForHeadCollision;
     MinHook performScreenOverlay;
+    MinHook postNetworkDataReceived;
 
     MinHook newFunctionClientDLL;
     MinHook newFunctionEngineDLL;

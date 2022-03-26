@@ -1102,7 +1102,7 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
     bool haderrors = false;
 
     // Store network data into post networking pristine state slot (slot 64)
-    memory->saveData(thisPointer, "PostNetworkDataReceived", -1, PC_EVERYTHING);
+    memory->saveData(thisPointer, "PostNetworkDataReceived", SLOT_ORIGINALDATA, PC_EVERYTHING);
 
     // Show any networked fields that are different
     bool showthis = cl_showerror->getInt() >= 2;

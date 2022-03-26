@@ -1129,7 +1129,7 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
         PredictionCopy::TRANSFERDATA_ERRORCHECK_SPEW :
         PredictionCopy::TRANSFERDATA_ERRORCHECK_NOSPEW);
 
-    haderrors = errorCheckHelper.TransferData("", -1, entity->getPredDescMap()) > 0 ? true : false;
+    haderrors = errorCheckHelper.TransferData("", entity->index(), entity->getPredDescMap()) > 0 ? true : false;
 
     return haderrors;
 }

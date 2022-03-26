@@ -216,7 +216,7 @@ namespace Resolver
                 missed++;
                 missedang = desyncAng;
                 if (std::count(blacklisted.begin(), blacklisted.end(), missedang)) {
-                    Msg("Missed due to resolver\n");
+                    Msg("Missed due to lack of resolver\n");
                 }
                 else 
                 {

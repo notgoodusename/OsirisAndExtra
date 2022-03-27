@@ -1179,6 +1179,27 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("No scope overlay", &config->visuals.noScopeOverlay);
     ImGui::Checkbox("No grass", &config->visuals.noGrass);
     ImGui::Checkbox("No shadows", &config->visuals.noShadows);
+
+    ImGui::Checkbox("Shadow changer", &config->visuals.shadowsChanger.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Shadow changer");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(5);
+        ImGui::SliderInt("", &config->visuals.shadowsChanger.x, 0, 360, "x rotation: %d");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(6);
+        ImGui::SliderInt("", &config->visuals.shadowsChanger.y, 0, 360, "y rotation: %d");
+        ImGui::PopID();
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     ImGui::Checkbox("Full bright", &config->visuals.fullBright);
     ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
     ImGui::NextColumn();

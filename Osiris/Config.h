@@ -178,6 +178,12 @@ public:
         bool noScopeOverlay{ false };
         bool noGrass{ false };
         bool noShadows{ false };
+        struct ShadowsChanger
+        {
+            bool enabled{ false };
+            int x{ 0 };
+            int y{ 0 };
+        } shadowsChanger;
         bool fullBright{ false };
         bool wireframeSmoke{ false };
         bool zoom{ false };

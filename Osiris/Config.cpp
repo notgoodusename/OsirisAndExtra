@@ -372,6 +372,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "No scope overlay", v.noScopeOverlay);
     read(j, "No grass", v.noGrass);
     read(j, "No shadows", v.noShadows);
+    read<value_t::object>(j, "Shadows changer", v.shadowsChanger);
     read(j, "Wireframe smoke", v.wireframeSmoke);
     read(j, "Full bright", v.fullBright);
     read(j, "Zoom", v.zoom);
@@ -487,6 +488,13 @@ static void from_json(const json& j, AutoBuy& o)
     read(j, "Armor", o.armor);
     read(j, "Utility", o.utility);
     read(j, "Grenades", o.grenades);
+}
+
+static void from_json(const json& j, Config::Visuals::ShadowsChanger& sw)
+{
+    read(j, "Enabled", sw.enabled);
+    read(j, "X", sw.x);
+    read(j, "Y", sw.y);
 }
 
 static void from_json(const json& j, Config::Visuals::Viewmodel& vxyz)
@@ -976,6 +984,13 @@ static void to_json(json& j, const AutoBuy& o, const AutoBuy& dummy = {})
     WRITE("Grenades", grenades);
 }
 
+static void to_json(json& j, const Config::Visuals::ShadowsChanger& o, const Config::Visuals::ShadowsChanger& dummy)
+{
+    WRITE("Enabled", enabled);
+    WRITE("X", x);
+    WRITE("Y", y);
+}
+
 static void to_json(json& j, const Config::Visuals::Viewmodel& o, const Config::Visuals::Viewmodel& dummy)
 {
     WRITE("Enabled", enabled);
@@ -1079,6 +1094,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("No scope overlay", noScopeOverlay);
     WRITE("No grass", noGrass);
     WRITE("No shadows", noShadows);
+    WRITE("Shadows changer", shadowsChanger);
     WRITE("Wireframe smoke", wireframeSmoke);
     WRITE("Full bright", fullBright);
     WRITE("Zoom", zoom);

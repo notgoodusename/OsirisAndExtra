@@ -93,23 +93,13 @@ void GameData::update() noexcept
         for (std::size_t i = 0; i < skillGroupNames.size(); ++i)
         {
             const auto rank = interfaces->localize->findAsUTF8(("RankName_" + std::to_string(i)).c_str());
-            Helpers::logConsole(rank + std::string("\n"));
             skillGroupNames[i] = rank;
-            Helpers::logConsole(skillGroupNames[i]);
-            Helpers::logConsole("\n");
-            memory->debugMsg(skillGroupNames[i].data());
-            memory->debugMsg("\n");
         }
 
         for (std::size_t i = 0; i < skillGroupNamesDangerzone.size(); ++i)
         {
             const auto rank = interfaces->localize->findAsUTF8(("skillgroup_" + std::to_string(i) + "dangerzone").c_str());
-            Helpers::logConsole(rank + std::string("\n"));
             skillGroupNamesDangerzone[i] = rank;
-            Helpers::logConsole(skillGroupNamesDangerzone[i]);
-            Helpers::logConsole("\n");
-            memory->debugMsg(skillGroupNamesDangerzone[i].data());
-            memory->debugMsg("\n");
         }
 
         skillgroupNamesInitialized = true;

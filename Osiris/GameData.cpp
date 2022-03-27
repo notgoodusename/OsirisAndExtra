@@ -43,8 +43,8 @@ static std::vector<InfernoData> infernoData;
 static std::vector<SmokeData> smokeData;
 static std::atomic_int netOutgoingLatency;
 static std::string gameModeName;
-static std::array<std::string_view, 19> skillGroupNames;
-static std::array<std::string_view, 16> skillGroupNamesDangerzone;
+static std::array<std::string, 19> skillGroupNames;
+static std::array<std::string, 16> skillGroupNamesDangerzone;
 
 
 static auto playerByHandleWritable(int handle) noexcept
@@ -93,13 +93,13 @@ void GameData::update() noexcept
         for (std::size_t i = 0; i < skillGroupNames.size(); ++i)
         {
             const auto rank = interfaces->localize->findAsUTF8(("RankName_" + std::to_string(i)).c_str());
-            skillGroupNames[i] = rank;
+            skillGroupNames[i] = std::string(rank);
         }
 
         for (std::size_t i = 0; i < skillGroupNamesDangerzone.size(); ++i)
         {
             const auto rank = interfaces->localize->findAsUTF8(("skillgroup_" + std::to_string(i) + "dangerzone").c_str());
-            skillGroupNamesDangerzone[i] = rank;
+            skillGroupNamesDangerzone[i] = std::string(rank);
         }
 
         skillgroupNamesInitialized = true;
@@ -544,7 +544,7 @@ void PlayerData::update(Entity* entity) noexcept
     }
 }
 
-const std::string_view PlayerData::getRankName() const noexcept
+const std::string PlayerData::getRankName() const noexcept
 {
     if (gameModeName == "survival")
         return skillGroupNamesDangerzone[std::size_t(skillgroup) < skillGroupNamesDangerzone.size() ? skillgroup : 0];

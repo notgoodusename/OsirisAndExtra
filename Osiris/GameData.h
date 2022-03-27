@@ -127,7 +127,7 @@ struct PlayerData : BaseData {
     PlayerData& operator=(PlayerData&&) = default;
 
     void update(Entity* entity) noexcept;
-    const std::string_view getRankName() const noexcept;
+    const std::string getRankName() const noexcept;
     ImTextureID getAvatarTexture() const noexcept;
     ImTextureID getRankTexture() const noexcept;
     float fadingAlpha() const noexcept;

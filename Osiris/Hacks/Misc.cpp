@@ -149,7 +149,6 @@ void Misc::drawPlayerList() noexcept
 
                 if (ImGui::TableNextColumn()) {
                     ImGui::Image(player.getRankTexture(), { 2.45f /* -> proportion 49x20px */ * ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() });
-                    /*
                     if (ImGui::IsItemHovered()) {
                         ImGui::BeginTooltip();
                         ImGui::PushFont(nullptr);
@@ -157,7 +156,7 @@ void Misc::drawPlayerList() noexcept
                         ImGui::PopFont();
                         ImGui::EndTooltip();
                     }
-                    */
+                    
                 }
 
                 if (ImGui::TableNextColumn())

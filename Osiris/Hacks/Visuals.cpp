@@ -60,7 +60,7 @@ void Visuals::shadowChanger() noexcept
     cl_csm_max_shadow_dist->setValue(800);
     cl_csm_rot_override->setValue(1);
     cl_csm_rot_x->setValue(config->visuals.shadowsChanger.x);
-    cl_csm_rot_y->setValue(config->visuals.shadowsChanger.x);
+    cl_csm_rot_y->setValue(config->visuals.shadowsChanger.y);
 }
 
 void Visuals::visualizeSpread(ImDrawList* drawList) noexcept

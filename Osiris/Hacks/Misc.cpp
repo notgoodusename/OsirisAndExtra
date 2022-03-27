@@ -99,10 +99,11 @@ void Misc::drawPlayerList() noexcept
     ImGui::SetNextWindowSize(ImVec2(300.0f, 300.0f), ImGuiCond_Once);
 
     if (ImGui::Begin("Player List", nullptr, windowFlags)) {
-        if (ImGui::beginTable("", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
+        if (ImGui::beginTable("", 9, ImGuiTableFlags_Borders | ImGuiTableFlags_Hideable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable)) {
             ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide);
             ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHide, 120.0f);
             ImGui::TableSetupColumn("Steam ID", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
+            ImGui::TableSetupColumn("Rank", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupColumn("Wins", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupColumn("Health", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupColumn("Armor", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
@@ -110,10 +111,11 @@ void Misc::drawPlayerList() noexcept
             ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
             ImGui::TableSetupScrollFreeze(0, 1);
             ImGui::TableSetColumnEnabled(2, config->misc.playerList.steamID);
-            ImGui::TableSetColumnEnabled(3, config->misc.playerList.wins);
-            ImGui::TableSetColumnEnabled(4, config->misc.playerList.health);
-            ImGui::TableSetColumnEnabled(5, config->misc.playerList.armor);
-            ImGui::TableSetColumnEnabled(6, config->misc.playerList.money);
+            ImGui::TableSetColumnEnabled(3, config->misc.playerList.rank);
+            ImGui::TableSetColumnEnabled(4, config->misc.playerList.wins);
+            ImGui::TableSetColumnEnabled(5, config->misc.playerList.health);
+            ImGui::TableSetColumnEnabled(6, config->misc.playerList.armor);
+            ImGui::TableSetColumnEnabled(7, config->misc.playerList.money);
 
             ImGui::TableHeadersRow();
 
@@ -144,6 +146,19 @@ void Misc::drawPlayerList() noexcept
 
                 if (ImGui::TableNextColumn() && ImGui::smallButtonFullWidth("Copy", player.steamID == 0))
                     ImGui::SetClipboardText(std::to_string(player.steamID).c_str());
+
+                if (ImGui::TableNextColumn()) {
+                    ImGui::Image(player.getRankTexture(), { 2.45f /* -> proportion 49x20px */ * ImGui::GetTextLineHeight(), ImGui::GetTextLineHeight() });
+                    /*
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::BeginTooltip();
+                        ImGui::PushFont(nullptr);
+                        ImGui::TextUnformatted(player.getRankName().data());
+                        ImGui::PopFont();
+                        ImGui::EndTooltip();
+                    }
+                    */
+                }
 
                 if (ImGui::TableNextColumn())
                     ImGui::Text("%d", player.competitiveWins);

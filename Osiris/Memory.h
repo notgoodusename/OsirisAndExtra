@@ -199,12 +199,18 @@ public:
     int(__thiscall* transferData)(void*, const char*, int, void*);
     int(__cdecl* findLoggingChannel)(const char* name);
     int(__cdecl* logDirect)(int id, int severity, const std::array<std::uint8_t, 4> color, const char* msg);
+
+    const char* getGameModeName(bool skirmish) const noexcept
+    {
+        return reinterpret_cast<const char* (__stdcall*)(bool)>(getGameModeNameFn)(skirmish);
+    }
     //
 private:
     void(__thiscall* setOrAddAttributeValueByNameFunction)(std::uintptr_t, const char* attribute);
     void(__thiscall* makePanoramaSymbolFn)(short* symbol, const char* name);
 
     std::uintptr_t submitReportFunction;
+    std::uintptr_t getGameModeNameFn;
 };
 
 inline std::unique_ptr<const Memory> memory;

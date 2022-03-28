@@ -31,6 +31,7 @@ class PhysicsSurfaceProps;
 class Prediction;
 class RenderView;
 class Surface;
+class Server;
 class SoundEmitter;
 class StudioRender;
 
@@ -63,6 +64,7 @@ type* name = reinterpret_cast<type*>(find(moduleName, version));
     GAME_INTERFACE(RenderView, renderView, ENGINE_DLL, "VEngineRenderView014")
     GAME_INTERFACE(Surface, surface, VGUIMATSURFACE_DLL, "VGUI_Surface031")
     GAME_INTERFACE(EngineSound, sound, ENGINE_DLL, "IEngineSoundClient003")
+    GAME_INTERFACE(Server, server, SERVER_DLL, "ServerGameDLL005")
     GAME_INTERFACE(SoundEmitter, soundEmitter, SOUNDEMITTERSYSTEM_DLL, "VSoundEmitter003")
     GAME_INTERFACE(StudioRender, studioRender, STUDIORENDER_DLL, "VStudioRender026")
 

@@ -8,6 +8,11 @@ typedef unsigned char byte;
 typedef void (*FN_FIELD_COMPARE)(const char* classname, const char* fieldname, const char* fieldtype,
 	bool networked, bool noterrorchecked, bool differs, bool withintolerance, const char* value);
 
+enum
+{
+	SLOT_ORIGINALDATA = -1,
+};
+
 class PredictionCopy
 {
 public:

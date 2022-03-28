@@ -644,5 +644,11 @@
     <ClInclude Include="SDK\PredictionCopy.h">
       <Filter>SDK</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\skillgroups.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="SDK\Server.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

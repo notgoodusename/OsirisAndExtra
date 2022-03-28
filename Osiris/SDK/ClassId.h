@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Server.h"
+
 enum class ClassId {
     BaseCSGrenadeProjectile = 9,
     BreachChargeProjectile = 29,
@@ -47,3 +49,29 @@ enum class ClassId {
     Ssg08 = 267,
     Tec9 = 269
 };
+
+class ClassIdManager
+{
+private:
+    int getClassID(const char* classname) noexcept
+    {
+        ServerClass* serverclass = interfaces->server->getAllServerClasses();
+        int id = 0;
+        while (serverclass)
+        {
+            if (!strcmp(serverclass->networkName, classname))
+                return id;
+            serverclass = serverclass->next, id++;
+        }
+        return -1;
+    }
+public:
+    ClassIdManager() noexcept
+    {
+        FogController = getClassID("CFogController");
+    }
+
+    int FogController;
+};
+
+inline std::unique_ptr<const ClassIdManager> dynamicClassId;

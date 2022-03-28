@@ -41,6 +41,7 @@
 #include "Hacks/Visuals.h"
 #include "Hacks/Resolver.h"
 
+#include "SDK/ClassId.h"
 #include "SDK/Client.h"
 #include "SDK/ClientState.h"
 #include "SDK/ConVar.h"
@@ -253,6 +254,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::prepareRevolver(cmd);
     Visuals::removeShadows();
     Visuals::fullBright();
+    Visuals::shadowChanger();
     Misc::runReportbot();
     Misc::bunnyHop(cmd);
     Misc::removeCrouchCooldown(cmd);
@@ -1165,7 +1167,7 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
     bool haderrors = false;
 
     // Store network data into post networking pristine state slot (slot 64)
-    memory->saveData(thisPointer, "PostNetworkDataReceived", -1, PC_EVERYTHING);
+    memory->saveData(thisPointer, "PostNetworkDataReceived", SLOT_ORIGINALDATA, PC_EVERYTHING);
 
     // Show any networked fields that are different
     bool showthis = cl_showerror->getInt() >= 2;
@@ -1207,6 +1209,7 @@ Hooks::Hooks(HMODULE moduleHandle) noexcept
     // interfaces and memory shouldn't be initialized in wndProc because they show MessageBox on error which would cause deadlock
     interfaces = std::make_unique<const Interfaces>();
     memory = std::make_unique<const Memory>();
+    dynamicClassId = std::make_unique<const ClassIdManager>();
 
     window = FindWindowW(L"Valve001", nullptr);
     originalWndProc = WNDPROC(SetWindowLongPtrW(window, GWLP_WNDPROC, LONG_PTR(wndProc)));

@@ -44,6 +44,25 @@ static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noe
     return true;
 }
 
+void Visuals::shadowChanger() noexcept
+{
+    static auto cl_csm_rot_override = interfaces->cvar->findVar("cl_csm_rot_override");
+    static auto cl_csm_max_shadow_dist = interfaces->cvar->findVar("cl_csm_max_shadow_dist");
+    static auto cl_csm_rot_x = interfaces->cvar->findVar("cl_csm_rot_x");
+    static auto cl_csm_rot_y = interfaces->cvar->findVar("cl_csm_rot_y");
+
+    if (config->visuals.noShadows || !config->visuals.shadowsChanger.enabled)
+    {
+        cl_csm_rot_override->setValue(0);
+        return;
+    }
+
+    cl_csm_max_shadow_dist->setValue(800);
+    cl_csm_rot_override->setValue(1);
+    cl_csm_rot_x->setValue(config->visuals.shadowsChanger.x);
+    cl_csm_rot_y->setValue(config->visuals.shadowsChanger.y);
+}
+
 void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
 {
     if (!config->visuals.spreadCircle.enabled)
@@ -72,7 +91,7 @@ void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
 
 void Visuals::fullBright() noexcept
 {
-    const auto bright = interfaces->cvar->findVar("mat_fullbright");
+    static auto bright = interfaces->cvar->findVar("mat_fullbright");
     bright->setValue(config->visuals.fullBright);
 }
 

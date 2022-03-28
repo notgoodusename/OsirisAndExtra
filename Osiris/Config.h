@@ -173,6 +173,13 @@ public:
         bool disablePostProcessing{ false };
         bool inverseRagdollGravity{ false };
         bool noFog{ false };
+        struct Fog
+        {
+            bool enabled{ false };
+            float start{ 0 };
+            float end{ 0 };
+            float density{ 0 };
+        } fog;
         bool no3dSky{ false };
         bool noAimPunch{ false };
         bool noViewPunch{ false };
@@ -184,6 +191,12 @@ public:
         bool noScopeOverlay{ false };
         bool noGrass{ false };
         bool noShadows{ false };
+        struct ShadowsChanger
+        {
+            bool enabled{ false };
+            int x{ 0 };
+            int y{ 0 };
+        } shadowsChanger;
         bool fullBright{ false };
         bool wireframeSmoke{ false };
         bool zoom{ false };

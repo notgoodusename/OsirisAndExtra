@@ -133,6 +133,7 @@
     <ClInclude Include="Resources\avatar_ct.h" />
     <ClInclude Include="Resources\avatar_tt.h" />
     <ClInclude Include="Resources\Resource.h" />
+    <ClInclude Include="Resources\skillgroups.h" />
     <ClInclude Include="SDK\Angle.h" />
     <ClInclude Include="SDK\AnimState.h" />
     <ClInclude Include="SDK\checksum_crc.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="SDK\Recv.h" />
     <ClInclude Include="SDK\RenderContext.h" />
     <ClInclude Include="SDK\RenderView.h" />
+    <ClInclude Include="SDK\Server.h" />
     <ClInclude Include="SDK\Sound.h" />
     <ClInclude Include="SDK\SoundEmitter.h" />
     <ClInclude Include="SDK\SoundInfo.h" />

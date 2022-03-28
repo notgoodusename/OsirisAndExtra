@@ -55,6 +55,7 @@ namespace GameData
     const std::vector<LootCrateData>& lootCrates() noexcept;
     const std::forward_list<ProjectileData>& projectiles() noexcept;
     const BombData& plantedC4() noexcept;
+    const std::string& gameMode() noexcept;
     const std::vector<InfernoData>& infernos() noexcept;
     const std::vector<SmokeData>& smokes() noexcept;
 }
@@ -126,7 +127,9 @@ struct PlayerData : BaseData {
     PlayerData& operator=(PlayerData&&) = default;
 
     void update(Entity* entity) noexcept;
+    const std::string getRankName() const noexcept;
     ImTextureID getAvatarTexture() const noexcept;
+    ImTextureID getRankTexture() const noexcept;
     float fadingAlpha() const noexcept;
 
     bool dormant;
@@ -153,6 +156,22 @@ struct PlayerData : BaseData {
     Vector origin;
     std::string activeWeapon;
     std::vector<std::pair<Vector, Vector>> bones;
+    int skillgroup;
+
+    class Texture {
+        ImTextureID texture = nullptr;
+    public:
+        Texture() = default;
+        ~Texture();
+        Texture(const Texture&) = delete;
+        Texture& operator=(const Texture&) = delete;
+        Texture(Texture&& other) noexcept : texture{ other.texture } { other.texture = nullptr; }
+        Texture& operator=(Texture&& other) noexcept { clear(); texture = other.texture; other.texture = nullptr; return *this; }
+
+        void init(int width, int height, const std::uint8_t* data) noexcept;
+        void clear() noexcept;
+        ImTextureID get() const noexcept { return texture; }
+    };
 };
 
 struct WeaponData : BaseData {

@@ -1178,6 +1178,32 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Inverse ragdoll gravity", &config->visuals.inverseRagdollGravity);
     ImGui::Checkbox("Keep FOV", &config->visuals.keepFov);
     ImGui::Checkbox("No fog", &config->visuals.noFog);
+
+    ImGui::Checkbox("Fog controller", &config->visuals.fog.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Fog controller");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(7);
+        ImGui::SliderFloat("Start", &config->visuals.fog.start, 0.0f, 5000.0f, "Start: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(8);
+        ImGui::SliderFloat("End", &config->visuals.fog.end, 0.0f, 5000.0f, "End: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(9);
+        ImGui::SliderFloat("Density", &config->visuals.fog.density, 0.001f, 1.0f, "Density: %.3f");
+        ImGui::PopID();
+
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
     ImGui::Checkbox("No 3d sky", &config->visuals.no3dSky);
     ImGui::Checkbox("No aim punch", &config->visuals.noAimPunch);
     ImGui::Checkbox("No view punch", &config->visuals.noViewPunch);
@@ -1189,6 +1215,27 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("No scope overlay", &config->visuals.noScopeOverlay);
     ImGui::Checkbox("No grass", &config->visuals.noGrass);
     ImGui::Checkbox("No shadows", &config->visuals.noShadows);
+
+    ImGui::Checkbox("Shadow changer", &config->visuals.shadowsChanger.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Shadow changer");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(5);
+        ImGui::SliderInt("", &config->visuals.shadowsChanger.x, 0, 360, "x rotation: %d");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(6);
+        ImGui::SliderInt("", &config->visuals.shadowsChanger.y, 0, 360, "y rotation: %d");
+        ImGui::PopID();
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     ImGui::Checkbox("Full bright", &config->visuals.fullBright);
     ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
     ImGui::NextColumn();
@@ -1235,7 +1282,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::SliderFloat("Hit marker time", &config->visuals.hitMarkerTime, 0.1f, 1.5f, "%.2fs");
     ImGuiCustom::colorPicker("Bullet Tracers", config->visuals.bulletTracers.color.data(), &config->visuals.bulletTracers.color[3], nullptr, nullptr, &config->visuals.bulletTracers.enabled);
     ImGuiCustom::colorPicker("Bullet Impacts", config->visuals.bulletImpacts.color.data(), &config->visuals.bulletImpacts.color[3], nullptr, nullptr, &config->visuals.bulletImpacts.enabled);
-    ImGui::SliderFloat("Bullet Impacts time", &config->visuals.bulletImpactsTime, 0.1f, 5.0f, "%.2fs");
+    ImGui::SliderFloat("Bullet Impacts time", &config->visuals.bulletImpactsTime, 0.1f, 5.0f, "Bullet Impacts time: %.2fs");
     ImGuiCustom::colorPicker("Molotov Hull", config->visuals.molotovHull);
     ImGuiCustom::colorPicker("Smoke Hull", config->visuals.smokeHull);
     ImGuiCustom::colorPicker("Spread circle", config->visuals.spreadCircle);
@@ -1550,11 +1597,11 @@ void GUI::renderMiscWindow() noexcept
 
     if (ImGui::BeginPopup("")) {
         ImGui::Checkbox("Steam ID", &config->misc.playerList.steamID);
-        //ImGui::Checkbox("Rank", &config->misc.playerList.rank);
+        ImGui::Checkbox("Rank", &config->misc.playerList.rank);
         ImGui::Checkbox("Wins", &config->misc.playerList.wins);
-        ImGui::Checkbox("Money", &config->misc.playerList.money);
         ImGui::Checkbox("Health", &config->misc.playerList.health);
         ImGui::Checkbox("Armor", &config->misc.playerList.armor);
+        ImGui::Checkbox("Money", &config->misc.playerList.money);
         ImGui::EndPopup();
     }
     ImGui::PopID();

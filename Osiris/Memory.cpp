@@ -223,4 +223,5 @@ Memory::Memory() noexcept
     transferData = reinterpret_cast<decltype(transferData)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x45\x10\x53\x56\x8B\xF1\x57"));
     findLoggingChannel = reinterpret_cast<decltype(findLoggingChannel)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_FindChannel"));
     logDirect = reinterpret_cast<decltype(logDirect)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_LogDirect"));
+    getGameModeNameFn = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x0D????\x53\x57\x8B\x01");
 }

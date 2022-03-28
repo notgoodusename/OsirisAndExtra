@@ -361,6 +361,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Disable post-processing", v.disablePostProcessing);
     read(j, "Inverse ragdoll gravity", v.inverseRagdollGravity);
     read(j, "No fog", v.noFog);
+    read<value_t::object>(j, "Fog controller", v.fog);
     read(j, "No 3d sky", v.no3dSky);
     read(j, "No aim punch", v.noAimPunch);
     read(j, "No view punch", v.noViewPunch);
@@ -488,6 +489,14 @@ static void from_json(const json& j, AutoBuy& o)
     read(j, "Armor", o.armor);
     read(j, "Utility", o.utility);
     read(j, "Grenades", o.grenades);
+}
+
+static void from_json(const json& j, Config::Visuals::Fog& f)
+{
+    read(j, "Enabled", f.enabled);
+    read(j, "Start", f.start);
+    read(j, "End", f.end);
+    read(j, "Density", f.density);
 }
 
 static void from_json(const json& j, Config::Visuals::ShadowsChanger& sw)
@@ -984,6 +993,14 @@ static void to_json(json& j, const AutoBuy& o, const AutoBuy& dummy = {})
     WRITE("Grenades", grenades);
 }
 
+static void to_json(json& j, const Config::Visuals::Fog& o, const Config::Visuals::Fog& dummy)
+{
+    WRITE("Enabled", enabled);
+    WRITE("Start", start);
+    WRITE("End", end);
+    WRITE("Density", density);
+}
+
 static void to_json(json& j, const Config::Visuals::ShadowsChanger& o, const Config::Visuals::ShadowsChanger& dummy)
 {
     WRITE("Enabled", enabled);
@@ -1083,6 +1100,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Disable post-processing", disablePostProcessing);
     WRITE("Inverse ragdoll gravity", inverseRagdollGravity);
     WRITE("No fog", noFog);
+    WRITE("Fog controller", fog);
     WRITE("No 3d sky", no3dSky);
     WRITE("No aim punch", noAimPunch);
     WRITE("No view punch", noViewPunch);

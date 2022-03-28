@@ -668,3 +668,12 @@ public:
     NETVAR(c4DefuseLength, "CPlantedC4", "m_flDefuseLength", float)
     NETVAR(c4Defuser, "CPlantedC4", "m_hBombDefuser", int)
 };
+
+class FogController : public Entity {
+public:
+    NETVAR(enable, "CFogController", "m_fog.enable", int)
+    NETVAR(start, "CFogController", "m_fog.start", float)
+    NETVAR(end, "CFogController", "m_fog.end", float)
+    NETVAR(density, "CFogController", "m_fog.maxdensity", float)
+    NETVAR(color, "CFogController", "m_fog.colorPrimary", int)
+};

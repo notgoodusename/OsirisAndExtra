@@ -146,6 +146,7 @@ void GameData::update() noexcept
                     weaponData.emplace_back(entity);
             } else {
                 const auto classId = entity->getClientClass()->classId;
+                const int classIdInt = (int)classId;
                 switch (classId) {
                 case ClassId::BaseCSGrenadeProjectile:
                     if (!entity->shouldDraw()) {
@@ -187,6 +188,16 @@ void GameData::update() noexcept
                 case ClassId::Inferno:
                     infernoData.emplace_back(entity);
                     break;
+                }
+
+                if (classIdInt == dynamicClassId->FogController && !config->visuals.noFog)
+                {
+                    const auto fog = reinterpret_cast<FogController*>(entity);
+
+                    fog->enable() = config->visuals.fog.enabled ? 1 : 0;
+                    fog->start() = config->visuals.fog.start;
+                    fog->end() = config->visuals.fog.end;
+                    fog->density() = config->visuals.fog.density;
                 }
 
                 if (classId == ClassId::SmokeGrenadeProjectile && entity->didSmokeEffect())

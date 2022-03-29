@@ -169,11 +169,11 @@ public:
         bool noFog{ false };
         struct Fog
         {
-            bool enabled{ false };
             float start{ 0 };
             float end{ 0 };
             float density{ 0 };
-        } fog;
+        } fogOptions;
+        ColorToggle3 fog;
         bool no3dSky{ false };
         bool noAimPunch{ false };
         bool noViewPunch{ false };

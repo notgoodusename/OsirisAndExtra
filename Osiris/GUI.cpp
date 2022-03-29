@@ -1169,7 +1169,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Keep FOV", &config->visuals.keepFov);
     ImGui::Checkbox("No fog", &config->visuals.noFog);
 
-    ImGui::Checkbox("Fog controller", &config->visuals.fog.enabled);
+    ImGuiCustom::colorPicker("Fog controller", config->visuals.fog);
     ImGui::SameLine();
 
     ImGui::PushID("Fog controller");
@@ -1180,15 +1180,15 @@ void GUI::renderVisualsWindow() noexcept
 
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(7);
-        ImGui::SliderFloat("Start", &config->visuals.fog.start, 0.0f, 5000.0f, "Start: %.2f");
+        ImGui::SliderFloat("Start", &config->visuals.fogOptions.start, 0.0f, 5000.0f, "Start: %.2f");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(8);
-        ImGui::SliderFloat("End", &config->visuals.fog.end, 0.0f, 5000.0f, "End: %.2f");
+        ImGui::SliderFloat("End", &config->visuals.fogOptions.end, 0.0f, 5000.0f, "End: %.2f");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(9);
-        ImGui::SliderFloat("Density", &config->visuals.fog.density, 0.001f, 1.0f, "Density: %.3f");
+        ImGui::SliderFloat("Density", &config->visuals.fogOptions.density, 0.001f, 1.0f, "Density: %.3f");
         ImGui::PopID();
 
         ImGui::EndPopup();

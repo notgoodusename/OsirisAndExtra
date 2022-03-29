@@ -194,6 +194,7 @@ public:
     std::uintptr_t performScreenOverlay;
     std::uintptr_t postNetworkDataReceived;
     void(__thiscall* saveData)(void*, const char*, int, int);
+    std::uintptr_t isDepthOfFieldEnabled;
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;

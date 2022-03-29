@@ -546,6 +546,7 @@ static void __stdcall overrideView(ViewSetup* setup) noexcept
     hooks->clientMode.callOriginal<void, 18>(setup);
 
     Misc::freeCam(setup);
+    Visuals::motionBlur(setup);
 }
 
 struct RenderableInfo {
@@ -1081,6 +1082,12 @@ static void __fastcall performScreenOverlayHook(void* thisPointer, void* edx, in
         return original(thisPointer, x, y, width, height);
 }
 
+static bool __stdcall isDepthOfFieldEnabledHook() noexcept
+{
+    Visuals::motionBlur(nullptr);
+    return false;
+}
+
 static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* edx) noexcept
 {
     return config->visuals.mapColor.enabled;
@@ -1259,6 +1266,7 @@ void Hooks::install() noexcept
 
     traceFilterForHeadCollision.detour(memory->traceFilterForHeadCollision, traceFilterForHeadCollisionHook);
     performScreenOverlay.detour(memory->performScreenOverlay, performScreenOverlayHook);
+    isDepthOfFieldEnabled.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
     clMove.detour(memory->clMove, clMoveHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);

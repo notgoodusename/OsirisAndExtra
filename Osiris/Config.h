@@ -175,11 +175,11 @@ public:
         bool noFog{ false };
         struct Fog
         {
-            bool enabled{ false };
             float start{ 0 };
             float end{ 0 };
             float density{ 0 };
-        } fog;
+        } fogOptions;
+        ColorToggle3 fog;
         bool no3dSky{ false };
         bool noAimPunch{ false };
         bool noViewPunch{ false };
@@ -214,6 +214,16 @@ public:
         int flashReduction{ 0 };
         int skybox{ 0 };
         bool deagleSpinner{ false };
+        struct MotionBlur
+        {
+            bool enabled{ false };
+            bool forwardEnabled{ false };
+            float fallingMin{ 10.0f };
+            float fallingMax{ 20.0f };
+            float fallingIntensity{ 1.0f };
+            float rotationIntensity{ 1.0f };
+            float strength{ 1.0f };
+        } motionBlur;
         int screenEffect{ 0 };
         int hitEffect{ 0 };
         float hitEffectTime{ 0.6f };

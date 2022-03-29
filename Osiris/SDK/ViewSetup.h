@@ -12,4 +12,6 @@ struct ViewSetup {
     Vector angles;
     PAD(4);
     float farZ;
+    PAD(8)
+    float aspectRatio;
 };

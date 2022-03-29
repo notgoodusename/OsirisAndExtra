@@ -369,6 +369,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Inverse ragdoll gravity", v.inverseRagdollGravity);
     read(j, "No fog", v.noFog);
     read<value_t::object>(j, "Fog controller", v.fog);
+    read<value_t::object>(j, "Fog options", v.fogOptions);
     read(j, "No 3d sky", v.no3dSky);
     read(j, "No aim punch", v.noAimPunch);
     read(j, "No view punch", v.noViewPunch);
@@ -380,6 +381,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "No scope overlay", v.noScopeOverlay);
     read(j, "No grass", v.noGrass);
     read(j, "No shadows", v.noShadows);
+    read<value_t::object>(j, "Motion Blur", v.motionBlur);
     read<value_t::object>(j, "Shadows changer", v.shadowsChanger);
     read(j, "Wireframe smoke", v.wireframeSmoke);
     read(j, "Full bright", v.fullBright);
@@ -499,9 +501,19 @@ static void from_json(const json& j, AutoBuy& o)
     read(j, "Grenades", o.grenades);
 }
 
+static void from_json(const json& j, Config::Visuals::MotionBlur& mb)
+{
+    read(j, "Enabled", mb.enabled);
+    read(j, "Forward", mb.forwardEnabled);
+    read(j, "Falling min", mb.fallingMin);
+    read(j, "Falling max", mb.fallingMax);
+    read(j, "Falling intensity", mb.fallingIntensity);
+    read(j, "Rotation intensity", mb.rotationIntensity);
+    read(j, "Strength", mb.strength);
+}
+
 static void from_json(const json& j, Config::Visuals::Fog& f)
 {
-    read(j, "Enabled", f.enabled);
     read(j, "Start", f.start);
     read(j, "End", f.end);
     read(j, "Density", f.density);
@@ -1009,9 +1021,19 @@ static void to_json(json& j, const AutoBuy& o, const AutoBuy& dummy = {})
     WRITE("Grenades", grenades);
 }
 
-static void to_json(json& j, const Config::Visuals::Fog& o, const Config::Visuals::Fog& dummy)
+static void to_json(json& j, const Config::Visuals::MotionBlur& o, const Config::Visuals::MotionBlur& dummy)
 {
     WRITE("Enabled", enabled);
+    WRITE("Forward", forwardEnabled);
+    WRITE("Falling min", fallingMin);
+    WRITE("Falling max", fallingMax);
+    WRITE("Falling intensity", fallingIntensity);
+    WRITE("Rotation intensity", rotationIntensity);
+    WRITE("Strength", strength);
+}
+
+static void to_json(json& j, const Config::Visuals::Fog& o, const Config::Visuals::Fog& dummy)
+{
     WRITE("Start", start);
     WRITE("End", end);
     WRITE("Density", density);
@@ -1117,6 +1139,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Inverse ragdoll gravity", inverseRagdollGravity);
     WRITE("No fog", noFog);
     WRITE("Fog controller", fog);
+    WRITE("Fog options", fogOptions);
     WRITE("No 3d sky", no3dSky);
     WRITE("No aim punch", noAimPunch);
     WRITE("No view punch", noViewPunch);
@@ -1129,6 +1152,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("No grass", noGrass);
     WRITE("No shadows", noShadows);
     WRITE("Shadows changer", shadowsChanger);
+    WRITE("Motion Blur", motionBlur);
     WRITE("Wireframe smoke", wireframeSmoke);
     WRITE("Full bright", fullBright);
     WRITE("No zoom", noZoom);

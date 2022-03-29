@@ -1179,7 +1179,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Keep FOV", &config->visuals.keepFov);
     ImGui::Checkbox("No fog", &config->visuals.noFog);
 
-    ImGui::Checkbox("Fog controller", &config->visuals.fog.enabled);
+    ImGuiCustom::colorPicker("Fog controller", config->visuals.fog);
     ImGui::SameLine();
 
     ImGui::PushID("Fog controller");
@@ -1190,15 +1190,15 @@ void GUI::renderVisualsWindow() noexcept
 
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(7);
-        ImGui::SliderFloat("Start", &config->visuals.fog.start, 0.0f, 5000.0f, "Start: %.2f");
+        ImGui::SliderFloat("Start", &config->visuals.fogOptions.start, 0.0f, 5000.0f, "Start: %.2f");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(8);
-        ImGui::SliderFloat("End", &config->visuals.fog.end, 0.0f, 5000.0f, "End: %.2f");
+        ImGui::SliderFloat("End", &config->visuals.fogOptions.end, 0.0f, 5000.0f, "End: %.2f");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(9);
-        ImGui::SliderFloat("Density", &config->visuals.fog.density, 0.001f, 1.0f, "Density: %.3f");
+        ImGui::SliderFloat("Density", &config->visuals.fogOptions.density, 0.001f, 1.0f, "Density: %.3f");
         ImGui::PopID();
 
         ImGui::EndPopup();
@@ -1232,6 +1232,42 @@ void GUI::renderVisualsWindow() noexcept
         ImGui::PushID(6);
         ImGui::SliderInt("", &config->visuals.shadowsChanger.y, 0, 360, "y rotation: %d");
         ImGui::PopID();
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
+    ImGui::Checkbox("Motion Blur", &config->visuals.motionBlur.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Motion Blur");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+
+        ImGui::Checkbox("Forward enabled", &config->visuals.motionBlur.forwardEnabled);
+
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(10);
+        ImGui::SliderFloat("Falling min", &config->visuals.motionBlur.fallingMin, 0.0f, 50.0f, "Falling min: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(11);
+        ImGui::SliderFloat("Falling max", &config->visuals.motionBlur.fallingMax, 0.0f, 50.0f, "Falling max: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(12);
+        ImGui::SliderFloat("Falling intesity", &config->visuals.motionBlur.fallingIntensity, 0.0f, 8.0f, "Falling intensity: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(12);
+        ImGui::SliderFloat("Rotation intensity", &config->visuals.motionBlur.rotationIntensity, 0.0f, 8.0f, "Rotation intensity: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(12);
+        ImGui::SliderFloat("Strength", &config->visuals.motionBlur.strength, 0.0f, 8.0f, "Strength: %.2f");
+        ImGui::PopID();
+
         ImGui::EndPopup();
     }
     ImGui::PopID();

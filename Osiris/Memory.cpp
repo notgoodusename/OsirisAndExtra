@@ -215,6 +215,7 @@ Memory::Memory() noexcept
     performScreenOverlay = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\xA1????\x53\x56\x8B\xD9");
     postNetworkDataReceived = relativeToAbsolute<decltype(postNetworkDataReceived)>(findPattern(CLIENT_DLL, "\xE8????\x33\xF6\x6A\x02") + 1);
     saveData = relativeToAbsolute<decltype(saveData)>(findPattern(CLIENT_DLL, "\xE8????\x6B\x45\x08\x34") + 1);
+    isDepthOfFieldEnabled = findPattern(CLIENT_DLL, "\x8B\x0D????\x56\x8B\x01\xFF\x50\x34\x8B\xF0\x85\xF6\x75\x04");
 
     newFunctionClientDLL = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionEngineDLL = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");

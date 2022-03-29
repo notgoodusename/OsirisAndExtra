@@ -61,6 +61,7 @@ public:
     MinHook traceFilterForHeadCollision;
     MinHook performScreenOverlay;
     MinHook postNetworkDataReceived;
+    MinHook isDepthOfFieldEnabled;
 
     MinHook newFunctionClientDLL;
     MinHook newFunctionEngineDLL;

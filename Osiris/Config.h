@@ -207,6 +207,16 @@ public:
         int flashReduction{ 0 };
         int skybox{ 0 };
         bool deagleSpinner{ false };
+        struct MotionBlur
+        {
+            bool enabled{ false };
+            bool forwardEnabled{ false };
+            float fallingMin{ 10.0f };
+            float fallingMax{ 20.0f };
+            float fallingIntensity{ 1.0f };
+            float rotationIntensity{ 1.0f };
+            float strength{ 1.0f };
+        } motionBlur;
         int screenEffect{ 0 };
         int hitEffect{ 0 };
         float hitEffectTime{ 0.6f };

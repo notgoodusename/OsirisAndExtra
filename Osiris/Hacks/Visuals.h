@@ -5,6 +5,7 @@
 enum class FrameStage;
 class GameEvent;
 struct ImDrawList;
+struct ViewSetup;
 
 namespace Visuals
 {
@@ -23,6 +24,7 @@ namespace Visuals
     void applyScreenEffects() noexcept;
     void hitEffect(GameEvent* event = nullptr) noexcept;
     void hitMarker(GameEvent* event, ImDrawList* drawList = nullptr) noexcept;
+    void motionBlur(ViewSetup* setup) noexcept;
     void disablePostProcessing(FrameStage stage) noexcept;
     void reduceFlashEffect() noexcept;
     bool removeHands(const char* modelName) noexcept;

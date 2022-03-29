@@ -1226,6 +1226,42 @@ void GUI::renderVisualsWindow() noexcept
     }
     ImGui::PopID();
 
+    ImGui::Checkbox("Motion Blur", &config->visuals.motionBlur.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Motion Blur");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+
+        ImGui::Checkbox("Forward enabled", &config->visuals.motionBlur.forwardEnabled);
+
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(10);
+        ImGui::SliderFloat("Falling min", &config->visuals.motionBlur.fallingMin, 0.0f, 50.0f, "Falling min: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(11);
+        ImGui::SliderFloat("Falling max", &config->visuals.motionBlur.fallingMax, 0.0f, 50.0f, "Falling max: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(12);
+        ImGui::SliderFloat("Falling intesity", &config->visuals.motionBlur.fallingIntensity, 0.0f, 8.0f, "Falling intensity: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(12);
+        ImGui::SliderFloat("Rotation intensity", &config->visuals.motionBlur.rotationIntensity, 0.0f, 8.0f, "Rotation intensity: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(12);
+        ImGui::SliderFloat("Strength", &config->visuals.motionBlur.strength, 0.0f, 8.0f, "Strength: %.2f");
+        ImGui::PopID();
+
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     ImGui::Checkbox("Full bright", &config->visuals.fullBright);
     ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
     ImGui::NextColumn();

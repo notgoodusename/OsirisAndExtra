@@ -221,7 +221,7 @@ void Misc::blockBot(UserCmd* cmd) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    static int c = 0;
+    static int blockTargetHandle = 0;
 
     if (!config->misc.blockBot || !config->misc.blockBotKey.isActive())
     {

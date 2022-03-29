@@ -1166,7 +1166,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Disable post-processing", &config->visuals.disablePostProcessing);
     ImGui::Checkbox("Disable jiggle bones", &config->visuals.disableJiggleBones);
     ImGui::Checkbox("Inverse ragdoll gravity", &config->visuals.inverseRagdollGravity);
-    ImGui::Checkbox("Keep FOV", &config->visuals.keepFov);
+    ImGui::Checkbox("Keep FOV during scope", &config->visuals.keepFov);
     ImGui::Checkbox("No fog", &config->visuals.noFog);
 
     ImGuiCustom::colorPicker("Fog controller", config->visuals.fog);

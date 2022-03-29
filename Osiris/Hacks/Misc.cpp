@@ -1765,6 +1765,7 @@ void Misc::updateEventListeners(bool forceRemove) noexcept
 
 void Misc::updateInput() noexcept
 {
+    config->misc.blockBotKey.handleToggle();
     config->misc.edgejumpkey.handleToggle();
     config->misc.jumpBugKey.handleToggle();
     config->misc.slowwalkKey.handleToggle();

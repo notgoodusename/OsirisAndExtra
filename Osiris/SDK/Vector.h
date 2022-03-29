@@ -192,11 +192,36 @@ struct Vector {
                        0.0f };
     }
 
+    auto snapTo4() const noexcept
+    {
+        const float l = length2D();
+        bool xp = x >= 0.0f;
+        bool yp = y >= 0.0f;
+        bool xy = std::fabsf(x) >= std::fabsf(y);
+        if (xp && xy)
+            return Vector{ l, 0.0f, 0.0f };
+        if (!xp && xy)
+            return Vector{ -l, 0.0f, 0.0f };
+        if (yp && !xy)
+            return Vector{ 0.0f, l, 0.0f };
+        if (!yp && !xy)
+            return Vector{ 0.0f, -l, 0.0f };
+
+        return Vector{};
+    }
+
     static auto fromAngle(const Vector& angle) noexcept
     {
         return Vector{ std::cos(Helpers::deg2rad(angle.x)) * std::cos(Helpers::deg2rad(angle.y)),
                        std::cos(Helpers::deg2rad(angle.x)) * std::sin(Helpers::deg2rad(angle.y)),
                       -std::sin(Helpers::deg2rad(angle.x)) };
+    }
+
+    static auto fromAngle2D(float angle) noexcept
+    {
+        return Vector{ std::cos(Helpers::deg2rad(angle)),
+                      std::sin(Helpers::deg2rad(angle)),
+                      0.0f };
     }
 
     static auto fromAngle(const Vector& angle, Vector* out) noexcept
@@ -240,6 +265,16 @@ struct Vector {
         }
     }
 
+    constexpr auto dotProduct2D(const Vector& v) const noexcept
+    {
+        return x * v.x + y * v.y;
+    }
+
+    constexpr auto crossProduct(const Vector& v) const noexcept
+    {
+        return Vector{ y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x };
+    }
+
     void vectorCrossProduct(const Vector& a, const Vector& b, Vector& result) noexcept
     {
         result.x = a.y * b.z - a.z * b.y;
@@ -259,6 +294,36 @@ struct Vector {
         Vector v;
         vectorCrossProduct(*this, other, v);
         return v;
+    }
+
+    constexpr static auto up() noexcept
+    {
+        return Vector{ 0.0f, 0.0f, 1.0f };
+    }
+
+    constexpr static auto down() noexcept
+    {
+        return Vector{ 0.0f, 0.0f, -1.0f };
+    }
+
+    constexpr static auto forward() noexcept
+    {
+        return Vector{ 1.0f, 0.0f, 0.0f };
+    }
+
+    constexpr static auto back() noexcept
+    {
+        return Vector{ -1.0f, 0.0f, 0.0f };
+    }
+
+    constexpr static auto left() noexcept
+    {
+        return Vector{ 0.0f, 1.0f, 0.0f };
+    }
+
+    constexpr static auto right() noexcept
+    {
+        return Vector{ 0.0f, -1.0f, 0.0f };
     }
 
     float x, y, z;

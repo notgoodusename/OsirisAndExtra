@@ -1551,6 +1551,13 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Knifebot", &config->misc.knifeBot);
     ImGui::SameLine();
     ImGui::Combo("Mode", &config->misc.knifeBotMode, "Trigger\0Rage\0");
+
+    ImGui::Checkbox("Block bot", &config->misc.blockBot);
+    ImGui::SameLine();
+    ImGui::PushID("Block bot Key");
+    ImGui::hotkey2("", config->misc.blockBotKey);
+    ImGui::PopID();
+
     ImGui::Checkbox("Edge Jump", &config->misc.edgejump);
     ImGui::SameLine();
     ImGui::PushID("Edge Jump Key");

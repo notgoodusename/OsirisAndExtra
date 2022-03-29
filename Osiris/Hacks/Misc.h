@@ -11,6 +11,7 @@ namespace Misc
 {
     bool isInChat() noexcept;
     void drawPlayerList() noexcept;
+    void blockBot(UserCmd* cmd) noexcept; 
     void runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept;
     void freeCam(ViewSetup* setup) noexcept;
     void viewModelChanger(ViewSetup* setup) noexcept;

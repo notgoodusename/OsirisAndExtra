@@ -256,6 +256,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::autoPeek(cmd, currentViewAngles);
 
     Misc::edgejump(cmd);
+    Misc::blockBot(cmd);
     Misc::fastPlant(cmd);
 
     Knifebot::run(cmd);

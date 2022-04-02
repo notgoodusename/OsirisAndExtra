@@ -486,19 +486,8 @@ void Visuals::motionBlur(ViewSetup* setup) noexcept
 
         const auto viewangles = setup->angles;
 
-        float currentPitch = viewangles.x;
-
-        while (currentPitch > 180.0f)
-            currentPitch -= 360.0f;
-        while (currentPitch < -180.0f)
-            currentPitch += 360.0f;
-
-        float currentYaw = viewangles.y;
-
-        while (currentYaw > 180.0f)
-            currentYaw -= 360.0f;
-        while (currentYaw < -180.0f)
-            currentYaw += 360.0f;
+        const float currentPitch = Helpers::normalizeYaw(viewangles.x);
+        const float currentYaw = Helpers::normalizeYaw(viewangles.y);
 
         Vector currentSideVector;
         Vector currentForwardVector;

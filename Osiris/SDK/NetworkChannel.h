@@ -137,8 +137,8 @@ private:
 struct clMsgMove
 {
 	clMsgMove() {
-		netMessageVtable = *(int*)memory->clSendMove + 123;
-		clMsgMoveVtable = *(int*)memory->clSendMove + 135;
+		netMessageVtable = *reinterpret_cast<std::uint32_t*>(memory->clSendMove + 123);
+		clMsgMoveVtable = *reinterpret_cast<std::uint32_t*>(memory->clSendMove + 135);
 		allocatedMemory = reinterpret_cast<void*>(memory->clSendMove + 130);
 		unknown = 15;
 
@@ -183,18 +183,19 @@ struct clMsgMove
 		return memory->clMsgMoveSetData(allocatedMemory, data, numBytesWritten);
 	}
 
-	int netMessageVtable; // 0x58 88 0
-	int clMsgMoveVtable; // 0x54 84 4
-	int unknown1; // 0x4c 80 8
+	std::uint32_t netMessageVtable; // 0x58 88 0
+	std::uint32_t clMsgMoveVtable; // 0x54 84 4
+	std::uint32_t unknown1; // 0x4c 80 8
 	int backupCommands; // 0x4c 76 12
 	int newCommands; // 0x48 72 16
 	void* allocatedMemory; // 0x44 68 20
-	int unknown2; // 0x40 64 24
+	std::uint32_t unknown2; // 0x40 64 24
 	int flags; // 0x3c 60 28
 	char unknown3; // 0x38 64 32
 	PAD(3); // 65 33
 	char unknown4; // 0x34 68 36
 	PAD(15); // 69 37
-	int unknown5; // 0x24 84 52
-	int unknown; // 0x20 88 56
+	std::uint32_t unknown5; // 0x24 84 52
+	std::uint32_t unknown; // 0x20 88 56
+	bfWrite dataOut;
 };

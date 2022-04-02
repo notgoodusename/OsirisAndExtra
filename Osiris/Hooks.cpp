@@ -688,8 +688,8 @@ static void __fastcall standardBlendingRulesHook(void* thisPointer, void* edx, v
 {
     static auto original = hooks->standardBlendingRules.getOriginal<void>(hdr, pos, q, currentTime, boneMask);
 
-    auto entity = reinterpret_cast<Entity*>(thisPointer);
-
+    const auto entity = reinterpret_cast<Entity*>(thisPointer);
+    
     entity->getEffects() |= 8;
 
     original(thisPointer, hdr, pos, q, currentTime, boneMask);
@@ -978,6 +978,7 @@ static void __cdecl clSendMoveHook() noexcept
 
         memory->clientState->netChannel->sendNetMsg(&moveMsg); //crash here
     }
+    moveMsg.~clMsgMove();
 }
 
 static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)

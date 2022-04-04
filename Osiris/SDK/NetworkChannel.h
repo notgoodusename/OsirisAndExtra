@@ -137,9 +137,9 @@ private:
 struct clMsgMove
 {
 	clMsgMove() {
-		netMessageVtable = *reinterpret_cast<std::uint32_t*>(memory->clSendMove + 123);
-		clMsgMoveVtable = *reinterpret_cast<std::uint32_t*>(memory->clSendMove + 135);
-		allocatedMemory = reinterpret_cast<void*>(memory->clSendMove + 130);
+		netMessageVtable = *reinterpret_cast<std::uint32_t*>(memory->clSendMove + 126);
+		clMsgMoveVtable = *reinterpret_cast<std::uint32_t*>(memory->clSendMove + 138);
+		allocatedMemory = reinterpret_cast<void*>(memory->clSendMove + 131);
 		unknown = 15;
 
 		flags = 3;
@@ -168,7 +168,7 @@ struct clMsgMove
 
 		flags |= 4;
 
-		if (allocatedMemory == reinterpret_cast<void*>(memory->clSendMove + 130)) {
+		if (allocatedMemory == reinterpret_cast<void*>(memory->clSendMove + 131)) {
 			
 			void* newMemory = memory->memalloc->Alloc(24);
 			if (newMemory) {

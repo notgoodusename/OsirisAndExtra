@@ -972,7 +972,7 @@ static void __cdecl clSendMoveHook() noexcept
 
         moveMsg.setData(moveMsg.dataOut.getData(), moveMsg.dataOut.getNumBytesWritten());
 
-        memory->clientState->netChannel->sendNetMsg(reinterpret_cast<NetworkMessage*>(&moveMsg)); //crash here
+        memory->clientState->netChannel->sendNetMsg(reinterpret_cast<void*>(&moveMsg));
     }
     moveMsg.~clMsgMove();
 }

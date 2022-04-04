@@ -177,7 +177,7 @@ struct clMsgMove
 				*(unsigned char*)newMemory = 0;
 			}
 
-			allocatedMemory = (void*)newMemory;
+			allocatedMemory = newMemory;
 		}
 
 		return memory->clMsgMoveSetData(allocatedMemory, data, numBytesWritten);
@@ -190,7 +190,7 @@ struct clMsgMove
 	int newCommands; // 0x48 72 16
 	void* allocatedMemory; // 0x44 68 20
 	std::uint32_t unknown2; // 0x40 64 24
-	int flags; // 0x3c 60 28
+	std::uint32_t flags; // 0x3c 60 28
 	char unknown3; // 0x38 64 32
 	PAD(3); // 65 33
 	char unknown4; // 0x34 68 36

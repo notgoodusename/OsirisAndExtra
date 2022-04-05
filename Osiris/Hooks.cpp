@@ -965,7 +965,7 @@ static void __cdecl clSendMoveHook() noexcept
 
     for (int to = nextCommandNr - numCmds + 1; to <= nextCommandNr; ++to) {
 
-        const bool isnewcmd = to >= (nextCommandNr - newCommands + 1);
+        bool isnewcmd = to >= (nextCommandNr - newCommands + 1);
 
         ok = ok && interfaces->client->writeUsercmdDeltaToBuffer(0, &moveMsg.dataOut, from, to, isnewcmd);
         from = to;
@@ -977,7 +977,6 @@ static void __cdecl clSendMoveHook() noexcept
 
         memory->clientState->netChannel->sendNetMsg(reinterpret_cast<void*>(&moveMsg));
     }
-    moveMsg.~clMsgMove();
 }
 
 static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)

@@ -177,6 +177,7 @@ public:
 
     std::uintptr_t setupBones;
 
+    void(__stdcall* restoreEntityToPredictedFrame)(int, int);
     void(__thiscall* markSurroundingBoundsDirty)(void*);
 
     std::uintptr_t clSendMove;
@@ -192,6 +193,8 @@ public:
     std::uintptr_t postNetworkDataReceived;
     void(__thiscall* saveData)(void*, const char*, int, int);
     std::uintptr_t isDepthOfFieldEnabled;
+    std::uintptr_t eyeAngles;
+    std::uintptr_t eyePositionAndVectors;
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;

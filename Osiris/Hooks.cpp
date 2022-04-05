@@ -59,6 +59,7 @@
 #include "SDK/NetworkMessage.h"
 #include "SDK/Panel.h"
 #include "SDK/Platform.h"
+#include "SDK/Prediction.h"
 #include "SDK/PredictionCopy.h"
 #include "SDK/RenderContext.h"
 #include "SDK/SoundInfo.h"
@@ -297,6 +298,8 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
     previousViewAngles = cmd->viewangles;
+    if (localPlayer && localPlayer->isAlive())
+        memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;
@@ -1141,6 +1144,19 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
     return haderrors;
 }
 
+static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
+{
+    static auto original = hooks->eyeAngles.getOriginal<Vector*>();
+    
+    const auto entity = reinterpret_cast<Entity*>(thisPointer);
+    if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer);
+
+    Vector eyeAngle = Animations::getLocalAngle();
+    return &eyeAngle;
+}
+
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -1202,6 +1218,7 @@ void Hooks::install() noexcept
     traceFilterForHeadCollision.detour(memory->traceFilterForHeadCollision, traceFilterForHeadCollisionHook);
     performScreenOverlay.detour(memory->performScreenOverlay, performScreenOverlayHook);
     isDepthOfFieldEnabled.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
+    eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
     //clSendMove.detour(memory->clSendMove, clSendMoveHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 

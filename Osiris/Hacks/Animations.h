@@ -22,6 +22,8 @@ namespace Animations
 	void packetStart() noexcept;
 	void postDataUpdate() noexcept;
 
+	Vector getLocalAngle() noexcept;
+
 	void handlePlayers(FrameStage) noexcept;
 
 	bool isLocalUpdating() noexcept;

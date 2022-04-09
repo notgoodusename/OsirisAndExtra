@@ -120,6 +120,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     Visuals::drawSmokeHull(ImGui::GetBackgroundDrawList());
     Misc::watermark();
     Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
+    Logger::process(ImGui::GetBackgroundDrawList());
 
     Legitbot::updateInput();
     Visuals::updateInput();
@@ -143,8 +144,6 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
         device->EndScene();
     }
-
-    Logger::process();
 
     GameData::clearUnusedAvatars();
 

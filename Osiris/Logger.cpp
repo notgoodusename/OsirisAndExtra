@@ -38,6 +38,7 @@ void Logger::getEvent(GameEvent* event) noexcept
     if (!config->misc.logger.enabled || config->misc.loggerOptions.modes == 0 || config->misc.loggerOptions.events == 0)
     {
         logs.clear();
+        renderLogs.empty();
         return;
     }
 
@@ -47,7 +48,7 @@ void Logger::getEvent(GameEvent* event) noexcept
     static auto c4Timer = interfaces->cvar->findVar("mp_c4timer");
 
     Log log;
-    log.time = memory->globalVars->realtime + 1.0f;
+    log.time = memory->globalVars->realtime;
 
     switch (fnv::hashRuntime(event->getName())) {
     case fnv::hash("player_hurt"):  {
@@ -121,24 +122,42 @@ void Logger::getEvent(GameEvent* event) noexcept
         return;
 
     logs.push_front(log);
+    renderLogs.push_front(log);
 }
 
-void Logger::process() noexcept
+void Logger::process(ImDrawList* drawList) noexcept
 {
     if (!config->misc.logger.enabled || config->misc.loggerOptions.modes == 0 || config->misc.loggerOptions.events == 0)
     {
         logs.clear();
+        renderLogs.empty();
         return;
     }
 
+    console();
+    render(drawList);
+}
+
+void Logger::console() noexcept
+{
     if (logs.empty())
         return;
 
     std::array<std::uint8_t, 4> color;
-    color.at(0) = config->misc.logger.color.at(0) * 255.0f;
-    color.at(1) = config->misc.logger.color.at(1) * 255.0f;
-    color.at(2) = config->misc.logger.color.at(2) * 255.0f;
-    color.at(3) = config->misc.logger.color.at(3) * 255.0f;
+    if (!config->misc.logger.rainbow)
+    {
+        color.at(0) = static_cast<uint8_t>(config->misc.logger.color.at(0) * 255.0f);
+        color.at(1) = static_cast<uint8_t>(config->misc.logger.color.at(1) * 255.0f);
+        color.at(2) = static_cast<uint8_t>(config->misc.logger.color.at(2) * 255.0f);
+    }
+    else
+    {
+        const auto [colorR, colorG, colorB] { rainbowColor(config->misc.logger.rainbowSpeed) };
+        color.at(0) = static_cast<uint8_t>(colorR * 255.0f);
+        color.at(1) = static_cast<uint8_t>(colorG * 255.0f);
+        color.at(2) = static_cast<uint8_t>(colorB * 255.0f);
+    }
+    color.at(3) = static_cast<uint8_t>(255.0f);
 
     if ((config->misc.loggerOptions.modes & 1 << Console) == 1 << Console)
     {
@@ -146,14 +165,37 @@ void Logger::process() noexcept
             Helpers::logConsole(log.text + "\n", color);
     }
 
-    if ((config->misc.loggerOptions.modes & 1 << EventLog) == 1 << EventLog)
-    {
-    }
-
     logs.clear();
 }
 
-void Logger::render() noexcept
+void Logger::render(ImDrawList* drawList) noexcept
 {
+    if ((config->misc.loggerOptions.modes & 1 << EventLog) != 1 << EventLog)
+        return;
 
+    if (renderLogs.empty())
+        return;
+
+    while (renderLogs.size() > 6)
+        renderLogs.pop_back();
+
+    for (int i = renderLogs.size() - 1; i >= 0; i--)
+    {
+        if (renderLogs[i].time + 5.0f <= memory->globalVars->realtime)
+            renderLogs[i].alpha -= 16.f;
+
+        const auto alphaBackup = Helpers::getAlphaFactor();
+        Helpers::setAlphaFactor(renderLogs[i].alpha / 255.0f);
+        const auto color = Helpers::calculateColor(config->misc.logger);
+        Helpers::setAlphaFactor(alphaBackup);
+        drawList->AddText(ImVec2{ 14.0f, 5.0f + static_cast<float>(20 * i) + 1.0f }, color & IM_COL32_A_MASK, renderLogs[i].text.c_str());
+        drawList->AddText(ImVec2{ 14.0f, 5.0f + static_cast<float>(20 * i) + 1.0f }, color, renderLogs[i].text.c_str());
+    }
+
+    for (int i = renderLogs.size() - 1; i >= 0; i--) {
+        if (renderLogs[i].alpha <= 0.0f) {
+            renderLogs.erase(renderLogs.begin() + i);
+            break;
+        }
+    }
 }

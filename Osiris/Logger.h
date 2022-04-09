@@ -4,13 +4,15 @@
 #include <string>
 #include <vector>
 
+#include "imgui/imgui.h"
+
 class GameEvent;
 
 namespace Logger
 {
 	/*
 	Options
-	Log on console and on developer 1 mode
+	Log on console and on event log
 	Color + decayTime
 
 	Damage dealt (done)
@@ -20,20 +22,22 @@ namespace Logger
 	Misc (lagcomp, occlusion) misses (todo)
 	Resolver misses (todo)
 	
-	Hostage taken (needs testing)
-	Bomb plants (needs testing)
+	Hostage taken (done)
+	Bomb plants (done)
 	*/
 
 
 	struct Log
 	{
 		float time{ 0.0f };
+		float alpha{ 255.0f };
 		std::string text{ "" };
 	};
 
 	void getEvent(GameEvent* event) noexcept;
-	void process() noexcept;
-	void render() noexcept;
+	void process(ImDrawList* drawList) noexcept;
+	void console() noexcept;
+	void render(ImDrawList* drawList) noexcept;
 
 	enum
 	{
@@ -50,4 +54,5 @@ namespace Logger
 	};
 
 	static std::deque<Log> logs;
+	static std::deque<Log> renderLogs;
 }

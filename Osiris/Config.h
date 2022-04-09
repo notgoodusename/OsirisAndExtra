@@ -322,7 +322,7 @@ public:
 
         Logger loggerOptions;
 
-        ColorToggle logger;
+        ColorToggle3 logger;
 
         struct Watermark {
             bool enabled = false;

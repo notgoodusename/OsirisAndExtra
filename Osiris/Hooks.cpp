@@ -1220,7 +1220,7 @@ void Hooks::install() noexcept
     performScreenOverlay.detour(memory->performScreenOverlay, performScreenOverlayHook);
     isDepthOfFieldEnabled.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
     eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
-    //clSendMove.detour(memory->clSendMove, clSendMoveHook);
+    clSendMove.detour(memory->clSendMove, clSendMoveHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
@@ -1280,12 +1280,6 @@ void Hooks::install() noexcept
         *memory->dispatchSound = uintptr_t(&dispatchSound) - uintptr_t(memory->dispatchSound + 1);
         VirtualProtect(memory->dispatchSound, 4, oldProtection, nullptr);
     }
-
-    auto clMoveChokeClamp = memory->chokeLimit;
-    unsigned long protect = 0;
-    VirtualProtect((void*)clMoveChokeClamp, 4, PAGE_EXECUTE_READWRITE, &protect);
-    *(std::uint32_t*)clMoveChokeClamp = 62;
-    VirtualProtect((void*)clMoveChokeClamp, 4, protect, &protect);
 
     bspQuery.hookAt(6, listLeavesInBox);
     surface.hookAt(67, lockCursor);

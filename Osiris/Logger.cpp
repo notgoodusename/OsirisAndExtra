@@ -143,6 +143,12 @@ void Logger::console() noexcept
     if (logs.empty())
         return;
 
+    if ((config->misc.loggerOptions.modes & 1 << Console) != 1 << Console)
+    {
+        logs.clear();
+        return;
+    }
+
     std::array<std::uint8_t, 4> color;
     if (!config->misc.logger.rainbow)
     {
@@ -159,11 +165,8 @@ void Logger::console() noexcept
     }
     color.at(3) = static_cast<uint8_t>(255.0f);
 
-    if ((config->misc.loggerOptions.modes & 1 << Console) == 1 << Console)
-    {
-        for (auto log : logs)
-            Helpers::logConsole(log.text + "\n", color);
-    }
+    for (auto log : logs)
+        Helpers::logConsole(log.text + "\n", color);
 
     logs.clear();
 }
@@ -171,7 +174,10 @@ void Logger::console() noexcept
 void Logger::render(ImDrawList* drawList) noexcept
 {
     if ((config->misc.loggerOptions.modes & 1 << EventLog) != 1 << EventLog)
+    {
+        renderLogs.clear();
         return;
+    }
 
     if (renderLogs.empty())
         return;

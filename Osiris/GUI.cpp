@@ -1850,6 +1850,84 @@ void GUI::renderMiscWindow() noexcept
     }
     ImGui::PopID();
 
+
+    ImGuiCustom::colorPicker("Logger", config->misc.logger);
+    ImGui::SameLine();
+
+    ImGui::PushID("Logger");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+
+        static bool modes[2]{ false, false };
+        static const char* mode[]{ "Console", "Event log" };
+        static std::string previewvaluemode = "";
+        for (size_t i = 0; i < ARRAYSIZE(modes); i++)
+        {
+            modes[i] = (config->misc.loggerOptions.modes & 1 << i) == 1 << i;
+        }
+        if (ImGui::BeginCombo("Log output", previewvaluemode.c_str()))
+        {
+            previewvaluemode = "";
+            for (size_t i = 0; i < ARRAYSIZE(modes); i++)
+            {
+                ImGui::Selectable(mode[i], &modes[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+            }
+            ImGui::EndCombo();
+        }
+        for (size_t i = 0; i < ARRAYSIZE(modes); i++)
+        {
+            if (i == 0)
+                previewvaluemode = "";
+
+            if (modes[i])
+            {
+                previewvaluemode += previewvaluemode.size() ? std::string(", ") + mode[i] : mode[i];
+                config->misc.loggerOptions.modes |= 1 << i;
+            }
+            else
+            {
+                config->misc.loggerOptions.modes &= ~(1 << i);
+            }
+        }
+
+        static bool events[4]{ false, false, false, false };
+        static const char* event[]{ "Damage dealt", "Damage received", "Hostage taken", "Bomb plants" };
+        static std::string previewvalueevent = "";
+        for (size_t i = 0; i < ARRAYSIZE(events); i++)
+        {
+            events[i] = (config->misc.loggerOptions.events & 1 << i) == 1 << i;
+        }
+        if (ImGui::BeginCombo("Log events", previewvalueevent.c_str()))
+        {
+            previewvalueevent = "";
+            for (size_t i = 0; i < ARRAYSIZE(events); i++)
+            {
+                ImGui::Selectable(event[i], &events[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+            }
+            ImGui::EndCombo();
+        }
+        for (size_t i = 0; i < ARRAYSIZE(events); i++)
+        {
+            if (i == 0)
+                previewvalueevent = "";
+
+            if (events[i])
+            {
+                previewvalueevent += previewvalueevent.size() ? std::string(", ") + event[i] : event[i];
+                config->misc.loggerOptions.events |= 1 << i;
+            }
+            else
+            {
+                config->misc.loggerOptions.events &= ~(1 << i);
+            }
+        }
+
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     if (ImGui::Button("Unhook"))
         hooks->uninstall();
 

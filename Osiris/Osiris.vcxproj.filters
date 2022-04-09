@@ -245,6 +245,9 @@
     <ClCompile Include="SDK\PredictionCopy.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
+    <ClCompile Include="Logger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -639,6 +642,9 @@
     </ClInclude>
     <ClInclude Include="SDK\Server.h">
       <Filter>SDK</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

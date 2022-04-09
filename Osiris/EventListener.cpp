@@ -7,6 +7,7 @@
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Visuals.h"
 #include "Interfaces.h"
+#include "Logger.h"
 #include "Memory.h"
 
 EventListener::EventListener() noexcept
@@ -19,6 +20,9 @@ EventListener::EventListener() noexcept
     interfaces->gameEventManager->addListener(this, "round_start");
     interfaces->gameEventManager->addListener(this, "round_freeze_end");
     interfaces->gameEventManager->addListener(this, "player_hurt");
+
+    interfaces->gameEventManager->addListener(this, "bomb_planted");
+    interfaces->gameEventManager->addListener(this, "hostage_follows");
 
     interfaces->gameEventManager->addListener(this, "player_death");
     interfaces->gameEventManager->addListener(this, "vote_cast");
@@ -43,6 +47,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         GameData::clearProjectileList();
         Misc::preserveKillfeed(true);
         Misc::autoBuy(event);
+        Logger::getEvent(event);
         [[fallthrough]];
     case fnv::hash("round_freeze_end"):
         Misc::purchaseList(event);
@@ -57,9 +62,16 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::playHitSound(*event);
         Visuals::hitEffect(event);
         Visuals::hitMarker(event);
+        Logger::getEvent(event);
         break;
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);
+        break;
+    case fnv::hash("bomb_planted"):
+        Logger::getEvent(event);
+        break;
+    case fnv::hash("hostage_follows"):
+        Logger::getEvent(event);
         break;
     }
 }

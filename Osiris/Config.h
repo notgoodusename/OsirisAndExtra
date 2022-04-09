@@ -314,6 +314,16 @@ public:
         };
 
         KeyBindList keybindList;
+
+        struct Logger {
+            int modes{ 0 };
+            int events{ 0 };
+        };
+
+        Logger loggerOptions;
+
+        ColorToggle logger;
+
         struct Watermark {
             bool enabled = false;
         };

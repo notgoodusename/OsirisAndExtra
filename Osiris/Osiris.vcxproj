@@ -56,6 +56,7 @@
     <ClCompile Include="imgui\imgui_stdlib.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="InputUtil.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="MinHook\buffer.c" />
     <ClCompile Include="MinHook\hde\hde32.c" />
     <ClCompile Include="MinHook\hde\hde64.c" />
@@ -116,6 +117,7 @@
     <ClInclude Include="imgui\imgui_freetype.h" />
     <ClInclude Include="imgui\imgui_stdlib.h" />
     <ClInclude Include="InputUtil.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="MinHook\buffer.h" />
     <ClInclude Include="MinHook\hde\hde32.h" />
     <ClInclude Include="MinHook\hde\hde64.h" />

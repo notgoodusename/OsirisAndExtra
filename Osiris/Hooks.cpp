@@ -18,6 +18,7 @@
 #include "GUI.h"
 #include "Hooks.h"
 #include "Interfaces.h"
+#include "Logger.h"
 #include "Memory.h"
 
 #include "Hacks/Aimbot.h"
@@ -142,6 +143,8 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
         device->EndScene();
     }
+
+    Logger::process();
 
     GameData::clearUnusedAvatars();
 

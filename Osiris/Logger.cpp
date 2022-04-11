@@ -205,3 +205,13 @@ void Logger::render(ImDrawList* drawList) noexcept
         }
     }
 }
+
+void Logger::addLog(std::string logText) noexcept
+{
+    Log log;
+    log.time = memory->globalVars->realtime;
+    log.text = logText;
+
+    logs.push_front(log);
+    renderLogs.push_front(log);
+}

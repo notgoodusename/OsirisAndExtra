@@ -12,6 +12,9 @@ void Fakelag::run(bool& sendPacket) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
+    if (config->misc.exploit)
+        return;
+
     auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;

@@ -288,6 +288,9 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
     if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
         return;
 
+    if (config->misc.exploit)
+        return;
+
     if (config->legitAntiAim.enabled)
         AntiAim::legit(cmd, previousViewAngles, currentViewAngles, sendPacket);
     else if (config->rageAntiAim.enabled || config->fakeAngle.enabled)

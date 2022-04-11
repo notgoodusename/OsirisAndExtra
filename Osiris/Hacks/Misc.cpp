@@ -552,6 +552,9 @@ void Misc::unlockHiddenCvars() noexcept
 
 void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
 {
+    if (config->misc.exploit)
+        return;
+
     if (!config->misc.fakeduck || !config->misc.fakeduckKey.isActive())
         return;
 

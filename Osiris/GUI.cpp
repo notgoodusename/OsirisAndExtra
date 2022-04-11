@@ -1928,6 +1928,8 @@ void GUI::renderMiscWindow() noexcept
     }
     ImGui::PopID();
 
+    ImGui::Checkbox("Insta plant/defuse", &config->misc.exploit);
+
     if (ImGui::Button("Unhook"))
         hooks->uninstall();
 

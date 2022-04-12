@@ -179,6 +179,7 @@ public:
 
     void(__stdcall* restoreEntityToPredictedFrame)(int, int);
     void(__thiscall* markSurroundingBoundsDirty)(void*);
+    bool(__thiscall* isBreakableEntity)(void*);
 
     std::uintptr_t clSendMove;
     void(__thiscall* clMsgMoveSetData)(void*, unsigned char*, std::size_t);

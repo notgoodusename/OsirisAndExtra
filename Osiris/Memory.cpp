@@ -201,6 +201,7 @@ Memory::Memory() noexcept
     restoreEntityToPredictedFrame = reinterpret_cast<decltype(restoreEntityToPredictedFrame)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x4D?\x56\xE8????\x8B\x75"));
 
     markSurroundingBoundsDirty = relativeToAbsolute<decltype(markSurroundingBoundsDirty)>(findPattern(CLIENT_DLL, "\xE8????\x83\xFB\x01\x75\x41") + 1);
+    isBreakableEntity = reinterpret_cast<decltype(isBreakableEntity)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x56\x8B\xF1\x85\xF6\x74\x68"));
 
     clSendMove = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x8B\x4D\x04\x81\xEC????");
     clMsgMoveSetData = relativeToAbsolute<decltype(clMsgMoveSetData)>(findPattern(ENGINE_DLL, "\xE8????\x8D\x7E\x18") + 1);

@@ -76,6 +76,7 @@
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="SDK\AnimState.cpp" />
     <ClCompile Include="SDK\checksum_crc.cpp" />
+    <ClCompile Include="SDK\EngineTrace.cpp" />
     <ClCompile Include="SDK\Entity.cpp" />
     <ClCompile Include="SDK\GlobalVars.cpp" />
     <ClCompile Include="SDK\KeyValues.cpp" />

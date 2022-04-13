@@ -2,9 +2,13 @@
 
 #include <cstddef>
 
+#include "Cvar.h"
+#include "ConVar.h"
 #include "Vector.h"
 #include "VirtualMethod.h"
 #include "WeaponData.h"
+
+#include "../Interfaces.h"
 
 class matrix3x4;
 
@@ -59,36 +63,8 @@ namespace HitGroup {
         Gear = 10
     };
 
-    constexpr float getDamageMultiplier(int hitGroup, const WeaponInfo* weaponData) noexcept
-    {
-        switch (hitGroup) {
-        case Head:
-            return weaponData->headshotMultiplier;
-        case Stomach:
-            return 1.25f;
-        case LeftLeg:
-        case RightLeg:
-            return 0.75f;
-        default:
-            return 1.0f;
-        }
-    }
-
-    constexpr bool isArmored(int hitGroup, bool helmet) noexcept
-    {
-        switch (hitGroup) {
-        case Head:
-            return helmet;
-
-        case Chest:
-        case Stomach:
-        case LeftArm:
-        case RightArm:
-            return true;
-        default:
-            return false;
-        }
-    }
+    float getDamageMultiplier(int hitGroup, const WeaponInfo* weaponData, bool hasHeavyArmor, int teamNumber) noexcept;
+    bool isArmored(int hitGroup, bool helmet, int armorValue, bool hasHeavyArmor) noexcept;
 }
 
 struct Trace {

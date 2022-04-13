@@ -227,4 +227,7 @@ Memory::Memory() noexcept
     findLoggingChannel = reinterpret_cast<decltype(findLoggingChannel)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_FindChannel"));
     logDirect = reinterpret_cast<decltype(logDirect)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_LogDirect"));
     getGameModeNameFn = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x0D????\x53\x57\x8B\x01");
+
+    createSimpleThread = reinterpret_cast<decltype(createSimpleThread)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "CreateSimpleThread"));
+    releaseThreadHandle = reinterpret_cast<decltype(releaseThreadHandle)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "ReleaseThreadHandle"));
 }

@@ -367,7 +367,6 @@ public:
         PlayerList playerList;
         OffscreenEnemies offscreenEnemies;
         AutoBuy autoBuy;
-        bool exploit = false;
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

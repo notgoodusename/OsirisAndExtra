@@ -225,9 +225,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     auto currentViewAngles{ cmd->viewangles };
     const auto currentCmd{ *cmd };
 
-    if (config->misc.exploit && localPlayer && localPlayer->isAlive())
-        cmd->viewangles = Vector{ 0.0f, localPlayer->lby(), 0.0f };
-
     if (const auto gameRules = (*memory->gameRules); gameRules)
         maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
 
@@ -278,9 +275,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::jumpBug(cmd);
     Misc::runFreeCam(cmd, viewAngles);
     Misc::moonwalk(cmd);
-
-    if (config->misc.exploit && localPlayer && localPlayer->isAlive())
-        cmd->viewangles = Vector{ 0.0f, localPlayer->lby(), 0.0f };
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();
@@ -953,12 +947,8 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
 static void __cdecl clSendMoveHook() noexcept
 {
+    int nextCommandNr = memory->clientState->lastOutgoingCommand + memory->clientState->chokedCommands + 1;
     int chokedCommands = memory->clientState->chokedCommands;
-    
-    if (config->misc.exploit)
-        chokedCommands = 0;
-
-    int nextCommandNr = memory->clientState->lastOutgoingCommand + chokedCommands + 1;
 
     byte data[4000 /* MAX_CMD_BUFFER */];
     clMsgMove moveMsg;
@@ -966,10 +956,7 @@ static void __cdecl clSendMoveHook() noexcept
     moveMsg.dataOut.startWriting(data, sizeof(data));
 
     const int backupCommands = 2;
-    int newCommands = max(chokedCommands + 1, 0);
-
-    if (config->misc.exploit)
-        newCommands = 0;
+    const int newCommands = max(chokedCommands + 1, 0);
 
     moveMsg.setNumBackupCommands(backupCommands);
     moveMsg.setNumNewCommands(newCommands);

@@ -170,7 +170,7 @@ void Chams::renderPlayer(Entity* player) noexcept
 
         if (config->backtrack.enabled)
         {
-            const auto records = Backtrack::getRecords(player->index());
+            const auto records = Animations::getBacktrackRecords(player->index());
             if (records && !records->empty())
             {
                 int lastTick = -1;

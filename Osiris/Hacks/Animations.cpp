@@ -13,6 +13,7 @@
 #include "../SDK/MemAlloc.h"
 #include "../SDK/Input.h"
 #include "../SDK/Vector.h"
+#include "Backtrack.h"
 
 static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
@@ -223,9 +224,17 @@ void Animations::renderStart(FrameStage stage) noexcept
     }
 }
 
+float getExtraTicks() noexcept
+{
+    if (!config->backtrack.fakeLatency || config->backtrack.fakeLatencyAmount <= 0)
+        return 0.f;
+    return static_cast<float>(config->backtrack.fakeLatencyAmount) / 1000.f;
+}
+
 void Animations::handlePlayers(FrameStage stage) noexcept
 {
     static auto gravity = interfaces->cvar->findVar("sv_gravity");
+    const float timeLimit = static_cast<float>(config->backtrack.timeLimit) / 1000.f + getExtraTicks();
     if (stage != FrameStage::NET_UPDATE_END)
         return;
 
@@ -415,6 +424,26 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         memory->globalVars->frametime = frameTime;
         memory->globalVars->currenttime = currentTime;
+
+        if (runPostUpdate)
+        {
+            Players::Record record{ };
+            record.origin = player.origin;
+            record.absAngle = player.absAngle;
+            record.simulationTime = player.simulationTime;
+            record.mins = player.mins;
+            record.maxs = player.maxs;
+            std::copy(player.matrix.begin(), player.matrix.end(), record.matrix);
+            record.head = record.matrix[8].origin();
+
+            player.backtrackRecords.push_front(record);
+
+            while (player.backtrackRecords.size() > 3 && player.backtrackRecords.size() > static_cast<size_t>(timeToTicks(timeLimit)))
+                player.backtrackRecords.pop_back();
+
+            if (auto invalid = std::find_if(std::cbegin(player.backtrackRecords), std::cend(player.backtrackRecords), [](const Players::Record& rec) { return !Backtrack::valid(rec.simulationTime); }); invalid != std::cend(player.backtrackRecords))
+                player.backtrackRecords.erase(invalid, std::cend(player.backtrackRecords));
+        }
     }
 }
 
@@ -564,4 +593,9 @@ std::array<AnimationLayer, 13> Animations::getAnimLayers() noexcept
 Animations::Players Animations::getPlayer(int index) noexcept
 {
     return players.at(index);
+}
+
+const std::deque<Animations::Players::Record>* Animations::getBacktrackRecords(int index) noexcept
+{
+    return &players.at(index).backtrackRecords;
 }

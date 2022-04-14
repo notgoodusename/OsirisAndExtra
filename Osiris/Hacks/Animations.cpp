@@ -225,6 +225,7 @@ void Animations::renderStart(FrameStage stage) noexcept
 
 void Animations::handlePlayers(FrameStage stage) noexcept
 {
+    static auto gravity = interfaces->cvar->findVar("sv_gravity");
     if (stage != FrameStage::NET_UPDATE_END)
         return;
 
@@ -313,7 +314,6 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                         }
                     }
                 }
-                static auto gravity = interfaces->cvar->findVar("sv_gravity");
                 player.velocity.z -= gravity->getFloat() * 0.5f * ticksToTime(player.chokedPackets);
             }
 

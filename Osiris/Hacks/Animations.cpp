@@ -427,6 +427,12 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         if (runPostUpdate)
         {
+            if (!player.backtrackRecords.empty() && (player.backtrackRecords.front().simulationTime == entity->simulationTime()))
+                continue;
+
+            if (!Backtrack::valid(entity->simulationTime()))
+                continue;
+
             Players::Record record{ };
             record.origin = player.origin;
             record.absAngle = player.absAngle;

@@ -19,6 +19,7 @@
 static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
 static std::array<matrix3x4, MAXSTUDIOBONES> realmatrix{};
+static Vector localAngle{};
 static bool updatingLocal{ true };
 static bool updatingEntity{ false };
 static bool updatingFake{ false };
@@ -135,6 +136,7 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
                 i[2][3] -= origin.z;
             }
         }
+        localAngle = cmd->viewangles;
     }
     updatingLocal = false;
 }
@@ -534,6 +536,11 @@ void Animations::restore() noexcept
         vmt.restore();
         isHooked = false;
     }
+}
+
+Vector Animations::getLocalAngle() noexcept
+{
+    return localAngle;
 }
 
 bool Animations::isLocalUpdating() noexcept

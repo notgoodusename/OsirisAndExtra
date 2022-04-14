@@ -18,6 +18,7 @@
 #include "GUI.h"
 #include "Hooks.h"
 #include "Interfaces.h"
+#include "Logger.h"
 #include "Memory.h"
 
 #include "Hacks/Aimbot.h"
@@ -61,6 +62,7 @@
 #include "SDK/NetworkMessage.h"
 #include "SDK/Panel.h"
 #include "SDK/Platform.h"
+#include "SDK/Prediction.h"
 #include "SDK/PredictionCopy.h"
 #include "SDK/RenderContext.h"
 #include "SDK/SoundInfo.h"
@@ -120,6 +122,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     Visuals::drawSmokeHull(ImGui::GetBackgroundDrawList());
     Misc::watermark();
     Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
+    Logger::process(ImGui::GetBackgroundDrawList());
 
     Legitbot::updateInput();
     Visuals::updateInput();
@@ -279,6 +282,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::autoPeek(cmd, currentViewAngles);
 
     Misc::edgejump(cmd);
+    Misc::blockBot(cmd);
     Misc::fastPlant(cmd);
 
     Knifebot::run(cmd);
@@ -319,7 +323,11 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
     previousViewAngles = cmd->viewangles;
-    Tickbase::run(cmd);
+    if (localPlayer && localPlayer->isAlive())
+    {
+        Tickbase::run(cmd);
+        memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+    }
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;
@@ -715,8 +723,8 @@ static void __fastcall standardBlendingRulesHook(void* thisPointer, void* edx, v
 {
     static auto original = hooks->standardBlendingRules.getOriginal<void>(hdr, pos, q, currentTime, boneMask);
 
-    auto entity = reinterpret_cast<Entity*>(thisPointer);
-
+    const auto entity = reinterpret_cast<Entity*>(thisPointer);
+    
     entity->getEffects() |= 8;
 
     original(thisPointer, hdr, pos, q, currentTime, boneMask);
@@ -972,22 +980,18 @@ static void __cdecl clSendMoveHook() noexcept
     int nextCommandNr = memory->clientState->lastOutgoingCommand + memory->clientState->chokedCommands + 1;
     int chokedCommands = memory->clientState->chokedCommands;
 
-    bfWrite dataOut;
     byte data[4000 /* MAX_CMD_BUFFER */];
     clMsgMove moveMsg;
 
-    dataOut.startWriting(data, sizeof(data));
+    moveMsg.dataOut.startWriting(data, sizeof(data));
 
-    int clCmdbackup = 2;
-    int backupCommands = std::clamp(clCmdbackup, 0, 7 /* MAX_BACKUP_COMMANDS */);
-
-    //int newCommands = std::clamp(chokedCommands + 1, 0, 15 /* MAX_NEW_COMMANDS */);
-    int newCommands = max(chokedCommands + 1, 0);
+    const int backupCommands = 2;
+    const int newCommands = max(chokedCommands + 1, 0);
 
     moveMsg.setNumBackupCommands(backupCommands);
     moveMsg.setNumNewCommands(newCommands);
 
-    int numCmds = newCommands + backupCommands;
+    const int numCmds = newCommands + backupCommands;
     int from = -1;
     bool ok = true;
 
@@ -995,15 +999,15 @@ static void __cdecl clSendMoveHook() noexcept
 
         bool isnewcmd = to >= (nextCommandNr - newCommands + 1);
 
-        ok = ok && interfaces->client->writeUsercmdDeltaToBuffer(0, &dataOut, from, to, isnewcmd);
+        ok = ok && interfaces->client->writeUsercmdDeltaToBuffer(0, &moveMsg.dataOut, from, to, isnewcmd);
         from = to;
     }
 
     if (ok) {
 
-        moveMsg.setData(dataOut.getData(), dataOut.getNumBytesWritten());
+        moveMsg.setData(moveMsg.dataOut.getData(), moveMsg.dataOut.getNumBytesWritten());
 
-        memory->clientState->netChannel->sendNetMsg(&moveMsg); //crash here
+        memory->clientState->netChannel->sendNetMsg(reinterpret_cast<void*>(&moveMsg));
     }
 }
 
@@ -1206,6 +1210,19 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
     return haderrors;
 }
 
+static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
+{
+    static auto original = hooks->eyeAngles.getOriginal<Vector*>();
+    
+    const auto entity = reinterpret_cast<Entity*>(thisPointer);
+    if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer);
+
+    Vector eyeAngle = Animations::getLocalAngle();
+    return &eyeAngle;
+}
+
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -1267,8 +1284,8 @@ void Hooks::install() noexcept
     traceFilterForHeadCollision.detour(memory->traceFilterForHeadCollision, traceFilterForHeadCollisionHook);
     performScreenOverlay.detour(memory->performScreenOverlay, performScreenOverlayHook);
     isDepthOfFieldEnabled.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
-    //clSendMove.detour(memory->clSendMove, clSendMoveHook);
-    clMove.detour(memory->clMove, clMoveHook);
+    eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
+    clSendMove.detour(memory->clSendMove, clSendMoveHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
@@ -1328,12 +1345,6 @@ void Hooks::install() noexcept
         *memory->dispatchSound = uintptr_t(&dispatchSound) - uintptr_t(memory->dispatchSound + 1);
         VirtualProtect(memory->dispatchSound, 4, oldProtection, nullptr);
     }
-
-    auto clMoveChokeClamp = memory->chokeLimit;
-    unsigned long protect = 0;
-    VirtualProtect((void*)clMoveChokeClamp, 4, PAGE_EXECUTE_READWRITE, &protect);
-    *(std::uint32_t*)clMoveChokeClamp = 62;
-    VirtualProtect((void*)clMoveChokeClamp, 4, protect, &protect);
 
     bspQuery.hookAt(6, listLeavesInBox);
     surface.hookAt(67, lockCursor);

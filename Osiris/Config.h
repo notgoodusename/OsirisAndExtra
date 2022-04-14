@@ -269,6 +269,8 @@ public:
         bool knifeBot{ false };
         int knifeBotMode{ 0 };
         bool moonwalk{ false };
+        bool blockBot{ false };
+        KeyBind blockBotKey{ std::string("block bot") };
         bool edgejump{ false };
         bool jumpBug{ false };
         bool slowwalk{ false };
@@ -319,6 +321,16 @@ public:
         };
 
         KeyBindList keybindList;
+
+        struct Logger {
+            int modes{ 0 };
+            int events{ 0 };
+        };
+
+        Logger loggerOptions;
+
+        ColorToggle3 logger;
+
         struct Watermark {
             bool enabled = false;
         };

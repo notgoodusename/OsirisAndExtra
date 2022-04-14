@@ -201,10 +201,15 @@ float Helpers::remapValClamped(float val, float A, float B, float C, float D) no
 
 float Helpers::normalizeYaw(float yaw) noexcept
 {
-    while (yaw < -180.f)
-        yaw += 360.f;
-    while (yaw > 180.f)
-        yaw -= 360.f;
+    if (!std::isfinite(yaw))
+        return 0.0f;
+
+    if (yaw >= -180.f && yaw <= 180.f)
+        return yaw;
+
+    const float rot = std::round(std::abs(yaw / 360.f));
+
+    yaw = (yaw < 0.f) ? yaw + (360.f * rot) : yaw - (360.f * rot);
     return yaw;
 }
 

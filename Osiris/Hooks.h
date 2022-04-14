@@ -50,6 +50,7 @@ public:
     MinHook sendDatagram;
 
     MinHook setupBones;
+    MinHook eyeAngles;
 
     MinHook postDataUpdate;
 

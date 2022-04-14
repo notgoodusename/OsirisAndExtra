@@ -177,7 +177,9 @@ public:
 
     std::uintptr_t setupBones;
 
+    void(__stdcall* restoreEntityToPredictedFrame)(int, int);
     void(__thiscall* markSurroundingBoundsDirty)(void*);
+    bool(__thiscall* isBreakableEntity)(void*);
 
     std::uintptr_t clMove;
 
@@ -195,6 +197,8 @@ public:
     std::uintptr_t postNetworkDataReceived;
     void(__thiscall* saveData)(void*, const char*, int, int);
     std::uintptr_t isDepthOfFieldEnabled;
+    std::uintptr_t eyeAngles;
+    std::uintptr_t eyePositionAndVectors;
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;
@@ -203,6 +207,9 @@ public:
     int(__thiscall* transferData)(void*, const char*, int, void*);
     int(__cdecl* findLoggingChannel)(const char* name);
     int(__cdecl* logDirect)(int id, int severity, const std::array<std::uint8_t, 4> color, const char* msg);
+
+    void*(__cdecl* createSimpleThread)(void*, void*, unsigned long); // HANDLE(__cdecl* createSimpleThread)(LPVOID, LPVOID, SIZE_T);
+    int(__cdecl* releaseThreadHandle)(void*); // int(__cdecl* releaseThreadHandle)(HANDLE);
 
     const char* getGameModeName(bool skirmish) const noexcept
     {

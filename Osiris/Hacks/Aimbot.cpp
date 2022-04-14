@@ -19,31 +19,51 @@ Vector Aimbot::calculateRelativeAngle(const Vector& source, const Vector& destin
     return ((destination - source).toAngle() - viewAngles).normalize();
 }
 
-static bool traceToExit(const Trace& enterTrace, const Vector& start, const Vector& direction, Vector& end, Trace& exitTrace)
+static bool traceToExit(const Trace& enterTrace, const Vector& start, const Vector& direction, Vector& end, Trace& exitTrace, float range = 90.f, float step = 4.0f)
 {
-    bool result = false;
-    const auto traceToExitFn = memory->traceToExit;
-    __asm {
-        push 0
-        push 0
-        push 0
-        push exitTrace
-        mov eax, direction
-        push[eax]Vector.z
-        push[eax]Vector.y
-        push[eax]Vector.x
-        mov eax, start
-        push[eax]Vector.z
-        push[eax]Vector.y
-        push[eax]Vector.x
-        mov edx, enterTrace
-        mov ecx, end
-        call traceToExitFn
-        add esp, 40
-        mov result, al
-    }
+    float distance{ 0.0f };
+    int previousContents{ 0 };
 
-    return result;
+    while (distance <= range)
+    {
+        distance += step;
+        Vector origin{ start + direction * distance };
+
+        if (!previousContents)
+            previousContents = interfaces->engineTrace->getPointContents(origin, 0x4600400B);
+
+        const int currentContents = interfaces->engineTrace->getPointContents(origin, 0x4600400B);
+        if (!(currentContents & 0x600400B) || (currentContents & 0x40000000 && currentContents != previousContents))
+        {
+            const Vector destination{ origin - (direction * step) };
+
+            if (interfaces->engineTrace->traceRay({ origin, destination }, 0x4600400B, nullptr, exitTrace); exitTrace.startSolid && exitTrace.surface.flags & 0x8000)
+            {
+                if (interfaces->engineTrace->traceRay({ origin, start }, 0x600400B, { exitTrace.entity }, exitTrace); exitTrace.didHit() && !exitTrace.startSolid)
+                    return true;
+
+                continue;
+            }
+
+            if (exitTrace.didHit() && !exitTrace.startSolid)
+            {
+                if (memory->isBreakableEntity(enterTrace.entity) && memory->isBreakableEntity(exitTrace.entity))
+                    return true;
+
+                if (enterTrace.surface.flags & 0x0080 || (!(exitTrace.surface.flags & 0x0080) && exitTrace.plane.normal.dotProduct(direction) <= 1.0f))
+                    return true;
+
+                continue;
+            }
+            else {
+                if (enterTrace.entity && enterTrace.entity->index() != 0 && memory->isBreakableEntity(enterTrace.entity))
+                    return true;
+
+                continue;
+            }
+        }
+    }
+    return false;
 }
 
 static float handleBulletPenetration(SurfaceData* enterSurfaceData, const Trace& enterTrace, const Vector& direction, Vector& result, float penetration, float damage) noexcept
@@ -80,6 +100,27 @@ static float handleBulletPenetration(SurfaceData* enterSurfaceData, const Trace&
     return damage;
 }
 
+void Aimbot::calculateArmorDamage(float armorRatio, int armorValue, bool hasHeavyArmor, float& damage) noexcept
+{
+    auto armorScale = 1.0f;
+    auto armorBonusRatio = 0.5f;
+
+    if (hasHeavyArmor)
+    {
+        armorRatio *= 0.2f;
+        armorBonusRatio = 0.33f;
+        armorScale = 0.25f;
+    }
+
+    auto newDamage = damage * armorRatio;
+    const auto estiminated_damage = (damage - damage * armorRatio) * armorScale * armorBonusRatio;
+
+    if (estiminated_damage > armorValue)
+        newDamage = damage - armorValue / armorBonusRatio;
+
+    damage = newDamage;
+}
+
 bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept
  {
     if (!localPlayer)
@@ -104,12 +145,14 @@ bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo
             break;
 
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData) * damage * std::pow(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber())) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
 
-            if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet()))
-                damage -= (trace.entity->armor() < damage * armorRatio / 2.0f ? trace.entity->armor() * 4.0f : damage) * (1.0f - armorRatio);
+            if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet(), trace.entity->armor(), trace.entity->hasHeavyArmor()))
+                calculateArmorDamage(armorRatio, trace.entity->armor(), trace.entity->hasHeavyArmor(), damage);
 
-            return damage >= minDamage;
+            if (damage >= minDamage)
+                return damage;
+            return 0.f;
         }
         const auto surfaceData = interfaces->physicsSurfaceProps->getSurfaceData(trace.surface.surfaceProps);
 
@@ -146,10 +189,10 @@ float Aimbot::getScanDamage(Entity* entity, const Vector& destination, const Wea
             break;
 
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber())) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
 
-            if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet()))
-                damage -= (trace.entity->armor() < damage * armorRatio / 2.0f ? trace.entity->armor() * 4.0f : damage) * (1.0f - armorRatio);
+            if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet(), trace.entity->armor(), trace.entity->hasHeavyArmor()))
+                calculateArmorDamage(armorRatio, trace.entity->armor(), trace.entity->hasHeavyArmor(), damage);
            
             if (damage >= minDamage)
                 return damage;

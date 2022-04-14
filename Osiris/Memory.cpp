@@ -198,7 +198,10 @@ Memory::Memory() noexcept
 
     setupBones = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8\xD8");
 
+    restoreEntityToPredictedFrame = reinterpret_cast<decltype(restoreEntityToPredictedFrame)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x4D?\x56\xE8????\x8B\x75"));
+
     markSurroundingBoundsDirty = relativeToAbsolute<decltype(markSurroundingBoundsDirty)>(findPattern(CLIENT_DLL, "\xE8????\x83\xFB\x01\x75\x41") + 1);
+    isBreakableEntity = reinterpret_cast<decltype(isBreakableEntity)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x56\x8B\xF1\x85\xF6\x74\x68"));
 
     clMove = relativeToAbsolute<decltype(clMove)>(findPattern(ENGINE_DLL, "\xE8????\xFF\x15????\xF2\x0F\x10\x05????\xDC\x25????\xDD\x5D\xF0") + 1);
 
@@ -216,6 +219,8 @@ Memory::Memory() noexcept
     postNetworkDataReceived = relativeToAbsolute<decltype(postNetworkDataReceived)>(findPattern(CLIENT_DLL, "\xE8????\x33\xF6\x6A\x02") + 1);
     saveData = relativeToAbsolute<decltype(saveData)>(findPattern(CLIENT_DLL, "\xE8????\x6B\x45\x08\x34") + 1);
     isDepthOfFieldEnabled = findPattern(CLIENT_DLL, "\x8B\x0D????\x56\x8B\x01\xFF\x50\x34\x8B\xF0\x85\xF6\x75\x04");
+    eyeAngles = findPattern(CLIENT_DLL, "\x56\x8B\xF1\x85\xF6\x74\x32");
+    eyePositionAndVectors = findPattern(CLIENT_DLL, "\x8B\x55\x0C\x8B\xC8\xE8????\x83\xC4\x08\x5E\x8B\xE5");
 
     newFunctionClientDLL = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionEngineDLL = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
@@ -225,4 +230,7 @@ Memory::Memory() noexcept
     findLoggingChannel = reinterpret_cast<decltype(findLoggingChannel)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_FindChannel"));
     logDirect = reinterpret_cast<decltype(logDirect)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_LogDirect"));
     getGameModeNameFn = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x0D????\x53\x57\x8B\x01");
+
+    createSimpleThread = reinterpret_cast<decltype(createSimpleThread)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "CreateSimpleThread"));
+    releaseThreadHandle = reinterpret_cast<decltype(releaseThreadHandle)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "ReleaseThreadHandle"));
 }

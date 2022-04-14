@@ -216,6 +216,77 @@ void Misc::drawPlayerList() noexcept
     ImGui::End();
 }
 
+void Misc::blockBot(UserCmd* cmd) noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    static int blockTargetHandle = 0;
+
+    if (!config->misc.blockBot || !config->misc.blockBotKey.isActive())
+    {
+        blockTargetHandle = 0;
+        return;
+    }
+
+    float best = 1024.0f;
+    if (!blockTargetHandle)
+    {
+        for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
+        {
+            Entity* entity = interfaces->entityList->getEntity(i);
+
+            if (!entity || !entity->isPlayer() || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive())
+                continue;
+
+            const auto distance = entity->getAbsOrigin().distTo(localPlayer->getAbsOrigin());
+            if (distance < best)
+            {
+                best = distance;
+                blockTargetHandle = entity->handle();
+            }
+        }
+    }
+
+    const auto target = interfaces->entityList->getEntityFromHandle(blockTargetHandle);
+    if (target && target->isPlayer() && target != localPlayer.get() && !target->isDormant() && target->isAlive())
+    {
+        const auto targetVec = (target->getAbsOrigin() + target->velocity() * memory->globalVars->intervalPerTick - localPlayer->getAbsOrigin());
+        const auto z1 = target->getAbsOrigin().z - localPlayer->getEyePosition().z;
+        const auto z2 = target->getEyePosition().z - localPlayer->getAbsOrigin().z;
+        if (z1 >= 0.0f || z2 <= 0.0f)
+        {
+            Vector fwd = Vector::fromAngle2D(cmd->viewangles.y);
+            Vector side = fwd.crossProduct(Vector::up());
+            Vector move = Vector{ fwd.dotProduct2D(targetVec), side.dotProduct2D(targetVec), 0.0f };
+            move *= 45.0f;
+
+            const float l = move.length2D();
+            if (l > 450.0f)
+                move *= 450.0f / l;
+
+            cmd->forwardmove = move.x;
+            cmd->sidemove = move.y;
+        }
+        else
+        {
+            Vector fwd = Vector::fromAngle2D(cmd->viewangles.y);
+            Vector side = fwd.crossProduct(Vector::up());
+            Vector tar = (targetVec / targetVec.length2D()).crossProduct(Vector::up());
+            tar = tar.snapTo4();
+            tar *= tar.dotProduct2D(targetVec);
+            Vector move = Vector{ fwd.dotProduct2D(tar), side.dotProduct2D(tar), 0.0f };
+            move *= 45.0f;
+
+            const float l = move.length2D();
+            if (l > 450.0f)
+                move *= 450.0f / l;
+
+            cmd->forwardmove = move.x;
+            cmd->sidemove = move.y;
+        }
+    }
+}
 
 static int buttons = 0;
 
@@ -602,6 +673,7 @@ const bool anyActiveKeybinds() noexcept
     const bool thirdperson = config->visuals.thirdperson && config->visuals.thirdpersonKey.canShowKeybind();
     const bool freeCam = config->visuals.freeCam && config->visuals.freeCamKey.canShowKeybind();
 
+    const bool blockbot = config->misc.blockBot && config->misc.blockBotKey.canShowKeybind();
     const bool edgejump = config->misc.edgejump && config->misc.edgejumpkey.canShowKeybind();
     const bool jumpBug = config->misc.jumpBug && config->misc.jumpBugKey.canShowKeybind();
     const bool slowwalk = config->misc.slowwalk && config->misc.slowwalkKey.canShowKeybind();
@@ -610,7 +682,7 @@ const bool anyActiveKeybinds() noexcept
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
     return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
-        || zoom || thirdperson || freeCam || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
+        || zoom || thirdperson || freeCam || blockbot || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
 }
 
 void Misc::showKeybinds() noexcept
@@ -657,6 +729,8 @@ void Misc::showKeybinds() noexcept
     if (config->visuals.freeCam)
         config->visuals.freeCamKey.showKeybind();
 
+    if (config->misc.blockBot)
+        config->misc.blockBotKey.showKeybind();
     if (config->misc.edgejump)
         config->misc.edgejumpkey.showKeybind();
     if (config->misc.jumpBug)
@@ -1690,6 +1764,7 @@ void Misc::updateEventListeners(bool forceRemove) noexcept
 
 void Misc::updateInput() noexcept
 {
+    config->misc.blockBotKey.handleToggle();
     config->misc.edgejumpkey.handleToggle();
     config->misc.jumpBugKey.handleToggle();
     config->misc.slowwalkKey.handleToggle();

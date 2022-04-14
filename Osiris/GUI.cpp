@@ -1176,7 +1176,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Disable post-processing", &config->visuals.disablePostProcessing);
     ImGui::Checkbox("Disable jiggle bones", &config->visuals.disableJiggleBones);
     ImGui::Checkbox("Inverse ragdoll gravity", &config->visuals.inverseRagdollGravity);
-    ImGui::Checkbox("Keep FOV", &config->visuals.keepFov);
+    ImGui::Checkbox("Keep FOV during scope", &config->visuals.keepFov);
     ImGui::Checkbox("No fog", &config->visuals.noFog);
 
     ImGuiCustom::colorPicker("Fog controller", config->visuals.fog);
@@ -1562,6 +1562,13 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Knifebot", &config->misc.knifeBot);
     ImGui::SameLine();
     ImGui::Combo("Mode", &config->misc.knifeBotMode, "Trigger\0Rage\0");
+
+    ImGui::Checkbox("Block bot", &config->misc.blockBot);
+    ImGui::SameLine();
+    ImGui::PushID("Block bot Key");
+    ImGui::hotkey2("", config->misc.blockBotKey);
+    ImGui::PopID();
+
     ImGui::Checkbox("Edge Jump", &config->misc.edgejump);
     ImGui::SameLine();
     ImGui::PushID("Edge Jump Key");
@@ -1850,6 +1857,84 @@ void GUI::renderMiscWindow() noexcept
                 config->misc.autoBuy.grenades &= ~(1 << i);
             }
         }
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
+
+    ImGuiCustom::colorPicker("Logger", config->misc.logger);
+    ImGui::SameLine();
+
+    ImGui::PushID("Logger");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+
+        static bool modes[2]{ false, false };
+        static const char* mode[]{ "Console", "Event log" };
+        static std::string previewvaluemode = "";
+        for (size_t i = 0; i < ARRAYSIZE(modes); i++)
+        {
+            modes[i] = (config->misc.loggerOptions.modes & 1 << i) == 1 << i;
+        }
+        if (ImGui::BeginCombo("Log output", previewvaluemode.c_str()))
+        {
+            previewvaluemode = "";
+            for (size_t i = 0; i < ARRAYSIZE(modes); i++)
+            {
+                ImGui::Selectable(mode[i], &modes[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+            }
+            ImGui::EndCombo();
+        }
+        for (size_t i = 0; i < ARRAYSIZE(modes); i++)
+        {
+            if (i == 0)
+                previewvaluemode = "";
+
+            if (modes[i])
+            {
+                previewvaluemode += previewvaluemode.size() ? std::string(", ") + mode[i] : mode[i];
+                config->misc.loggerOptions.modes |= 1 << i;
+            }
+            else
+            {
+                config->misc.loggerOptions.modes &= ~(1 << i);
+            }
+        }
+
+        static bool events[4]{ false, false, false, false };
+        static const char* event[]{ "Damage dealt", "Damage received", "Hostage taken", "Bomb plants" };
+        static std::string previewvalueevent = "";
+        for (size_t i = 0; i < ARRAYSIZE(events); i++)
+        {
+            events[i] = (config->misc.loggerOptions.events & 1 << i) == 1 << i;
+        }
+        if (ImGui::BeginCombo("Log events", previewvalueevent.c_str()))
+        {
+            previewvalueevent = "";
+            for (size_t i = 0; i < ARRAYSIZE(events); i++)
+            {
+                ImGui::Selectable(event[i], &events[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
+            }
+            ImGui::EndCombo();
+        }
+        for (size_t i = 0; i < ARRAYSIZE(events); i++)
+        {
+            if (i == 0)
+                previewvalueevent = "";
+
+            if (events[i])
+            {
+                previewvalueevent += previewvalueevent.size() ? std::string(", ") + event[i] : event[i];
+                config->misc.loggerOptions.events |= 1 << i;
+            }
+            else
+            {
+                config->misc.loggerOptions.events &= ~(1 << i);
+            }
+        }
+
         ImGui::EndPopup();
     }
     ImGui::PopID();

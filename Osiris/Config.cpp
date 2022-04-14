@@ -501,6 +501,12 @@ static void from_json(const json& j, AutoBuy& o)
     read(j, "Grenades", o.grenades);
 }
 
+static void from_json(const json& j, Config::Misc::Logger& o)
+{
+    read(j, "Modes", o.modes);
+    read(j, "Events", o.events);
+}
+
 static void from_json(const json& j, Config::Visuals::MotionBlur& mb)
 {
     read(j, "Enabled", mb.enabled);
@@ -552,6 +558,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Moonwalk", m.moonwalk);
     read(j, "Knifebot", m.knifeBot);
     read(j, "Knifebot mode", m.knifeBotMode);
+    read(j, "Block bot", m.blockBot);
+    read(j, "Block bot Key", m.blockBotKey);
     read(j, "Edge Jump", m.edgejump);
     read(j, "Edge Jump Key", m.edgejumpkey);
     read(j, "Jump Bug", m.jumpBug);
@@ -604,6 +612,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Sv pure bypass", m.svPureBypass);
     read(j, "Inventory Unlocker", m.inventoryUnlocker);
     read<value_t::object>(j, "Autobuy", m.autoBuy);
+    read<value_t::object>(j, "Logger", m.logger);
+    read<value_t::object>(j, "Logger options", m.loggerOptions);
 }
 
 static void from_json(const json& j, Config::Misc::Reportbot& r)
@@ -1021,6 +1031,12 @@ static void to_json(json& j, const AutoBuy& o, const AutoBuy& dummy = {})
     WRITE("Grenades", grenades);
 }
 
+static void to_json(json& j, const Config::Misc::Logger& o, const Config::Misc::Logger& dummy = {})
+{
+    WRITE("Modes", modes);
+    WRITE("Events", events);
+}
+
 static void to_json(json& j, const Config::Visuals::MotionBlur& o, const Config::Visuals::MotionBlur& dummy)
 {
     WRITE("Enabled", enabled);
@@ -1077,6 +1093,8 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Moonwalk", moonwalk);
     WRITE("Knifebot", knifeBot);
     WRITE("Knifebot mode", knifeBotMode);
+    WRITE("Block bot", blockBot);
+    WRITE("Block bot Key", blockBotKey);
     WRITE("Edge Jump", edgejump);
     WRITE("Edge Jump Key", edgejumpkey);
     WRITE("Jump Bug", jumpBug);
@@ -1129,6 +1147,8 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Sv pure bypass", svPureBypass);
     WRITE("Inventory Unlocker", inventoryUnlocker);
     WRITE("Autobuy", autoBuy);
+    WRITE("Logger", logger);
+    WRITE("Logger options", loggerOptions);
 }
 
 static void to_json(json& j, const Config::Visuals& o)

@@ -580,6 +580,7 @@ public:
     NETVAR(getLadderNormal, "CBasePlayer", "m_vecLadderNormal", Vector)
 
     NETVAR(armor, "CCSPlayer", "m_ArmorValue", int)
+    NETVAR(hasHeavyArmor, "CCSPlayer", "m_bHasHeavyArmor", bool)
     NETVAR(eyeAngles, "CCSPlayer", "m_angEyeAngles", Vector)
     NETVAR(isScoped, "CCSPlayer", "m_bIsScoped", bool)
     NETVAR(isDefusing, "CCSPlayer", "m_bIsDefusing", bool)

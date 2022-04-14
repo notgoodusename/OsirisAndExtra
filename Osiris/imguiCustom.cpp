@@ -46,25 +46,27 @@ void ImGuiCustom::colorPicker(const char* name, float color[3], float* alpha, bo
             ImGui::ColorPicker3("##picker", color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoSidePreview);
         }
 
+        ImGui::SameLine();
+
         if (rainbow || rainbowSpeed || thickness || rounding) {
             ImGui::SameLine();
             if (ImGui::BeginChild("##child", { 150.0f, 0.0f })) {
                 if (rainbow)
                     ImGui::Checkbox("Rainbow", rainbow);
-                ImGui::PushItemWidth(85.0f);
+                ImGui::PushItemWidth(150.0f);
                 if (rainbowSpeed)
-                    ImGui::InputFloat("Speed", rainbowSpeed, 0.01f, 0.15f, "%.2f");
+                    ImGui::DragFloat("##speed", rainbowSpeed, 0.1f, -100.0f, 100.0f, "Speed %.1f");
 
                 if (rounding || thickness)
                     ImGui::Separator();
 
                 if (rounding) {
-                    ImGui::InputFloat("Rounding", rounding, 0.1f, 0.0f, "%.1f");
+                    ImGui::DragFloat("##rounding", rounding, 0.1f, 0.0f, 100.0f, "Corner %.1f");
                     *rounding = std::max(*rounding, 0.0f);
                 }
 
                 if (thickness) {
-                    ImGui::InputFloat("Thickness", thickness, 0.1f, 0.0f, "%.1f");
+                    ImGui::DragFloat("##thickness", thickness, 0.1f, 1.0f, 10.0f, "Thick %.2f");
                     *thickness = std::max(*thickness, 1.0f);
                 }
 

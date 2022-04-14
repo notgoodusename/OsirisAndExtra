@@ -4,31 +4,36 @@
 
 #include "Memory.h"
 
+/*
+The function must be __cdecl otherwise it could crash or return garbage
+Example of creating a thread
+	threadObject.createThread<Arguments>(&function, arguments);
+Example of usage:
+	Thread funtionTest;
+	funtionTest.createThread<char*>(&function, (char*)"b");
+	funtionTest.releaseThread();
+*/
+
 class Thread
 {
 public:
-	Thread() { }
-
-	/*
-	The function must be __cdecl otherwise it could crash or return garbage
-	Example of creating a thread
-		threadObject.createThread<Arguments>(&function, arguments);
-	Example of usage:
-		Thread funtionTest;
-		funtionTest.createThread<char*>(&function, (char*)"b");
-		funtionTest.releaseThread();
-	*/
+	Thread() noexcept { }
 
 	template<typename ...Args>
-	void createThread(void* function, Args... args)
+	void createThread(void* function, Args... args) noexcept
 	{
 		currentThread = memory->createSimpleThread(function, args..., 0U);
 	}
 	
-	void releaseThread()
+	void releaseThread() noexcept
 	{
 		if (currentThread)
 			memory->releaseThreadHandle(currentThread);
+	}
+
+	void* getThreadHandle() noexcept
+	{
+		return currentThread;
 	}
 
 private:

@@ -64,6 +64,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
     float damageDiff = FLT_MAX;
     Vector bestTarget{ };
     Vector bestAngle{ };
+    int bestIndex{ -1 };
     float bestSimulationTime = 0;
     const auto localPlayerEyePosition = localPlayer->getEyePosition();
     const auto aimPunch = localPlayer->getAimPunch();
@@ -231,7 +232,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     bestAngle = angle;
                     damageDiff = std::fabsf((float)target.health - damage);
                     bestTarget = bonePosition;
-                    bestSimulationTime = entity->simulationTime();
+                    bestSimulationTime = player.simulationTime;
+                    bestIndex = target.id;
                 }
             }
         }
@@ -242,6 +244,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             {
                 bestTarget = Vector{ };
                 bestAngle = Vector{ };
+                bestIndex = -1;
                 bestSimulationTime = 0;
                 damageDiff = FLT_MAX;
             }
@@ -368,6 +371,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                     damageDiff = std::fabsf((float)target.health - damage);
                     bestTarget = bonePosition;
                     bestSimulationTime = record.simulationTime;
+                    bestIndex = target.id;
                 }
             }
         }
@@ -378,6 +382,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             {
                 bestTarget = Vector{ };
                 bestAngle = Vector{ };
+                bestIndex = -1;
                 bestSimulationTime = 0;
                 damageDiff = FLT_MAX;
             }
@@ -415,8 +420,10 @@ void Ragebot::run(UserCmd* cmd) noexcept
         if (clamped)
             cmd->buttons &= ~UserCmd::IN_ATTACK;
 
-        if(cmd->buttons & UserCmd::IN_ATTACK)
+        if (cmd->buttons & UserCmd::IN_ATTACK)
+        {
             cmd->tickCount = timeToTicks(bestSimulationTime + Backtrack::getLerp());
+        }
 
         if (clamped) lastAngles = cmd->viewangles;
         else lastAngles = Vector{ };

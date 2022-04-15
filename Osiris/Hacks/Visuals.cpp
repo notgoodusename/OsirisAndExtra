@@ -332,6 +332,16 @@ void Visuals::removeShadows() noexcept
     shadows->setValue(!config->visuals.noShadows);
 }
 
+void Visuals::noZoom(FrameStage stage)
+{
+    if (config->visuals.noZoom && localPlayer) {
+        if (stage == FrameStage::RENDER_START && (localPlayer->fov() != config->visuals.fov || localPlayer->fovStart() != config->visuals.fov)) {
+            localPlayer->fov() = config->visuals.fov;
+            localPlayer->fovStart() = config->visuals.fov;
+        }
+    }
+}
+
 void Visuals::applyZoom(FrameStage stage) noexcept
 {
     if (config->visuals.zoom && localPlayer) {

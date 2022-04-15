@@ -414,6 +414,7 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::SetColumnOffset(1, 220.0f);
     ImGui::Checkbox("Aimlock", &config->ragebot[currentWeapon].aimlock);
     ImGui::Checkbox("Silent", &config->ragebot[currentWeapon].silent);
+    ImGui::Checkbox("Resolver", &config->ragebot[currentWeapon].resolver);
     ImGui::Checkbox("Friendly fire", &config->ragebot[currentWeapon].friendlyFire);
     ImGui::Checkbox("Visible only", &config->ragebot[currentWeapon].visibleOnly);
     ImGui::Checkbox("Scoped only", &config->ragebot[currentWeapon].scopedOnly);
@@ -617,6 +618,15 @@ void GUI::renderTriggerbotWindow() noexcept
     ImGui::SliderInt("Min damage", &config->triggerbot[currentWeapon].minDamage, 0, 101, "%d");
     config->triggerbot[currentWeapon].minDamage = std::clamp(config->triggerbot[currentWeapon].minDamage, 0, 250);
     ImGui::Checkbox("Killshot", &config->triggerbot[currentWeapon].killshot);
+    ImGui::NextColumn();
+    ImGui::Columns(1);
+}
+void GUI::renderTickbaseWindow() noexcept
+{
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 300.f);
+    ImGui::Checkbox("Enabled", &config->tickbase.enabled);
+    ImGui::Checkbox("Teleport", &config->tickbase.teleport);
     ImGui::NextColumn();
     ImGui::Columns(1);
 }
@@ -1265,6 +1275,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Full bright", &config->visuals.fullBright);
     ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
     ImGui::NextColumn();
+    ImGui::Checkbox("No zoom", &config->visuals.noZoom);
     ImGui::Checkbox("Zoom", &config->visuals.zoom);
     ImGui::SameLine();
     ImGui::PushID("Zoom Key");
@@ -1987,7 +1998,7 @@ void GUI::renderConfigWindow() noexcept
             ImGui::OpenPopup("Config to reset");
 
         if (ImGui::BeginPopup("Config to reset")) {
-            static constexpr const char* names[]{ "Whole", "Legitbot", "Legit Anti Aim", "Ragebot", "Rage Anti aim", "Fake angle", "Fakelag", "Backtrack", "Triggerbot", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Misc" };
+            static constexpr const char* names[]{ "Whole", "Legitbot", "Legit Anti Aim", "Ragebot", "Rage Anti aim", "Fake angle", "Fakelag", "Tickbase", "Backtrack", "Triggerbot", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Misc"};
             for (int i = 0; i < IM_ARRAYSIZE(names); i++) {
                 if (i == 1) ImGui::Separator();
 
@@ -2000,7 +2011,6 @@ void GUI::renderConfigWindow() noexcept
                     case 4: config->rageAntiAim = { };  break;
                     case 5: config->fakeAngle = { }; break;
                     case 6: config->fakelag = { }; break;
-<<<<<<< HEAD
                     case 7: config->tickbase = { }; break;
                     case 8: config->backtrack = { }; break;
                     case 9: config->triggerbot = { }; config->triggerbotKey = KeyBind::NONE; break;
@@ -2011,17 +2021,6 @@ void GUI::renderConfigWindow() noexcept
                     case 14: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
                     case 15: Sound::resetConfig(); break;
                     case 16: config->misc = { };  Misc::updateClanTag(true); break;
-=======
-                    case 7: config->backtrack = { }; break;
-                    case 8: config->triggerbot = { }; break;
-                    case 9: Glow::resetConfig(); break;
-                    case 10: config->chams = { }; break;
-                    case 11: config->streamProofESP = { }; break;
-                    case 12: config->visuals = { }; break;
-                    case 13: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
-                    case 14: Sound::resetConfig(); break;
-                    case 15: config->misc = { };  Misc::updateClanTag(true); break;
->>>>>>> parent of 9d2e427 (Merge branch 'pr/1')
                     }
                 }
             }
@@ -2159,6 +2158,7 @@ void GUI::renderGuiStyle() noexcept
                             if (ImGui::Button("AntiAim                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 3;
                             if (ImGui::Button("Fake Angle              ", ImVec2{ 80, 20 })) activeSubTabRagebot = 4;
                             if (ImGui::Button("FakeLag                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 5;
+                            if (ImGui::Button("Tickbase                ", ImVec2{ 80, 20 })) activeSubTabRagebot = 6;
                             break;
                         case 3: //Visuals
                             ImGui::SetCursorPosY(10);
@@ -2232,6 +2232,10 @@ void GUI::renderGuiStyle() noexcept
                                 case 5:
                                     //FakeLag
                                     renderFakelagWindow();
+                                    break;
+                                case 6:
+                                    //Tickbase
+                                    renderTickbaseWindow();
                                     break;
                                 default:
                                     break;

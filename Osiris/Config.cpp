@@ -250,6 +250,7 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Enabled", r.enabled);
     read(j, "Aimlock", r.aimlock);
     read(j, "Silent", r.silent);
+    read(j, "Resolver", r.resolver);
     read(j, "Friendly fire", r.friendlyFire);
     read(j, "Visible only", r.visibleOnly);
     read(j, "Scoped only", r.scopedOnly);
@@ -317,6 +318,12 @@ static void from_json(const json& j, Config::Fakelag& f)
     read(j, "Limit", f.limit);
 }
 
+static void from_json(const json& j, Config::Tickbase& f)
+{
+    read(j, "Enabled", f.enabled);
+    read(j, "Teleport", f.teleport);
+}
+
 static void from_json(const json& j, Config::Backtrack& b)
 {
     read(j, "Enabled", b.enabled);
@@ -378,6 +385,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Shadows changer", v.shadowsChanger);
     read(j, "Wireframe smoke", v.wireframeSmoke);
     read(j, "Full bright", v.fullBright);
+    read(j, "No zoom", v.noZoom);
     read(j, "Zoom", v.zoom);
     read(j, "Zoom key", v.zoomKey);
     read(j, "Thirdperson", v.thirdperson);
@@ -654,6 +662,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read<value_t::object>(j, "Rage Anti aim", rageAntiAim);
     read<value_t::object>(j, "Fake angle", fakeAngle);
     read<value_t::object>(j, "Fakelag", fakelag);
+    read<value_t::object>(j, "Tickbase", tickbase);
     read<value_t::object>(j, "Backtrack", backtrack);
     Glow::fromJson(j["Glow"]);
     read(j, "Chams", chams);
@@ -830,6 +839,7 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Enabled", enabled);
     WRITE("Aimlock", aimlock);
     WRITE("Silent", silent);
+    WRITE("Resolver", resolver);
     WRITE("Friendly fire", friendlyFire);
     WRITE("Visible only", visibleOnly);
     WRITE("Scoped only", scopedOnly);
@@ -938,6 +948,12 @@ static void to_json(json& j, const Config::Fakelag& o, const Config::Fakelag& du
     WRITE("Enabled", enabled);
     WRITE("Mode", mode);
     WRITE("Limit", limit);
+}
+
+static void to_json(json& j, const Config::Tickbase& o, const Config::Tickbase& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Teleport", teleport);
 }
 
 static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack& dummy = {})
@@ -1159,6 +1175,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Motion Blur", motionBlur);
     WRITE("Wireframe smoke", wireframeSmoke);
     WRITE("Full bright", fullBright);
+    WRITE("No zoom", noZoom);
     WRITE("Zoom", zoom);
     WRITE("Zoom key", zoomKey);
     WRITE("Thirdperson", thirdperson);
@@ -1263,6 +1280,7 @@ void Config::save(size_t id) const noexcept
         j["Rage Anti aim"] = rageAntiAim;
         j["Fake angle"] = fakeAngle;
         j["Fakelag"] = fakelag;
+        j["Teleport"] = tickbase;
         j["Backtrack"] = backtrack;
         j["Glow"] = Glow::toJson();
         j["Chams"] = chams;
@@ -1308,6 +1326,7 @@ void Config::reset() noexcept
     rageAntiAim = { };
     fakeAngle = { };
     fakelag = { };
+    tickbase = { };
     backtrack = { };
     triggerbot = { };
     Glow::resetConfig();

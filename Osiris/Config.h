@@ -34,6 +34,7 @@ public:
         bool enabled{ false };
         bool aimlock{ false };
         bool silent{ false };
+        bool resolver{ false };
         bool friendlyFire{ false };
         bool visibleOnly{ true };
         bool scopedOnly{ true };
@@ -54,6 +55,11 @@ public:
     };
     std::array<Ragebot, 40> ragebot;
     KeyBind ragebotKey{ std::string("ragebot") };
+
+    struct Tickbase {
+        bool enabled = false;
+        bool teleport = false;
+    } tickbase;
 
     struct Fakelag {
         bool enabled = false;
@@ -194,12 +200,8 @@ public:
         bool fullBright{ false };
         bool wireframeSmoke{ false };
         bool zoom{ false };
-<<<<<<< HEAD
         bool noZoom{ false };
         KeyBind zoomKey{ std::string("zoom") };
-=======
-        KeyBind zoomKey = KeyBind::NONE;
->>>>>>> parent of 9d2e427 (Merge branch 'pr/1')
         bool thirdperson{ false };
         KeyBind thirdpersonKey{ std::string("thirdperson") };
         int thirdpersonDistance{ 0 };

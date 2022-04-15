@@ -56,11 +56,6 @@ public:
     std::array<Ragebot, 40> ragebot;
     KeyBind ragebotKey{ std::string("ragebot") };
 
-    struct Tickbase {
-        bool enabled = false;
-        bool teleport = false;
-    } tickbase;
-
     struct Fakelag {
         bool enabled = false;
         int mode = 0;

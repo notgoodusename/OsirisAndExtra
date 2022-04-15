@@ -193,13 +193,6 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             case 0: // Normal(sidemove)
                 if (updateLby())
                 {
-                    if (config->tickbase.teleport)
-                    {
-                        float roll = !invert ? 45.f : -45.f;
-                        memory->setAbsAngle(localPlayer.get(), Vector{ 0.f, 0.f , roll });
-                        cmd->viewangles.z = roll;
-                    }
-                       
                     float desyncangle = RandomFloat(1, leftDesyncAngle, 1.f);
                     cmd->viewangles.y += !invert ? desyncangle : -desyncangle;
                     sendPacket = false;

@@ -37,7 +37,6 @@
 #include "Hacks/Ragebot.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
-#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 #include "Hacks/Resolver.h"
@@ -231,26 +230,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
 
     memory->globalVars->serverTime(cmd);
-    if (Tickbase::isShifting && config->tickbase.enabled)
-    {
-        sendPacket = Tickbase::ticksToShift == 1;
-        Misc::autoPeek(cmd, currentViewAngles);
-        if (!config->tickbase.teleport)
-        {
-            cmd->tickCount += 200;
-            cmd->hasbeenpredicted = true;
-        }
-
-        cmd->viewangles.normalize();
-
-        cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
-        cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
-        cmd->viewangles.z = 0.0f;
-        cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
-        cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
-
-        return false;
-    }
 
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
@@ -325,7 +304,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     previousViewAngles = cmd->viewangles;
     if (localPlayer && localPlayer->isAlive())
     {
-        Tickbase::run(cmd);
         memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
     }
     Animations::update(cmd, sendPacket);
@@ -1100,42 +1078,6 @@ static char __fastcall newFunctionBypass(void* thisPointer, void* edx, const cha
 {
     return 1;
 }
-static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
-{
-    using clMoveFn = void(__cdecl*)(float, bool);
-    static auto original = (clMoveFn)hooks->clMove.getDetour();
-
-    static float realTime = 0.0f;
-
-    if (!config->tickbase.enabled)
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (!localPlayer || !localPlayer->isAlive())
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (Tickbase::doubletapCharge < Tickbase::shiftAmount && memory->globalVars->realtime - realTime > 1.0f)
-    {
-        Tickbase::doubletapCharge++;
-        return;
-    }
-
-    original(accumulatedExtraSamples, finalTick);
-
-    if (Tickbase::lastShift == 0)
-        return;
-
-    Tickbase::isShifting = true;
-    {
-        for (Tickbase::ticksToShift = min(Tickbase::doubletapCharge, Tickbase::lastShift); Tickbase::ticksToShift > 0; Tickbase::ticksToShift--, Tickbase::doubletapCharge--)
-            original(accumulatedExtraSamples, finalTick);
-    }
-    Tickbase::isShifting = false;
-    Tickbase::lastShift = 0;
-    realTime = memory->globalVars->realtime;
-}
 
 static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
 {
@@ -1144,22 +1086,9 @@ static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, 
     if (!entity || !localPlayer || entity != localPlayer.get())
         return original(thisPointer, entity, cmd, moveHelper);
 
-    if (abs(cmd->tickCount - memory->globalVars->tickCount) >= 50)
-        return;
-
-    int tickbase = entity->tickBase();
-    auto currentime = memory->globalVars->currenttime;
-
-    if (cmd->commandNumber == Tickbase::commandNumber)
-        entity->tickBase() -= Tickbase::lastShift;
-
     original(thisPointer, entity, cmd, moveHelper);
 
-    if (cmd->commandNumber == Tickbase::commandNumber)
-    {
-        entity->tickBase() = tickbase;
-        memory->globalVars->currenttime = currentime;
-    }
+    EnginePrediction::store();
 }
 
 static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx, int commandsAcknowledged) noexcept
@@ -1168,7 +1097,6 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
     static auto original = hooks->postNetworkDataReceived.getOriginal<bool>(commandsAcknowledged);
     if (!localPlayer || entity != localPlayer.get())
         return original(thisPointer, commandsAcknowledged);
-
     if (commandsAcknowledged <= 0)
         return false;
 

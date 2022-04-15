@@ -239,6 +239,7 @@
     <ClCompile Include="Hacks\Knifebot.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="Hacks\Tickbase.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
@@ -256,6 +257,8 @@
     <ClCompile Include="SDK\EngineTrace.cpp">
       <Filter>SDK</Filter>
     </ClCompile>
+=======
+>>>>>>> parent of 9d2e427 (Merge branch 'pr/1')
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI.h">
@@ -633,16 +636,11 @@
     <ClInclude Include="Hacks\Knifebot.h">
       <Filter>Hacks</Filter>
     </ClInclude>
-    <ClInclude Include="Hacks\Tickbase.h">
-      <Filter>Hacks</Filter>
-    </ClInclude>
     <ClInclude Include="SDK\DebugOverlay.h">
       <Filter>SDK</Filter>
     </ClInclude>
     <ClInclude Include="SDK\ViewSetup.h">
       <Filter>SDK</Filter>
-    <ClInclude Include="Hacks\Resolver.h">
-      <Filter>Hacks</Filter>
     </ClInclude>
     <ClInclude Include="SDK\checksum_crc.h">
       <Filter>SDK</Filter>

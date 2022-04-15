@@ -37,10 +37,8 @@
 #include "Hacks/Ragebot.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
-#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
-#include "Hacks/Resolver.h"
 
 #include "SDK/ClassId.h"
 #include "SDK/Client.h"
@@ -231,27 +229,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
 
     memory->globalVars->serverTime(cmd);
-    if (Tickbase::isShifting && config->tickbase.enabled)
-    {
-        sendPacket = Tickbase::ticksToShift == 1;
-        Misc::autoPeek(cmd, currentViewAngles);
-        if (!config->tickbase.teleport)
-        {
-            cmd->tickCount += 200;
-            cmd->hasbeenpredicted = true;
-        }
-
-        cmd->viewangles.normalize();
-
-        cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
-        cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
-        cmd->viewangles.z = 0.0f;
-        cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
-        cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
-
-        return false;
-    }
-
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
     Misc::prepareRevolver(cmd);
@@ -323,11 +300,14 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
     previousViewAngles = cmd->viewangles;
+<<<<<<< HEAD
     if (localPlayer && localPlayer->isAlive())
     {
         Tickbase::run(cmd);
         memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
     }
+=======
+>>>>>>> parent of 9d2e427 (Merge branch 'pr/1')
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;
@@ -442,13 +422,9 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
     }
     if (interfaces->engine->isInGame()) {
         EnginePrediction::apply(stage);
-        if (stage == FrameStage::NET_UPDATE_POSTDATAUPDATE_START) {
-            Resolver::frameStageUpdate();
-        }
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
-        Visuals::noZoom(stage);
         Misc::oppositeHandKnife(stage);
         Visuals::removeGrass(stage);
         Visuals::modifySmoke(stage);
@@ -1010,6 +986,17 @@ static void __cdecl clSendMoveHook() noexcept
     }
 }
 
+static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
+{
+    static auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
+
+    if (!entity || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, entity, cmd, moveHelper);
+
+    original(thisPointer, entity, cmd, moveHelper);
+
+    EnginePrediction::store();
+}
 
 static void __fastcall getColorModulationHook(void* thisPointer, void* edx, float* r, float* g, float* b) noexcept
 {
@@ -1099,6 +1086,7 @@ static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* 
 static char __fastcall newFunctionBypass(void* thisPointer, void* edx, const char* moduleName) noexcept
 {
     return 1;
+<<<<<<< HEAD
 }
 static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
 {
@@ -1160,6 +1148,8 @@ static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, 
         entity->tickBase() = tickbase;
         memory->globalVars->currenttime = currentime;
     }
+=======
+>>>>>>> parent of 9d2e427 (Merge branch 'pr/1')
 }
 
 static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx, int commandsAcknowledged) noexcept
@@ -1280,12 +1270,16 @@ void Hooks::install() noexcept
     getColorModulation.detour(memory->getColorModulation, getColorModulationHook);
     isUsingStaticPropDebugModes.detour(memory->isUsingStaticPropDebugModes, isUsingStaticPropDebugModesHook);
 
+<<<<<<< HEAD
     traceFilterForHeadCollision.detour(memory->traceFilterForHeadCollision, traceFilterForHeadCollisionHook);
     performScreenOverlay.detour(memory->performScreenOverlay, performScreenOverlayHook);
     isDepthOfFieldEnabled.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
     eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
     clSendMove.detour(memory->clSendMove, clSendMoveHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
+=======
+    //clSendMove.detour(memory->clSendMove, clSendMoveHook);
+>>>>>>> parent of 9d2e427 (Merge branch 'pr/1')
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 

@@ -175,7 +175,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
         if (!config->backtrack.enabled)
             continue;
 
-        const auto records = Backtrack::getRecords(entity->index());
+        const auto records = Animations::getBacktrackRecords(entity->index());
         if (!records || records->empty())
             continue;
 

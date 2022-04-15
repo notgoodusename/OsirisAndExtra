@@ -6,6 +6,7 @@
 #include "../SDK/ModelInfo.h"
 
 #include <array>
+#include <deque>
 
 struct UserCmd;
 enum class FrameStage;
@@ -18,6 +19,7 @@ namespace Animations
 	void restore() noexcept;
 
 	void renderStart(FrameStage) noexcept;
+	void updateBacktrack() noexcept;
 	void fake() noexcept;
 
 	void packetStart() noexcept;
@@ -47,6 +49,19 @@ namespace Animations
 		{
 			this->clear();
 		}
+
+		struct Record {
+			Vector origin;
+			Vector head;
+			Vector absAngle;
+			Vector mins;
+			Vector maxs;
+			float simulationTime;
+			matrix3x4 matrix[MAXSTUDIOBONES];
+		};
+
+		std::deque<Record> backtrackRecords;
+
 		std::array<matrix3x4, MAXSTUDIOBONES> matrix;
 		std::array<AnimationLayer, 13> layers { };
 		std::array<AnimationLayer, 13> oldlayers { };
@@ -70,6 +85,8 @@ namespace Animations
 			velocity = Vector{};
 			mins = Vector{};
 			maxs = Vector{};
+
+			backtrackRecords.clear();
 		}
 
 		void reset()
@@ -81,4 +98,5 @@ namespace Animations
 		}
 	};
 	Players getPlayer(int index) noexcept;
+	const std::deque<Players::Record>* getBacktrackRecords(int index) noexcept;
 }

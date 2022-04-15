@@ -9,7 +9,6 @@
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
 
-static std::array<std::deque<Backtrack::Record>, 65> records;
 static std::deque<Backtrack::incomingSequence> sequences;
 
 struct Cvars {
@@ -23,59 +22,6 @@ struct Cvars {
 };
 
 static Cvars cvars;
-
-float getExtraTicks() noexcept
-{
-    if (!config->backtrack.fakeLatency || config->backtrack.fakeLatencyAmount <= 0)
-        return 0.f;
-    return static_cast<float>(config->backtrack.fakeLatencyAmount) / 1000.f;
-}
-
-void Backtrack::update(FrameStage stage) noexcept
-{
-    if (stage != FrameStage::NET_UPDATE_END)
-        return;
-
-    if (!config->backtrack.enabled || !localPlayer || !localPlayer->isAlive()) {
-        for (auto& record : records)
-            record.clear();
-        return;
-    }
-
-    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
-        auto entity = interfaces->entityList->getEntity(i);
-        if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get()) || entity->gunGameImmunity()) {
-            records[i].clear();
-            continue;
-        }
-        
-        const auto player = Animations::getPlayer(i);
-        if (!player.gotMatrix)
-            continue;
-
-        if (!records[i].empty() && (records[i].front().simulationTime == entity->simulationTime()))
-            continue;
-
-        Record record{ };
-        record.origin = player.origin;
-        record.absAngle = player.absAngle;
-        record.simulationTime = player.simulationTime;
-        record.mins = player.mins;
-        record.maxs = player.maxs;
-        std::copy(player.matrix.begin(), player.matrix.end(), record.matrix);
-        record.head = record.matrix[8].origin();
-
-        records[i].push_front(record);
-        
-        float timeLimit = static_cast<float>(config->backtrack.timeLimit) / 1000.f + getExtraTicks();
-
-        while (records[i].size() > 3 && records[i].size() > static_cast<size_t>(timeToTicks(timeLimit)))
-            records[i].pop_back();
-
-        if (auto invalid = std::find_if(std::cbegin(records[i]), std::cend(records[i]), [](const Record& rec) { return !valid(rec.simulationTime); }); invalid != std::cend(records[i]))
-            records[i].erase(invalid, std::cend(records[i]));
-    }
-}
 
 float Backtrack::getLerp() noexcept
 {
@@ -125,14 +71,19 @@ void Backtrack::run(UserCmd* cmd) noexcept
         }
     }
 
+    const auto player = Animations::getPlayer(bestTargetIndex);
+    if (!player.gotMatrix)
+        return;
+
     if (bestTarget) {
-        if (records[bestTargetIndex].empty() || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetPosition, 1)))
+
+        if (player.backtrackRecords.empty() || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetPosition, 1)))
             return;
 
         bestFov = 255.f;
 
-        for (size_t i = 0; i < records[bestTargetIndex].size(); i++) {
-            const auto& record = records[bestTargetIndex][i];
+        for (size_t i = 0; i < player.backtrackRecords.size(); i++) {
+            const auto& record = player.backtrackRecords[i];
             if (!valid(record.simulationTime))
                 continue;
 
@@ -146,7 +97,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     }
 
     if (bestRecord) {
-        const auto& record = records[bestTargetIndex][bestRecord];
+        const auto& record = player.backtrackRecords[bestRecord];
         cmd->tickCount = timeToTicks(record.simulationTime + getLerp());
     }
 }
@@ -191,13 +142,6 @@ void Backtrack::updateIncomingSequences() noexcept
 
     while (sequences.size() > 2048)
         sequences.pop_back();
-}
-
-const std::deque<Backtrack::Record>* Backtrack::getRecords(std::size_t index) noexcept
-{
-    if (!config->backtrack.enabled)
-        return nullptr;
-    return &records[index];
 }
 
 bool Backtrack::valid(float simtime) noexcept

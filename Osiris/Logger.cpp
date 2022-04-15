@@ -96,7 +96,7 @@ void Logger::getEvent(GameEvent* event) noexcept
 
         const std::string site = event->getInt("site") ? "a" : "b";
 
-        log.text = "Bomb planted at bombsite " + site + " by " + player->getPlayerName() + ", detonation in" + std::to_string(c4Timer->getFloat()) + " seconds";
+        log.text = "Bomb planted at bombsite " + site + " by " + player->getPlayerName() + ", detonation in " + std::to_string(c4Timer->getFloat()) + " seconds";
         break;
     }
     case fnv::hash("hostage_follows"): {

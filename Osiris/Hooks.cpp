@@ -35,6 +35,7 @@
 #include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
 #include "Hacks/Ragebot.h"
+#include "Hacks/Resolver.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
 #include "Hacks/Triggerbot.h"
@@ -413,6 +414,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Misc::disablePanoramablur();
         Misc::updateEventListeners();
         Visuals::updateEventListeners();
+        Resolver::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
         EnginePrediction::apply(stage);

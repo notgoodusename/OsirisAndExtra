@@ -1,5 +1,6 @@
 #include "Animations.h"
 #include "EnginePrediction.h"
+#include "Resolver.h"
 
 #include "../Memory.h"
 #include "../Interfaces.h"
@@ -247,7 +248,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
     for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
     {
-        auto entity = interfaces->entityList->getEntity(i);
+        const auto entity = interfaces->entityList->getEntity(i);
         auto& player = players.at(i);
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive())
         {
@@ -410,6 +411,8 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                     entity->getAnimstate()->poseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, std::clamp(Helpers::smoothStepBounds(0.72f, 1.52f, entity->getAnimstate()->durationInAir), 0.f, 1.f));
                 }
             }
+
+            Resolver::runPlayer(i);
         }
 
         std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer)* entity->getAnimationLayersCount());
@@ -599,6 +602,21 @@ std::array<AnimationLayer, 13> Animations::getAnimLayers() noexcept
 Animations::Players Animations::getPlayer(int index) noexcept
 {
     return players.at(index);
+}
+
+Animations::Players* Animations::setPlayer(int index) noexcept
+{
+    return &players.at(index);
+}
+
+std::array<Animations::Players, 65> Animations::getPlayers() noexcept
+{
+    return players;
+}
+
+std::array<Animations::Players, 65>* Animations::setPlayers() noexcept
+{
+    return &players;
 }
 
 const std::deque<Animations::Players::Record>* Animations::getBacktrackRecords(int index) noexcept

@@ -570,7 +570,13 @@ void Animations::postDataUpdate() noexcept
     localPlayer->getAnimstate()->moveWeight = moveWeight;
 
 }
-
+void Animations::restore() noexcept
+{
+    if (isHooked) {
+        vmt.restore();
+        isHooked = false;
+    }
+}
 Vector Animations::getLocalAngle() noexcept
 {
     return localAngle;

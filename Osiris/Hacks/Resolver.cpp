@@ -62,7 +62,9 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		const auto playerId = event->getInt("userid");
 		if (playerId == localPlayer->getUserId())
 			break;
-		Animations::setPlayer(playerId)->misses = 0;
+
+		const auto index = interfaces->engine->getPlayerForUserID(playerId);
+		Animations::setPlayer(index)->misses = 0;
 		break;
 	}
 	case fnv::hash("player_hurt"):
@@ -99,6 +101,7 @@ void Resolver::getEvent(GameEvent* event) noexcept
 	default:
 		break;
 	}
+	snapshots.clear(); //Remove this later
 }
 
 void Resolver::processMissedShots() noexcept

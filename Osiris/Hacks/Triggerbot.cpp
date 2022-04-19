@@ -142,7 +142,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             if (!hitbox[j])
                 continue;
 
-            if (Aimbot::hitboxIntersection(entity, player.matrix.data(), j, set, startPos, endPos))
+            if (Aimbot::hitboxIntersection(player.matrix.data(), j, set, startPos, endPos))
             {
                 Trace trace;
                 interfaces->engineTrace->traceRay({ startPos, endPos }, 0x46004009, localPlayer.get(), trace);
@@ -237,7 +237,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             if (!hitbox[j])
                 continue;
 
-            if (Aimbot::hitboxIntersection(entity, record.matrix, j, set, startPos, endPos))
+            if (Aimbot::hitboxIntersection(record.matrix, j, set, startPos, endPos))
             {
                 Trace trace;
                 interfaces->engineTrace->traceRay({ startPos, endPos }, 0x46004009, localPlayer.get(), trace);

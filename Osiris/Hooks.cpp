@@ -1148,7 +1148,6 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     return &eyeAngle;
 }
 
-
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);

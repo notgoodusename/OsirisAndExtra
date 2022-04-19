@@ -250,7 +250,6 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Enabled", r.enabled);
     read(j, "Aimlock", r.aimlock);
     read(j, "Silent", r.silent);
-    read(j, "Resolver", r.resolver);
     read(j, "Friendly fire", r.friendlyFire);
     read(j, "Visible only", r.visibleOnly);
     read(j, "Scoped only", r.scopedOnly);
@@ -833,7 +832,6 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Enabled", enabled);
     WRITE("Aimlock", aimlock);
     WRITE("Silent", silent);
-    WRITE("Resolver", resolver);
     WRITE("Friendly fire", friendlyFire);
     WRITE("Visible only", visibleOnly);
     WRITE("Scoped only", scopedOnly);

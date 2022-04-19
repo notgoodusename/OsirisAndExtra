@@ -7,7 +7,6 @@
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Visuals.h"
 #include "Interfaces.h"
-#include "Hacks/Resolver.h"
 #include "Logger.h"
 #include "Memory.h"
 
@@ -21,7 +20,6 @@ EventListener::EventListener() noexcept
     interfaces->gameEventManager->addListener(this, "round_start");
     interfaces->gameEventManager->addListener(this, "round_freeze_end");
     interfaces->gameEventManager->addListener(this, "player_hurt");
-    interfaces->gameEventManager->addListener(this, "weapon_fire");
     interfaces->gameEventManager->addListener(this, "bullet_impact");
 
     interfaces->gameEventManager->addListener(this, "bomb_planted");
@@ -65,19 +63,13 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::playHitSound(*event);
         Visuals::hitEffect(event);
         Visuals::hitMarker(event);
-        Resolver::hurt(*event);
-        break;
-    case fnv::hash("weapon_fire"):
-        Resolver::shott(*event);
-        break;
+        break;  
     case fnv::hash("bullet_impact"):
-        Resolver::thru(*event);
         Logger::getEvent(event);
         break;
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);
         break;
-  
     case fnv::hash("bomb_planted"):
         Logger::getEvent(event);
         break;

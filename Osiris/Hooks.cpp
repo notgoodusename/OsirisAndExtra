@@ -39,7 +39,6 @@
 #include "Hacks/Sound.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
-#include "Hacks/Resolver.h"
 
 #include "SDK/ClassId.h"
 #include "SDK/Client.h"
@@ -420,9 +419,6 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
     }
     if (interfaces->engine->isInGame()) {
         EnginePrediction::apply(stage);
-        if (stage == FrameStage::NET_UPDATE_POSTDATAUPDATE_START) {
-            Resolver::frameStageUpdate();
-        }
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);

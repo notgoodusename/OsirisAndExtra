@@ -1,6 +1,7 @@
 #include "Aimbot.h"
 #include "Animations.h"
 #include "Resolver.h"
+#include "AntiAim.h"
 
 #include "../Logger.h"
 
@@ -139,6 +140,7 @@ void Resolver::processMissedShots() noexcept
 		{
 			if (Aimbot::hitboxIntersection(snapshot.player.matrix.data(), hitbox, set, snapshot.eyePosition, end))
 			{
+				if (config->fakeAngle.enabled && localPlayer->isAlive()) { AntiAim::switchOnHurt(); }
 				//Resolver miss
 			}
 		}

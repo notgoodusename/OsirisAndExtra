@@ -29,8 +29,8 @@ static bool gotMatrixReal{ false };
 static Vector viewangles{};
 static std::array<AnimationLayer, 13> staticLayers{};
 static std::array<AnimationLayer, 13> layers{};
-static float primaryCycle{0.f};
-
+static float primaryCycle{ 0.0f };
+static float moveWeight{ 0.0f };
 static float footYaw{};
 static std::array<float, 24> poseParameters{};
 static std::array<AnimationLayer, 13> sendPacketLayers{};
@@ -470,6 +470,7 @@ void Animations::packetStart() noexcept
         return;
 
     primaryCycle = localPlayer->getAnimstate()->primaryCycle;
+    moveWeight = localPlayer->getAnimstate()->moveWeight;
 }
 
 void verifyLayer(int32_t layer) noexcept
@@ -542,6 +543,7 @@ void Animations::postDataUpdate() noexcept
         return;
 
     localPlayer->getAnimstate()->primaryCycle = primaryCycle;
+    localPlayer->getAnimstate()->moveWeight = moveWeight;
 }
 
 Vector Animations::getLocalAngle() noexcept

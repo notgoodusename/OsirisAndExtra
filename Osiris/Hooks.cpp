@@ -876,16 +876,6 @@ static void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
     animState->setupAliveLoop();
 }
 
-static void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void* layer, const float newWeight) noexcept
-{
-    static auto original = hooks->notifyOnLayerChangeWeight.getOriginal<void>(layer, newWeight);
-
-    auto entity = reinterpret_cast<Entity*>(thisPointer);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, layer, newWeight);
-    return;
-}
-
 static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* boneToWorldOut , int maxBones, int boneMask, float currentTime) noexcept
 {
     static auto original = hooks->setupBones.getOriginal<bool>(boneToWorldOut, boneMask, maxBones, currentTime);
@@ -1197,7 +1187,6 @@ void Hooks::install() noexcept
     shouldSkipAnimationFrame.detour(memory->shouldSkipAnimationFrame, shouldSkipAnimationFrameHook);
     standardBlendingRules.detour(memory->standardBlendingRules, standardBlendingRulesHook);
     updateClientSideAnimation.detour(memory->updateClientSideAnimation, updateClientSideAnimationHook);
-    notifyOnLayerChangeWeight.detour(memory->notifyOnLayerChangeWeight, notifyOnLayerChangeWeightHook);
 
     setupVelocity.detour(memory->setupVelocity, setupVelocityHook);
     setupMovement.detour(memory->setupMovement, setupMovementHook);

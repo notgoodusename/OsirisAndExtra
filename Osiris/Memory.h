@@ -168,7 +168,6 @@ public:
 
     int(__stdcall* lookUpPoseParameter)(CStudioHdr*, const char*);
     std::uintptr_t studioSetPoseParameter;
-    std::uintptr_t notifyOnLayerChangeWeight;
     void(__thiscall* calcAbsoluteVelocity)(void*);
 
     void*(__thiscall* utilPlayerByIndex)(int);

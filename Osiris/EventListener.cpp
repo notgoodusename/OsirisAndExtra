@@ -4,6 +4,7 @@
 #include "fnv.h"
 #include "GameData.h"
 #include "Hacks/Misc.h"
+#include "Hacks/Resolver.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Visuals.h"
 #include "Interfaces.h"
@@ -48,7 +49,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         GameData::clearProjectileList();
         Misc::preserveKillfeed(true);
         Misc::autoBuy(event);
-        Logger::getEvent(event);
+        Resolver::getEvent(event);
         [[fallthrough]];
     case fnv::hash("round_freeze_end"):
         Misc::purchaseList(event);
@@ -58,6 +59,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         SkinChanger::overrideHudIcon(*event);
         Misc::killMessage(*event);
         Misc::killSound(*event);
+        Resolver::getEvent(event);
         break;
     case fnv::hash("player_hurt"):
         Misc::playHitSound(*event);
@@ -66,6 +68,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         break;  
     case fnv::hash("bullet_impact"):
         Logger::getEvent(event);
+        Resolver::getEvent(event);
         break;
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);

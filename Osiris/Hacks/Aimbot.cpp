@@ -400,7 +400,7 @@ void vectorIRotate(Vector in1, matrix3x4 in2, Vector& out) noexcept
     out.z = in1.x * in2[0][2] + in1.y * in2[1][2] + in1.z * in2[2][2];
 }
 
-bool Aimbot::hitboxIntersection(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], int iHitbox, StudioHitboxSet* set, const Vector& start, const Vector& end) noexcept
+bool Aimbot::hitboxIntersection(const matrix3x4 matrix[MAXSTUDIOBONES], int iHitbox, StudioHitboxSet* set, const Vector& start, const Vector& end) noexcept
 {
     auto VectorTransform_Wrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
     {
@@ -548,7 +548,7 @@ bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set
 
         for (int hitbox = 0; hitbox < Hitboxes::Max; hitbox++)
         {
-            if (hitboxIntersection(entity, matrix, hitbox, set, localEyePosition, localEyePosition + direction))
+            if (hitboxIntersection(matrix, hitbox, set, localEyePosition, localEyePosition + direction))
             {
                 hits++;
                 break;

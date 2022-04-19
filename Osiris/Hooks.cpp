@@ -35,6 +35,7 @@
 #include "Hacks/Legitbot.h"
 #include "Hacks/Misc.h"
 #include "Hacks/Ragebot.h"
+#include "Hacks/Resolver.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
 #include "Hacks/Triggerbot.h"
@@ -416,6 +417,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Misc::disablePanoramablur();
         Misc::updateEventListeners();
         Visuals::updateEventListeners();
+        Resolver::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
         EnginePrediction::apply(stage);
@@ -878,16 +880,6 @@ static void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
     animState->setupAliveLoop();
 }
 
-static void __fastcall notifyOnLayerChangeWeightHook(void* thisPointer, void* edx, void* layer, const float newWeight) noexcept
-{
-    static auto original = hooks->notifyOnLayerChangeWeight.getOriginal<void>(layer, newWeight);
-
-    auto entity = reinterpret_cast<Entity*>(thisPointer);
-    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, layer, newWeight);
-    return;
-}
-
 static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* boneToWorldOut , int maxBones, int boneMask, float currentTime) noexcept
 {
     static auto original = hooks->setupBones.getOriginal<bool>(boneToWorldOut, boneMask, maxBones, currentTime);
@@ -1145,7 +1137,6 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     return &eyeAngle;
 }
 
-
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -1184,7 +1175,6 @@ void Hooks::install() noexcept
     shouldSkipAnimationFrame.detour(memory->shouldSkipAnimationFrame, shouldSkipAnimationFrameHook);
     standardBlendingRules.detour(memory->standardBlendingRules, standardBlendingRulesHook);
     updateClientSideAnimation.detour(memory->updateClientSideAnimation, updateClientSideAnimationHook);
-    notifyOnLayerChangeWeight.detour(memory->notifyOnLayerChangeWeight, notifyOnLayerChangeWeightHook);
 
     setupVelocity.detour(memory->setupVelocity, setupVelocityHook);
     setupMovement.detour(memory->setupMovement, setupMovementHook);

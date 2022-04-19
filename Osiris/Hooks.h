@@ -45,8 +45,6 @@ public:
     MinHook setupAliveloop;
     MinHook setupWeaponAction;
 
-    MinHook notifyOnLayerChangeWeight;
-
     MinHook sendDatagram;
 
     MinHook setupBones;

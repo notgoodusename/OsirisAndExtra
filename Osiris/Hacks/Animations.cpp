@@ -1,6 +1,7 @@
 #include <intrin.h>
 #include "Animations.h"
 #include "EnginePrediction.h"
+#include "Resolver.h"
 
 #include "../Memory.h"
 #include "../Interfaces.h"
@@ -31,8 +32,8 @@ static Vector viewangles{};
 static Vector sentViewangles{};
 static std::array<AnimationLayer, 13> staticLayers{};
 static std::array<AnimationLayer, 13> layers{};
-static float primaryCycle{0.f};
-
+static float primaryCycle{ 0.0f };
+static float moveWeight{ 0.0f };
 static float footYaw{};
 static std::array<float, 24> poseParameters{};
 static std::array<AnimationLayer, 13> sendPacketLayers{};
@@ -271,7 +272,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
     for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
     {
-        auto entity = interfaces->entityList->getEntity(i);
+        const auto entity = interfaces->entityList->getEntity(i);
         auto& player = players.at(i);
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive())
         {
@@ -434,6 +435,8 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                     entity->getAnimstate()->poseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, std::clamp(Helpers::smoothStepBounds(0.72f, 1.52f, entity->getAnimstate()->durationInAir), 0.f, 1.f));
                 }
             }
+
+            Resolver::runPlayer(i);
         }
 
         std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer)* entity->getAnimationLayersCount());
@@ -491,6 +494,7 @@ void Animations::packetStart() noexcept
         return;
 
     primaryCycle = localPlayer->getAnimstate()->primaryCycle;
+    moveWeight = localPlayer->getAnimstate()->moveWeight;
 }
 
 void verifyLayer(int32_t layer) noexcept
@@ -563,14 +567,8 @@ void Animations::postDataUpdate() noexcept
         return;
 
     localPlayer->getAnimstate()->primaryCycle = primaryCycle;
+    localPlayer->getAnimstate()->moveWeight = moveWeight;
 
-}
-void Animations::restore() noexcept
-{
-    if (isHooked) {
-        vmt.restore();
-        isHooked = false;
-    }
 }
 
 Vector Animations::getLocalAngle() noexcept
@@ -631,6 +629,21 @@ std::array<AnimationLayer, 13> Animations::getAnimLayers() noexcept
 Animations::Players Animations::getPlayer(int index) noexcept
 {
     return players.at(index);
+}
+
+Animations::Players* Animations::setPlayer(int index) noexcept
+{
+    return &players.at(index);
+}
+
+std::array<Animations::Players, 65> Animations::getPlayers() noexcept
+{
+    return players;
+}
+
+std::array<Animations::Players, 65>* Animations::setPlayers() noexcept
+{
+    return &players;
 }
 
 const std::deque<Animations::Players::Record>* Animations::getBacktrackRecords(int index) noexcept

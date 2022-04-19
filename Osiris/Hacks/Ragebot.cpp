@@ -16,6 +16,7 @@
 #include "../SDK/GlobalVars.h"
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/ModelInfo.h"
+#include "Resolver.h"
 
 static bool keyPressed = false;
 
@@ -423,6 +424,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         if (cmd->buttons & UserCmd::IN_ATTACK)
         {
             cmd->tickCount = timeToTicks(bestSimulationTime + Backtrack::getLerp());
+            Resolver::saveRecord(bestIndex, bestSimulationTime);
         }
 
         if (clamped) lastAngles = cmd->viewangles;

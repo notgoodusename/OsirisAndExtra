@@ -546,9 +546,9 @@ void Animations::postDataUpdate() noexcept
     localPlayer->getAnimstate()->moveWeight = moveWeight;
 }
 
-Vector Animations::getLocalAngle() noexcept
+Vector* Animations::getLocalAngle() noexcept
 {
-    return localAngle;
+    return &localAngle;
 }
 
 bool Animations::isLocalUpdating() noexcept

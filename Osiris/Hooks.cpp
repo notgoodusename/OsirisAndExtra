@@ -1146,8 +1146,7 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors || !localPlayer || entity != localPlayer.get())
         return original(thisPointer);
 
-    Vector eyeAngle = Animations::getLocalAngle();
-    return &eyeAngle;
+    return Animations::getLocalAngle();
 }
 
 Hooks::Hooks(HMODULE moduleHandle) noexcept

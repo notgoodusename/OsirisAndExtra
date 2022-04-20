@@ -71,7 +71,7 @@ public:
         FogController = getClassID("CFogController");
     }
 
-    int FogController;
+    int fogController;
 };
 
 inline std::unique_ptr<const ClassIdManager> dynamicClassId;

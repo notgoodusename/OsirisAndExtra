@@ -190,7 +190,7 @@ void GameData::update() noexcept
                     break;
                 }
 
-                if (classIdInt == dynamicClassId->FogController && !config->visuals.noFog)
+                if (classIdInt == dynamicClassId->fogController && !config->visuals.noFog)
                 {
                     const auto fog = reinterpret_cast<FogController*>(entity);
 

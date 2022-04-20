@@ -2082,7 +2082,7 @@ void GUI::renderGuiStyle() noexcept
                 ImGui::BeginChild("##UP", ImVec2{ 700, 45 }, false);
                 {
                     ImGui::SetCursorPos(ImVec2{ 10, 6 });
-                    ImGui::PushFont(fonts.tahoma34); ImGui::Text("Better Osiris"); ImGui::PopFont();
+                    ImGui::PushFont(fonts.tahoma34); ImGui::Text("Osiris"); ImGui::PopFont();
 
                     float pos = 305;
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });

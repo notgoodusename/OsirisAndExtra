@@ -365,8 +365,3 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
 
     return true;
 }
-
-void AntiAim::switchOnHurt()
-{
-    invert = !invert;
-}

@@ -19,15 +19,21 @@ void Fakelag::run(bool& sendPacket) noexcept
     auto chokedPackets = config->legitAntiAim.enabled ? 2 : 0;
     if (config->fakelag.enabled)
     {
+        float speed = EnginePrediction::getVelocity().length2D();
         switch (config->fakelag.mode) {
         case 0: //Static
             chokedPackets = config->fakelag.limit;
             break;
         case 1: //Adaptive
-            float speed = EnginePrediction::getVelocity().length2D();
             if (speed < 15.0f)
                 speed = 0.0f;
             chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (speed * memory->globalVars->intervalPerTick))), 1, config->fakelag.limit);
+            break;
+        case 2: // Random
+            if (speed < 15.0f)
+                speed = 0.0f;
+            srand(time(NULL));
+            chokedPackets = rand() % config->fakelag.limit + 1;
             break;
         }
     }

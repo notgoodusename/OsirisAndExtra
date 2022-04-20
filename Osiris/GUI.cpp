@@ -52,7 +52,7 @@ GUI::GUI() noexcept
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
 
-    style.ScrollbarSize = 9.0f;
+    style.ScrollbarSize = 11.5f;
 
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
@@ -626,7 +626,7 @@ void GUI::renderFakelagWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->fakelag.enabled);
-    ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptative\0");
+    ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptative\0Random\0");
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Limit", &config->fakelag.limit, 1, 16, "%d");
     ImGui::PopItemWidth();
@@ -2042,19 +2042,19 @@ void Hovered() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_
 void GUI::renderGuiStyle() noexcept
 {
     ImGuiStyle* Style = &ImGui::GetStyle();
-    Style->WindowRounding = 0;
-    Style->WindowBorderSize = 0;
-    Style->ChildRounding = 0;
-    Style->FrameBorderSize = 0;
+    Style->WindowRounding = 5.5;
+    Style->WindowBorderSize = 2.5;
+    Style->ChildRounding = 5.5;
+    Style->FrameBorderSize = 2.5;
     Style->Colors[ImGuiCol_WindowBg] = ImColor(0, 0, 0, 0);
-    Style->Colors[ImGuiCol_ChildBg] = ImColor(19, 22, 27);
+    Style->Colors[ImGuiCol_ChildBg] = ImColor(31, 31 ,31);
     Style->Colors[ImGuiCol_Button] = ImColor(25, 30, 34);
     Style->Colors[ImGuiCol_ButtonHovered] = ImColor(25, 30, 34);
     Style->Colors[ImGuiCol_ButtonActive] = ImColor(19, 22, 27);
 
-    Style->Colors[ImGuiCol_ScrollbarGrab] = ImColor(255, 255, 255, 150);
-    Style->Colors[ImGuiCol_ScrollbarGrabActive] = ImColor(255, 255, 255, 200);
-    Style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(255, 255, 255, 200);
+    Style->Colors[ImGuiCol_ScrollbarGrab] = ImColor(25, 30, 34);
+    Style->Colors[ImGuiCol_ScrollbarGrabActive] = ImColor(25, 30, 34);
+    Style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(25, 30, 34);
 
     static auto Name = "Menu";
     static auto Flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
@@ -2068,7 +2068,7 @@ void GUI::renderGuiStyle() noexcept
 
     if (ImGui::Begin(Name, NULL, Flags))
     {
-        Style->Colors[ImGuiCol_ChildBg] = ImColor(255, 255, 255, 255);
+        Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 30, 34);
 
         ImGui::BeginChild("##Back", ImVec2{ 704, 434 }, false);
         {
@@ -2081,7 +2081,7 @@ void GUI::renderGuiStyle() noexcept
                 ImGui::BeginChild("##UP", ImVec2{ 700, 45 }, false);
                 {
                     ImGui::SetCursorPos(ImVec2{ 10, 6 });
-                    ImGui::PushFont(fonts.tahoma34); ImGui::Text("Osiris"); ImGui::PopFont();
+                    ImGui::PushFont(fonts.tahoma34); ImGui::Text("Better Osiris"); ImGui::PopFont();
 
                     float pos = 305;
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
@@ -2283,8 +2283,8 @@ void GUI::renderGuiStyle() noexcept
                     Style->ChildRounding = 0;
                     ImGui::BeginChild("##Text", ImVec2{ 700, 20 }, false);
                     {
-                        ImGui::SetCursorPos(ImVec2{ 580, 2 });
-                        ImGui::Text("Osiris - 2022 (c)");
+                        ImGui::SetCursorPos(ImVec2{ 2, 2 });
+                        ImGui::Text("Better Osiris Made In https://github.com/notgoodusename/OsirisAndExtra");
                     }
                     ImGui::EndChild();
                 }

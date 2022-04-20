@@ -577,9 +577,9 @@ void Animations::restore() noexcept
         isHooked = false;
     }
 }
-Vector Animations::getLocalAngle() noexcept
+Vector* Animations::getLocalAngle() noexcept
 {
-    return localAngle;
+    return &localAngle;
 }
 
 bool Animations::isLocalUpdating() noexcept

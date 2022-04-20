@@ -16,7 +16,6 @@ namespace Animations
 	void init() noexcept;
 
 	void update(UserCmd*, bool& sendPacket) noexcept;
-	void restore() noexcept;
 
 	void renderStart(FrameStage) noexcept;
 	void updateBacktrack() noexcept;

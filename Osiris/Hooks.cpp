@@ -1307,7 +1307,6 @@ void Hooks::uninstall() noexcept
     svCheats.restore();
     viewRender.restore();
     fileSystem.restore();
-    Animations::restore();
     Netvars::restore();
 
     Glow::clearCustomObjects();

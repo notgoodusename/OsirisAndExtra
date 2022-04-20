@@ -13,14 +13,16 @@ bool resolver = false;
 
 void Resolver::saveRecord(int playerIndex, float playerSimulationTime) noexcept
 {
+	const auto entity = interfaces->entityList->getEntity(playerIndex);
 	const auto player = Animations::getPlayer(playerIndex);
-	if (!player.gotMatrix)
+	if (!player.gotMatrix || !entity)
 		return;
 
 	SnapShot snapshot;
 	snapshot.player = player;
 	snapshot.playerIndex = playerIndex;
 	snapshot.eyePosition = localPlayer->getEyePosition();
+	snapshot.model = entity->getModel();
 
 	if (player.simulationTime == playerSimulationTime)
 	{
@@ -32,6 +34,7 @@ void Resolver::saveRecord(int playerIndex, float playerSimulationTime) noexcept
 	{
 		if (player.backtrackRecords.at(i).simulationTime == playerSimulationTime)
 		{
+			snapshot.backtrackRecord = i;
 			snapshots.push_back(snapshot);
 			return;
 		}
@@ -55,6 +58,7 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		{
 			players->at(i).misses = 0;
 		}
+		snapshots.clear();
 		break;
 	}
 	case fnv::hash("player_death"):
@@ -76,9 +80,11 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		if (event->getInt("attacker") != localPlayer->getUserId())
 			break;
 
-		auto& snapshot = snapshots.front();
+		const auto hitgroup = event->getInt("hitgroup");
+		if (hitgroup < HitGroup::Head || hitgroup > HitGroup::RightLeg)
+			break;
 
-		snapshot.getImpact = false; //We hurt the player so dont calculate it
+		snapshots.pop_front(); //Hit somebody so dont calculate
 		break;
 	}
 	case fnv::hash("bullet_impact"):
@@ -91,68 +97,88 @@ void Resolver::getEvent(GameEvent* event) noexcept
 
 		auto& snapshot = snapshots.front();
 
-		snapshot.time = memory->globalVars->serverTime();
-
-		if (snapshot.getImpact)
+		if (!snapshot.gotImpact)
+		{
+			snapshot.time = memory->globalVars->serverTime();
 			snapshot.bulletImpact = Vector{ event->getFloat("x"), event->getFloat("y"), event->getFloat("z") };
-		else
-			snapshots.pop_front();
+			snapshot.gotImpact = true;
+		}
 		break;
 	}
 	default:
 		break;
 	}
-	snapshots.clear(); //Remove this later
+	if (!resolver)
+		snapshots.clear();
 }
 
 void Resolver::processMissedShots() noexcept
 {
+	if (!resolver)
+	{
+		snapshots.clear();
+		return;
+	}
+
+	if (!localPlayer ||!localPlayer->isAlive())
+	{
+		snapshots.clear();
+		return;
+	}
+
 	if (snapshots.empty())
 		return;
 
-	for (int i = 0; i < static_cast<int>(snapshots.size()); i++)
+	if (snapshots.front().time == -1) //Didnt get data yet
+		return;
+
+	auto snapshot = snapshots.front();
+	snapshots.pop_front(); //got the info no need for this
+	if (!snapshot.player.gotMatrix)
+		return;
+
+	const Model* model = snapshot.model;
+	if (!model)
+		return;
+
+	StudioHdr* hdr = interfaces->modelInfo->getStudioModel(model);
+	if (!hdr)
+		return;
+
+	StudioHitboxSet* set = hdr->getHitboxSet(0);
+	if (!set)
+		return;
+
+	const auto angle = Aimbot::calculateRelativeAngle(snapshot.eyePosition, snapshot.bulletImpact, Vector{ });
+	const Vector forward = Vector::fromAngle(angle);
+	const auto end = snapshot.bulletImpact + forward * 2000.f;
+
+	const auto matrix = snapshot.backtrackRecord == -1 ? snapshot.player.matrix.data() : snapshot.player.backtrackRecords.at(snapshot.backtrackRecord).matrix;
+
+	bool resolverMissed = false;
+
+	for (int hitbox = 0; hitbox < Hitboxes::Max; hitbox++)
 	{
-		auto& snapshot = snapshots.at(i);
-		if (!snapshot.player.gotMatrix)
-			continue;
-		
-		const auto entity = interfaces->entityList->getEntity(snapshot.playerIndex);
-		if (!entity || !entity->isAlive() || entity->isDormant())
-			continue;
-
-		const Model* model = entity->getModel();
-		if (!model)
-			continue;
-
-		StudioHdr* hdr = interfaces->modelInfo->getStudioModel(model);
-		if (!hdr)
-			continue;
-
-		StudioHitboxSet* set = hdr->getHitboxSet(0);
-		if (!set)
-			continue;
-
-		const auto angle = Aimbot::calculateRelativeAngle(snapshot.eyePosition, snapshot.bulletImpact, Vector{ });
-		const Vector forward = Vector::fromAngle(angle);
-		const auto end = snapshot.bulletImpact + forward * 2000.f;
-
-		for (int hitbox = 0; hitbox < Hitboxes::Max; hitbox++)
+		if (Aimbot::hitboxIntersection(matrix, hitbox, set, snapshot.eyePosition, end))
 		{
-			if (Aimbot::hitboxIntersection(snapshot.player.matrix.data(), hitbox, set, snapshot.eyePosition, end))
-			{
-				if (config->fakeAngle.enabled && localPlayer->isAlive()) { AntiAim::switchOnHurt(); }
-				//Resolver miss
-			}
+			resolverMissed = true,
+			Logger::addLog("Resolver miss");
+			Animations::setPlayer(snapshot.playerIndex)->misses++;
+			break;
 		}
-		//Spread miss
 	}
-	snapshots.clear();
+	if (!resolverMissed)
+		Logger::addLog("Spread miss");
 }
 
-void Resolver::runPlayer(int index) noexcept
+void Resolver::runPlayer(Animations::Players player, Entity* entity) noexcept
 {
-	const auto player = Animations::getPlayer(index);
-	const auto entity = interfaces->entityList->getEntity(index);
+	if (!resolver)
+		return;
+
+	const auto misses = player.misses;
+	if (!entity || !entity->isAlive())
+		return;
 
 	//Check if bot and chokedpackets
 
@@ -175,7 +201,7 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		interfaces->gameEventManager->addListener(&listener, "bullet_impact");
 		listenerRegistered = true;
 	}
-	else if ((resolver || forceRemove) && listenerRegistered) {
+	else if ((!resolver || forceRemove) && listenerRegistered) {
 		interfaces->gameEventManager->removeListener(&listener);
 		listenerRegistered = false;
 	}

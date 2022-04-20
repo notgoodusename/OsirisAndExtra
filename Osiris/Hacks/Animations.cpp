@@ -436,7 +436,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 }
             }
 
-            Resolver::runPlayer(i);
+            Resolver::runPlayer(player, entity);
         }
 
         std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer)* entity->getAnimationLayersCount());

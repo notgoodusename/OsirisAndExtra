@@ -68,10 +68,10 @@ private:
 public:
     ClassIdManager() noexcept
     {
-        FogController = getClassID("CFogController");
+        fogController = getClassID("CFogController");
     }
 
-    int FogController;
+    int fogController;
 };
 
 inline std::unique_ptr<const ClassIdManager> dynamicClassId;

@@ -1189,6 +1189,10 @@ void Misc::autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept
     
     if (!localPlayer || !localPlayer->isAlive())
         return;
+    
+    const float speed = localPlayer->velocity().length2D();
+    if (speed < 5.0f)
+        return;
 
     static float angle = 0.f;
 

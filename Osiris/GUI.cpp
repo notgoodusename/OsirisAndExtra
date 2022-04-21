@@ -252,7 +252,7 @@ void GUI::renderLegitbotWindow() noexcept
     ImGui::SetColumnOffset(1, 220.0f);
     ImGui::Checkbox("Aimlock", &config->legitbot[currentWeapon].aimlock);
     ImGui::Checkbox("Silent", &config->legitbot[currentWeapon].silent);
-    ImGui::Checkbox("Friendly fire", &config->legitbot[currentWeapon].friendlyFire);
+    ImGui::Checkbox("Deathmatch mode", &config->legitbot[currentWeapon].friendlyFire);
     ImGui::Checkbox("Visible only", &config->legitbot[currentWeapon].visibleOnly);
     ImGui::Checkbox("Scoped only", &config->legitbot[currentWeapon].scopedOnly);
     ImGui::Checkbox("Ignore flash", &config->legitbot[currentWeapon].ignoreFlash);
@@ -414,7 +414,10 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::SetColumnOffset(1, 220.0f);
     ImGui::Checkbox("Aimlock", &config->ragebot[currentWeapon].aimlock);
     ImGui::Checkbox("Silent", &config->ragebot[currentWeapon].silent);
-    ImGui::Checkbox("Friendly fire", &config->ragebot[currentWeapon].friendlyFire);
+    ImGui::Checkbox("Knifebot", &config->misc.knifeBot);
+    ImGui::SameLine();
+    ImGui::Combo("Mode", &config->misc.knifeBotMode, "Trigger\0Rage\0");
+    ImGui::Checkbox("Deathmatch mode", &config->ragebot[currentWeapon].friendlyFire);
     ImGui::Checkbox("Visible only", &config->ragebot[currentWeapon].visibleOnly);
     ImGui::Checkbox("Scoped only", &config->ragebot[currentWeapon].scopedOnly);
     ImGui::Checkbox("Ignore flash", &config->ragebot[currentWeapon].ignoreFlash);
@@ -626,7 +629,7 @@ void GUI::renderFakelagWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->fakelag.enabled);
-    ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptative\0Random\0");
+    ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptive\0Random\0");
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Limit", &config->fakelag.limit, 1, 16, "%d");
     ImGui::PopItemWidth();
@@ -653,7 +656,7 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::Combo("Pitch", &config->rageAntiAim.pitch, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw base", &config->rageAntiAim.yawBase, "Off\0Forward\0Backward\0Right\0Left\0Spin\0");
     ImGui::PushItemWidth(220.0f);
-    ImGui::SliderInt("Yaw add", &config->rageAntiAim.yawAdd, -180, 180, "%d");
+    ImGui::SliderInt("Yaw offset", &config->rageAntiAim.yawAdd, -180, 180, "%d");
     ImGui::PopItemWidth();
 
     if (config->rageAntiAim.yawBase == 5)
@@ -664,6 +667,22 @@ void GUI::renderRageAntiAimWindow() noexcept
     }
 
     ImGui::Checkbox("At targets", &config->rageAntiAim.atTargets);
+    ImGui::Checkbox("Fakeduck", &config->misc.fakeduck);
+    ImGui::SameLine();
+    ImGui::PushID("Fakeduck Key");
+    ImGui::hotkey2("", config->misc.fakeduckKey);
+    ImGui::PopID();
+    ImGui::Checkbox("Slowwalk", &config->misc.slowwalk);
+    ImGui::SameLine();
+    ImGui::PushID("Slowwalk Key");
+    ImGui::hotkey2("", config->misc.slowwalkKey);
+    ImGui::PopID();
+    ImGuiCustom::colorPicker("Auto peek", config->misc.autoPeek.color.data(), &config->misc.autoPeek.color[3], nullptr, nullptr, &config->misc.autoPeek.enabled);
+    ImGui::SameLine();
+    ImGui::PushID("Auto peek Key");
+    ImGui::hotkey2("", config->misc.autoPeekKey);
+    ImGui::SliderFloat("Desync Delta", &config->misc.maxAngleDelta, 0.0f, 255.0f, "%.2f");
+    ImGui::PopID();
     ImGui::NextColumn();
     ImGui::Columns(1);
 }
@@ -756,7 +775,7 @@ void GUI::renderChamsWindow() noexcept
     ImGui::Combo("Material", &chams.material, "Normal\0Flat\0Animated\0Platinum\0Glass\0Chrome\0Crystal\0Silver\0Gold\0Plastic\0Glow\0Pearlescent\0Metallic\0");
     ImGui::Checkbox("Wireframe", &chams.wireframe);
     ImGui::Checkbox("Cover", &chams.cover);
-    ImGui::Checkbox("Ignore-Z", &chams.ignorez);
+    ImGui::Checkbox("Behind wall", &chams.ignorez);
     ImGuiCustom::colorPicker("Color", chams);
     ImGui::NextColumn();
     ImGui::Columns(1);
@@ -1162,12 +1181,11 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Combo("CT Player Model", &config->visuals.playerModelCT, playerModels);
     ImGui::InputText("Custom Player Model", config->visuals.playerModel, sizeof(config->visuals.playerModel));
     if (ImGui::IsItemHovered())
-        ImGui::SetTooltip("file must be in csgo/models/ directory and must start with models/...");
-    ImGui::Checkbox("Disable post-processing", &config->visuals.disablePostProcessing);
+        ImGui::SetTooltip("file must be in csgo/models/ directory and must start with models/...");    
     ImGui::Checkbox("Disable jiggle bones", &config->visuals.disableJiggleBones);
     ImGui::Checkbox("Inverse ragdoll gravity", &config->visuals.inverseRagdollGravity);
     ImGui::Checkbox("Keep FOV during scope", &config->visuals.keepFov);
-    ImGui::Checkbox("No fog", &config->visuals.noFog);
+    
 
     ImGuiCustom::colorPicker("Fog controller", config->visuals.fog);
     ImGui::SameLine();
@@ -1194,17 +1212,41 @@ void GUI::renderVisualsWindow() noexcept
         ImGui::EndPopup();
     }
     ImGui::PopID();
-    ImGui::Checkbox("No 3d sky", &config->visuals.no3dSky);
-    ImGui::Checkbox("No aim punch", &config->visuals.noAimPunch);
-    ImGui::Checkbox("No view punch", &config->visuals.noViewPunch);
-    ImGui::Checkbox("No hands", &config->visuals.noHands);
-    ImGui::Checkbox("No sleeves", &config->visuals.noSleeves);
-    ImGui::Checkbox("No weapons", &config->visuals.noWeapons);
-    ImGui::Checkbox("No smoke", &config->visuals.noSmoke);
-    ImGui::Checkbox("No blur", &config->visuals.noBlur);
-    ImGui::Checkbox("No scope overlay", &config->visuals.noScopeOverlay);
-    ImGui::Checkbox("No grass", &config->visuals.noGrass);
-    ImGui::Checkbox("No shadows", &config->visuals.noShadows);
+    
+    ImGui::Text("Removals");
+    ImGui::SameLine();
+    
+    ImGui::PushID("Removals");
+        if (ImGui::Button("..."))
+            ImGui::OpenPopup("");
+    
+    if (ImGui::BeginPopup("")) {
+        ImGui::PushItemWidth(275.0f);
+     
+        ImGui::Checkbox("No 3d sky", &config->visuals.no3dSky);
+        ImGui::Checkbox("No aim punch", &config->visuals.noAimPunch);
+        ImGui::Checkbox("No view punch", &config->visuals.noViewPunch);
+        ImGui::Checkbox("No hands", &config->visuals.noHands);
+        ImGui::Checkbox("No sleeves", &config->visuals.noSleeves);
+        ImGui::Checkbox("No weapons", &config->visuals.noWeapons);
+        ImGui::Checkbox("No smoke", &config->visuals.noSmoke);
+        ImGui::Checkbox("No blur", &config->visuals.noBlur);
+        ImGui::Checkbox("No scope overlay", &config->visuals.noScopeOverlay);
+        ImGui::Checkbox("No grass", &config->visuals.noGrass);
+        ImGui::Checkbox("No shadows", &config->visuals.noShadows);
+        ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
+        ImGui::Checkbox("Disable post-processing", &config->visuals.disablePostProcessing);
+        ImGui::Checkbox("No fog", &config->visuals.noFog);
+        ImGui::Checkbox("Disable HUD blur", &config->misc.disablePanoramablur);
+        ImGui::Checkbox("Adblock", &config->misc.adBlock);
+        ImGui::Checkbox("Disable model occlusion", &config->misc.disableModelOcclusion);
+        ImGui::PopID();
+        ImGui::PushID(4);
+        ImGui::SliderInt("", &config->visuals.flashReduction, 0, 100, "Flash alpha: %d%%");
+        
+        ImGui::EndPopup();
+    }
+    
 
     ImGui::Checkbox("Shadow changer", &config->visuals.shadowsChanger.enabled);
     ImGui::SameLine();
@@ -1263,8 +1305,6 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::PopID();
 
     ImGui::Checkbox("Full bright", &config->visuals.fullBright);
-    ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
-    ImGui::NextColumn();
     ImGui::Checkbox("Zoom", &config->visuals.zoom);
     ImGui::SameLine();
     ImGui::PushID("Zoom Key");
@@ -1284,6 +1324,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::PushID("Freecam Key");
     ImGui::hotkey2("", config->visuals.freeCamKey);
     ImGui::PopID();
+    ImGui::NextColumn();
     ImGui::PushItemWidth(290.0f);
     ImGui::PushID(1);
     ImGui::SliderInt("", &config->visuals.freeCamSpeed, 1, 10, "Freecam speed: %d");
@@ -1293,9 +1334,6 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::PopID();
     ImGui::PushID(3);
     ImGui::SliderInt("", &config->visuals.farZ, 0, 2000, "Far Z: %d");
-    ImGui::PopID();
-    ImGui::PushID(4);
-    ImGui::SliderInt("", &config->visuals.flashReduction, 0, 100, "Flash reduction: %d%%");
     ImGui::PopID();
     ImGui::Combo("Skybox", &config->visuals.skybox, Visuals::skyboxList.data(), Visuals::skyboxList.size());
     ImGuiCustom::colorPicker("Map color", config->visuals.mapColor);
@@ -1541,23 +1579,17 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 230.0f);
     hotkey3("Menu Key", config->misc.menuKey);
-    ImGui::Checkbox("Anti AFK kick", &config->misc.antiAfkKick);
-    ImGui::Checkbox("Adblock", &config->misc.adBlock);
+    ImGui::Checkbox("Anti AFK kick", &config->misc.antiAfkKick);   
     ImGui::Combo("Force region", &config->misc.forceRelayCluster, "Off\0Australia\0Austria\0Brazil\0Chile\0Dubai\0France\0Germany\0Hong Kong\0India (Chennai)\0India (Mumbai)\0Japan\0Luxembourg\0Netherlands\0Peru\0Philipines\0Poland\0Singapore\0South Africa\0Spain\0Sweden\0UK\0USA (Atlanta)\0USA (Seattle)\0USA (Chicago)\0USA (Los Angeles)\0USA (Moses Lake)\0USA (Oklahoma)\0USA (Seattle)\0USA (Washington DC)\0");
     ImGui::Checkbox("Auto strafe", &config->misc.autoStrafe);
     ImGui::Checkbox("Bunny hop", &config->misc.bunnyHop);
     ImGui::Checkbox("Fast duck", &config->misc.fastDuck);
     ImGui::Checkbox("Moonwalk", &config->misc.moonwalk);
-    ImGui::Checkbox("Knifebot", &config->misc.knifeBot);
-    ImGui::SameLine();
-    ImGui::Combo("Mode", &config->misc.knifeBotMode, "Trigger\0Rage\0");
-
     ImGui::Checkbox("Block bot", &config->misc.blockBot);
     ImGui::SameLine();
     ImGui::PushID("Block bot Key");
     ImGui::hotkey2("", config->misc.blockBotKey);
     ImGui::PopID();
-
     ImGui::Checkbox("Edge Jump", &config->misc.edgejump);
     ImGui::SameLine();
     ImGui::PushID("Edge Jump Key");
@@ -1567,21 +1599,6 @@ void GUI::renderMiscWindow() noexcept
     ImGui::SameLine();
     ImGui::PushID("Jump Bug Key");
     ImGui::hotkey2("", config->misc.jumpBugKey);
-    ImGui::PopID();
-    ImGui::Checkbox("Slowwalk", &config->misc.slowwalk);
-    ImGui::SameLine();
-    ImGui::PushID("Slowwalk Key");
-    ImGui::hotkey2("", config->misc.slowwalkKey);
-    ImGui::PopID();
-    ImGui::Checkbox("Fakeduck", &config->misc.fakeduck);
-    ImGui::SameLine();
-    ImGui::PushID("Fakeduck Key");
-    ImGui::hotkey2("", config->misc.fakeduckKey);
-    ImGui::PopID();
-    ImGuiCustom::colorPicker("Auto peek", config->misc.autoPeek.color.data(), &config->misc.autoPeek.color[3], nullptr, nullptr, &config->misc.autoPeek.enabled);
-    ImGui::SameLine();
-    ImGui::PushID("Auto peek Key");
-    ImGui::hotkey2("", config->misc.autoPeekKey);
     ImGui::PopID();
     ImGuiCustom::colorPicker("Noscope crosshair", config->misc.noscopeCrosshair);
     ImGuiCustom::colorPicker("Recoil crosshair", config->misc.recoilCrosshair);
@@ -1657,10 +1674,8 @@ void GUI::renderMiscWindow() noexcept
         ImGui::EndPopup();
     }
     ImGui::PopID();
-    ImGui::Checkbox("Disable model occlusion", &config->misc.disableModelOcclusion);
     ImGui::SliderFloat("Aspect Ratio", &config->misc.aspectratio, 0.0f, 5.0f, "%.2f");
     ImGui::NextColumn();
-    ImGui::Checkbox("Disable HUD blur", &config->misc.disablePanoramablur);
     ImGui::Checkbox("Animated clan tag", &config->misc.animatedClanTag);
     ImGui::Checkbox("Clock tag", &config->misc.clocktag);
     ImGui::Checkbox("Custom clantag", &config->misc.customClanTag);
@@ -1708,7 +1723,6 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Grenade Prediction", &config->misc.nadePredict);
     ImGui::Checkbox("Fix tablet signal", &config->misc.fixTabletSignal);
     ImGui::SetNextItemWidth(120.0f);
-    ImGui::SliderFloat("Max angle delta", &config->misc.maxAngleDelta, 0.0f, 255.0f, "%.2f");
     ImGui::Checkbox("Opposite Hand Knife", &config->misc.oppositeHandKnife);
     ImGui::Checkbox("Sv pure bypass", &config->misc.svPureBypass);
     ImGui::Checkbox("Unlock inventory", &config->misc.inventoryUnlocker);
@@ -2068,7 +2082,7 @@ void GUI::renderGuiStyle() noexcept
 
     if (ImGui::Begin(Name, NULL, Flags))
     {
-        Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 30, 34);
+        //Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 30, 34);
 
         ImGui::BeginChild("##Back", ImVec2{ 704, 434 }, false);
         {
@@ -2137,15 +2151,15 @@ void GUI::renderGuiStyle() noexcept
                             if (ImGui::Button("Main                    ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 1;
                             if (ImGui::Button("Backtrack               ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 2;
                             if (ImGui::Button("Triggerbot              ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 3;
-                            if (ImGui::Button("AntiAim                 ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 4;
+                            if (ImGui::Button("Anti Aim                ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 4;
                             break;
                         case 2: //Ragebot
                             ImGui::SetCursorPosY(10);
                             if (ImGui::Button("Main                    ", ImVec2{ 80, 20 })) activeSubTabRagebot = 1;
                             if (ImGui::Button("Backtrack               ", ImVec2{ 80, 20 })) activeSubTabRagebot = 2;
-                            if (ImGui::Button("AntiAim                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 3;
-                            if (ImGui::Button("Fake Angle              ", ImVec2{ 80, 20 })) activeSubTabRagebot = 4;
-                            if (ImGui::Button("FakeLag                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 5;
+                            if (ImGui::Button("Anti Aim                ", ImVec2{ 80, 20 })) activeSubTabRagebot = 3;
+                            if (ImGui::Button("Desync                  ", ImVec2{ 80, 20 })) activeSubTabRagebot = 4;
+                            if (ImGui::Button("Fake Lag                ", ImVec2{ 80, 20 })) activeSubTabRagebot = 5;
                             break;
                         case 3: //Visuals
                             ImGui::SetCursorPosY(10);
@@ -2213,11 +2227,11 @@ void GUI::renderGuiStyle() noexcept
                                     renderRageAntiAimWindow();
                                     break;
                                 case 4:
-                                    //Fake Angle
+                                    //Desync
                                     renderFakeAngleWindow();
                                     break;
                                 case 5:
-                                    //FakeLag
+                                    //Fake Lag
                                     renderFakelagWindow();
                                     break;
                                 default:

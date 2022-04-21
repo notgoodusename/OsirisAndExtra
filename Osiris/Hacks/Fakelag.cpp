@@ -12,27 +12,23 @@ void Fakelag::run(bool& sendPacket) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    auto netChannel = interfaces->engine->getNetworkChannel();
+    const auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;
 
-    auto chokedPackets = config->legitAntiAim.enabled ? 2 : 0;
+    auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 2 : 0;
     if (config->fakelag.enabled)
     {
-        float speed = EnginePrediction::getVelocity().length2D();
+        const float speed = EnginePrediction::getVelocity().length2D() >= 15.0f ? EnginePrediction::getVelocity().length2D() : 0.0f;
         switch (config->fakelag.mode) {
         case 0: //Static
             chokedPackets = config->fakelag.limit;
             break;
         case 1: //Adaptive
-            if (speed < 15.0f)
-                speed = 0.0f;
             chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (speed * memory->globalVars->intervalPerTick))), 1, config->fakelag.limit);
             break;
         case 2: // Random
-            if (speed < 15.0f)
-                speed = 0.0f;
-            srand(time(NULL));
+            srand(static_cast<unsigned int>(time(NULL)));
             chokedPackets = rand() % config->fakelag.limit + 1;
             break;
         }

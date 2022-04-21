@@ -681,8 +681,6 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::SameLine();
     ImGui::PushID("Auto peek Key");
     ImGui::hotkey2("", config->misc.autoPeekKey);
-    ImGui::SliderFloat("Desync Delta", &config->misc.maxAngleDelta, 0.0f, 255.0f, "%.2f");
-    ImGui::PopID();
     ImGui::NextColumn();
     ImGui::Columns(1);
 }
@@ -704,7 +702,9 @@ void GUI::renderFakeAngleWindow() noexcept
 
     ImGui::Combo("Mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0Jitter\0");
     ImGui::Combo("Lby mode", &config->fakeAngle.lbyMode, "Normal\0Opposite\0Sway\0");
-
+    ImGui::SliderFloat("Desync Delta", &config->misc.maxAngleDelta, 0.0f, 255.0f, "%.2f");
+    ImGui::PopID();
+    
     ImGui::NextColumn();
     ImGui::Columns(1);
 }

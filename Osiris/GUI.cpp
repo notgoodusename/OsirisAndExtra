@@ -2282,12 +2282,6 @@ void GUI::renderGuiStyle() noexcept
                     ImGui::SetCursorPos(ImVec2{ 0, 410 });
                     Style->Colors[ImGuiCol_ChildBg] = ImColor(45, 50, 54);
                     Style->ChildRounding = 0;
-                    ImGui::BeginChild("##Text", ImVec2{ 700, 20 }, false);
-                    {
-                        ImGui::SetCursorPos(ImVec2{ 2, 2 });
-                        ImGui::Text("Osiris");
-                    }
-                    ImGui::EndChild();
                 }
                 ImGui::EndChild();
             }

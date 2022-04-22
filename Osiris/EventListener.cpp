@@ -25,6 +25,8 @@ EventListener::EventListener() noexcept
     interfaces->gameEventManager->addListener(this, "bomb_planted");
     interfaces->gameEventManager->addListener(this, "hostage_follows");
 
+    interfaces->gameEventManager->addListener(this, "weapon_fire");
+
     interfaces->gameEventManager->addListener(this, "player_death");
     interfaces->gameEventManager->addListener(this, "vote_cast");
 
@@ -66,6 +68,9 @@ void EventListener::fireGameEvent(GameEvent* event)
         Visuals::hitMarker(event);
         Logger::getEvent(event);
         Resolver::getEvent(event);
+        break;
+    case fnv::hash("weapon_fire"):
+        Visuals::bulletTracer(*event);
         break;
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);

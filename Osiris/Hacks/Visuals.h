@@ -6,6 +6,7 @@ enum class FrameStage;
 class GameEvent;
 struct ImDrawList;
 struct ViewSetup;
+struct UserCmd;
 
 namespace Visuals
 {
@@ -31,6 +32,7 @@ namespace Visuals
     bool removeSleeves(const char* modelName) noexcept;
     bool removeWeapons(const char* modelName) noexcept;
     void skybox(FrameStage stage) noexcept;
+    void updateShots(UserCmd* cmd) noexcept;
     void bulletTracer(GameEvent& event) noexcept;
     void drawBulletImpacts() noexcept;
     void bulletImpact(GameEvent& event) noexcept;

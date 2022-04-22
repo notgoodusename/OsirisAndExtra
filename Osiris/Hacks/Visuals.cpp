@@ -10,6 +10,8 @@
 #include "../fnv.h"
 #include "../GameData.h"
 #include "../Helpers.h"
+
+#include "Aimbot.h"
 #include "Visuals.h"
 
 #include "../SDK/ConVar.h"
@@ -25,6 +27,7 @@
 #include "../SDK/NetworkStringTable.h"
 #include "../SDK/RenderContext.h"
 #include "../SDK/Surface.h"
+#include "../SDK/UserCmd.h"
 #include "../SDK/Vector.h"
 #include "../SDK/ViewRenderBeams.h"
 #include "../SDK/ViewSetup.h"
@@ -655,71 +658,114 @@ void Visuals::skybox(FrameStage stage) noexcept
         memory->loadSky(sv_skyname->string);
     }
 }
+struct shotRecords
+{
+    shotRecords(Vector eyePosition) noexcept
+    {
+        this->eyePosition = eyePosition;
+    }
+    Vector eyePosition;
+    bool gotImpact{ false };
+};
 
-void Visuals::bulletTracer(GameEvent& event) noexcept
+std::deque<shotRecords> shotRecord;
+
+void Visuals::updateShots(UserCmd* cmd) noexcept
 {
     if (!config->visuals.bulletTracers.enabled)
         return;
 
-    if (!localPlayer)
+    if (!localPlayer || !localPlayer->isAlive())
+    {
+        shotRecord.clear();
+        return;
+    }
+
+    if (!(cmd->buttons & UserCmd::IN_ATTACK))
         return;
 
-    if (event.getInt("userid") != localPlayer->getUserId())
+    if (localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();
-    if (!activeWeapon)
+    if (!activeWeapon || !activeWeapon->clip())
         return;
 
-    BeamInfo beamInfo;
+    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
+        return;
 
-    if (!localPlayer->shouldDraw()) {
-        const auto viewModel = interfaces->entityList->getEntityFromHandle(localPlayer->viewModel());
-        if (!viewModel)
-            return;
+    if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
+        return;
 
-        if (!viewModel->getAttachment(activeWeapon->getMuzzleAttachmentIndex1stPerson(viewModel), beamInfo.start))
-            return;
-    } else {
-        const auto worldModel = interfaces->entityList->getEntityFromHandle(activeWeapon->weaponWorldModel());
-        if (!worldModel)
-            return;
+    shotRecord.push_back(shotRecords(localPlayer->getEyePosition()));
+}
 
-        if (!worldModel->getAttachment(activeWeapon->getMuzzleAttachmentIndex3rdPerson(), beamInfo.start))
-            return;
+void Visuals::bulletTracer(GameEvent& event) noexcept
+{
+    if (!config->visuals.bulletTracers.enabled)
+    {
+        shotRecord.clear();
+        return;
     }
 
-    beamInfo.end.x = event.getFloat("x");
-    beamInfo.end.y = event.getFloat("y");
-    beamInfo.end.z = event.getFloat("z");
+    if (!localPlayer || shotRecord.empty())
+        return;
 
-    beamInfo.modelName = "sprites/physbeam.vmt";
-    beamInfo.modelIndex = -1;
-    beamInfo.haloName = nullptr;
-    beamInfo.haloIndex = -1;
+    switch (fnv::hashRuntime(event.getName())) {
+    case fnv::hash("weapon_fire"):
+        if (event.getInt("userid") != localPlayer->getUserId())
+            return;
 
-    beamInfo.red = 255.0f * config->visuals.bulletTracers.color[0];
-    beamInfo.green = 255.0f * config->visuals.bulletTracers.color[1];
-    beamInfo.blue = 255.0f * config->visuals.bulletTracers.color[2];
-    beamInfo.brightness = 255.0f * config->visuals.bulletTracers.color[3];
+        if (shotRecord.front().gotImpact)
+            shotRecord.pop_front();
+        break;
+    case fnv::hash("bullet_impact"):
+    {
+        if (shotRecord.front().gotImpact)
+            return;
 
-    beamInfo.type = 0;
-    beamInfo.life = 0.0f;
-    beamInfo.amplitude = 0.0f;
-    beamInfo.segments = -1;
-    beamInfo.renderable = true;
-    beamInfo.speed = 0.2f;
-    beamInfo.startFrame = 0;
-    beamInfo.frameRate = 0.0f;
-    beamInfo.width = 2.0f;
-    beamInfo.endWidth = 2.0f;
-    beamInfo.flags = 0x40;
-    beamInfo.fadeLength = 20.0f;
+        if (event.getInt("userid") != localPlayer->getUserId())
+            return;
 
-    if (const auto beam = memory->viewRenderBeams->createBeamPoints(beamInfo)) {
-        constexpr auto FBEAM_FOREVER = 0x4000;
-        beam->flags &= ~FBEAM_FOREVER;
-        beam->die = memory->globalVars->currenttime + 2.0f;
+        const auto bulletImpact = Vector{ event.getFloat("x"),  event.getFloat("y"),  event.getFloat("z") };
+        const auto angle = Aimbot::calculateRelativeAngle(shotRecord.front().eyePosition, bulletImpact, Vector{ });
+        const auto end = bulletImpact + Vector::fromAngle(angle) * 2000.f;
+
+        BeamInfo beamInfo;
+
+        beamInfo.start = shotRecord.front().eyePosition;
+        beamInfo.end = end;
+
+        beamInfo.modelName = "sprites/physbeam.vmt";
+        beamInfo.modelIndex = -1;
+        beamInfo.haloName = nullptr;
+        beamInfo.haloIndex = -1;
+
+        beamInfo.red = 255.0f * config->visuals.bulletTracers.color[0];
+        beamInfo.green = 255.0f * config->visuals.bulletTracers.color[1];
+        beamInfo.blue = 255.0f * config->visuals.bulletTracers.color[2];
+        beamInfo.brightness = 255.0f * config->visuals.bulletTracers.color[3];
+
+        beamInfo.type = 0;
+        beamInfo.life = 0.0f;
+        beamInfo.amplitude = 0.0f;
+        beamInfo.segments = -1;
+        beamInfo.renderable = true;
+        beamInfo.speed = 0.2f;
+        beamInfo.startFrame = 0;
+        beamInfo.frameRate = 0.0f;
+        beamInfo.width = 2.0f;
+        beamInfo.endWidth = 2.0f;
+        beamInfo.flags = 0x40;
+        beamInfo.fadeLength = 20.0f;
+
+        if (const auto beam = memory->viewRenderBeams->createBeamPoints(beamInfo)) {
+            constexpr auto FBEAM_FOREVER = 0x4000;
+            beam->flags &= ~FBEAM_FOREVER;
+            beam->die = memory->globalVars->currenttime + 2.0f;
+        }
+        shotRecord.front().gotImpact = true;
+    }
     }
 }
 

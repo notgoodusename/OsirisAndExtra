@@ -26,6 +26,8 @@ EventListener::EventListener() noexcept
     interfaces->gameEventManager->addListener(this, "bomb_planted");
     interfaces->gameEventManager->addListener(this, "hostage_follows");
 
+    interfaces->gameEventManager->addListener(this, "weapon_fire");
+
     interfaces->gameEventManager->addListener(this, "player_death");
     interfaces->gameEventManager->addListener(this, "vote_cast");
 
@@ -50,6 +52,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::preserveKillfeed(true);
         Misc::autoBuy(event);
         Resolver::getEvent(event);
+        Visuals::bulletTracer(*event);
         [[fallthrough]];
     case fnv::hash("round_freeze_end"):
         Misc::purchaseList(event);
@@ -69,6 +72,9 @@ void EventListener::fireGameEvent(GameEvent* event)
     case fnv::hash("bullet_impact"):
         Logger::getEvent(event);
         Resolver::getEvent(event);
+        break;
+    case fnv::hash("weapon_fire"):
+        Visuals::bulletTracer(*event);
         break;
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);

@@ -137,6 +137,10 @@ void Resolver::processMissedShots() noexcept
 	if (!snapshot.player.gotMatrix)
 		return;
 
+	const auto entity = interfaces->entityList->getEntity(snapshot.playerIndex);
+	if (!entity)
+		return;
+
 	const Model* model = snapshot.model;
 	if (!model)
 		return;
@@ -150,8 +154,7 @@ void Resolver::processMissedShots() noexcept
 		return;
 
 	const auto angle = Aimbot::calculateRelativeAngle(snapshot.eyePosition, snapshot.bulletImpact, Vector{ });
-	const Vector forward = Vector::fromAngle(angle);
-	const auto end = snapshot.bulletImpact + forward * 2000.f;
+	const auto end = snapshot.bulletImpact + Vector::fromAngle(angle) * 2000.f;
 
 	const auto matrix = snapshot.backtrackRecord == -1 ? snapshot.player.matrix.data() : snapshot.player.backtrackRecords.at(snapshot.backtrackRecord).matrix;
 
@@ -161,14 +164,16 @@ void Resolver::processMissedShots() noexcept
 	{
 		if (Aimbot::hitboxIntersection(matrix, hitbox, set, snapshot.eyePosition, end))
 		{
-			resolverMissed = true,
-			Logger::addLog("Resolver miss");
+			resolverMissed = true;
+			std::string missed = "Missed " + entity->getPlayerName() + " due to resolver";
+			if (snapshot.backtrackRecord > 0)
+				missed += "BT[" + std::to_string(snapshot.backtrackRecord) + "]";
 			Animations::setPlayer(snapshot.playerIndex)->misses++;
 			break;
 		}
 	}
 	if (!resolverMissed)
-		Logger::addLog("Spread miss");
+		Logger::addLog("Missed due to spread");
 }
 
 void Resolver::runPlayer(Animations::Players player, Entity* entity) noexcept

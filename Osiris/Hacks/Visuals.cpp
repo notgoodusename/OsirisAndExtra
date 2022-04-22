@@ -712,6 +712,9 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         return;
 
     switch (fnv::hashRuntime(event.getName())) {
+    case fnv::hash("round_start"):
+        shotRecord.clear();
+            break;
     case fnv::hash("weapon_fire"):
         if (event.getInt("userid") != localPlayer->getUserId())
             return;
@@ -726,6 +729,12 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
 
         if (event.getInt("userid") != localPlayer->getUserId())
             return;
+
+        if (shotRecord.front().eyePosition.null())
+        {
+            shotRecord.pop_front();
+            return;
+        }
 
         const auto bulletImpact = Vector{ event.getFloat("x"),  event.getFloat("y"),  event.getFloat("z") };
         const auto angle = Aimbot::calculateRelativeAngle(shotRecord.front().eyePosition, bulletImpact, Vector{ });

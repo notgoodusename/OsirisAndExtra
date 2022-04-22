@@ -51,6 +51,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::preserveKillfeed(true);
         Misc::autoBuy(event);
         Resolver::getEvent(event);
+        Visuals::bulletTracer(*event);
         [[fallthrough]];
     case fnv::hash("round_freeze_end"):
         Misc::purchaseList(event);

@@ -38,7 +38,7 @@ void Logger::getEvent(GameEvent* event) noexcept
     if (!config->misc.logger.enabled || config->misc.loggerOptions.modes == 0 || config->misc.loggerOptions.events == 0)
     {
         logs.clear();
-        renderLogs.empty();
+        renderLogs.clear();
         return;
     }
 
@@ -130,7 +130,7 @@ void Logger::process(ImDrawList* drawList) noexcept
     if (!config->misc.logger.enabled || config->misc.loggerOptions.modes == 0 || config->misc.loggerOptions.events == 0)
     {
         logs.clear();
-        renderLogs.empty();
+        renderLogs.clear();
         return;
     }
 

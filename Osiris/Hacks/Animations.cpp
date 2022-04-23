@@ -272,6 +272,10 @@ void Animations::handlePlayers(FrameStage stage) noexcept
         memory->globalVars->frametime = memory->globalVars->intervalPerTick;
         memory->globalVars->currenttime = entity->simulationTime();
 
+        const uintptr_t backupEffects = entity->getEffects();
+
+        entity->getEffects() |= 8;
+
         bool runPostUpdate = false;
 
         if (player.simulationTime != entity->simulationTime())
@@ -357,17 +361,13 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 player.velocity.x = 0.f;
                 player.velocity.y = 0.f;
             }
-        }
+            entity->getEFlags() &= ~0x1000;
+            entity->getAbsVelocity() = player.velocity;
 
-        entity->getEFlags() &= ~0x1000;
-        entity->getAbsVelocity() = player.velocity;
+            updatingEntity = true;
+            entity->updateClientSideAnimation();
+            updatingEntity = false;
 
-        updatingEntity = true;
-        entity->updateClientSideAnimation();
-        updatingEntity = false;
-
-        if (runPostUpdate)
-        {
             if (!(entity->flags() & 1) && !player.oldlayers.empty())// && entity->moveType() != MoveType::NOCLIP)
             {
                 const auto currentActivity = entity->getAnimstate()->getLayerActivity(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
@@ -427,6 +427,8 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         memory->globalVars->frametime = frameTime;
         memory->globalVars->currenttime = currentTime;
+
+        entity->getEffects() = backupEffects;
 
         if (runPostUpdate)
         {

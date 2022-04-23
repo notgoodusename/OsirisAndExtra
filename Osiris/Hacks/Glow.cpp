@@ -59,7 +59,6 @@ void Glow::render() noexcept
         case ClassId::SmokeGrenadeProjectile:
         case ClassId::SnowballProjectile:
         case ClassId::Hostage:
-        case ClassId::CSRagdoll:
             if (!memory->glowObjectManager->hasGlowEffect(entity)) {
                 if (auto index{ memory->glowObjectManager->registerGlowObject(entity) }; index != -1)
                     customGlowEntities.emplace_back(i, index);
@@ -139,7 +138,6 @@ void Glow::render() noexcept
             applyGlow(glow["Projectiles"]); break;
 
         case ClassId::Hostage: applyGlow(glow["Hostages"]); break;
-        case ClassId::CSRagdoll: applyGlow(glow["Ragdolls"]); break;
         default:
             if (entity->isWeapon()) {
                 applyGlow(glow["Weapons"]);
@@ -170,7 +168,7 @@ void Glow::drawGUI() noexcept
     static int currentCategory{ 0 };
     ImGui::PushItemWidth(110.0f);
     ImGui::PushID(0);
-    constexpr std::array categories{ "Allies", "Enemies", "Planting", "Defusing", "Local Player", "Weapons", "C4", "Planted C4", "Chickens", "Defuse Kits", "Projectiles", "Hostages", "Ragdolls" };
+    constexpr std::array categories{ "Allies", "Enemies", "Planting", "Defusing", "Local Player", "Weapons", "C4", "Planted C4", "Chickens", "Defuse Kits", "Projectiles", "Hostages" };
     ImGui::Combo("", &currentCategory, categories.data(), categories.size());
     ImGui::PopID();
     GlowItem* currentItem;
@@ -226,7 +224,7 @@ json Glow::toJson() noexcept
     json j;
     j["Items"] = glowConfig;
     j["Players"] = playerGlowConfig;
-    //to_json(j["Key"], glowKey, KeyBind::NONE);
+    to_json(j["Key"], glowKey, KeyBind::NONE);
     return j;
 }
 

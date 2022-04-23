@@ -147,7 +147,6 @@ Memory::Memory() noexcept
     resetState = findPattern(CLIENT_DLL, "\x56\x6A\x01\x68????\x8B\xF1");
     invalidateBoneCache = findPattern(CLIENT_DLL, "\x80\x3D?????\x74\x16\xA1????\x48\xC7\x81");
 
-
     setupVelocityAddress = *(reinterpret_cast<void**>(findPattern(CLIENT_DLL, "\x84\xC0\x75\x38\x8B\x0D????\x8B\x01\x8B\x80")));
     accumulateLayersAddress = *(reinterpret_cast<void**>(findPattern(CLIENT_DLL, "\x84\xC0\x75\x0D\xF6\x87")));
     standardBlendingRules = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8\xF8\x10");
@@ -177,11 +176,8 @@ Memory::Memory() noexcept
     randomFloat = reinterpret_cast<decltype(randomFloat)>(GetProcAddress(GetModuleHandleA(VSTDLIB_DLL), "RandomFloat"));
 
     getWeaponPrefix = reinterpret_cast<decltype(getWeaponPrefix)>(findPattern(CLIENT_DLL, "\x53\x56\x57\x8B\xF9\x33\xF6\x8B\x4F\x60\x8B\x01\xFF"));
-    addActivityModifier = reinterpret_cast<decltype(addActivityModifier)>(findPattern(SERVER_DLL, "\x55\x8B\xEC\x8B\x55\x08\x83\xEC\x30\x56\x8B\xF1\x85\xD2"));
-    findMapping = reinterpret_cast<decltype(findMapping)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x53\x56\x57\x8B\xF9\x8B\x17"));
     getLayerActivity = reinterpret_cast<decltype(getLayerActivity)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\x35????\x57\x8B\xF9\x8B\xCE\x8B\x06\xFF\x90????\x8B\x7F\x60\x83"));
     getLayerIdealWeightFromSeqCycle = reinterpret_cast<decltype(getLayerIdealWeightFromSeqCycle)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\x35????\x57\x8B\xF9\x8B\xCE\x8B\x06\xFF\x90????\x8B\x7F\x60\x0F"));
-    selectWeightedSequenceFromModifiers = reinterpret_cast<decltype(selectWeightedSequenceFromModifiers)>(findPattern(SERVER_DLL, "\x55\x8B\xEC\x83\xEC\x2C\x53\x56\x8B\x75\x08\x8B\xD9\x57\x89\x5D\xF4\x8B"));
 
     lookUpSequence = relativeToAbsolute<decltype(lookUpSequence)>(findPattern(CLIENT_DLL, "\xE8????\x5E\x83\xF8\xFF") + 1);
     seqdesc = relativeToAbsolute<decltype(seqdesc)>(findPattern(CLIENT_DLL, "\xE8????\x03\x40\x04") + 1);

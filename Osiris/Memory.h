@@ -155,11 +155,8 @@ public:
     std::add_pointer_t<float __cdecl(const float, const float, ...)> randomFloat;
 
     const char* (__thiscall* getWeaponPrefix)(void*);
-    void(__thiscall* addActivityModifier)(void*, const char*);
-    void* (__thiscall* findMapping)(void*);
     int(__thiscall* getLayerActivity)(void*, int);
     float(__thiscall* getLayerIdealWeightFromSeqCycle)(void*, int);
-    int(__thiscall* selectWeightedSequenceFromModifiers)(void*, void*, int, const void*, int);
 
     int(__thiscall* lookUpSequence)(void*, const char*);
     int(__thiscall* seqdesc)(void*, int);

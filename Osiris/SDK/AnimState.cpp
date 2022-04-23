@@ -945,10 +945,6 @@ void AnimState::setLayerSequence(size_t layer, int32_t activity) noexcept
     if (!hdr)
         return;
 
-    //updateActivityModifiers();
-    //const auto mapping = memory->findMapping(hdr);
-    //const auto sequence = memory->selectWeightedSequenceFromModifiers(mapping, hdr, activity, &activityModifiersWrapper().get()[0], activityModifiersWrapper().get().size);
-
     const auto sequence = selectSequenceFromActivityModifier(activity);
 
     if (sequence < 2)

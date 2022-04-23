@@ -106,37 +106,39 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    StreamProofESP::render();
-    NadePrediction::draw();
-    Misc::purchaseList();
-    Visuals::visualizeSpread(ImGui::GetBackgroundDrawList());
-    Misc::noscopeCrosshair(ImGui::GetBackgroundDrawList());
-    Misc::recoilCrosshair(ImGui::GetBackgroundDrawList());
-    Misc::drawOffscreenEnemies(ImGui::GetBackgroundDrawList());
-    Misc::drawBombTimer();
-    Misc::spectatorList();
-    Misc::showKeybinds();
-    Visuals::hitMarker(nullptr, ImGui::GetBackgroundDrawList());
-    Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
-    Visuals::drawSmokeHull(ImGui::GetBackgroundDrawList());
-    Misc::watermark();
-    Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
-    Logger::process(ImGui::GetBackgroundDrawList());
+    if (const auto& displaySize = ImGui::GetIO().DisplaySize; displaySize.x > 0.0f && displaySize.y > 0.0f) {
+        StreamProofESP::render();
+        NadePrediction::draw();
+        Misc::purchaseList();
+        Visuals::visualizeSpread(ImGui::GetBackgroundDrawList());
+        Misc::noscopeCrosshair(ImGui::GetBackgroundDrawList());
+        Misc::recoilCrosshair(ImGui::GetBackgroundDrawList());
+        Misc::drawOffscreenEnemies(ImGui::GetBackgroundDrawList());
+        Misc::drawBombTimer();
+        Misc::spectatorList();
+        Misc::showKeybinds();
+        Visuals::hitMarker(nullptr, ImGui::GetBackgroundDrawList());
+        Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
+        Visuals::drawSmokeHull(ImGui::GetBackgroundDrawList());
+        Misc::watermark();
+        Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
+        Logger::process(ImGui::GetBackgroundDrawList());
 
-    Legitbot::updateInput();
-    Visuals::updateInput();
-    StreamProofESP::updateInput();
-    Misc::updateInput();
-    Triggerbot::updateInput();
-    Chams::updateInput();
-    Glow::updateInput();
-    Ragebot::updateInput();
-    AntiAim::updateInput();
-    Misc::drawPlayerList();
-    gui->handleToggle();
+        Legitbot::updateInput();
+        Visuals::updateInput();
+        StreamProofESP::updateInput();
+        Misc::updateInput();
+        Triggerbot::updateInput();
+        Chams::updateInput();
+        Glow::updateInput();
+        Ragebot::updateInput();
+        AntiAim::updateInput();
+        Misc::drawPlayerList();
+        gui->handleToggle();
 
-    if (gui->isOpen())
-        gui->render();
+        if (gui->isOpen())
+            gui->render();
+    }
 
     ImGui::EndFrame();
     ImGui::Render();

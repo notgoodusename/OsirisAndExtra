@@ -64,6 +64,9 @@ void Glow::render() noexcept
                 if (auto index{ memory->glowObjectManager->registerGlowObject(entity) }; index != -1)
                     customGlowEntities.emplace_back(i, index);
             }
+            break;
+        default:
+            break;
         }
     }
 
@@ -84,10 +87,12 @@ void Glow::render() noexcept
                 glowobject.glowAlphaMax = 0.6f;
                 if (glow.healthBased && health) {
                     Helpers::healthColor(std::clamp(health / 100.0f, 0.0f, 1.0f), glowobject.glowColor.x, glowobject.glowColor.y, glowobject.glowColor.z);
-                } else if (glow.rainbow) {
+                }
+                else if (glow.rainbow) {
                     const auto [r, g, b] { rainbowColor(glow.rainbowSpeed) };
                     glowobject.glowColor = { r, g, b };
-                } else {
+                }
+                else {
                     glowobject.glowColor = { glow.color[0], glow.color[1], glow.color[2] };
                 }
             }
@@ -136,7 +141,7 @@ void Glow::render() noexcept
         case ClassId::Hostage: applyGlow(glow["Hostages"]); break;
         case ClassId::CSRagdoll: applyGlow(glow["Ragdolls"]); break;
         default:
-           if (entity->isWeapon()) {
+            if (entity->isWeapon()) {
                 applyGlow(glow["Weapons"]);
                 if (!glow["Weapons"].enabled) glowobject.renderWhenOccluded = false;
             }

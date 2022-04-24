@@ -578,6 +578,8 @@ public:
     NETVAR(velocity, "CBasePlayer", "m_vecVelocity[0]", Vector)
     NETVAR(lastPlaceName, "CBasePlayer", "m_szLastPlaceName", char[18])
     NETVAR(getLadderNormal, "CBasePlayer", "m_vecLadderNormal", Vector)
+    NETVAR(duckAmount, "CBasePlayer", "m_flDuckAmount", float)
+    NETVAR(duckSpeed, "CBasePlayer", "m_flDuckSpeed", float)
 
     NETVAR(armor, "CCSPlayer", "m_ArmorValue", int)
     NETVAR(hasHeavyArmor, "CCSPlayer", "m_bHasHeavyArmor", bool)
@@ -598,8 +600,6 @@ public:
     NETVAR(waitForNoAttack, "CCSPlayer", "m_bWaitForNoAttack", bool)
     NETVAR(isStrafing, "CCSPlayer", "m_bStrafing", bool)
     NETVAR(moveState, "CCSPlayer", "m_iMoveState", int)
-    NETVAR(duckAmount, "CCSPlayer", "m_flDuckAmount", float)
-    NETVAR(duckSpeed, "CCSPlayer", "m_flDuckSpeed", float)
     NETVAR(duckOverride, "CCSPlayer", "m_bDuckOverride", bool)
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)

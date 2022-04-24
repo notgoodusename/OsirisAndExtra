@@ -33,6 +33,12 @@ std::string getStringFromHitgroup(int hitgroup) noexcept
     }
 }
 
+void Logger::reset() noexcept
+{
+    renderLogs.clear();
+    logs.clear();
+}
+
 void Logger::getEvent(GameEvent* event) noexcept
 {
     if (!config->misc.logger.enabled || config->misc.loggerOptions.modes == 0 || config->misc.loggerOptions.events == 0)

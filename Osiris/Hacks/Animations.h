@@ -15,6 +15,8 @@ namespace Animations
 {
 	void init() noexcept;
 
+	void reset() noexcept;
+
 	void update(UserCmd*, bool& sendPacket) noexcept;
 
 	void renderStart(FrameStage) noexcept;
@@ -76,10 +78,13 @@ namespace Animations
 		int misses{ 0 };
 		bool gotMatrix{ false };
 
+		float moveWeight{ 0.0 };
+
 		void clear()
 		{
 			gotMatrix = false;
 			simulationTime = -1.0f;
+			moveWeight = 0.0f;
 			origin = Vector{};
 			absAngle = Vector{};
 			velocity = Vector{};

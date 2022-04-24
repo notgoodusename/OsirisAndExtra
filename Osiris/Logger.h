@@ -34,6 +34,8 @@ namespace Logger
 		std::string text{ "" };
 	};
 
+	void reset() noexcept;
+
 	void addLog(std::string log) noexcept;
 	void getEvent(GameEvent* event) noexcept;
 	void process(ImDrawList* drawList) noexcept;

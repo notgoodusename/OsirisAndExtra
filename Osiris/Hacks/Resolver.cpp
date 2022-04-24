@@ -10,6 +10,11 @@ std::deque<Resolver::SnapShot> snapshots;
 
 bool resolver = false;
 
+void Resolver::reset() noexcept
+{
+	snapshots.clear();
+}
+
 void Resolver::saveRecord(int playerIndex, float playerSimulationTime) noexcept
 {
 	const auto entity = interfaces->entityList->getEntity(playerIndex);
@@ -167,6 +172,7 @@ void Resolver::processMissedShots() noexcept
 			std::string missed = "Missed " + entity->getPlayerName() + " due to resolver";
 			if (snapshot.backtrackRecord > 0)
 				missed += "BT[" + std::to_string(snapshot.backtrackRecord) + "]";
+			Logger::addLog(missed);
 			Animations::setPlayer(snapshot.playerIndex)->misses++;
 			break;
 		}
@@ -175,7 +181,7 @@ void Resolver::processMissedShots() noexcept
 		Logger::addLog("Missed due to spread");
 }
 
-void Resolver::runPlayer(Animations::Players player, Entity* entity) noexcept
+void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 {
 	if (!resolver)
 		return;
@@ -184,9 +190,21 @@ void Resolver::runPlayer(Animations::Players player, Entity* entity) noexcept
 	if (!entity || !entity->isAlive())
 		return;
 
-	//Check if bot and chokedpackets
+	if (player.chokedPackets <= 0)
+		return;
+}
 
-	//Calculate using animlayers and other
+void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcept
+{
+	if (!resolver)
+		return;
+
+	const auto misses = player.misses;
+	if (!entity || !entity->isAlive())
+		return;
+
+	if (player.chokedPackets <= 0)
+		return;
 }
 
 void Resolver::updateEventListeners(bool forceRemove) noexcept

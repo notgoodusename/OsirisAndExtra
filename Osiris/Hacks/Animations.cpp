@@ -44,6 +44,27 @@ void Animations::init() noexcept
     extrapolate->setValue(0);
 }
 
+void Animations::reset() noexcept
+{
+    for (auto& record : players)
+        record.reset();
+    fakematrix = {};
+    localAngle = Vector{};
+    updatingLocal = true;
+    updatingEntity = false;
+    sendPacket = true;
+    gotMatrix = false;
+    gotMatrixReal = false;
+    viewangles = Vector{};
+    staticLayers = {};
+    layers = {};
+    primaryCycle = 0.0f;
+    moveWeight = 0.0f;
+    footYaw = {};
+    poseParameters = {};
+    sendPacketLayers = {};
+}
+
 void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
 {
     static float spawnTime = 0.f;
@@ -299,6 +320,8 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
             player.origin = entity->origin();
 
+            player.moveWeight = entity->getAnimstate()->moveWeight;
+
             if (entity->flags() & 1)
                 player.velocity.z = 0.f;
             else
@@ -364,9 +387,13 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             entity->getEFlags() &= ~0x1000;
             entity->getAbsVelocity() = player.velocity;
 
+            Resolver::runPreUpdate(player, entity);
+
             updatingEntity = true;
             entity->updateClientSideAnimation();
             updatingEntity = false;
+
+            Resolver::runPostUpdate(player, entity);
 
             if (!(entity->flags() & 1) && !player.oldlayers.empty())// && entity->moveType() != MoveType::NOCLIP)
             {
@@ -411,8 +438,6 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                     entity->getAnimstate()->poseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(entity, std::clamp(Helpers::smoothStepBounds(0.72f, 1.52f, entity->getAnimstate()->durationInAir), 0.f, 1.f));
                 }
             }
-
-            Resolver::runPlayer(player, entity);
         }
 
         std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer)* entity->getAnimationLayersCount());

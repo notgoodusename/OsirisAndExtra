@@ -19,6 +19,14 @@ static Vector localPlayerVelocity;
 static std::array<EnginePrediction::NetvarData, 150> netvarData;
 static void* storedData = nullptr;
 
+void EnginePrediction::reset() noexcept
+{
+    localPlayerFlags = {};
+    localPlayerVelocity = Vector{};
+    netvarData = {};
+    storedData = nullptr;
+}
+
 void EnginePrediction::update() noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())

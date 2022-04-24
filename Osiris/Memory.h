@@ -156,7 +156,6 @@ public:
 
     const char* (__thiscall* getWeaponPrefix)(void*);
     int(__thiscall* getLayerActivity)(void*, int);
-    float(__thiscall* getLayerIdealWeightFromSeqCycle)(void*, int);
 
     int(__thiscall* lookUpSequence)(void*, const char*);
     int(__thiscall* seqdesc)(void*, int);

@@ -1,12 +1,13 @@
 #include "Aimbot.h"
 #include "AntiAim.h"
-#include "../Interfaces.h"
+
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
-#include "../GUI.h"
+
+#include "../Interfaces.h"
 
 bool updateLby(bool update = false) noexcept
 {
@@ -21,7 +22,7 @@ bool updateLby(bool update = false) noexcept
         return false;
     }
 
-    if (localPlayer->getAnimstate()->velocityLengthXY > 0.1f || fabsf(localPlayer->getAnimstate()->velocityLengthZ) > 100.f)
+    if (localPlayer->velocity().length2D() > 0.1f || fabsf(localPlayer->velocity().z) > 100.f)
         timer = memory->globalVars->serverTime() + 0.22f;
 
     if (timer < memory->globalVars->serverTime())
@@ -174,7 +175,8 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             if (config->fakeAngle.peekMode != 3)
                 invert = isInvertToggled;
             float leftDesyncAngle = config->fakeAngle.leftLimit * 2.f;
-            float rightDesyncAngle = config->fakeAngle.rightLimit * 2.f;
+            float rightDesyncAngle = config->fakeAngle.rightLimit * -2.f;
+
             switch (config->fakeAngle.peekMode)
             {
             case 0:
@@ -224,15 +226,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 if (updateLby())
                 {
                     float desyncangle = RandomFloat(10, leftDesyncAngle, 2.f);
-                    cmd->viewangles.y += !invert ? desyncangle : -desyncangle;
+                    float desyncangler = RandomFloat(10, rightDesyncAngle, 2.f);
+                    cmd->viewangles.y += !invert ? desyncangle : desyncangler;
                     sendPacket = false;
-                    if (fabsf(cmd->sidemove) < 5.0f)
-                    {
-                        if (cmd->buttons & UserCmd::IN_DUCK)
-                            cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
-                        else
-                            cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
-                    }
                     return;
                 }
                 break;
@@ -240,27 +236,20 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 static bool flip = false;
                 if (updateLby())
                 {
-                    cmd->viewangles.y += !flip ? leftDesyncAngle : -rightDesyncAngle;
+                    cmd->viewangles.y += !flip ? leftDesyncAngle : rightDesyncAngle;
                     sendPacket = false;
-                    if (fabsf(cmd->sidemove) < 5.0f)
-                    {
-                        if (cmd->buttons & UserCmd::IN_DUCK)
-                            cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
-                        else
-                            cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
-                    }
                     flip = !flip;
                     return;
                 }
                 if (!sendPacket)
-                    cmd->viewangles.y += flip ? leftDesyncAngle : -rightDesyncAngle;
-                return;
+                    cmd->viewangles.y += flip ? leftDesyncAngle : rightDesyncAngle;
+                break;
             }
 
             if (sendPacket)
                 return;
 
-            cmd->viewangles.y += invert ? leftDesyncAngle : -rightDesyncAngle;
+            cmd->viewangles.y += invert ? leftDesyncAngle : rightDesyncAngle;
         }
     }
 }
@@ -275,13 +264,6 @@ void AntiAim::legit(UserCmd* cmd, const Vector& previousViewAngles, const Vector
         {
             cmd->viewangles.y += !invert ? desyncAngle : -desyncAngle;
             sendPacket = false;
-            if (fabsf(cmd->sidemove) < 5.0f)
-            {
-                if (cmd->buttons & UserCmd::IN_DUCK)
-                    cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;
-                else
-                    cmd->sidemove = cmd->tickCount & 1 ? 1.1f : -1.1f;
-            }
             return;
         }
 
@@ -333,7 +315,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if (localPlayer->flags() & (1 << 6))
         return false;
 
-    auto activeWeapon = localPlayer->getActiveWeapon();
+    const auto activeWeapon = localPlayer->getActiveWeapon();
     if (!activeWeapon || !activeWeapon->clip())
         return true;
 
@@ -370,7 +352,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if (activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver && activeWeapon->readyTime() <= memory->globalVars->serverTime() && cmd->buttons & (UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2))
         return false;
 
-    auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
+    const auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
     if (!weaponIndex)
         return true;
 

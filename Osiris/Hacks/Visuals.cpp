@@ -707,6 +707,12 @@ void Visuals::updateShots(UserCmd* cmd) noexcept
     if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 
+    if (!*memory->gameRules || (*memory->gameRules)->freezePeriod())
+        return;
+
+    if (localPlayer->flags() & (1 << 6)) //Frozen
+        return;
+
     shotRecord.push_back(shotRecords(localPlayer->getEyePosition()));
 }
 

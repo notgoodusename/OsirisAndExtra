@@ -130,6 +130,6 @@ Currently implemented hooking methods are:
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/notgoodusename/OsirisAndExtra/blob/main/LICENSE) file for details.
 
-## See also
+## Also see
 
 [Osiris](https://github.com/danielkrupinski/Osiris) - A Awesome free and open source cheat for CS:GO, and the base for this cheat

@@ -10,7 +10,7 @@ someone add screenshots
 
 ## Features 
 * **Aimbot** - aim assistance 
-* **Fake angles** - makes your body appeared somewhere it's not
+* **Fake angles** - makes your body appear somewhere it's not
 * **Triggerbot** - automatically fires when crosshair is on enemy 
 * **Backtrack** - abuse lag compensation to move players back in time 
 * **Glow** - render glow effect on entities 
@@ -24,50 +24,31 @@ someone add screenshots
 
 ## Categories
 *   **Legitbot**
+     1. Main window
+     2. Backtrack
+     3. Triggerbot
+     4. LegitAA
 
-     **1. Main window**
-
-     **2. Backtrack**
-
-     **3. Triggerbot**
-
-     **4. LegitAA**
-
-     **5. Config**
-     
 *   **Ragebot**
-
-     **1. Main window**
-
-     **2. Backtrack**
-
-     **3. RageAA**
-
-     **4. Fake angles**
-
-     **5. Fake lag**
+     1. Main window
+     2. Backtrack
+     3. RageAA
+     4. Fake angles
+     5. Fake lag
 
 *   **Visuals**
-
-     **1. Main window**
-
-     **2. Stream Proof ESP**
-
-     **3. Chams**
-
-     **4. Glow**
-
-     **5. Skins**
+     1. Main window
+     2. Stream Proof ESP
+     3. Chams
+     4. Glow
+     5. Skins
 
 *   **Misc**
-
-     **1. Main**
-
-     **2. Sound**
+     1. Main
+     2. Sound
 
 *   **Config**
-
-     **1. Main**
+    1. Main
 
 ## Getting started
 
@@ -128,6 +109,7 @@ Currently implemented hooking methods are:
 ## Acknowledgments
 
 * Thanks to [ocornut](https://github.com/ocornut) and [contributors](https://github.com/ocornut/imgui/graphs/contributors) for creating and maintaining an amazing GUI library - [Dear imgui](https://github.com/ocornut/imgui).
+* Thanks to [Daniel Krupiński](https://github.com/danielkrupinski) for making [Osiris](https://github.com/danielkrupinski/Osiris), an amazing cheat.
 
 ## License
 

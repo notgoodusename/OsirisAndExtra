@@ -329,12 +329,12 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
     previousViewAngles = cmd->viewangles;
-    Tickbase::run(cmd);
     Visuals::updateShots(cmd);
 
     if (localPlayer && localPlayer->isAlive())
     {
         memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+        Tickbase::run(cmd);
     }
     Animations::update(cmd, sendPacket);
     Animations::fake();

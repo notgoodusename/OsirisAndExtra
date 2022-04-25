@@ -4,7 +4,7 @@
 [![CS:GO](https://img.shields.io/badge/game-CS%3AGO-orange.svg?style=plastic)](https://store.steampowered.com/app/730/CounterStrike_Global_Offensive/) 
 [![Pull Requests](https://img.shields.io/github/issues-pr/notgoodusename/OsirisAndExtra.svg?style=plastic&color=brightgreen)](https://github.com/notgoodusename/OsirisAndExtra/pulls)
 [![Issues](https://img.shields.io/github/issues/notgoodusename/OsirisAndExtra.svg?style=plastic)](https://github.com/notgoodusename/OsirisAndExtra/issues)
-[![License](https://img.shields.io/github/license/notgoodusename/OsirisAndExtra.svg?style=plastic)](LICENSE)
+[![License](https://img.shields.io/github/license/notgoodusename/OsirisAndExtra.svg?style=plastic&color=blueviolet)](LICENSE)
 [![PayPal](https://img.shields.io/badge/donate-PayPal-104098.svg?style=plastic&logo=PayPal)](https://paypal.me/DanielK19)
 
 ## Use a VAC bypass or you WILL get banned

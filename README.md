@@ -10,6 +10,7 @@ someone add screenshots
 
 ## Features 
 * **Aimbot** - aim assistance 
+* **Anti-Aim** -  a tool to make you harder to hit, sometimes exploiting `Fake angles`
 * **Fake angles** - makes your body appear somewhere it's not
 * **Triggerbot** - automatically fires when crosshair is on enemy 
 * **Backtrack** - abuse lag compensation to move players back in time 
@@ -55,7 +56,7 @@ someone add screenshots
 ### Prerequisites
 Microsoft Visual Studio 2019 16.10 (or newer), platform toolset v142 and Windows SDK 10.0.x.x are required in order to compile OsirisAndExtra. If you don't have them, you can download VS [here](https://visualstudio.microsoft.com/) (Windows SDK is installed during Visual Studio Setup).
 
-### Downloading
+### Downloading the source code
 
 There are two ways of downloading the source code:
 
@@ -82,6 +83,11 @@ When you have equipped a copy of the source code, next step is opening **Osiris.
 Then change build configuration to `Release | x86` and simply press **Build solution**.
 
 If everything went right you should receive `Osiris.dll`  binary file.
+
+### Downloading the DLL
+
+Or you could download the DLL by [clicking here](https://github.com/notgoodusename/OsirisAndExtra/releases/latest/download/Osiris.dll).
+Not preferable to download the DLL because it's old.
 
 ### Loading / Injecting into game process
 

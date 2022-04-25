@@ -12,7 +12,7 @@
 A Free open-source cheat for **Counter-Strike: Global Offensive**, Based on [Osiris](https://github.com/danielkrupinski/Osiris). Designed as an internal cheat (DLL) loadable into game process. Compatible with the Steam version of the game. Only Available for Windows.
 
 ## Screenshots
-
+![image](/assets/images/image0.png)
 
 
 ## Features 

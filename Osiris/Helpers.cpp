@@ -54,6 +54,11 @@ float Helpers::simpleSplineRemapValClamped(float val, float A, float B, float C,
     return C + (D - C) * simpleSpline(cVal);
 }
 
+Vector Helpers::lerp(float percent, Vector a, Vector b) noexcept
+{
+    return a + (b - a) * percent;
+}
+
 float Helpers::lerp(float percent, float a, float b) noexcept
 {
     return a + (b - a) * percent;

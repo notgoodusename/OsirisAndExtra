@@ -44,4 +44,5 @@ namespace Visuals
 
     void updateEventListeners(bool forceRemove = false) noexcept;
     void updateInput() noexcept;
+    void reset() noexcept;
 }

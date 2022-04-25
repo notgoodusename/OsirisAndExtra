@@ -957,3 +957,8 @@ void Visuals::updateInput() noexcept
     config->visuals.thirdpersonKey.handleToggle();
     config->visuals.zoomKey.handleToggle();
 }
+
+void Visuals::reset() noexcept
+{
+    shotRecord.clear();
+}

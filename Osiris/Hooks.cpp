@@ -1140,6 +1140,24 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     return Animations::getLocalAngle();
 }
 
+void resetAll() noexcept
+{
+    Animations::reset();
+    Logger::reset();
+    EnginePrediction::reset();
+    Glow::clearCustomObjects();
+    Visuals::reset();
+}
+
+static void __fastcall levelShutDown(void* thisPointer) noexcept
+{
+    static auto original = hooks->client.getOriginal<void, 7>();
+
+    original(thisPointer);
+    resetAll();
+}
+
+
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
@@ -1207,6 +1225,7 @@ void Hooks::install() noexcept
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
 
     client.init(interfaces->client);
+    client.hookAt(7, levelShutDown);
     client.hookAt(22, createMoveProxy);
     client.hookAt(37, frameStageNotify);
     client.hookAt(38, dispatchUserMessage);
@@ -1290,6 +1309,7 @@ void Hooks::uninstall() noexcept
 {
     Misc::updateEventListeners(true);
     Visuals::updateEventListeners(true);
+    Resolver::updateEventListeners(true);
 
     if constexpr (std::is_same_v<HookType, MinHook>) {
         MH_DisableHook(MH_ALL_HOOKS);
@@ -1312,6 +1332,7 @@ void Hooks::uninstall() noexcept
     Netvars::restore();
 
     Glow::clearCustomObjects();
+    resetAll();
 
     SetWindowLongPtrW(window, GWLP_WNDPROC, LONG_PTR(originalWndProc));
     **reinterpret_cast<void***>(memory->present) = originalPresent;

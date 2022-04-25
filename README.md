@@ -6,7 +6,6 @@
 [![Issues](https://img.shields.io/github/issues/notgoodusename/OsirisAndExtra.svg?style=plastic)](https://github.com/notgoodusename/OsirisAndExtra/issues)
 [![PayPal](https://img.shields.io/badge/donate-PayPal-104098.svg?style=plastic&logo=PayPal)](https://paypal.me/DanielK19)
 
-
 ## Use a VAC bypass or you WILL get banned
 
 A Free open-source cheat for **Counter-Strike: Global Offensive**, Based on [Osiris](https://github.com/danielkrupinski/Osiris). Designed as an internal cheat (DLL) loadable into game process. Compatible with the Steam version of the game. Only Available for Windows.
@@ -128,7 +127,7 @@ Currently implemented hooking methods are:
 
 > Copyright (c) 2018-2022 Daniel Krupiński
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/notgoodusename/OsirisAndExtra/LICENSE) file for details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/roscagio/OsirisAndExtra/blob/main/LICENSE) file for details.
 
 ## See also
 

@@ -84,7 +84,7 @@ Then change build configuration to `Release | x86` and simply press **Build solu
 
 If everything went right you should receive `Osiris.dll`  binary file.
 
-### Downloading the DLL
+### Or downloading the DLL
 
 Or you could download the DLL by [clicking here](https://github.com/notgoodusename/OsirisAndExtra/releases/latest/download/Osiris.dll).
 Not preferable to download the DLL because it's old.

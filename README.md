@@ -127,7 +127,7 @@ Currently implemented hooking methods are:
 
 > Copyright (c) 2018-2022 Daniel Krupiński
 
-This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/notgoodusename/OsirisAndExtra/main/LICENSE) file for details.
+This project is licensed under the [MIT License](https://opensource.org/licenses/mit-license.php) - see the [LICENSE](https://github.com/notgoodusename/OsirisAndExtra/blob/main/LICENSE) file for details.
 
 ## See also
 

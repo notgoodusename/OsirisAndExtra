@@ -1,5 +1,3 @@
-![Linux](https://github.com/danielkrupinski/Osiris/workflows/Linux/badge.svg?branch=master&event=push)
-
 # Osiris And Extra
 
 ## Use a VAC bypass or you WILL get banned

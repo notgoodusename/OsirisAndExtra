@@ -7,10 +7,15 @@
 
 namespace Resolver
 {
+	void reset() noexcept;
+
 	void processMissedShots() noexcept;
-	void runPlayer(Animations::Players player, Entity* entity) noexcept;
 	void saveRecord(int playerIndex, float playerSimulationTime) noexcept;
 	void getEvent(GameEvent* event) noexcept;
+
+	void runPreUpdate(Animations::Players player, Entity* entity) noexcept;
+	void runPostUpdate(Animations::Players player, Entity* entity) noexcept;
+
 	void updateEventListeners(bool forceRemove = false) noexcept;
 
 	struct SnapShot

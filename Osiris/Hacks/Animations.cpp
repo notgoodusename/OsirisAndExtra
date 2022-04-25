@@ -309,19 +309,41 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 std::memcpy(&player.oldlayers, &player.layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
             std::memcpy(&player.layers, entity->animOverlays(), sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
+            //Get chokedPackets
+
             const auto simDifference = fabsf(entity->simulationTime() - player.simulationTime);
 
             player.simulationTime != entity->simulationTime() ?
                 player.chokedPackets = static_cast<int>(simDifference / memory->globalVars->intervalPerTick) - 1 : player.chokedPackets = 0;
-            player.chokedPackets = std::clamp(player.chokedPackets, 0, maxUserCmdProcessTicks);
+            player.chokedPackets = std::clamp(player.chokedPackets, 0, maxUserCmdProcessTicks + 1);
 
+            //Velocity values
             if (player.origin.notNull() && player.simulationTime != entity->simulationTime())
+            {
+                player.oldVelocity = player.velocity;
                 player.velocity = (entity->origin() - player.origin) * (1.0f / simDifference);
+            }
 
-            player.origin = entity->origin();
-
+            //Misc variables
             player.moveWeight = entity->getAnimstate()->moveWeight;
+            player.flags = entity->flags();
 
+            if (player.simulationTime == entity->simulationTime())
+            {
+                player.duckAmount = entity->duckAmount();
+                player.oldDuckAmount = player.duckAmount;
+                player.origin = entity->origin();
+                player.oldOrigin = player.origin;
+            }
+            else
+            {
+                player.oldDuckAmount = player.duckAmount;
+                player.duckAmount = entity->duckAmount();
+                player.oldOrigin = player.origin;
+                player.origin = entity->origin();
+            }
+
+            //Velocity calculations
             if (entity->flags() & 1)
                 player.velocity.z = 0.f;
             else
@@ -384,17 +406,56 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 player.velocity.x = 0.f;
                 player.velocity.y = 0.f;
             }
-            entity->getEFlags() &= ~0x1000;
-            entity->getAbsVelocity() = player.velocity;
 
             Resolver::runPreUpdate(player, entity);
 
+            //Run animations
+
             updatingEntity = true;
-            entity->updateClientSideAnimation();
+            if (player.chokedPackets <= 0) //We dont need to simulate commands
+            {
+                if (entity->getAnimstate()->lastUpdateFrame == memory->globalVars->framecount)
+                    entity->getAnimstate()->lastUpdateFrame -= 1;
+
+                if (entity->getAnimstate()->lastUpdateTime == memory->globalVars->currenttime)
+                    entity->getAnimstate()->lastUpdateTime += ticksToTime(1);
+
+                entity->getEFlags() &= ~0x1000;
+                entity->getAbsVelocity() = player.velocity;
+                entity->updateClientSideAnimation();
+            }
+            else
+            {
+                //Simulate missing ticks
+                //TODO: Improve this drastically
+                for (int i = 1; i <= player.chokedPackets; i++)
+                {
+                    const float simulatedTime = player.simulationTime + (memory->globalVars->intervalPerTick * i);
+                    const float lerpValue = 1.f - (entity->simulationTime() - simulatedTime) / (entity->simulationTime() - player.simulationTime);
+                    const float currentTimeBackup = memory->globalVars->currenttime;
+
+                    memory->globalVars->currenttime = simulatedTime;
+
+                    entity->getEFlags() &= ~0x1000;
+                    entity->getAbsVelocity() = Helpers::lerp(lerpValue, player.velocity, player.oldVelocity);
+                    entity->duckAmount() = Helpers::lerp(lerpValue, player.duckAmount, player.oldDuckAmount);
+
+                    if (entity->getAnimstate()->lastUpdateFrame == memory->globalVars->framecount)
+                        entity->getAnimstate()->lastUpdateFrame -= 1;
+
+                    if (entity->getAnimstate()->lastUpdateTime == memory->globalVars->currenttime)
+                        entity->getAnimstate()->lastUpdateTime += ticksToTime(1);
+
+                    entity->updateClientSideAnimation();
+
+                    memory->globalVars->currenttime = currentTimeBackup;
+                }
+            }
             updatingEntity = false;
 
             Resolver::runPostUpdate(player, entity);
 
+            //Fix jump pose
             if (!(entity->flags() & 1) && !player.oldlayers.empty())// && entity->moveType() != MoveType::NOCLIP)
             {
                 const auto currentActivity = entity->getAnimstate()->getLayerActivity(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
@@ -442,6 +503,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer)* entity->getAnimationLayersCount());
 
+        //Setupbones
         if (runPostUpdate)
         {
             player.simulationTime = entity->simulationTime();
@@ -454,6 +516,8 @@ void Animations::handlePlayers(FrameStage stage) noexcept
         memory->globalVars->currenttime = currentTime;
 
         entity->getEffects() = backupEffects;
+
+        //Backtrack records
 
         if (runPostUpdate)
         {

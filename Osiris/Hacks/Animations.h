@@ -68,26 +68,39 @@ namespace Animations
 		std::array<AnimationLayer, 13> oldlayers { };
 
 		Vector mins{}, maxs{};
-		Vector origin{}, absAngle{};
-		Vector velocity{};
+		Vector origin{}, oldOrigin{}, absAngle{};
+		Vector velocity{}, oldVelocity{};
 
 		float spawnTime{ 0.f };
 
-		float simulationTime{ 0.f };
+		float simulationTime{ -1.0f };
 		int chokedPackets{ 0 };
 		int misses{ 0 };
 		bool gotMatrix{ false };
 
-		float moveWeight{ 0.0 };
+		float moveWeight{ 0.0f };
+
+		float duckAmount{ 0.0f };
+		float oldDuckAmount{ 0.0f };
+
+		int flags{ 0 };
 
 		void clear()
 		{
 			gotMatrix = false;
 			simulationTime = -1.0f;
 			moveWeight = 0.0f;
+
+			duckAmount = 0.0f;
+			oldDuckAmount = 0.0f;
+
+			flags = 0;
+
 			origin = Vector{};
+			oldOrigin = Vector{};
 			absAngle = Vector{};
 			velocity = Vector{};
+			oldVelocity = Vector{};
 			mins = Vector{};
 			maxs = Vector{};
 

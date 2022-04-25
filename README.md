@@ -13,7 +13,7 @@ A Free open-source cheat for **Counter-Strike: Global Offensive**, Based on [Osi
 
 ## Screenshots
 
-someone add screenshots
+
 
 ## Features 
 * **Aimbot** - aim assistance 

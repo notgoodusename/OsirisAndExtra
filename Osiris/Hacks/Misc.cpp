@@ -471,6 +471,8 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
 
     if (config->misc.autoPeekKey.isActive())
     {
+        if (config->tickbase.enabled && !config->tickbase.teleport)
+            config->tickbase.teleport = true;
         if (peekPosition.null())
             peekPosition = localPlayer->getRenderOrigin();
 

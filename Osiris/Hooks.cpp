@@ -244,6 +244,10 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
             cmd->tickCount += 200;
             cmd->hasbeenpredicted = true;
         }
+        else {
+            if (!config->misc.autoPeekKey.isActive() && config->tickbase.teleport)
+                config->tickbase.teleport = false;
+        }
 
         cmd->viewangles.normalize();
 

@@ -24,33 +24,50 @@ someone add screenshots
 
 ## Categories
 *   **Legitbot**
+
      **1. Main window**
+
      **2. Backtrack**
+
      **3. Triggerbot**
+
      **4. LegitAA**
+
      **5. Config**
      
 *   **Ragebot**
+
      **1. Main window**
+
      **2. Backtrack**
+
      **3. RageAA**
+
      **4. Fake angles**
+
      **5. Fake lag**
 
 *   **Visuals**
+
      **1. Main window**
+
      **2. Stream Proof ESP**
+
      **3. Chams**
+
      **4. Glow**
+
      **5. Skins**
 
 *   **Misc**
+
      **1. Main**
+
      **2. Sound**
 
 *   **Config**
-     **1. Main**
 
+     **1. Main**
 
 ## Getting started
 
@@ -120,4 +137,4 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## See also
 
-[Osiris](https://github.com/danielkrupinski/Osiris) - Awesome free and open source cheat for CS:GO, the base for this cheat
+[Osiris](https://github.com/danielkrupinski/Osiris) - A Awesome free and open source cheat for CS:GO, And the base for this cheat

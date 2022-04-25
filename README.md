@@ -132,4 +132,4 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## See also
 
-[Osiris](https://github.com/danielkrupinski/Osiris) - A Awesome free and open source cheat for CS:GO, And the base for this cheat
+[Osiris](https://github.com/danielkrupinski/Osiris) - A Awesome free and open source cheat for CS:GO, and the base for this cheat

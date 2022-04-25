@@ -38,6 +38,7 @@
 #include "Hacks/Resolver.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
+#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
@@ -234,6 +235,27 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Resolver::processMissedShots();
     
     memory->globalVars->serverTime(cmd);
+    if (Tickbase::isShifting && config->tickbase.enabled)
+    {
+        sendPacket = Tickbase::ticksToShift == 1;
+        Misc::autoPeek(cmd, currentViewAngles);
+        if (!config->tickbase.teleport)
+        {
+            cmd->tickCount += 200;
+            cmd->hasbeenpredicted = true;
+        }
+
+        cmd->viewangles.normalize();
+
+        cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
+        cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
+        cmd->viewangles.z = 0.0f;
+        cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
+        cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
+
+        return false;
+    }
+
 
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
@@ -303,7 +325,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
     previousViewAngles = cmd->viewangles;
-
+    Tickbase::run(cmd);
     Visuals::updateShots(cmd);
 
     if (localPlayer && localPlayer->isAlive())
@@ -979,6 +1001,45 @@ static void __cdecl clSendMoveHook() noexcept
         memory->clientState->netChannel->sendNetMsg(reinterpret_cast<void*>(&moveMsg));
     }
 }
+static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) noexcept
+{
+    using clMoveFn = void(__cdecl*)(float, bool);
+    static auto original = (clMoveFn)hooks->clMove.getDetour();
+
+    static float realTime = 0.0f;
+
+    if (!config->tickbase.enabled)
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (Tickbase::doubletapCharge < Tickbase::shiftAmount && memory->globalVars->realtime - realTime > 1.0f)
+    {
+        Tickbase::doubletapCharge++;
+        return;
+    }
+
+    original(accumulatedExtraSamples, finalTick);
+
+    if (Tickbase::lastShift == 0)
+        return;
+
+    Tickbase::isShifting = true;
+    {
+        for (Tickbase::ticksToShift = min(Tickbase::doubletapCharge, Tickbase::lastShift); Tickbase::ticksToShift > 0; Tickbase::ticksToShift--, Tickbase::doubletapCharge--)
+            original(accumulatedExtraSamples, finalTick);
+    }
+    Tickbase::isShifting = false;
+    Tickbase::lastShift = 0;
+    realTime = memory->globalVars->realtime;
+}
+
+
+
 
 
 static void __fastcall getColorModulationHook(void* thisPointer, void* edx, float* r, float* g, float* b) noexcept
@@ -1210,6 +1271,7 @@ void Hooks::install() noexcept
 
     modifyEyePosition.detour(memory->modifyEyePosition, modifyEyePositionHook);
     calculateView.detour(memory->calculateView, calculateViewHook);
+    clMove.detour(memory->clMove, clMoveHook);
     checkForSequenceChange.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
 
     getColorModulation.detour(memory->getColorModulation, getColorModulationHook);
@@ -1258,6 +1320,7 @@ void Hooks::install() noexcept
 
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);
+
 
     prediction.init(interfaces->prediction);
     prediction.hookAt(19, runCommand);

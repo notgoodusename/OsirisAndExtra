@@ -316,6 +316,12 @@ static void from_json(const json& j, Config::Fakelag& f)
     read(j, "Mode", f.mode);
     read(j, "Limit", f.limit);
 }
+static void from_json(const json& j, Config::Tickbase& f)
+{
+    read(j, "Enabled", f.enabled);
+    read(j, "Teleport", f.teleport);
+}
+
 
 
 static void from_json(const json& j, Config::Backtrack& b)
@@ -656,6 +662,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read<value_t::object>(j, "Rage Anti aim", rageAntiAim);
     read<value_t::object>(j, "Fake angle", fakeAngle);
     read<value_t::object>(j, "Fakelag", fakelag);
+    read<value_t::object>(j, "Tickbase", tickbase);
     read<value_t::object>(j, "Backtrack", backtrack);
     Glow::fromJson(j["Glow"]);
     read(j, "Chams", chams);
@@ -942,6 +949,11 @@ static void to_json(json& j, const Config::Fakelag& o, const Config::Fakelag& du
     WRITE("Limit", limit);
 }
 
+static void to_json(json& j, const Config::Tickbase& o, const Config::Tickbase& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Teleport", teleport);
+}
 
 static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack& dummy = {})
 {
@@ -1267,6 +1279,7 @@ void Config::save(size_t id) const noexcept
         j["Rage Anti aim"] = rageAntiAim;
         j["Fake angle"] = fakeAngle;
         j["Fakelag"] = fakelag;
+        j["Teleport"] = tickbase;
         j["Backtrack"] = backtrack;
         j["Glow"] = Glow::toJson();
         j["Chams"] = chams;
@@ -1312,6 +1325,7 @@ void Config::reset() noexcept
     rageAntiAim = { };
     fakeAngle = { };
     fakelag = { };
+    tickbase = { };
     backtrack = { };
     triggerbot = { };
     Glow::resetConfig();

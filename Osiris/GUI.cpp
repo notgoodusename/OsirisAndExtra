@@ -620,7 +620,15 @@ void GUI::renderTriggerbotWindow() noexcept
     ImGui::NextColumn();
     ImGui::Columns(1);
 }
-
+void GUI::renderTickbaseWindow() noexcept
+{
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 300.f);
+    ImGui::Checkbox("Enabled", &config->tickbase.enabled);
+    ImGui::Checkbox("Teleport", &config->tickbase.teleport);
+    ImGui::NextColumn();
+    ImGui::Columns(1);
+}
 void GUI::renderFakelagWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
@@ -2003,7 +2011,7 @@ void GUI::renderConfigWindow() noexcept
             ImGui::OpenPopup("Config to reset");
 
         if (ImGui::BeginPopup("Config to reset")) {
-            static constexpr const char* names[]{ "Whole", "Legitbot", "Legit Anti Aim", "Ragebot", "Rage Anti aim", "Fake angle", "Fakelag", "Backtrack", "Triggerbot", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Misc" };
+            static constexpr const char* names[]{ "Whole", "Legitbot", "Legit Anti Aim", "Ragebot", "Rage Anti aim", "Fake angle", "Fakelag", "Tickbase", "Backtrack", "Triggerbot", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Misc"};
             for (int i = 0; i < IM_ARRAYSIZE(names); i++) {
                 if (i == 1) ImGui::Separator();
 
@@ -2016,15 +2024,16 @@ void GUI::renderConfigWindow() noexcept
                     case 4: config->rageAntiAim = { };  break;
                     case 5: config->fakeAngle = { }; break;
                     case 6: config->fakelag = { }; break;
-                    case 7: config->backtrack = { }; break;
-                    case 8: config->triggerbot = { }; config->triggerbotKey = KeyBind::NONE; break;
-                    case 9: Glow::resetConfig(); break;
-                    case 10: config->chams = { }; config->chamsKey = KeyBind::NONE; break;
-                    case 11: config->streamProofESP = { }; break;
-                    case 12: config->visuals = { }; break;
-                    case 13: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
-                    case 14: Sound::resetConfig(); break;
-                    case 15: config->misc = { };  Misc::updateClanTag(true); break;
+                    case 7: config->tickbase = { }; break;
+                    case 8: config->backtrack = { }; break;
+                    case 9: config->triggerbot = { }; config->triggerbotKey = KeyBind::NONE; break;
+                    case 10: Glow::resetConfig(); break;
+                    case 11: config->chams = { }; config->chamsKey = KeyBind::NONE; break;
+                    case 12: config->streamProofESP = { }; break;
+                    case 13: config->visuals = { }; break;
+                    case 14: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
+                    case 15: Sound::resetConfig(); break;
+                    case 16: config->misc = { };  Misc::updateClanTag(true); break;
                     }
                 }
             }
@@ -2162,6 +2171,7 @@ void GUI::renderGuiStyle() noexcept
                             if (ImGui::Button("Anti Aim                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 3;
                             if (ImGui::Button("Desync              ", ImVec2{ 80, 20 })) activeSubTabRagebot = 4;
                             if (ImGui::Button("Fake Lag                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 5;
+                            if (ImGui::Button("Tickbase                ", ImVec2{ 80, 20 })) activeSubTabRagebot = 6;
                             break;
                         case 3: //Visuals
                             ImGui::SetCursorPosY(10);
@@ -2235,6 +2245,10 @@ void GUI::renderGuiStyle() noexcept
                                 case 5:
                                     //FakeLag
                                     renderFakelagWindow();
+                                    break;
+                                case 6:
+                                    //Tickbase
+                                    renderTickbaseWindow();
                                     break;
                                 default:
                                     break;

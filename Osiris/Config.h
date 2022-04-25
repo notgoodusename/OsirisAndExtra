@@ -69,6 +69,11 @@ public:
         int spinBase = 0; //-180/180
         bool atTargets = false;
     } rageAntiAim;
+    struct Tickbase {
+        bool enabled = false;
+        bool teleport = false;
+    } tickbase;
+
 
     struct FakeAngle {
         bool enabled = false;

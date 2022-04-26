@@ -64,6 +64,12 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
 
     memory->globalVars->currenttime = oldCurrenttime;
     memory->globalVars->frametime = oldFrametime;
+
+    const auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon || activeWeapon->isGrenade() || activeWeapon->isKnife())
+        return;
+
+    activeWeapon->updateAccuracyPenalty();
 }
 
 void EnginePrediction::save() noexcept

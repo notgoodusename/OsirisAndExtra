@@ -527,8 +527,6 @@ bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set
     int hits = 0;
     const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) / 100.f));
 
-    activeWeapon->updateAccuracyPenalty();
-
     const auto weapSpread = activeWeapon->getSpread();
     const auto weapInaccuracy = activeWeapon->getInaccuracy();
     const auto localEyePosition = localPlayer->getEyePosition();
@@ -536,7 +534,7 @@ bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set
 
     for (int i = 0; i < maxSeed; i++)
     {
-        srand(i + 1);
+        memory->randomSeed(i + 1);
         const float spreadX = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         const float spreadY = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         auto inaccuracy = weapInaccuracy * memory->randomFloat(0.f, 1.f);

@@ -428,7 +428,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             {
                 //Simulate missing ticks
                 //TODO: Improve this drastically
-                for (int i = 1; i <= player.chokedPackets; i++)
+                for (int i = 1; i <= player.chokedPackets + 1; i++)
                 {
                     const float simulatedTime = player.simulationTime + (memory->globalVars->intervalPerTick * i);
                     const float lerpValue = 1.f - (entity->simulationTime() - simulatedTime) / (entity->simulationTime() - player.simulationTime);

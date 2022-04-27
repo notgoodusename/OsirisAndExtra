@@ -562,14 +562,27 @@ void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
     auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;
+    sendPacket = false;
+    static bool down = false;
 
-    cmd->buttons |= UserCmd::IN_BULLRUSH;
-    bool crouch = netChannel->chokedPackets >= (maxUserCmdProcessTicks / 2);
-    if (crouch)
+    int mod = cmd->tickCount % 14;
+    switch (mod) {
+    case 0:
+        down = true; break;
+    case 6:
+        sendPacket = true; break;
+    case 7:
+        down = false; break;
+    }
+
+    // Prevent shots from not being registered on server
+    if (netChannel->chokedPackets > 8)
+        cmd->buttons &= ~UserCmd::IN_ATTACK;
+
+    if (down)
         cmd->buttons |= UserCmd::IN_DUCK;
     else
         cmd->buttons &= ~UserCmd::IN_DUCK;
-    sendPacket = netChannel->chokedPackets >= maxUserCmdProcessTicks;
 }
 
 

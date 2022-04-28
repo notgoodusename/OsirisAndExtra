@@ -83,6 +83,12 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
 {
     if (cmd->viewangles.x == currentViewAngles.x && config->rageAntiAim.enabled)
     {
+        if (config->fakeAngle.enabled)
+            if (!config->fakelag.enabled)
+                sendPacket = cmd->tickCount % 2;
+        if (!sendPacket && (cmd->buttons & UserCmd::IN_ATTACK))
+            return;
+
         switch (config->rageAntiAim.pitch)
         {
         case 0: //None

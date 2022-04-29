@@ -228,9 +228,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     auto currentViewAngles{ cmd->viewangles };
     const auto currentCmd{ *cmd };
 
-    if (const auto gameRules = (*memory->gameRules); gameRules)
-        maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
-
     Resolver::processMissedShots();
     
     memory->globalVars->serverTime(cmd);

@@ -299,7 +299,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         bool runPostUpdate = false;
 
-        if (player.simulationTime != entity->simulationTime())
+        if (player.simulationTime != entity->simulationTime() && player.simulationTime < entity->simulationTime())
         {
             runPostUpdate = true;
             if (player.simulationTime == -1.0f)

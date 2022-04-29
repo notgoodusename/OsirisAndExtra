@@ -23,3 +23,10 @@ void resetMatrix(Entity* entity, matrix3x4* boneCacheData, Vector origin, Vector
     memory->setAbsAngle(entity, Vector{ 0.f, absAngle.y, 0.f });
     entity->getCollideable()->setCollisionBounds(mins, maxs);
 }
+
+int getMaxUserCmdProcessTicks() noexcept
+{
+    if (const auto gameRules = (*memory->gameRules); gameRules)
+        return (gameRules->isValveDS()) ? 8 : 16;
+    return 16;
+}

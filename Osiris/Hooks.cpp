@@ -229,9 +229,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     auto currentViewAngles{ cmd->viewangles };
     const auto currentCmd{ *cmd };
 
-    if (const auto gameRules = (*memory->gameRules); gameRules)
-        maxUserCmdProcessTicks = (gameRules->isValveDS()) ? 8 : 16;
-
     Resolver::processMissedShots();
     
     memory->globalVars->serverTime(cmd);
@@ -450,7 +447,6 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Resolver::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
-        EnginePrediction::apply(stage);
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);
@@ -468,6 +464,8 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Animations::handlePlayers(stage);
     }
     hooks->client.callOriginal<void, 37>(stage);
+    if (interfaces->engine->isInGame())
+        EnginePrediction::apply(stage);
 }
 
 static int __stdcall emitSound(void* filter, int entityIndex, int channel, const char* soundEntry, unsigned int soundEntryHash, const char* sample, float volume, int seed, int soundLevel, int flags, int pitch, const Vector& origin, const Vector& direction, void* utlVecOrigins, bool updatePositions, float soundtime, int speakerentity, void* soundParams) noexcept

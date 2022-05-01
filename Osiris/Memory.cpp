@@ -182,7 +182,7 @@ Memory::Memory() noexcept
     seqdesc = relativeToAbsolute<decltype(seqdesc)>(findPattern(CLIENT_DLL, "\xE8????\x03\x40\x04") + 1);
     getFirstSequenceAnimTag = relativeToAbsolute<decltype(getFirstSequenceAnimTag)>(findPattern(CLIENT_DLL, "\xE8????\xF3\x0F\x11\x86????\x0F\x57\xDB") + 1);
     getSequenceLinearMotion = relativeToAbsolute<decltype(getSequenceLinearMotion)>(findPattern(CLIENT_DLL, "\xE8????\xF3\x0F\x10\x4D?\x83\xC4\x08\xF3\x0F\x10\x45?\xF3\x0F\x59\xC0") + 1);
-
+    sequenceDuration = relativeToAbsolute<decltype(sequenceDuration)>(findPattern(CLIENT_DLL, "\xE8????\xF3\x0F\x11\x86????\x51") + 1);
     lookUpPoseParameter = relativeToAbsolute<decltype(lookUpPoseParameter)>(findPattern(CLIENT_DLL, "\xE8????\x85\xC0\x79\x08") + 1);
     studioSetPoseParameter = relativeToAbsolute<decltype(studioSetPoseParameter)>(findPattern(CLIENT_DLL, "\xE8????\x0F\x28\xD8\x83\xC4\x04") + 1);
     calcAbsoluteVelocity = relativeToAbsolute<decltype(calcAbsoluteVelocity)>(findPattern(CLIENT_DLL, "\xE8????\x83\x7B\x30\x00") + 1);

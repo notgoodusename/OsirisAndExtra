@@ -350,7 +350,7 @@ void AnimState::setupMovement() noexcept
     float moveCycleRate = 0.f;
     if (velocityLengthXY > 0.f)
     {
-        moveCycleRate = entity->getSequenceCycleRate(entity->getModelPtr(), weaponMoveSeq);
+        moveCycleRate = entity->getSequenceCycleRate(weaponMoveSeq);
         float sequenceGroundSpeed = std::fmaxf(entity->getSequenceMoveDist(entity->getModelPtr(), weaponMoveSeq) / (1.0f / moveCycleRate), 0.001f);
         moveCycleRate *= velocityLengthXY / sequenceGroundSpeed;
 
@@ -359,8 +359,6 @@ void AnimState::setupMovement() noexcept
 
     float localCycleIncrement = (moveCycleRate * lastUpdateIncrement);
 
-    if (std::isnan(primaryCycle)) primaryCycle = 0.f;
-    
     primaryCycle = Helpers::clampCycle(primaryCycle + localCycleIncrement);
 
     moveWeightWithAirSmooth = std::clamp(moveWeightWithAirSmooth, 0.f, 1.f);
@@ -421,7 +419,7 @@ void AnimState::setupMovement() noexcept
             strafeChangeWeight = Helpers::approach(0.f, strafeChangeWeight, lastUpdateIncrement * 5.f);
 
         strafeSequence = entity->lookupSequence("strafe");
-        float rate = entity->getSequenceCycleRate(entity->getModelPtr(), strafeSequence);
+        float rate = entity->getSequenceCycleRate(strafeSequence);
         strafeChangeCycle = std::clamp(strafeChangeCycle + lastUpdateIncrement * rate, 0.f, 1.f);
     }
 
@@ -648,7 +646,7 @@ void AnimState::setupAliveLoop() noexcept
         auto layer = entity->getAnimationLayer(ANIMATION_LAYER_ALIVELOOP);
         if (layer)
         {
-            float newRate = entity->getSequenceCycleRate(entity->getModelPtr(), layer->sequence);
+            float newRate = entity->getSequenceCycleRate(layer->sequence);
             newRate *= memory->randomFloat(0.8f, 1.1f);
             setLayerRate(ANIMATION_LAYER_ALIVELOOP, newRate);
         }
@@ -672,7 +670,7 @@ void AnimState::setupAliveLoop() noexcept
             auto layer = entity->getAnimationLayer(ANIMATION_LAYER_ALIVELOOP);
             if (layer)
             {
-                float newRate = entity->getSequenceCycleRate(entity->getModelPtr(), layer->sequence);
+                float newRate = entity->getSequenceCycleRate(layer->sequence);
                 newRate *= memory->randomFloat(0.8f, 1.1f);
                 setLayerRate(ANIMATION_LAYER_ALIVELOOP, newRate);
             }

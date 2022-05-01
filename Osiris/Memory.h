@@ -161,7 +161,7 @@ public:
     int(__thiscall* seqdesc)(void*, int);
     float(__thiscall* getFirstSequenceAnimTag)(void*, int, int, int);
     void(__fastcall* getSequenceLinearMotion)(void*, int, float*, Vector*); // void __fastcall GetSequenceLinearMotion(_DWORD *studioHdr@<ecx>, int sequence@<edx>, int poseParameter, _DWORD *vectorReturn)
-
+    float(__thiscall* sequenceDuration)(void*, int);
     int(__stdcall* lookUpPoseParameter)(CStudioHdr*, const char*);
     std::uintptr_t studioSetPoseParameter;
     void(__thiscall* calcAbsoluteVelocity)(void*);

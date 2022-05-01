@@ -211,6 +211,25 @@ static void __fastcall packetStart(void* thisPointer, void* edx, int incomingSeq
     return hooks->clientState.callOriginal<void, 5>(incomingSequence, outgoingAcknowledged);
 }
 
+static void __fastcall processPacket(void* thisPointer, void* edx, void* packet, bool header) noexcept
+{
+    static auto original = hooks->clientState.getOriginal<void>(packet, header);
+    if (!memory->clientState->netChannel)
+        return original(thisPointer, packet, header);
+
+    original(thisPointer, packet, header);
+
+    for (auto it{ memory->clientState->pEvents }; it != nullptr; it = it->m_next) {
+        if (!it->class_id)
+            continue;
+
+        // set all delays to instant.
+        it->fire_delay = 0.f;
+    }
+
+    interfaces->engine->fireEvents();
+}
+
 static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int updateType) noexcept
 {
     static auto original = hooks->postDataUpdate.getOriginal<void>(updateType);
@@ -1252,6 +1271,7 @@ void Hooks::install() noexcept
 
     clientState.init((ClientState*)(uint32_t(memory->clientState) + 0x8));
     clientState.hookAt(5, packetStart);
+    clientState.hookAt(39, processPacket);
 
     engine.init(interfaces->engine);
     engine.hookAt(27, isConnected);

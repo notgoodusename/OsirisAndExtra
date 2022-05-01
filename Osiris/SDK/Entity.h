@@ -154,10 +154,25 @@ public:
         VIRTUAL_METHOD(float, getInaccuracy, 483, (), (this))
         VIRTUAL_METHOD(float, getSpread, 453, (), (this))
         VIRTUAL_METHOD(void, updateAccuracyPenalty, 484, (), (this))
-        VIRTUAL_METHOD(float, getSequenceCycleRate, 222, (CStudioHdr* studioHdr, int sequence), (this, studioHdr, sequence))
         VIRTUAL_METHOD(float, getLayerSequenceCycleRate, 223, (AnimationLayer* layer, int sequence), (this, layer, sequence))
         VIRTUAL_METHOD(void, updateClientSideAnimation, 224, (), (this))
 
+    float sequenceDuration(int sequence) noexcept
+    {
+        float returnValue;
+        memory->sequenceDuration(this, sequence);
+        __asm movss returnValue, xmm0;
+        return returnValue;
+    }
+
+    float getSequenceCycleRate(int sequence) noexcept
+    {
+        const float t = sequenceDuration(sequence);
+        if (t > 0.0f)
+            return 1.0f / t;
+        else
+            return 1.0f / 0.1f;
+    }
     auto getEyePosition() noexcept
     {
         Vector v;
@@ -196,7 +211,10 @@ public:
 
     float getFirstSequenceAnimTag(int sequence, int animTag) noexcept
     {
-        return memory->getFirstSequenceAnimTag(this, sequence, animTag, 0);
+        float returnValue;
+        memory->getFirstSequenceAnimTag(this, sequence, animTag, 0);
+        __asm movss returnValue, xmm0
+        return returnValue;
     }
 
     float setPoseParameter(float value, int index) noexcept

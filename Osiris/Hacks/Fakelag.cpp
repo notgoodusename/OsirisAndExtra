@@ -15,6 +15,8 @@ void Fakelag::run(bool& sendPacket) noexcept
     const auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;
+    if (EnginePrediction::getVelocity().length2D() < 1)
+        return;
 
     auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 2 : 0;
     if (config->fakelag.enabled)

@@ -1119,7 +1119,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Hit sound", hitSound);
     WRITE("Quick healthshot key", quickHealthshotKey);
     WRITE("Grenade predict", nadePredict);
-    WRITE("Grenade predict Damage", nadePredict);
+    WRITE("Grenade predict Damage", nadeDamagePredict);
     WRITE("Fix tablet signal", fixTabletSignal);
     WRITE("Max angle delta", maxAngleDelta);
     WRITE("Fix tablet signal", fixTabletSignal);

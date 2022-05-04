@@ -1,3 +1,4 @@
+#include <string>
 #include "GrenadePrediction.h"
 
 #include "../SDK/Cvar.h"
@@ -21,6 +22,7 @@
 
 std::vector<std::pair<ImVec2, ImVec2>> screenPoints;
 std::vector<std::pair<ImVec2, ImVec2>> endPoints;
+std::vector<std::pair<ImVec2, std::string>> dmgPoints;
 std::vector<std::pair<ImVec2, ImVec2>> savedPoints;
 
 std::mutex renderMutex;
@@ -311,12 +313,63 @@ void drawCircle(Vector position, float points, float radius)
 	}
 }
 
+inline float CSGO_Armor(float flDamage, int ArmorValue) {
+	static float flArmorRatio = 0.5f;
+	static float flArmorBonus = 0.5f;
+	if (ArmorValue > 0) {
+		float flNew = flDamage * flArmorRatio;
+		float flArmor = (flDamage - flNew) * flArmorBonus;
+
+		if (flArmor > static_cast<float>(ArmorValue)) {
+			flArmor = static_cast<float>(ArmorValue) * (1.f / flArmorBonus);
+			flNew = flDamage - flArmor;
+		}
+
+		flDamage = flNew;
+	}
+	return flDamage;
+}
+
+void drawDamage(Vector position) {
+	static float a = 105.0f;
+	static float b = 25.0f;
+	static float c = 140.0f;
+
+	ImVec2 pos{};
+
+	for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i)
+	{
+		const auto entity{ interfaces->entityList->getEntity(i) };
+		if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get()) || entity->gunGameImmunity())
+			continue;
+
+		float dist = (entity->origin() - position).length();
+		if (dist > 350.f)
+			continue;
+
+		float d = ((dist - b) / c);
+		float flDamage = a * exp(-d * d);
+		auto dmg = max(static_cast<int>(ceilf(CSGO_Armor(flDamage, entity->armor()))), 0);
+
+		if (dmg < 1)
+			continue;
+
+		std::string dmg2text = entity->health() - dmg > 0 ? std::to_string(dmg) : "kILL";
+		if (worldToScreen(entity->origin(), pos))
+		{
+			dmgPoints.emplace_back(std::pair<ImVec2, std::string>{ pos, dmg2text });
+		}
+		
+	}
+}
+
 void NadePrediction::run(UserCmd* cmd) noexcept
 {
 	renderMutex.lock();
 
 	screenPoints.clear();
 	endPoints.clear();
+	dmgPoints.clear();
 
 	if (!config->misc.nadePredict)
 	{
@@ -418,8 +471,12 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 		}
 	}
 
-	if(lastPos.notNull())
+	if (lastPos.notNull()) {
 		drawCircle(lastPos, 120, 150);
+		if (config->misc.nadeDamagePredict.enabled && itemDefinition == WeaponId::HeGrenade)
+			drawDamage(lastPos);
+	}
+		
 
 	renderMutex.unlock();
 }
@@ -457,4 +514,22 @@ void NadePrediction::draw() noexcept
 	//	draw nade path
 	for (auto& point : savedPoints)
 		drawList->AddLine(ImVec2(point.first.x, point.first.y), ImVec2(point.second.x, point.second.y), whiteColor, 1.5f);
+
+	// draw nade damage
+	if (config->misc.nadeDamagePredict.enabled)
+	{
+		for (auto& point : dmgPoints)
+		{
+			//renderText(0, 0, redColor, point.second.c_str(), point.first);
+			//renderText(0, 0, redColor, "NMSL", { 960, 540 });
+
+			const auto textSize = ImGui::CalcTextSize(point.second.c_str());
+			const auto horizontalOffset = textSize.x / 2;
+			const auto verticalOffset = textSize.y;
+
+			drawList->AddText({ point.first.x - horizontalOffset + 1.0f, point.first.y - verticalOffset + 1.0f }, Helpers::calculateColor(config->misc.nadeDamagePredict) & IM_COL32_A_MASK, point.second.c_str());
+			drawList->AddText({ point.first.x - horizontalOffset, point.first.y - verticalOffset }, Helpers::calculateColor(config->misc.nadeDamagePredict), point.second.c_str());
+
+		}
+	}
 }

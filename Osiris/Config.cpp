@@ -297,6 +297,9 @@ static void from_json(const json& j, Config::RageAntiAimConfig& a)
     read(j, "Yaw base", a.yawBase);
     read(j, "Yaw add", a.yawAdd);
     read(j, "Spin base", a.spinBase);
+    read(j, "Yaw base left", a.Left);
+    read(j, "Yaw base back", a.Back);
+    read(j, "Yaw base right", a.Right);
     read(j, "At targets", a.atTargets);
 }
 
@@ -591,6 +594,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Hit sound", m.hitSound);
     read(j, "Quick healthshot key", m.quickHealthshotKey);
     read(j, "Grenade predict", m.nadePredict);
+    read<value_t::object>(j, "Grenade predict Damage", m.nadeDamagePredict);
     read(j, "Fix tablet signal", m.fixTabletSignal);
     read(j, "Max angle delta", m.maxAngleDelta);
     read(j, "Fix tablet signal", m.fixTabletSignal);
@@ -920,6 +924,9 @@ static void to_json(json& j, const Config::RageAntiAimConfig& o, const Config::R
     WRITE("Yaw base", yawBase);
     WRITE("Yaw add", yawAdd);
     WRITE("Spin base", spinBase);
+    WRITE("Yaw base left", Left);
+    WRITE("Yaw base back", Back);
+    WRITE("Yaw base right", Right);
     WRITE("At targets", atTargets);
 }
 
@@ -1118,6 +1125,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Hit sound", hitSound);
     WRITE("Quick healthshot key", quickHealthshotKey);
     WRITE("Grenade predict", nadePredict);
+    WRITE("Grenade predict Damage", nadePredict);
     WRITE("Fix tablet signal", fixTabletSignal);
     WRITE("Max angle delta", maxAngleDelta);
     WRITE("Fix tablet signal", fixTabletSignal);

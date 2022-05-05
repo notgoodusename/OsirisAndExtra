@@ -298,6 +298,7 @@ public:
         KeyBind autoPeekKey{ std::string("autopeek") };
         ColorToggleThickness noscopeCrosshair;
         ColorToggleThickness recoilCrosshair;
+        ColorToggleThickness nadeDamagePredict;
 
         struct SpectatorList {
             bool enabled = false;

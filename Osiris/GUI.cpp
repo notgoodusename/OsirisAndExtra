@@ -1,4 +1,4 @@
-﻿#include <array>
+#include <array>
 #include <cwctype>
 #include <fstream>
 #include <functional>
@@ -1730,6 +1730,9 @@ void GUI::renderMiscWindow() noexcept
     hotkey(config->misc.quickHealthshotKey);
     */
     ImGui::Checkbox("Grenade Prediction", &config->misc.nadePredict);
+    ImGui::SameLine();
+    ImGuiCustom::colorPicker("Damage", config->misc.nadeDamagePredict);
+
     ImGui::Checkbox("Fix tablet signal", &config->misc.fixTabletSignal);
     ImGui::SetNextItemWidth(120.0f);
     ImGui::SliderFloat("Desync Delta", &config->misc.maxAngleDelta, 0.0f, 255.0f, "%.2f");

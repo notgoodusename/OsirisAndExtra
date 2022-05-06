@@ -1732,6 +1732,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Grenade Prediction", &config->misc.nadePredict);
     ImGui::SameLine();
     ImGuiCustom::colorPicker("Damage", config->misc.nadeDamagePredict);
+    ImGui::Checkbox("Grenade Animation Cancel", &config->misc.nadeAnimationCancel);
 
     ImGui::Checkbox("Fix tablet signal", &config->misc.fixTabletSignal);
     ImGui::SetNextItemWidth(120.0f);

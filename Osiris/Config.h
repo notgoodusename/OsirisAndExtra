@@ -288,6 +288,7 @@ public:
         bool disablePanoramablur{ false };
         bool killMessage{ false };
         bool nadePredict{ false };
+        bool nadeAnimationCancel{ false };
         bool fixTabletSignal{ false };
         bool fastPlant{ false };
         bool fastStop{ false };

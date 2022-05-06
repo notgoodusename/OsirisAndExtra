@@ -600,6 +600,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Quick healthshot key", m.quickHealthshotKey);
     read(j, "Grenade predict", m.nadePredict);
     read<value_t::object>(j, "Grenade predict Damage", m.nadeDamagePredict);
+    read(j, "Grenade Animation Cancel", m.nadeAnimationCancel);
     read(j, "Fix tablet signal", m.fixTabletSignal);
     read(j, "Max angle delta", m.maxAngleDelta);
     read(j, "Fix tablet signal", m.fixTabletSignal);

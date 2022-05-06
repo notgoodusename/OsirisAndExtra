@@ -592,6 +592,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Quick healthshot key", m.quickHealthshotKey);
     read(j, "Grenade predict", m.nadePredict);
     read<value_t::object>(j, "Grenade predict Damage", m.nadeDamagePredict);
+    read(j, "Grenade Animation Cancel", m.nadeAnimationCancel);
     read(j, "Fix tablet signal", m.fixTabletSignal);
     read(j, "Max angle delta", m.maxAngleDelta);
     read(j, "Fix tablet signal", m.fixTabletSignal);
@@ -1120,6 +1121,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Quick healthshot key", quickHealthshotKey);
     WRITE("Grenade predict", nadePredict);
     WRITE("Grenade predict Damage", nadeDamagePredict);
+    WRITE("Grenade Animation Cancel", nadeAnimationCancel);
     WRITE("Fix tablet signal", fixTabletSignal);
     WRITE("Max angle delta", maxAngleDelta);
     WRITE("Fix tablet signal", fixTabletSignal);

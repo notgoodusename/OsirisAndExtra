@@ -1304,6 +1304,20 @@ void Misc::killSound(GameEvent& event) noexcept
         interfaces->engine->clientCmdUnrestricted(("play " + config->misc.customKillSound).c_str());
 }
 
+void Misc::GrenadeAnimationCancel(GameEvent& event) noexcept
+{
+    if (!config->misc.nadeAnimationCancel)
+        return;
+    
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (localPlayer->getUserId() != event.getInt("userid"))
+        return;
+
+    interfaces->engine->clientCmdUnrestricted("invnextnongrenade");
+}
+
 void Misc::autoBuy(GameEvent* event) noexcept
 {
     std::array<std::string, 17> primary = {

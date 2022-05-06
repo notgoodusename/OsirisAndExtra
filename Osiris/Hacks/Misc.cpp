@@ -1315,7 +1315,7 @@ void Misc::GrenadeAnimationCancel(GameEvent& event) noexcept
     if (localPlayer->getUserId() != event.getInt("userid"))
         return;
 
-    interfaces->engine->clientCmdUnrestricted("invnextnongrenade");
+    interfaces->engine->clientCmdUnrestricted("slot3; slot2; slot1");
 }
 
 void Misc::autoBuy(GameEvent* event) noexcept

@@ -44,6 +44,8 @@ void Tickbase::run(UserCmd* cmd) noexcept
 	auto netChannel = interfaces->engine->getNetworkChannel();
 	if (!netChannel)
 		return;
+	if (cmd->buttons & (UserCmd::IN_USE))
+		return;
 
 	maxTicks = ((*memory->gameRules)->isValveDS()) ? 8 : 16;
 

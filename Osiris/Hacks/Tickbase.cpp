@@ -34,7 +34,7 @@ void Tickbase::run(UserCmd* cmd) noexcept
 	if (!activeWeapon)
 		return;
 
-	if (activeWeapon->isGrenade() || activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver)
+	if (activeWeapon->isGrenade() || activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver || activeWeapon->itemDefinitionIndex2() == WeaponId::C4)
 		return;
 
 	auto weaponData = activeWeapon->getWeaponData();
@@ -43,8 +43,6 @@ void Tickbase::run(UserCmd* cmd) noexcept
 
 	auto netChannel = interfaces->engine->getNetworkChannel();
 	if (!netChannel)
-		return;
-	if (cmd->buttons & (UserCmd::IN_USE))
 		return;
 
 	maxTicks = ((*memory->gameRules)->isValveDS()) ? 8 : 16;

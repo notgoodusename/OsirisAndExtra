@@ -81,6 +81,7 @@ public:
         int leftLimit = 60;
         int rightLimit = 60;
         int peekMode = 0; //Off, Peek real, Peek fake
+        bool experimental = false;
         int lbyMode = 0; // Normal, Opposite, sway, 
     } fakeAngle;
 

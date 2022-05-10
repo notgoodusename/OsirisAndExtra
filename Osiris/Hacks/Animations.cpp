@@ -32,6 +32,7 @@ static std::array<AnimationLayer, 13> layers{};
 static float primaryCycle{ 0.0f };
 static float moveWeight{ 0.0f };
 static float footYaw{};
+static float tilt{};
 static std::array<float, 24> poseParameters{};
 static std::array<AnimationLayer, 13> sendPacketLayers{};
 
@@ -61,6 +62,7 @@ void Animations::reset() noexcept
     primaryCycle = 0.0f;
     moveWeight = 0.0f;
     footYaw = {};
+    tilt = {};
     poseParameters = {};
     sendPacketLayers = {};
 }
@@ -122,6 +124,7 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
     {
         std::memcpy(&sendPacketLayers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         footYaw = localPlayer->getAnimstate()->footYaw;
+        tilt = cmd->viewangles.z;
         poseParameters = localPlayer->poseParameters();
         gotMatrixReal = localPlayer->setupBones(realmatrix.data(), localPlayer->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
         const auto origin = localPlayer->getRenderOrigin();
@@ -190,10 +193,10 @@ void Animations::fake() noexcept
 
             std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
             localPlayer->poseParameters() = backupPoses;
-            memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
+            memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,backupAbs.z });
             return;
         }
-        memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, 0 });
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, tilt });
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
         
@@ -211,7 +214,7 @@ void Animations::fake() noexcept
 
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->poseParameters() = backupPoses;
-        memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
+        memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,backupAbs.z });
 
         updatingFake = false;
     }

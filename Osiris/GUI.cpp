@@ -658,6 +658,7 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->rageAntiAim.enabled);
+    ImGui::Checkbox("Experimental", &config->fakeAngle.experimental);
     ImGui::Combo("Pitch", &config->rageAntiAim.pitch, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw base", &config->rageAntiAim.yawBase, "Off\0Paranoia\0Backward\0Right\0Left\0Spin\0");
     ImGui::PushItemWidth(220.0f);

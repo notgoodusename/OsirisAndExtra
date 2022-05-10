@@ -9,7 +9,7 @@
 
 std::deque<Resolver::SnapShot> snapshots;
 
-bool resolver = false;
+bool resolver = true;
 
 void Resolver::reset() noexcept
 {
@@ -206,6 +206,12 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 
 	if (player.chokedPackets <= 0)
 		return;
+
+	if (entity->velocity().length2D() > 3.0f) {
+		Animations::setPlayer(entity->index())->absAngle.y = entity->eyeAngles().y;
+		return;
+	}
+
 }
 
 void Resolver::updateEventListeners(bool forceRemove) noexcept

@@ -187,6 +187,9 @@ public:
         bool noSleeves{ false };
         bool noWeapons{ false };
         bool noSmoke{ false };
+        bool wireframeSmoke{ false };
+        bool noMolotov{ false };
+        bool wireframeMolotov{ false };
         bool noBlur{ false };
         bool noScopeOverlay{ false };
         bool noGrass{ false };
@@ -198,7 +201,6 @@ public:
             int y{ 0 };
         } shadowsChanger;
         bool fullBright{ false };
-        bool wireframeSmoke{ false };
         bool zoom{ false };
         bool noZoom{ false };
         KeyBind zoomKey{ std::string("zoom") };

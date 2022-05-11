@@ -249,6 +249,31 @@ void Visuals::modifySmoke(FrameStage stage) noexcept
     }
 }
 
+void Visuals::modifyMolotov(FrameStage stage) noexcept
+{
+    constexpr std::array fireMaterials{
+        "particle/fire_burning_character/fire_env_fire.vmt",
+        "particle/fire_burning_character/fire_env_fire_depthblend.vmt",
+        "particle/fire_burning_character/fire_burning_character_depthblend.vmt",
+        "particle/fire_burning_character/fire_burning_character.vmt",
+        "particle/fire_burning_character/fire_burning_character_nodepth.vmt",
+        "particle/particle_flares/particle_flare_001.vmt",
+        "particle/particle_flares/particle_flare_004.vmt",
+        "particle/particle_flares/particle_flare_004b_mod_ob.vmt",
+        "particle/particle_flares/particle_flare_004b_mod_z.vmt",
+        "particle/fire_explosion_1/fire_explosion_1_bright.vmt",
+        "particle/fire_explosion_1/fire_explosion_1b.vmt",
+        "particle/fire_particle_4/fire_particle_4.vmt",
+        "particle/fire_explosion_1/fire_explosion_1_oriented.vmt"
+    };
+    
+    for (const auto mat : fireMaterials) {
+        const auto material = interfaces->materialSystem->findMaterial(mat);
+        material->setMaterialVarFlag(MaterialVarFlag::NO_DRAW, stage == FrameStage::RENDER_START && config->visuals.noMolotov);
+        material->setMaterialVarFlag(MaterialVarFlag::WIREFRAME, stage == FrameStage::RENDER_START && config->visuals.wireframeMolotov);        
+    }
+}
+
 void Visuals::thirdperson() noexcept
 {
     if (!config->visuals.thirdperson && !config->visuals.freeCam)

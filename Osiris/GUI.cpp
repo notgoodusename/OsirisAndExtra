@@ -1223,6 +1223,9 @@ void GUI::renderVisualsWindow() noexcept
         ImGui::Checkbox("No grass", &config->visuals.noGrass);
         ImGui::Checkbox("No shadows", &config->visuals.noShadows);
         ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
+        ImGui::Checkbox("No molotov", &config->visuals.noMolotov);
+        ImGui::SameLine();
+        ImGui::Checkbox("Wireframe molotov", &config->visuals.wireframeMolotov);
         ImGui::Checkbox("Disable post-processing", &config->visuals.disablePostProcessing);
         ImGui::Checkbox("No fog", &config->visuals.noFog);
         ImGui::Checkbox("Disable HUD blur", &config->misc.disablePanoramablur);
@@ -1293,6 +1296,7 @@ void GUI::renderVisualsWindow() noexcept
 
     ImGui::Checkbox("Full bright", &config->visuals.fullBright);
     ImGui::Checkbox("No zoom", &config->visuals.noZoom);
+    ImGui::NextColumn();
     ImGui::Checkbox("Zoom", &config->visuals.zoom);
     ImGui::SameLine();
     ImGui::PushID("Zoom Key");

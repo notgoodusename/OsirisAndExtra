@@ -235,7 +235,7 @@ static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int upda
     static auto original = hooks->postDataUpdate.getOriginal<void>(updateType);
 
     original(thisPointer, updateType);
-    
+
     Animations::postDataUpdate();
     return;
 }
@@ -248,7 +248,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     const auto currentCmd{ *cmd };
 
     Resolver::processMissedShots();
-    
+
     memory->globalVars->serverTime(cmd);
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
@@ -427,7 +427,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
 
     if (interfaces->engine->isConnected() && !interfaces->engine->isInGame())
         Misc::changeName(true, nullptr, 0.0f);
-    
+
     if (stage == FrameStage::START)
         GameData::update();
 
@@ -447,6 +447,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::removeGrass(stage);
         Visuals::modifySmoke(stage);
         Visuals::playerModel(stage);
+        Visuals::modifyMolotov(stage);
         Visuals::disablePostProcessing(stage);
         Visuals::removeVisualRecoil(stage);
         Visuals::applyZoom(stage);
@@ -473,15 +474,15 @@ static bool __stdcall shouldDrawFog() noexcept
 {
     if constexpr (std::is_same_v<HookType, MinHook>) {
 #ifdef _DEBUG
-    // Check if we always get the same return address
-    if (*static_cast<std::uint32_t*>(_ReturnAddress()) == 0x6274C084) {
-        static const auto returnAddress = std::uintptr_t(_ReturnAddress());
-        assert(returnAddress == std::uintptr_t(_ReturnAddress()));
-    }
+        // Check if we always get the same return address
+        if (*static_cast<std::uint32_t*>(_ReturnAddress()) == 0x6274C084) {
+            static const auto returnAddress = std::uintptr_t(_ReturnAddress());
+            assert(returnAddress == std::uintptr_t(_ReturnAddress()));
+        }
 #endif
 
-    if (*static_cast<std::uint32_t*>(_ReturnAddress()) != 0x6274C084)
-        return hooks->clientMode.callOriginal<bool, 17>();
+        if (*static_cast<std::uint32_t*>(_ReturnAddress()) != 0x6274C084)
+            return hooks->clientMode.callOriginal<bool, 17>();
     }
 
     return !config->visuals.noFog;
@@ -698,7 +699,7 @@ static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CS
 
     for (int i = 0; i < hdr->boneFlags.size; i++)
     {
-        if(config->visuals.disableJiggleBones)
+        if (config->visuals.disableJiggleBones)
             hdr->boneFlags.elements[i] &= ~0x04;
         else
             hdr->boneFlags.elements[i] |= 0x04;
@@ -719,7 +720,7 @@ static void __fastcall standardBlendingRulesHook(void* thisPointer, void* edx, v
     static auto original = hooks->standardBlendingRules.getOriginal<void>(hdr, pos, q, currentTime, boneMask);
 
     const auto entity = reinterpret_cast<Entity*>(thisPointer);
-    
+
     entity->getEffects() |= 8;
 
     original(thisPointer, hdr, pos, q, currentTime, boneMask);
@@ -827,7 +828,7 @@ static void __vectorcall updateStateHook(void* thisPointer, void* unknown, float
     auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->getModelPtr())
         return;
-    
+
     if (!localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
 
@@ -862,7 +863,7 @@ static void __fastcall setupVelocityHook(void* thisPointer, void* edx) noexcept
     if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
         return original(thisPointer);
 
-    if(Animations::isFakeUpdating())
+    if (Animations::isFakeUpdating())
         return original(thisPointer);
 
     animState->setupVelocity();
@@ -900,7 +901,7 @@ static void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
     animState->setupAliveLoop();
 }
 
-static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* boneToWorldOut , int maxBones, int boneMask, float currentTime) noexcept
+static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* boneToWorldOut, int maxBones, int boneMask, float currentTime) noexcept
 {
     static auto original = hooks->setupBones.getOriginal<bool>(boneToWorldOut, boneMask, maxBones, currentTime);
 
@@ -934,7 +935,7 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
         localPlayer->poseParameters() = poseParameters;
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-        
+
         if (boneToWorldOut)
         {
             auto renderOrigin = entity->getRenderOrigin();
@@ -1163,7 +1164,7 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
 static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
 {
     static auto original = hooks->eyeAngles.getOriginal<Vector*>();
-    
+
     const auto entity = reinterpret_cast<Entity*>(thisPointer);
     if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors || !localPlayer || entity != localPlayer.get())
         return original(thisPointer);
@@ -1221,7 +1222,7 @@ void Hooks::install() noexcept
     newFunctionMaterialSystemDLL.detour(memory->newFunctionMaterialSystemDLL, newFunctionMaterialSystemBypass);
 
     sendDatagram.detour(memory->sendDatagram, sendDatagramHook);
-    
+
     buildTransformations.detour(memory->buildTransformations, buildTransformationsHook);
     doExtraBoneProcessing.detour(memory->doExtraBoneProcessing, doExtraBoneProcessingHook);
     shouldSkipAnimationFrame.detour(memory->shouldSkipAnimationFrame, shouldSkipAnimationFrameHook);
@@ -1260,7 +1261,7 @@ void Hooks::install() noexcept
     client.hookAt(22, createMoveProxy);
     client.hookAt(37, frameStageNotify);
     client.hookAt(38, dispatchUserMessage);
-    
+
     clientMode.init(memory->clientMode);
     clientMode.hookAt(17, shouldDrawFog);
     clientMode.hookAt(18, overrideView);

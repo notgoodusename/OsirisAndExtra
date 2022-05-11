@@ -1296,7 +1296,6 @@ void GUI::renderVisualsWindow() noexcept
 
     ImGui::Checkbox("Full bright", &config->visuals.fullBright);
     ImGui::Checkbox("No zoom", &config->visuals.noZoom);
-    ImGui::NextColumn();
     ImGui::Checkbox("Zoom", &config->visuals.zoom);
     ImGui::SameLine();
     ImGui::PushID("Zoom Key");

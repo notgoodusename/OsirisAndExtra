@@ -370,13 +370,15 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "No sleeves", v.noSleeves);
     read(j, "No weapons", v.noWeapons);
     read(j, "No smoke", v.noSmoke);
+    read(j, "Wireframe smoke", v.wireframeSmoke);
+    read(j, "No molotov", v.noMolotov);
+    read(j, "Wireframe molotov", v.wireframeMolotov);
     read(j, "No blur", v.noBlur);
     read(j, "No scope overlay", v.noScopeOverlay);
     read(j, "No grass", v.noGrass);
     read(j, "No shadows", v.noShadows);
     read<value_t::object>(j, "Motion Blur", v.motionBlur);
     read<value_t::object>(j, "Shadows changer", v.shadowsChanger);
-    read(j, "Wireframe smoke", v.wireframeSmoke);
     read(j, "Full bright", v.fullBright);
     read(j, "Zoom", v.zoom);
     read(j, "Zoom key", v.zoomKey);

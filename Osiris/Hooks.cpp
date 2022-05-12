@@ -115,7 +115,6 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         Misc::recoilCrosshair(ImGui::GetBackgroundDrawList());
         Misc::drawOffscreenEnemies(ImGui::GetBackgroundDrawList());
         Misc::drawBombTimer();
-        Misc::drawStaminaWarningIndicator();
         Misc::spectatorList();
         Misc::showKeybinds();
         Visuals::hitMarker(nullptr, ImGui::GetBackgroundDrawList());

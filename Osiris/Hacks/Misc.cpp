@@ -1010,61 +1010,6 @@ void Misc::drawBombTimer() noexcept
     ImGui::End();
 }
 
-void Misc::drawStaminaWarningIndicator() noexcept
-{
-    static const auto sv_staminamax = interfaces->cvar->findVar("sv_staminamax");
-    static bool should_draw;
-
-    if (!config->misc.staminaWarningIndicator)
-        return;
-    
-    GameData::Lock lock;
-
-    if (!gui->isOpen() && (!localPlayer || !localPlayer->isAlive()))
-        return;
-
-    if (!gui->isOpen() && sv_staminamax->getFloat() == 0)
-        return;
-
-    const float stamina = !localPlayer ? 0.f : 1.f - localPlayer->stamina() / sv_staminamax->getFloat();
-
-    if (stamina <= 0.3f)
-        should_draw = true;
-    else
-    if (stamina >= 1.f)
-        should_draw = false;
-    
-    if (!gui->isOpen() && !should_draw)
-        return;
-
-    if (!gui->isOpen()) {
-        ImGui::SetNextWindowBgAlpha(0.3f);
-    }
-
-    static float windowWidth = 140.0f;
-    ImGui::SetNextWindowPos({ (ImGui::GetIO().DisplaySize.x - 140.0f) / 2.0f, 180.0f }, ImGuiCond_Once);
-    ImGui::SetNextWindowSize({ windowWidth, 0 }, ImGuiCond_Once);
-
-    if (!gui->isOpen())
-        ImGui::SetNextWindowSize({ windowWidth, 0 });
-
-    ImGui::SetNextWindowSizeConstraints({ 0, -1 }, { FLT_MAX, -1 });
-    ImGui::Begin("Stamina Warning Indicator", nullptr, ImGuiWindowFlags_NoTitleBar | (gui->isOpen() ? 0 : ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration));
-
-    std::ostringstream ss; ss << "Slowed down " << (std::max)(round(stamina * 100.f), 0.0f) << "%";
-
-    ImGui::textUnformattedCentered(ss.str().c_str());
-
-    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Helpers::healthColor(std::clamp(stamina / 1.f, 0.0f, 1.0f)));
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
-    ImGui::progressBarFullWidth(stamina, 5.0f);
-
-    windowWidth = ImGui::GetCurrentWindow()->SizeFull.x;
-
-    ImGui::PopStyleColor(2);
-    ImGui::End();
-}
-
 void Misc::stealNames() noexcept
 {
     if (!config->misc.nameStealer)

@@ -223,15 +223,22 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		}
 	};
 
-	static ImpactEventListener listener;
+	static ImpactEventListener listener[3];
 	static bool listenerRegistered = false;
 
 	if (resolver && !listenerRegistered) {
-		interfaces->gameEventManager->addListener(&listener, "bullet_impact");
+		interfaces->gameEventManager->addListener(&listener[0], "bullet_impact");
+		interfaces->gameEventManager->addListener(&listener[1], "player_hurt");
+		interfaces->gameEventManager->addListener(&listener[2], "round_start");
+		//interfaces->gameEventManager->addListener(&listener[3], "player_death");
 		listenerRegistered = true;
 	}
+
 	else if ((!resolver || forceRemove) && listenerRegistered) {
-		interfaces->gameEventManager->removeListener(&listener);
+		interfaces->gameEventManager->removeListener(&listener[0]);
+		interfaces->gameEventManager->removeListener(&listener[1]);
+		interfaces->gameEventManager->removeListener(&listener[2]);
+		//interfaces->gameEventManager->removeListener(&listener[3]);
 		listenerRegistered = false;
 	}
 }

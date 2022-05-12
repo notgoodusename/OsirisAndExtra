@@ -8,7 +8,7 @@
 #include "../SDK/GameEvent.h"
 
 std::deque<Resolver::SnapShot> snapshots;
-
+std::vector<float> blacklisted;
 bool resolver = true;
 
 void Resolver::reset() noexcept
@@ -206,10 +206,33 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 
 	if (player.chokedPackets <= 0)
 		return;
-
+	float desyncAng = 0;
 	if (entity->velocity().length2D() > 3.0f) {
-		Animations::setPlayer(entity->index())->absAngle.y = entity->eyeAngles().y;
+		desyncAng = entity->eyeAngles().y;
 		return;
+	}
+	
+	if (misses != 0)
+	{
+		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
+		float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;
+		if (eye_feet == 1)
+		{
+			if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+				desyncAng -= 25.f;
+			}
+		}
+		else if (desyncSide == -1)
+		{
+			if (std::count(blacklisted.begin(), blacklisted.end(), desyncAng)) {
+				desyncAng += 25.f;
+			}
+		}
+		else if (eye_feet == 0)
+		{
+			desyncAng = entity->eyeAngles().y;
+		}
+		Animations::setPlayer(entity->index())->absAngle.y = desyncAng;
 	}
 
 }

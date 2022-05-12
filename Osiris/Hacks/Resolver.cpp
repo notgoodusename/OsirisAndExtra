@@ -230,7 +230,7 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		interfaces->gameEventManager->addListener(&listener[0], "bullet_impact");
 		interfaces->gameEventManager->addListener(&listener[1], "player_hurt");
 		interfaces->gameEventManager->addListener(&listener[2], "round_start");
-		//interfaces->gameEventManager->addListener(&listener[3], "player_death");
+		//interfaces->gameEventManager->addListener(&listener[3], "player_death"); //causes crash
 		listenerRegistered = true;
 	}
 

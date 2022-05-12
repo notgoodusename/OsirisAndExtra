@@ -1026,7 +1026,7 @@ void Misc::drawStaminaWarningIndicator() noexcept
     if (!gui->isOpen() && sv_staminamax->getFloat() == 0)
         return;
 
-    const float stamina = gui->isOpen() ? 0.f : 1.f - localPlayer->stamina() / sv_staminamax->getFloat();
+    const float stamina = !localPlayer ? 0.f : 1.f - localPlayer->stamina() / sv_staminamax->getFloat();
 
     if (stamina <= 0.3f)
         should_draw = true;

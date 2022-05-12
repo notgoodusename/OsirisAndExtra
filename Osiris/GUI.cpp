@@ -1685,7 +1685,6 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Fast plant", &config->misc.fastPlant);
     ImGui::Checkbox("Fast Stop", &config->misc.fastStop);
     ImGuiCustom::colorPicker("Bomb timer", config->misc.bombTimer);
-    ImGui::Checkbox("Stamina warning indicator", &config->misc.staminaWarningIndicator);
     ImGui::Checkbox("Prepare revolver", &config->misc.prepareRevolver);
     ImGui::SameLine();
     ImGui::PushID("Prepare revolver Key");

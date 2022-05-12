@@ -334,6 +334,7 @@ public:
         float aspectratio{ 0 };
         std::string killMessageString{ "Gotcha!" };
         ColorToggle3 bombTimer{ 1.0f, 0.55f, 0.0f };
+        bool staminaWarningIndicator = false;
         KeyBind prepareRevolverKey{ std::string("prepare revolver") };
         int hitSound{ 0 };
         int quickHealthshotKey{ 0 };

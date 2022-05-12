@@ -9,6 +9,7 @@
 
 std::deque<Resolver::SnapShot> snapshots;
 bool resolver = true;
+float desyncAng = 0;
 
 void Resolver::reset() noexcept
 {
@@ -63,6 +64,7 @@ void Resolver::getEvent(GameEvent* event) noexcept
 			players->at(i).misses = 0;
 		}
 		snapshots.clear();
+		float desyncAng = 0;
 		break;
 	}
 	case fnv::hash("player_death"):
@@ -171,7 +173,11 @@ void Resolver::processMissedShots() noexcept
 			resolverMissed = true;
 			std::string missed = "Missed " + entity->getPlayerName() + " due to resolver";
 			if (snapshot.backtrackRecord > 0)
-				missed += "BT[" + std::to_string(snapshot.backtrackRecord) + "]";
+				missed += ", BT[" + std::to_string(snapshot.backtrackRecord) + "]";
+			if (!(std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng))) {
+				snapshot.player.blacklisted.push_back(desyncAng);
+				missed += ", Desync: " + std::to_string(desyncAng);
+			}
 			Logger::addLog(missed);
 			Animations::setPlayer(snapshot.playerIndex)->misses++;
 			break;
@@ -180,7 +186,21 @@ void Resolver::processMissedShots() noexcept
 	if (!resolverMissed)
 		Logger::addLog("Missed due to spread");
 }
-
+float clampedangle(float initialangle)
+{
+	float result = 0;
+	if (initialangle > 60.f)
+	{
+		result = initialangle / 2.f;
+		desyncAng = result;
+	}
+	else if (initialangle < -60.f)
+	{
+		result = initialangle / 2.f;
+		desyncAng = result;
+	}
+	return result;
+}
 void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 {
 	if (!resolver)
@@ -192,6 +212,11 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 
 	if (player.chokedPackets <= 0)
 		return;
+	if (entity->velocity().length2D() > 3.0f) {
+		desyncAng = entity->getAnimstate()->footYaw;
+		Animations::setPlayer(entity->index())->absAngle.y += clampedangle(desyncAng);
+		return;
+	}
 }
 
 void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcept
@@ -205,9 +230,9 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 
 	if (player.chokedPackets <= 0)
 		return;
-	float desyncAng = 0;
+		desyncAng = 0;
 	if (entity->velocity().length2D() > 3.0f) {
-		desyncAng = entity->eyeAngles().y;
+		desyncAng = entity->getAnimstate()->footYaw;
 		return;
 	}
 	
@@ -240,10 +265,15 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 		}
 		else if (eye_feet == 0)
 		{
-			desyncAng = entity->eyeAngles().y;
+			desyncAng = entity->getAnimstate()->footYaw;
 		}
-		Animations::setPlayer(entity->index())->absAngle.y = desyncAng;
+		if (desyncAng > 60)
+		{
+			desyncAng = entity->getAnimstate()->footYaw;
+		}
+		Animations::setPlayer(entity->index())->absAngle.y += clampedangle(desyncAng);
 	}
+	return;
 
 }
 

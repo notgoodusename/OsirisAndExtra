@@ -66,6 +66,7 @@ namespace Animations
 		std::array<matrix3x4, MAXSTUDIOBONES> matrix;
 		std::array<AnimationLayer, 13> layers { };
 		std::array<AnimationLayer, 13> oldlayers { };
+		std::vector<float> blacklisted;
 
 		Vector mins{}, maxs{};
 		Vector origin{}, oldOrigin{}, absAngle{};
@@ -114,6 +115,7 @@ namespace Animations
 			layers = {};
 			chokedPackets = 0;
 			misses = 0;
+			blacklisted = { -1.f };
 		}
 	};
 	Players getPlayer(int index) noexcept;

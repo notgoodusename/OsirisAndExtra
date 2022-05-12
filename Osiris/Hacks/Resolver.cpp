@@ -213,6 +213,16 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 	
 	if (misses != 0)
 	{
+
+		if (!localPlayer || !localPlayer->isAlive())
+		{
+			snapshots.clear();
+			return;
+		}
+
+		if (snapshots.empty())
+			return;
+
 		auto snapshot = snapshots.front();
 		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
 		float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;

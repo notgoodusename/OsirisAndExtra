@@ -34,7 +34,6 @@ namespace Misc
     void fastPlant(UserCmd*) noexcept;
     void fastStop(UserCmd*) noexcept;
     void drawBombTimer() noexcept;
-    void drawStaminaWarningIndicator() noexcept;
     void stealNames() noexcept;
     void disablePanoramablur() noexcept;
     bool changeName(bool, const char*, float) noexcept;

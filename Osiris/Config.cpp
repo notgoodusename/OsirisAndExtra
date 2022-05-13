@@ -1172,13 +1172,15 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("No sleeves", noSleeves);
     WRITE("No weapons", noWeapons);
     WRITE("No smoke", noSmoke);
+    WRITE("Wireframe smoke", wireframeSmoke);
+    WRITE("No molotov", noMolotov);
+    WRITE("Wireframe molotov", wireframeMolotov);
     WRITE("No blur", noBlur);
     WRITE("No scope overlay", noScopeOverlay);
     WRITE("No grass", noGrass);
     WRITE("No shadows", noShadows);
     WRITE("Shadows changer", shadowsChanger);
     WRITE("Motion Blur", motionBlur);
-    WRITE("Wireframe smoke", wireframeSmoke);
     WRITE("Full bright", fullBright);
     WRITE("No zoom", noZoom);
     WRITE("Zoom", zoom);

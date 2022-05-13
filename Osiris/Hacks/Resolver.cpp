@@ -81,15 +81,26 @@ void Resolver::getEvent(GameEvent* event) noexcept
 	{
 		if (snapshots.empty())
 			break;
+		if (!localPlayer || !localPlayer->isAlive())
+		{
+			snapshots.clear();
+			return;
+		}
 
 		if (event->getInt("attacker") != localPlayer->getUserId())
 			break;
-		auto& snapshot = snapshots.front();
-		snapshot.player.workingangle = desyncAng;
+
 		const auto hitgroup = event->getInt("hitgroup");
 		if (hitgroup < HitGroup::Head || hitgroup > HitGroup::RightLeg)
 			break;
 
+		auto& snapshot = snapshots.front();
+
+		if (snapshot.player.workingangle != 0)
+			snapshot.player.workingangle = desyncAng;
+		const auto entity = interfaces->entityList->getEntity(snapshot.playerIndex);
+
+		Logger::addLog("Hit " + entity->getPlayerName() + ", using desync: " + std::to_string(desyncAng));
 		snapshots.pop_front(); //Hit somebody so dont calculate
 		break;
 	}
@@ -114,13 +125,13 @@ void Resolver::getEvent(GameEvent* event) noexcept
 	default:
 		break;
 	}
-	if (!config->resolver.resolver)
+	if (!config->ragebot[0].resolver)
 		snapshots.clear();
 }
 
 void Resolver::processMissedShots() noexcept
 {
-	if (!config->resolver.resolver)
+	if (!config->ragebot[0].resolver)
 	{
 		snapshots.clear();
 		return;
@@ -184,11 +195,11 @@ void Resolver::processMissedShots() noexcept
 		}
 	}
 	if (!resolverMissed)
-		Logger::addLog("Missed due to spread");
+		Logger::addLog("Missed " + entity->getPlayerName() + " due to spread");
 }
 float clampedangle(float initialangle)
 {
-	float result = 0;
+	float result = initialangle;
 	if (initialangle > 60.f)
 	{
 		result = initialangle / 2.f;
@@ -203,7 +214,7 @@ float clampedangle(float initialangle)
 }
 void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 {
-	if (!config->resolver.resolver)
+	if (!config->ragebot[0].resolver)
 		return;
 
 	const auto misses = player.misses;
@@ -220,7 +231,7 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 
 	if (snapshots.empty())
 		return;
-	if (misses != 0)
+	if (misses > 0)
 	{
 		auto snapshot = snapshots.front();
 		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
@@ -255,7 +266,7 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 
 void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcept
 {
-	if (!config->resolver.resolver)
+	if (!config->ragebot[0].resolver)
 		return;
 
 	const auto misses = player.misses;
@@ -272,8 +283,10 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 
 	if (snapshots.empty())
 		return;
-	auto animstate = entity->getAnimstate();
-	float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
+	if (misses > 0)
+	{
+		auto animstate = entity->getAnimstate();
+		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
 
 		if (eye_feet == 0)
 		{
@@ -289,7 +302,9 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 		}
 		eyeangle.y += clampedangle(desyncAng);
 		entity->updateState(animstate, eyeangle);
-		return;
+	}
+	return;
+	
 }
 
 void Resolver::updateEventListeners(bool forceRemove) noexcept
@@ -304,7 +319,7 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 	static ImpactEventListener listener[3];
 	static bool listenerRegistered = false;
 
-	if (config->resolver.resolver && !listenerRegistered) {
+	if (config->ragebot[0].resolver && !listenerRegistered) {
 		interfaces->gameEventManager->addListener(&listener[0], "bullet_impact");
 		interfaces->gameEventManager->addListener(&listener[1], "player_hurt");
 		interfaces->gameEventManager->addListener(&listener[2], "round_start");
@@ -312,7 +327,7 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		listenerRegistered = true;
 	}
 
-	else if ((!config->resolver.resolver || forceRemove) && listenerRegistered) {
+	else if ((!config->ragebot[0].resolver || forceRemove) && listenerRegistered) {
 		interfaces->gameEventManager->removeListener(&listener[0]);
 		interfaces->gameEventManager->removeListener(&listener[1]);
 		interfaces->gameEventManager->removeListener(&listener[2]);

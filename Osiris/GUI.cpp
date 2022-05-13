@@ -411,7 +411,7 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::Checkbox("Enabled", &config->ragebot[currentWeapon].enabled);
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 220.0f);
-    ImGui::Checkbox("Resolver", &config->resolver.resolver);
+    ImGui::Checkbox("Resolver", &config->ragebot[0].resolver);
     ImGui::Checkbox("Aimlock", &config->ragebot[currentWeapon].aimlock);
     ImGui::Checkbox("Silent", &config->ragebot[currentWeapon].silent);
     ImGui::Checkbox("Friendly fire", &config->ragebot[currentWeapon].friendlyFire);

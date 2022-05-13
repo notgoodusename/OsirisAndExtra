@@ -32,6 +32,7 @@ public:
 
     struct Ragebot {
         bool enabled{ false };
+        bool resolver{ false };
         bool aimlock{ false };
         bool silent{ false };
         bool friendlyFire{ false };
@@ -52,12 +53,7 @@ public:
         int multiPoint{ 0 };
         int minDamage{ 1 };
     };
-    struct Resolver
-    {
-        bool resolver{ false };
-    };
     std::array<Ragebot, 40> ragebot;
-    Resolver resolver;
     KeyBind ragebotKey{ std::string("ragebot") };
 
     struct Fakelag {

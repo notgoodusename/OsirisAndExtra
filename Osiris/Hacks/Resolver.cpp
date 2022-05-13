@@ -236,29 +236,25 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 		auto snapshot = snapshots.front();
 		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
 		float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;
-		if (eye_feet == 1)
-		{
-			if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng)) {
-				desyncAng -= 25.f;
-			}
-			else
-			{
-				desyncAng = 60.f;
-			}
-		}
-		else if (desyncSide == -1)
+		if (eye_feet == 1.f)
 		{
 			if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng)) {
 				desyncAng += 25.f;
 			}
-			else 
-			{
-				desyncAng = -60.f;
+		}
+		else if (desyncSide == -1.f)
+		{
+			if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng)) {
+				desyncAng += -25.f;
 			}
 		}
-		else if (eye_feet == 0)
+		else if (eye_feet == 0.f)
 		{
-			desyncAng = entity->getAnimstate()->footYaw;
+			if (entity->velocity().length2D() > 3.0f) {
+				desyncAng = entity->getAnimstate()->footYaw;
+			}
+			else
+			desyncAng = entity->getMaxDesyncAngle() - 2.f;
 		}
 	}
 	return;
@@ -287,8 +283,7 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 	{
 		auto animstate = entity->getAnimstate();
 		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
-
-		if (eye_feet == 0)
+		if (eye_feet == 0.f)
 		{
 			if (entity->velocity().length2D() > 3.0f) {
 				desyncAng = entity->getAnimstate()->footYaw;

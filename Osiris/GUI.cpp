@@ -308,7 +308,6 @@ void GUI::renderRagebotWindow() noexcept
     static bool hitbox[ARRAYSIZE(hitboxes)] = { false, false, false, false, false };
     static std::string previewvalue = "";
     bool once = false;
-
     ImGui::PushID("Ragebot Key");
     ImGui::hotkey2("Key", config->ragebotKey);
     ImGui::PopID();
@@ -412,6 +411,7 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::Checkbox("Enabled", &config->ragebot[currentWeapon].enabled);
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 220.0f);
+    ImGui::Checkbox("Resolver", &config->resolver.resolver);
     ImGui::Checkbox("Aimlock", &config->ragebot[currentWeapon].aimlock);
     ImGui::Checkbox("Silent", &config->ragebot[currentWeapon].silent);
     ImGui::Checkbox("Friendly fire", &config->ragebot[currentWeapon].friendlyFire);

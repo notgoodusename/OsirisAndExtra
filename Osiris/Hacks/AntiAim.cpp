@@ -146,12 +146,12 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw += (isInvertToggled ? -15 : +15) + 180.f;
                 if (!autoDirection(cmd->viewangles))
                 {
-                    config->rageAntiAim.yawAdd = RandomFloat(82.f, 120.f, 1.f);
+                    config->rageAntiAim.yawAdd = RandomFloat(0.f, 59.f, 1.f);
                     break;
                 }
                 else
                 {
-                    config->rageAntiAim.yawAdd = RandomFloat(-82.f, -120.f, 1.f);
+                    config->rageAntiAim.yawAdd = RandomFloat(-59.f, 0.f, 1.f);
                     break;
                 }
             }

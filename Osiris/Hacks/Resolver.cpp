@@ -8,8 +8,7 @@
 #include "../SDK/GameEvent.h"
 
 std::deque<Resolver::SnapShot> snapshots;
-bool resolver = true;
-float desyncAng = 0;
+float desyncAng{ 0 };
 
 void Resolver::reset() noexcept
 {
@@ -64,7 +63,7 @@ void Resolver::getEvent(GameEvent* event) noexcept
 			players->at(i).misses = 0;
 		}
 		snapshots.clear();
-		float desyncAng = 0;
+		desyncAng = 0;
 		break;
 	}
 	case fnv::hash("player_death"):
@@ -85,7 +84,8 @@ void Resolver::getEvent(GameEvent* event) noexcept
 
 		if (event->getInt("attacker") != localPlayer->getUserId())
 			break;
-
+		auto& snapshot = snapshots.front();
+		snapshot.player.workingangle = desyncAng;
 		const auto hitgroup = event->getInt("hitgroup");
 		if (hitgroup < HitGroup::Head || hitgroup > HitGroup::RightLeg)
 			break;
@@ -114,13 +114,13 @@ void Resolver::getEvent(GameEvent* event) noexcept
 	default:
 		break;
 	}
-	if (!resolver)
+	if (!config->resolver.resolver)
 		snapshots.clear();
 }
 
 void Resolver::processMissedShots() noexcept
 {
-	if (!resolver)
+	if (!config->resolver.resolver)
 	{
 		snapshots.clear();
 		return;
@@ -203,7 +203,7 @@ float clampedangle(float initialangle)
 }
 void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 {
-	if (!resolver)
+	if (!config->resolver.resolver)
 		return;
 
 	const auto misses = player.misses;
@@ -212,42 +212,16 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 
 	if (player.chokedPackets <= 0)
 		return;
-	if (entity->velocity().length2D() > 3.0f) {
-		desyncAng = entity->getAnimstate()->footYaw;
-		Animations::setPlayer(entity->index())->absAngle.y += clampedangle(desyncAng);
+	if (!localPlayer || !localPlayer->isAlive())
+	{
+		snapshots.clear();
 		return;
 	}
-}
 
-void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcept
-{
-	if (!resolver)
+	if (snapshots.empty())
 		return;
-
-	const auto misses = player.misses;
-	if (!entity || !entity->isAlive())
-		return;
-
-	if (player.chokedPackets <= 0)
-		return;
-		desyncAng = 0;
-	if (entity->velocity().length2D() > 3.0f) {
-		desyncAng = entity->getAnimstate()->footYaw;
-		return;
-	}
-	
 	if (misses != 0)
 	{
-
-		if (!localPlayer || !localPlayer->isAlive())
-		{
-			snapshots.clear();
-			return;
-		}
-
-		if (snapshots.empty())
-			return;
-
 		auto snapshot = snapshots.front();
 		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
 		float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;
@@ -256,25 +230,66 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 			if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng)) {
 				desyncAng -= 25.f;
 			}
+			else
+			{
+				desyncAng = 60.f;
+			}
 		}
 		else if (desyncSide == -1)
 		{
 			if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng)) {
 				desyncAng += 25.f;
 			}
+			else 
+			{
+				desyncAng = -60.f;
+			}
 		}
 		else if (eye_feet == 0)
 		{
 			desyncAng = entity->getAnimstate()->footYaw;
 		}
-		if (desyncAng > 60)
-		{
-			desyncAng = entity->getAnimstate()->footYaw;
-		}
-		Animations::setPlayer(entity->index())->absAngle.y += clampedangle(desyncAng);
 	}
 	return;
+}
 
+void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcept
+{
+	if (!config->resolver.resolver)
+		return;
+
+	const auto misses = player.misses;
+	if (!entity || !entity->isAlive())
+		return;
+
+	if (player.chokedPackets <= 0)
+		return;
+	if (!localPlayer || !localPlayer->isAlive())
+	{
+		snapshots.clear();
+		return;
+	}
+
+	if (snapshots.empty())
+		return;
+	auto animstate = entity->getAnimstate();
+	float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
+
+		if (eye_feet == 0)
+		{
+			if (entity->velocity().length2D() > 3.0f) {
+				desyncAng = entity->getAnimstate()->footYaw;
+			}
+		}
+		Vector eyeangle{ entity->eyeAngles() };
+		auto snapshot = snapshots.front();
+		if (snapshot.player.workingangle != 0.f)
+		{
+			desyncAng = snapshot.player.workingangle;
+		}
+		eyeangle.y += clampedangle(desyncAng);
+		entity->updateState(animstate, eyeangle);
+		return;
 }
 
 void Resolver::updateEventListeners(bool forceRemove) noexcept
@@ -289,7 +304,7 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 	static ImpactEventListener listener[3];
 	static bool listenerRegistered = false;
 
-	if (resolver && !listenerRegistered) {
+	if (config->resolver.resolver && !listenerRegistered) {
 		interfaces->gameEventManager->addListener(&listener[0], "bullet_impact");
 		interfaces->gameEventManager->addListener(&listener[1], "player_hurt");
 		interfaces->gameEventManager->addListener(&listener[2], "round_start");
@@ -297,7 +312,7 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		listenerRegistered = true;
 	}
 
-	else if ((!resolver || forceRemove) && listenerRegistered) {
+	else if ((!config->resolver.resolver || forceRemove) && listenerRegistered) {
 		interfaces->gameEventManager->removeListener(&listener[0]);
 		interfaces->gameEventManager->removeListener(&listener[1]);
 		interfaces->gameEventManager->removeListener(&listener[2]);

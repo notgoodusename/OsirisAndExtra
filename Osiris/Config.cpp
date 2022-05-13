@@ -245,6 +245,10 @@ static void from_json(const json& j, Config::Legitbot& a)
     read(j, "Between shots", a.betweenShots);
 }
 
+static void from_json(const json& j, Config::Resolver& r)
+{
+    read(j, "Resolver", r.resolver);
+}
 static void from_json(const json& j, Config::Ragebot& r)
 {
     read(j, "Enabled", r.enabled);
@@ -838,6 +842,10 @@ static void to_json(json& j, const Config::Legitbot& o, const Config::Legitbot& 
     WRITE("Between shots", betweenShots);
 }
 
+static void to_json(json& j, const Config::Resolver& o, const Config::Resolver& dummy = {})
+{
+    WRITE("Resolver", resolver);
+}
 static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& dummy = {})
 {
     WRITE("Enabled", enabled);

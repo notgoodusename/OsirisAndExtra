@@ -67,6 +67,7 @@ namespace Animations
 		std::array<AnimationLayer, 13> layers { };
 		std::array<AnimationLayer, 13> oldlayers { };
 		std::vector<float> blacklisted;
+		float workingangle = 0.f;
 
 		Vector mins{}, maxs{};
 		Vector origin{}, oldOrigin{}, absAngle{};
@@ -116,6 +117,7 @@ namespace Animations
 			chokedPackets = 0;
 			misses = 0;
 			blacklisted = { -1.f };
+			workingangle = 0;
 		}
 	};
 	Players getPlayer(int index) noexcept;

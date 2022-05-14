@@ -29,7 +29,6 @@ namespace Animations
 	Vector* getLocalAngle() noexcept;
 
 	void handlePlayers(FrameStage) noexcept;
-
 	bool isLocalUpdating() noexcept;
 	bool isEntityUpdating() noexcept;
 	bool isFakeUpdating() noexcept;

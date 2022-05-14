@@ -32,7 +32,7 @@ static std::array<AnimationLayer, 13> layers{};
 static float primaryCycle{ 0.0f };
 static float moveWeight{ 0.0f };
 static float footYaw{};
-static float tilt{};
+static float tilt{0};
 static std::array<float, 24> poseParameters{};
 static std::array<AnimationLayer, 13> sendPacketLayers{};
 

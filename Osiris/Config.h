@@ -64,6 +64,8 @@ public:
 
     struct RageAntiAimConfig {
         bool enabled = false;
+        bool roll = false;
+        bool rolling = false;
         int pitch = 0; //Off, Down, Zero, Up
         int yawBase = 0; //Off, Forward, Backward, Right, Left, Spin
         int yawAdd = 0; //-180/180
@@ -82,7 +84,6 @@ public:
         int leftLimit = 60;
         int rightLimit = 60;
         int peekMode = 0; //Off, Peek real, Peek fake
-        bool experimental = false;
         int lbyMode = 0; // Normal, Opposite, sway, 
     } fakeAngle;
 

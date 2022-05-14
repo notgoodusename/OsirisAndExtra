@@ -67,6 +67,8 @@ namespace Animations
 		std::array<AnimationLayer, 13> oldlayers { };
 		std::vector<float> blacklisted;
 		float workingangle = 0.f;
+		bool extended{ false };
+		bool shot{ false };
 
 		Vector mins{}, maxs{};
 		Vector origin{}, oldOrigin{}, absAngle{};
@@ -92,6 +94,7 @@ namespace Animations
 			simulationTime = -1.0f;
 			moveWeight = 0.0f;
 
+			extended = false;
 			duckAmount = 0.0f;
 			oldDuckAmount = 0.0f;
 

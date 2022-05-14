@@ -66,6 +66,19 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		desyncAng = 0;
 		break;
 	}
+	case fnv::hash("weapon_fire"):
+	{
+		if (snapshots.empty())
+			break;
+
+		auto& snapshot = snapshots.front();
+
+		if (int playerint = snapshot.playerIndex; event->getInt("userid") != playerint)
+			break;
+
+			snapshot.player.shot = true;
+			break;
+	}
 	case fnv::hash("player_death"):
 	{
 		//Reset player
@@ -137,9 +150,8 @@ void Resolver::processMissedShots() noexcept
 		return;
 	}
 
-	if (!localPlayer ||!localPlayer->isAlive())
+	if (!localPlayer || !localPlayer->isAlive())
 	{
-		snapshots.clear();
 		return;
 	}
 
@@ -191,6 +203,7 @@ void Resolver::processMissedShots() noexcept
 			}
 			Logger::addLog(missed);
 			Animations::setPlayer(snapshot.playerIndex)->misses++;
+			Logger::addLog(std::to_string(snapshot.player.misses));
 			break;
 		}
 	}
@@ -212,6 +225,19 @@ float clampedangle(float initialangle)
 	}
 	return result;
 }
+float get_backward_side(Entity* entity) {
+	if (!entity->isAlive())
+		return -1.f;
+	float result = Helpers::angleDiff(localPlayer->origin().y, entity->origin().y);
+	return result;
+}
+float get_angle(Entity* entity) {
+	return Helpers::angleNormalize(entity->eyeAngles().y);
+}
+float get_foword_yaw(Entity* entity) {
+	return Helpers::angleNormalize(get_backward_side(entity) - 180.f);
+}
+
 void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 {
 	if (!config->ragebot[0].resolver)
@@ -225,39 +251,20 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 		return;
 	if (!localPlayer || !localPlayer->isAlive())
 	{
-		snapshots.clear();
 		return;
 	}
 
 	if (snapshots.empty())
 		return;
-	if (misses > 0)
+
+	if (player.layers[3].cycle == 0.f)
 	{
-		auto snapshot = snapshots.front();
-		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
-		float desyncSide = 2 * eye_feet <= 0.0f ? 1 : -1;
-		if (eye_feet == 1.f)
+		if (player.layers[3].weight = 0.f)
 		{
-			if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng)) {
-				desyncAng += 25.f;
-			}
-		}
-		else if (desyncSide == -1.f)
-		{
-			if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng)) {
-				desyncAng += -25.f;
-			}
-		}
-		else if (eye_feet == 0.f)
-		{
-			if (entity->velocity().length2D() > 3.0f) {
-				desyncAng = entity->getAnimstate()->footYaw;
-			}
-			else
-			desyncAng = entity->getMaxDesyncAngle() - 2.f;
+			player.extended = true;
 		}
 	}
-	return;
+
 }
 
 void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcept
@@ -266,6 +273,7 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 		return;
 
 	const auto misses = player.misses;
+
 	if (!entity || !entity->isAlive())
 		return;
 
@@ -273,34 +281,141 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 		return;
 	if (!localPlayer || !localPlayer->isAlive())
 	{
-		snapshots.clear();
 		return;
 	}
 
 	if (snapshots.empty())
 		return;
+	static int side{};
+	Resolver::detect_side(entity, &side);
+	auto& snapshot = snapshots.front();
+	if (player.shot)
+	{
+		player.shot = false;
+		desyncAng = Resolver::ResolveShot(player, entity);
+	}
 	if (misses > 0)
 	{
-		auto animstate = entity->getAnimstate();
-		float eye_feet = entity->eyeAngles().y - entity->getAnimstate()->footYaw;
-		if (eye_feet == 0.f)
+		static int side{};
+		Resolver::detect_side(entity, &side);
+		float resolve_value = 50.f;
+		auto& snapshot = snapshots.front();
+		float fl_max_rotation = entity->getMaxDesyncAngle();
+		float perfect_resolve_yaw = resolve_value;
+		bool fl_foword = fabsf(Helpers::angleNormalize(get_angle(entity) - get_foword_yaw(entity))) < 90.f;
+		int fl_shots = misses;
+		/* clamp angle */
+		if (fl_max_rotation < resolve_value) {
+			resolve_value = fl_max_rotation;
+		}
+
+
+		/* detect if player is using max desync angle */
+		if (player.extended) {
+			resolve_value = fl_max_rotation;
+		}
+
+		/* setup brting */
+		if (fl_shots == 0) {
+			desyncAng = perfect_resolve_yaw * (fl_foword ? -side : side);
+		}
+		else
 		{
-			if (entity->velocity().length2D() > 3.0f) {
-				desyncAng = entity->getAnimstate()->footYaw;
+			switch (misses % 3) {
+			case 0: {
+				desyncAng = perfect_resolve_yaw * (fl_foword ? -side : side);
+			} break;
+			case 1: {
+				desyncAng = perfect_resolve_yaw * (fl_foword ? side : -side);
+			} break;
+			case 2: {
+				desyncAng = 0;
+			} break;
+
 			}
 		}
-		Vector eyeangle{ entity->eyeAngles() };
-		auto snapshot = snapshots.front();
+		/* fix goalfeet yaw */
 		if (snapshot.player.workingangle != 0.f)
 		{
 			desyncAng = snapshot.player.workingangle;
 		}
-		eyeangle.y += clampedangle(desyncAng);
-		entity->updateState(animstate, eyeangle);
+		if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng))
+		{
+			if (player.extended)
+			{
+				if (desyncAng < 0.f)
+					desyncAng += -15.f;
+				else
+					desyncAng += 15.f;
+			}
+			else
+			{
+				if (desyncAng < 0.f)
+					desyncAng += -8.f;
+				else
+					desyncAng += 8.f;
+			}
+		}
 	}
-	return;
-	
+
+	if (snapshot.player.workingangle != 0.f)
+	{
+		desyncAng = snapshot.player.workingangle;
+	}
+	entity->getAnimstate()->footYaw = entity->getAnimstate()->eyeYaw + desyncAng;
+
+
 }
+float Resolver::ResolveShot(Animations::Players player, Entity* entity) {
+	/* fix unrestricted shot */
+	float flPseudoFireYaw = Helpers::angleNormalize(Helpers::angleDiff(localPlayer->origin().y, player.matrix[8].origin().y));
+	if (player.extended) {
+		float flLeftFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y + 58.f)));
+		float flRightFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y - 58.f)));
+
+		return flLeftFireYawDelta > flRightFireYawDelta ? -58.f : 58.f;
+	}
+	else {
+		float flLeftFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y + 29.f)));
+		float flRightFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y - 29.f)));
+
+		return flLeftFireYawDelta > flRightFireYawDelta ? -29.f : 29.f;
+	}
+}
+void Resolver::detect_side(Entity* entity, int* side) {
+	/* externs */
+	Vector src3D, dst3D, forward, right, up;
+	float back_two, right_two, left_two;
+	Trace tr;
+	Helpers::AngleVectors(Vector(0, get_backward_side(entity), 0), &forward, &right, &up);
+	/* filtering */
+
+	src3D = entity->getEyePosition();
+	dst3D = src3D + (forward * 384);
+
+	/* back engine tracers */
+	interfaces->engineTrace->traceRay({ src3D, dst3D }, 0x200400B, { entity }, tr);
+	back_two = (tr.endpos - tr.startpos).length();
+
+	/* right engine tracers */
+	interfaces->engineTrace->traceRay(Ray(src3D + right * 35, dst3D + right * 35), 0x200400B, { entity }, tr);
+	right_two = (tr.endpos - tr.startpos).length();
+
+	/* left engine tracers */
+	interfaces->engineTrace->traceRay(Ray(src3D - right * 35, dst3D - right * 35), 0x200400B, { entity }, tr);
+	left_two = (tr.endpos - tr.startpos).length();
+
+	/* fix side */
+	if (left_two > right_two) {
+		*side = -1;
+	}
+	else if (right_two > left_two) {
+		*side = 1;
+	}
+	else
+		*side = 0;
+}
+
 
 void Resolver::updateEventListeners(bool forceRemove) noexcept
 {
@@ -311,14 +426,15 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		}
 	};
 
-	static ImpactEventListener listener[3];
+	static ImpactEventListener listener[4];
 	static bool listenerRegistered = false;
 
 	if (config->ragebot[0].resolver && !listenerRegistered) {
 		interfaces->gameEventManager->addListener(&listener[0], "bullet_impact");
 		interfaces->gameEventManager->addListener(&listener[1], "player_hurt");
 		interfaces->gameEventManager->addListener(&listener[2], "round_start");
-		//interfaces->gameEventManager->addListener(&listener[3], "player_death"); //causes crash
+		interfaces->gameEventManager->addListener(&listener[3], "weapon_fire");
+		//interfaces->gameEventManager->addListener(&listener[4], "player_death"); //causes crash
 		listenerRegistered = true;
 	}
 
@@ -326,7 +442,8 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		interfaces->gameEventManager->removeListener(&listener[0]);
 		interfaces->gameEventManager->removeListener(&listener[1]);
 		interfaces->gameEventManager->removeListener(&listener[2]);
-		//interfaces->gameEventManager->removeListener(&listener[3]);
+		interfaces->gameEventManager->removeListener(&listener[3]);
+		//interfaces->gameEventManager->removeListener(&listener[4]);
 		listenerRegistered = false;
 	}
 }

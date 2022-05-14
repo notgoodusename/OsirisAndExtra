@@ -118,6 +118,38 @@ float Helpers::approachValueSmooth(float target, float value, float fraction) no
     delta *= fraction;
     return value + delta;
 }
+void Helpers::AngleVectors(Vector angles, Vector* forward, Vector* right, Vector* up) {
+    float angle;
+    static float sr, sp, sy, cr, cp, cy, cpi = (M_PI * 2 / 360);
+
+    angle = angles.x * cpi;
+    sy = sin(angle);
+    cy = cos(angle);
+    angle = angles.y * cpi;
+    sp = sin(angle);
+    cp = cos(angle);
+    angle = angles.z * cpi;
+    sr = sin(angle);
+    cr = cos(angle);
+
+    if (forward) {
+        forward->y = (cp * cy);
+        forward->x = cp * sy;
+        forward->z = -sp;
+    }
+
+    if (right) {
+        right->y = (-1 * sr * sp * cy + -1 * cr * -sy);
+        right->x = (-1 * sr * sp * sy + -1 * cr * cy);
+        right->z = -1 * sr * cp;
+    }
+
+    if (up) {
+        up->y = (cr * sp * cy + -sr * -sy);
+        up->x = (cr * sp * sy + -sr * cy);
+        up->z = cr * cp;
+    }
+}
 
 float Helpers::angleDiff(float destAngle, float srcAngle) noexcept
 {

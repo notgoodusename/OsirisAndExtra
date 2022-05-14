@@ -16,6 +16,10 @@ namespace Resolver
 	void runPreUpdate(Animations::Players player, Entity* entity) noexcept;
 	void runPostUpdate(Animations::Players player, Entity* entity) noexcept;
 
+	float ResolveShot(Animations::Players player, Entity* entity);
+
+	void detect_side(Entity* entity, int* side);
+
 	void updateEventListeners(bool forceRemove = false) noexcept;
 
 	struct SnapShot

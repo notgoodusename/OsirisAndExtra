@@ -106,6 +106,21 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             break;
         }
     }
+    if (cmd->viewangles.z == currentViewAngles.z && config->rageAntiAim.roll)
+    {
+
+        if (localPlayer->velocity().length2D() < 1.3f)
+        {
+            config->rageAntiAim.rolling = true;
+            cmd->viewangles.z = invert ? 38.f : -38.f;
+        }
+        else
+        {
+            if (config->rageAntiAim.rolling)
+                config->rageAntiAim.rolling = false;
+        }
+    }
+    
     if (cmd->viewangles.y == currentViewAngles.y)
     {
         if (config->rageAntiAim.yawBase != 0 
@@ -240,16 +255,6 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 if (!sendPacket)
                     cmd->viewangles.y += flip ? leftDesyncAngle : rightDesyncAngle;
                 break;
-            }
-            if (config->fakeAngle.experimental)
-            {
-                if (sendPacket)
-                {
-                    auto animstate = localPlayer->getAnimstate();
-                    Vector views{ cmd->viewangles };
-                    views.z = invert ? 38 : -38;
-                    localPlayer->updateState(animstate, views);
-                }
             }
             if (sendPacket)
                 return;

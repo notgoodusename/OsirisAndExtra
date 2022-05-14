@@ -76,6 +76,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         break;
     case fnv::hash("weapon_fire"):
         Visuals::bulletTracer(*event);
+        Resolver::getEvent(event);
         break;
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);

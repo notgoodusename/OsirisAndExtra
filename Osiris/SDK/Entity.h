@@ -619,6 +619,7 @@ public:
     NETVAR(isStrafing, "CCSPlayer", "m_bStrafing", bool)
     NETVAR(moveState, "CCSPlayer", "m_iMoveState", int)
     NETVAR(duckOverride, "CCSPlayer", "m_bDuckOverride", bool)
+    NETVAR(stamina, "CCSPlayer", "m_flStamina", float)
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)
     NETVAR(worldModelIndex, "CBaseCombatWeapon", "m_iWorldModelIndex", int)

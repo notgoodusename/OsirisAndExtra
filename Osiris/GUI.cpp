@@ -1201,6 +1201,11 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("No sleeves", &config->visuals.noSleeves);
     ImGui::Checkbox("No weapons", &config->visuals.noWeapons);
     ImGui::Checkbox("No smoke", &config->visuals.noSmoke);
+    ImGui::SameLine();
+    ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
+    ImGui::Checkbox("No molotov", &config->visuals.noMolotov);
+    ImGui::SameLine();
+    ImGui::Checkbox("Wireframe molotov", &config->visuals.wireframeMolotov);
     ImGui::Checkbox("No blur", &config->visuals.noBlur);
     ImGui::Checkbox("No scope overlay", &config->visuals.noScopeOverlay);
     ImGui::Checkbox("No grass", &config->visuals.noGrass);
@@ -1263,7 +1268,6 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::PopID();
 
     ImGui::Checkbox("Full bright", &config->visuals.fullBright);
-    ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
     ImGui::NextColumn();
     ImGui::Checkbox("Zoom", &config->visuals.zoom);
     ImGui::SameLine();

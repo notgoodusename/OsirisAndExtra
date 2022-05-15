@@ -14,7 +14,10 @@ void Tickbase::run(UserCmd* cmd) noexcept
 	if (!localPlayer || !localPlayer->isAlive())
 		return;
 
-	if ((*memory->gameRules)->freezePeriod())
+	if (!*memory->gameRules || (*memory->gameRules)->freezePeriod())
+		return;
+
+	if (localPlayer->flags() & (1 << 6))
 		return;
 
 	if (spawnTime != localPlayer->spawnTime())
@@ -24,10 +27,12 @@ void Tickbase::run(UserCmd* cmd) noexcept
 	}
 
 	static bool enabled = false;
-	if (config->tickbase.enabled != enabled && config->tickbase.enabled)
+	if (config->doubletapkey.isActive() != enabled && config->doubletapkey.isActive())
 		doubletapCharge = 0;
-	enabled = config->tickbase.enabled;
+	enabled = config->doubletapkey.isActive();
 	if (!config->tickbase.enabled)
+		return;
+	if (!config->doubletapkey.isActive())
 		return;
 
 	auto activeWeapon = localPlayer->getActiveWeapon();
@@ -66,4 +71,8 @@ void Tickbase::run(UserCmd* cmd) noexcept
 		lastShift = shiftAmount;
 		commandNumber = cmd->commandNumber;
 	}
+}
+void Tickbase::updateInput() noexcept
+{
+	config->doubletapkey.handleToggle();
 }

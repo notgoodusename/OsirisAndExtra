@@ -260,7 +260,7 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 	if (snapshots.empty())
 		return;
 
-	Resolver::setup_detect(player, entity);
+	
 
 }
 
@@ -286,7 +286,9 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 
 	auto& snapshot = snapshots.front();
 
-	if (misses > 0)
+	Resolver::setup_detect(player, entity);
+
+	if (misses > 0 || entity->velocity().length2D() >= 3.0f)
 	{
 		if (snapshot.player.workingangle != 0.f)
 		{
@@ -295,6 +297,7 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 		else
 		{
 			ResolveEntity(player, entity);
+			desyncAng = entity->getAnimstate()->footYaw;
 		}
 	}
 
@@ -455,15 +458,6 @@ void Resolver::ResolveEntity(Animations::Players player, Entity* entity) {
 	int index = 0;
 	float eye_yaw = entity->getAnimstate()->eyeYaw;
 
-	// detect if player is using maximum desync.
-	if (player.layers[3].cycle == 0.f)
-	{
-		if (player.layers[3].weight = 0.f)
-		{
-			player.extended = true;
-		}
-	}
-
 	// resolve shooting players separately.
 	if (player.shot) {
 		entity->getAnimstate()->footYaw = eye_yaw + Resolver::ResolveShot(player, entity);
@@ -532,6 +526,15 @@ float Resolver::ResolveShot(Animations::Players player, Entity* entity) {
 	}
 }
 void Resolver::setup_detect(Animations::Players player, Entity* entity) {
+
+	// detect if player is using maximum desync.
+	if (player.layers[3].cycle == 0.f)
+	{
+		if (player.layers[3].weight = 0.f)
+		{
+			player.extended = true;
+		}
+	}
 	/* calling detect side */
 	static int side{};
 	Resolver::detect_side(entity, &side);

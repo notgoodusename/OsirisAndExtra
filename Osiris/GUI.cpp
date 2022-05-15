@@ -625,6 +625,10 @@ void GUI::renderTickbaseWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->tickbase.enabled);
+    ImGui::SameLine();
+    ImGui::PushID("DT Key");
+    ImGui::hotkey2("", config->doubletapkey);
+    ImGui::PopID();
     ImGui::Checkbox("Teleport", &config->tickbase.teleport);
     ImGui::NextColumn();
     ImGui::Columns(1);

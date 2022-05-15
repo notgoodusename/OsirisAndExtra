@@ -128,6 +128,7 @@ public:
     };
     std::array<Triggerbot, 40> triggerbot;
     KeyBind triggerbotKey{ std::string("triggerbot") };
+    KeyBind doubletapkey{ std::string("doubletap") };
 
     struct Backtrack {
         bool enabled = false;

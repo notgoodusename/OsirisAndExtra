@@ -471,7 +471,7 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
 
     if (config->misc.autoPeekKey.isActive())
     {
-        if (config->tickbase.enabled && !config->tickbase.teleport)
+        if ( config->tickbase.enabled && config->doubletapkey.isActive() && !config->tickbase.teleport)
             config->tickbase.teleport = true;
         if (peekPosition.null())
             peekPosition = localPlayer->getRenderOrigin();
@@ -696,8 +696,10 @@ const bool anyActiveKeybinds() noexcept
     const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
+    const bool doubletap = config->tickbase.enabled && config->doubletapkey.canShowKeybind();
+
     return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
-        || zoom || thirdperson || freeCam || blockbot || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
+        || zoom || thirdperson || freeCam || blockbot || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver || doubletap;
 }
 
 void Misc::showKeybinds() noexcept
@@ -756,6 +758,8 @@ void Misc::showKeybinds() noexcept
         config->misc.fakeduckKey.showKeybind();
     if (config->misc.autoPeek.enabled)
         config->misc.autoPeekKey.showKeybind();
+    if (config->tickbase.enabled)
+        config->doubletapkey.showKeybind();
     if (config->misc.prepareRevolver)
         config->misc.prepareRevolverKey.showKeybind();
 

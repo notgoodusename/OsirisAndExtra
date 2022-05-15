@@ -6,6 +6,8 @@ namespace Tickbase
 {
     void run(UserCmd*) noexcept;
 
+    void updateInput() noexcept;
+
     int doubletapCharge = 0,
         ticksToShift = 0,
         commandNumber = 0,

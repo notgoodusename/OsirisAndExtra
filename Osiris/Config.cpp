@@ -669,6 +669,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read<value_t::object>(j, "Fake angle", fakeAngle);
     read<value_t::object>(j, "Fakelag", fakelag);
     read<value_t::object>(j, "Tickbase", tickbase);
+    read(j, "Doubletap Key", doubletapkey);
     read<value_t::object>(j, "Backtrack", backtrack);
     Glow::fromJson(j["Glow"]);
     read(j, "Chams", chams);
@@ -1292,6 +1293,7 @@ void Config::save(size_t id) const noexcept
         j["Fake angle"] = fakeAngle;
         j["Fakelag"] = fakelag;
         j["Teleport"] = tickbase;
+        to_json(j["Doubletap Key"], doubletapkey, KeyBind::NONE);
         j["Backtrack"] = backtrack;
         j["Glow"] = Glow::toJson();
         j["Chams"] = chams;

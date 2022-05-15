@@ -252,11 +252,9 @@ void Visuals::modifySmoke(FrameStage stage) noexcept
 void Visuals::modifyMolotov(FrameStage stage) noexcept
 {
     constexpr std::array fireMaterials{
+        "decals/molotovscorch.vmt",
         "particle/fire_burning_character/fire_env_fire.vmt",
         "particle/fire_burning_character/fire_env_fire_depthblend.vmt",
-        "particle/fire_burning_character/fire_burning_character_depthblend.vmt",
-        "particle/fire_burning_character/fire_burning_character.vmt",
-        "particle/fire_burning_character/fire_burning_character_nodepth.vmt",
         "particle/particle_flares/particle_flare_001.vmt",
         "particle/particle_flares/particle_flare_004.vmt",
         "particle/particle_flares/particle_flare_004b_mod_ob.vmt",
@@ -264,7 +262,8 @@ void Visuals::modifyMolotov(FrameStage stage) noexcept
         "particle/fire_explosion_1/fire_explosion_1_bright.vmt",
         "particle/fire_explosion_1/fire_explosion_1b.vmt",
         "particle/fire_particle_4/fire_particle_4.vmt",
-        "particle/fire_explosion_1/fire_explosion_1_oriented.vmt"
+        "particle/fire_explosion_1/fire_explosion_1_oriented.vmt",
+        "particle/vistasmokev1/vistasmokev1_nearcull_nodepth.vmt"
     };
     
     for (const auto mat : fireMaterials) {

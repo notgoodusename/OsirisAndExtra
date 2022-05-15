@@ -20,6 +20,10 @@ namespace Resolver
 
 	void detect_side(Entity* entity, int* side);
 
+	void setup_detect(Animations::Players player, Entity* entity);
+
+	void ResolveEntity(Animations::Players player, Entity* entity);
+
 	void updateEventListeners(bool forceRemove = false) noexcept;
 
 	struct SnapShot

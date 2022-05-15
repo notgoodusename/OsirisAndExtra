@@ -71,17 +71,20 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		if (snapshots.empty())
 			break;
 
-		auto& snapshot = snapshots.front();
-
-		if (int playerint = snapshot.playerIndex; event->getInt("userid") != playerint)
+		const auto playerId = event->getInt("userid");
+		if (playerId == localPlayer->getUserId())
 			break;
 
-			snapshot.player.shot = true;
+		const auto index = interfaces->engine->getPlayerForUserID(playerId);
+		Animations::setPlayer(index)->shot = true;
 			break;
 	}
 	case fnv::hash("player_death"):
 	{
 		//Reset player
+		if (snapshots.empty())
+			break;
+
 		const auto playerId = event->getInt("userid");
 		if (playerId == localPlayer->getUserId())
 			break;
@@ -203,7 +206,7 @@ void Resolver::processMissedShots() noexcept
 			}
 			Logger::addLog(missed);
 			Animations::setPlayer(snapshot.playerIndex)->misses++;
-			Logger::addLog(std::to_string(snapshot.player.misses));
+			Logger::addLog(std::to_string(Animations::getPlayer(snapshot.playerIndex).misses));
 			break;
 		}
 	}
@@ -257,13 +260,7 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 	if (snapshots.empty())
 		return;
 
-	if (player.layers[3].cycle == 0.f)
-	{
-		if (player.layers[3].weight = 0.f)
-		{
-			player.extended = true;
-		}
-	}
+	Resolver::setup_detect(player, entity);
 
 }
 
@@ -286,101 +283,138 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 
 	if (snapshots.empty())
 		return;
-	static int side{};
-	Resolver::detect_side(entity, &side);
+
 	auto& snapshot = snapshots.front();
-	if (player.shot)
-	{
-		player.shot = false;
-		desyncAng = Resolver::ResolveShot(player, entity);
-	}
+
 	if (misses > 0)
 	{
-		static int side{};
-		Resolver::detect_side(entity, &side);
-		float resolve_value = 50.f;
-		auto& snapshot = snapshots.front();
-		float fl_max_rotation = entity->getMaxDesyncAngle();
-		float perfect_resolve_yaw = resolve_value;
-		bool fl_foword = fabsf(Helpers::angleNormalize(get_angle(entity) - get_foword_yaw(entity))) < 90.f;
-		int fl_shots = misses;
-		/* clamp angle */
-		if (fl_max_rotation < resolve_value) {
-			resolve_value = fl_max_rotation;
-		}
-
-
-		/* detect if player is using max desync angle */
-		if (player.extended) {
-			resolve_value = fl_max_rotation;
-		}
-
-		/* setup brting */
-		if (fl_shots == 0) {
-			desyncAng = perfect_resolve_yaw * (fl_foword ? -side : side);
-		}
-		else
-		{
-			switch (misses % 3) {
-			case 0: {
-				desyncAng = perfect_resolve_yaw * (fl_foword ? -side : side);
-			} break;
-			case 1: {
-				desyncAng = perfect_resolve_yaw * (fl_foword ? side : -side);
-			} break;
-			case 2: {
-				desyncAng = 0;
-			} break;
-
-			}
-		}
-		/* fix goalfeet yaw */
 		if (snapshot.player.workingangle != 0.f)
 		{
 			desyncAng = snapshot.player.workingangle;
 		}
-		if (std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng))
+		else
 		{
-			if (player.extended)
-			{
-				if (desyncAng < 0.f)
-					desyncAng += -15.f;
-				else
-					desyncAng += 15.f;
-			}
-			else
-			{
-				if (desyncAng < 0.f)
-					desyncAng += -8.f;
-				else
-					desyncAng += 8.f;
-			}
+			ResolveEntity(player, entity);
 		}
 	}
 
-	if (snapshot.player.workingangle != 0.f)
-	{
-		desyncAng = snapshot.player.workingangle;
-	}
-	entity->getAnimstate()->footYaw = entity->getAnimstate()->eyeYaw + desyncAng;
-
-
 }
-float Resolver::ResolveShot(Animations::Players player, Entity* entity) {
-	/* fix unrestricted shot */
-	float flPseudoFireYaw = Helpers::angleNormalize(Helpers::angleDiff(localPlayer->origin().y, player.matrix[8].origin().y));
-	if (player.extended) {
-		float flLeftFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y + 58.f)));
-		float flRightFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y - 58.f)));
+float build_server_abs_yaw(Animations::Players player, Entity* entity, float angle)
+{
+	Vector velocity = entity->velocity();
+	auto anim_state = entity->getAnimstate();
+	float m_flEyeYaw = angle;
+	float m_flGoalFeetYaw = 0.f;
 
-		return flLeftFireYawDelta > flRightFireYawDelta ? -58.f : 58.f;
+	float eye_feet_delta = Helpers::angleDiff(m_flEyeYaw, m_flGoalFeetYaw);
+
+	static auto GetSmoothedVelocity = [](float min_delta, Vector a, Vector b) {
+		Vector delta = a - b;
+		float delta_length = delta.length();
+
+		if (delta_length <= min_delta)
+		{
+			Vector result;
+
+			if (-min_delta <= delta_length)
+				return a;
+			else
+			{
+				float iradius = 1.0f / (delta_length + FLT_EPSILON);
+				return b - ((delta * iradius) * min_delta);
+			}
+		}
+		else
+		{
+			float iradius = 1.0f / (delta_length + FLT_EPSILON);
+			return b + ((delta * iradius) * min_delta);
+		}
+	};
+
+	float spd = velocity.squareLength();;
+
+	if (spd > std::powf(1.2f * 260.0f, 2.f))
+	{
+		Vector velocity_normalized = velocity.normalized();
+		velocity = velocity_normalized * (1.2f * 260.0f);
+	}
+
+	float m_flChokedTime = anim_state->lastUpdateTime;
+	float v25 = std::clamp(entity->duckAmount() + anim_state->duckAdditional, 0.0f, 1.0f);
+	float v26 = anim_state->animDuckAmount;
+	float v27 = m_flChokedTime * 6.0f;
+	float v28;
+
+	// clamp
+	if ((v25 - v26) <= v27) {
+		if (-v27 <= (v25 - v26))
+			v28 = v25;
+		else
+			v28 = v26 - v27;
 	}
 	else {
-		float flLeftFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y + 29.f)));
-		float flRightFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y - 29.f)));
-
-		return flLeftFireYawDelta > flRightFireYawDelta ? -29.f : 29.f;
+		v28 = v26 + v27;
 	}
+
+	float flDuckAmount = std::clamp(v28, 0.0f, 1.0f);
+
+	Vector animationVelocity = GetSmoothedVelocity(m_flChokedTime * 2000.0f, velocity, entity->velocity());
+	float speed = std::fminf(animationVelocity.length(), 260.0f);
+
+	float flMaxMovementSpeed = 260.0f;
+
+	Entity* pWeapon = entity->getActiveWeapon();
+	if (pWeapon && pWeapon->getWeaponData())
+		flMaxMovementSpeed = std::fmaxf(pWeapon->getWeaponData()->maxSpeedAlt, 0.001f);
+
+	float flRunningSpeed = speed / (flMaxMovementSpeed * 0.520f);
+	float flDuckingSpeed = speed / (flMaxMovementSpeed * 0.340f);
+
+	flRunningSpeed = std::clamp(flRunningSpeed, 0.0f, 1.0f);
+
+	float flYawModifier = (((anim_state->walkToRunTransition * -0.30000001) - 0.19999999) * flRunningSpeed) + 1.0f;
+
+	if (flDuckAmount > 0.0f)
+	{
+		float flDuckingSpeed = std::clamp(flDuckingSpeed, 0.0f, 1.0f);
+		flYawModifier += (flDuckAmount * flDuckingSpeed) * (0.5f - flYawModifier);
+	}
+
+	const float v60 = -58.f;
+	const float v61 = 58.f;
+
+	float flMinYawModifier = v60 * flYawModifier;
+	float flMaxYawModifier = v61 * flYawModifier;
+
+	if (eye_feet_delta <= flMaxYawModifier)
+	{
+		if (flMinYawModifier > eye_feet_delta)
+			m_flGoalFeetYaw = fabs(flMinYawModifier) + m_flEyeYaw;
+	}
+	else
+	{
+		m_flGoalFeetYaw = m_flEyeYaw - fabs(flMaxYawModifier);
+	}
+
+	Helpers::normalizeYaw(m_flGoalFeetYaw);
+
+	if (speed > 0.1f || fabs(velocity.z) > 100.0f)
+	{
+		m_flGoalFeetYaw = Helpers::approachAngle(
+			m_flEyeYaw,
+			m_flGoalFeetYaw,
+			((anim_state->walkToRunTransition * 20.0f) + 30.0f)
+			* m_flChokedTime);
+	}
+	else
+	{
+		m_flGoalFeetYaw = Helpers::approachAngle(
+			entity->lby(),
+			m_flGoalFeetYaw,
+			m_flChokedTime * 100.0f);
+	}
+
+	return m_flGoalFeetYaw;
 }
 void Resolver::detect_side(Entity* entity, int* side) {
 	/* externs */
@@ -415,8 +449,132 @@ void Resolver::detect_side(Entity* entity, int* side) {
 	else
 		*side = 0;
 }
+void Resolver::ResolveEntity(Animations::Players player, Entity* entity) {
+	// get the players max rotation.
+	float max_rotation = entity->getMaxDesyncAngle();
+	int index = 0;
+	float eye_yaw = entity->getAnimstate()->eyeYaw;
 
+	// detect if player is using maximum desync.
+	if (player.layers[3].cycle == 0.f)
+	{
+		if (player.layers[3].weight = 0.f)
+		{
+			player.extended = true;
+		}
+	}
 
+	// resolve shooting players separately.
+	if (player.shot) {
+		entity->getAnimstate()->footYaw = eye_yaw + Resolver::ResolveShot(player, entity);
+		return;
+	}
+	else {
+		if (entity->velocity().length2D() <= 0.1) {
+			float angle_difference = Helpers::angleDiff(eye_yaw, entity->getAnimstate()->footYaw);
+			index = 2 * angle_difference <= 0.0f ? 1 : -1;
+		}
+		else
+		{
+			if (!((int)player.layers[12].weight * 1000.f) && entity->velocity().length2D() > 0.1) {
+
+				auto m_layer_delta1 = abs(player.layers[6].playbackRate - player.oldlayers[6].playbackRate);
+				auto m_layer_delta2 = abs(player.layers[6].playbackRate - player.oldlayers[6].playbackRate);
+				auto m_layer_delta3 = abs(player.layers[6].playbackRate - player.oldlayers[6].playbackRate);
+
+				if (m_layer_delta1 < m_layer_delta2
+					|| m_layer_delta3 <= m_layer_delta2
+					|| (signed int)(float)(m_layer_delta2 * 1000.0))
+				{
+					if (m_layer_delta1 >= m_layer_delta3
+						&& m_layer_delta2 > m_layer_delta3
+						&& !(signed int)(float)(m_layer_delta3 * 1000.0))
+					{
+						index = 1;
+					}
+				}
+				else
+				{
+					index = -1;
+				}
+			}
+		}
+	}
+
+	switch (player.misses % 3) {
+	case 0: //default
+		entity->getAnimstate()->footYaw = build_server_abs_yaw(player, entity, entity->eyeAngles().y + max_rotation * index);
+		break;
+	case 1: //reverse
+		entity->getAnimstate()->footYaw = build_server_abs_yaw(player, entity, entity->eyeAngles().y + max_rotation * -index);
+		break;
+	case 2: //middle
+		entity->getAnimstate()->footYaw = build_server_abs_yaw(player, entity, entity->eyeAngles().y);
+		break;
+	}
+
+}
+
+float Resolver::ResolveShot(Animations::Players player, Entity* entity) {
+	/* fix unrestricted shot */
+	float flPseudoFireYaw = Helpers::angleNormalize(Helpers::angleDiff(localPlayer->origin().y, player.matrix[8].origin().y));
+	if (player.extended) {
+		float flLeftFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y + 58.f)));
+		float flRightFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y - 58.f)));
+
+		return flLeftFireYawDelta > flRightFireYawDelta ? -58.f : 58.f;
+	}
+	else {
+		float flLeftFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y + 29.f)));
+		float flRightFireYawDelta = fabsf(Helpers::angleNormalize(flPseudoFireYaw - (entity->eyeAngles().y - 29.f)));
+
+		return flLeftFireYawDelta > flRightFireYawDelta ? -29.f : 29.f;
+	}
+}
+void Resolver::setup_detect(Animations::Players player, Entity* entity) {
+	/* calling detect side */
+	static int side{};
+	Resolver::detect_side(entity, &side);
+	/* bruting vars */
+	float resolve_value = 50.f;
+	static float brute = 0.f;
+	float fl_max_rotation = entity->getMaxDesyncAngle();
+	float fl_eye_yaw = entity->getAnimstate()->eyeYaw;
+	float perfect_resolve_yaw = resolve_value;
+	bool fl_foword = fabsf(Helpers::angleNormalize(get_angle(entity) - get_foword_yaw(entity))) < 90.f;
+	int fl_shots = player.misses;
+
+	/* clamp angle */
+	if (fl_max_rotation < resolve_value) {
+		resolve_value = fl_max_rotation;
+	}
+
+	/* detect if entity is using max desync angle */
+	if (player.extended) {
+		resolve_value = fl_max_rotation;
+	}
+
+	/* setup brting */
+	if (fl_shots == 0) {
+		brute = perfect_resolve_yaw * (fl_foword ? -side : side);
+	}
+	else {
+		switch (fl_shots % 3) {
+		case 0: {
+			brute = perfect_resolve_yaw * (fl_foword ? -side : side);
+		} break;
+		case 1: {
+			brute = perfect_resolve_yaw * (fl_foword ? side : -side);
+		} break;
+		case 2: {
+			brute = 0;
+		} break;
+		}
+	}
+
+	/* fix goalfeet yaw */
+	entity->getAnimstate()->footYaw = fl_eye_yaw + brute;
+}
 void Resolver::updateEventListeners(bool forceRemove) noexcept
 {
 	class ImpactEventListener : public GameEventListener {

@@ -260,8 +260,6 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 	if (snapshots.empty())
 		return;
 
-	
-
 }
 
 void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcept
@@ -290,14 +288,46 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 
 	if (misses > 0 || entity->velocity().length2D() >= 3.0f)
 	{
-		if (snapshot.player.workingangle != 0.f)
+		if (float angle = snapshot.player.workingangle; angle != 0.f)
 		{
-			desyncAng = snapshot.player.workingangle;
+			entity->getAnimstate()->footYaw = angle;
+			desyncAng = angle;
 		}
 		else
 		{
 			ResolveEntity(player, entity);
 			desyncAng = entity->getAnimstate()->footYaw;
+		}
+	}
+	else if (entity->velocity().length2D() < 3.0f)
+	{
+		auto animstate = entity->getAnimstate();
+		float angle = snapshot.player.workingangle;
+		static int side{};
+		if (angle != 0.f)
+		{
+			animstate->footYaw = angle;
+			desyncAng = angle;
+		}
+		else
+		{
+			detect_side(entity, &side);
+			if (player.extended)
+			{
+				if (side == 1)
+					desyncAng = entity->getAnimstate()->eyeYaw + (entity->getMaxDesyncAngle());
+				else if (side == -1)
+					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle());
+			}
+			else 
+			{
+				if (side == 1)
+					desyncAng = entity->getAnimstate()->eyeYaw + (entity->getMaxDesyncAngle() / 1.42f);
+				else if (side == -1)
+					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle() / 1.42f);
+			}
+			
+			animstate->footYaw = desyncAng;
 		}
 	}
 

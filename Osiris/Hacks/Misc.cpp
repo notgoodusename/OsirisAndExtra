@@ -471,7 +471,7 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
 
     if (config->misc.autoPeekKey.isActive())
     {
-        if ( config->tickbase.enabled && config->doubletapkey.isActive() && !config->tickbase.teleport)
+        if (config->doubletapkey.isActive() && !config->tickbase.teleport)
             config->tickbase.teleport = true;
         if (peekPosition.null())
             peekPosition = localPlayer->getRenderOrigin();
@@ -617,7 +617,7 @@ void Misc::slowwalk(UserCmd* cmd) noexcept
     if (!weaponData)
         return;
 
-    const float maxSpeed = (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) / 3;
+    float maxSpeed = (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) / 6;
 
     if (cmd->forwardmove && cmd->sidemove) {
         const float maxSpeedRoot = maxSpeed * static_cast<float>(M_SQRT1_2);
@@ -696,7 +696,7 @@ const bool anyActiveKeybinds() noexcept
     const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
-    const bool doubletap = config->tickbase.enabled && config->doubletapkey.canShowKeybind();
+    const bool doubletap = config->doubletapkey.canShowKeybind();
 
     return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
         || zoom || thirdperson || freeCam || blockbot || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver || doubletap;

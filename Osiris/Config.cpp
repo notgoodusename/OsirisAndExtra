@@ -1292,7 +1292,7 @@ void Config::save(size_t id) const noexcept
         j["Rage Anti aim"] = rageAntiAim;
         j["Fake angle"] = fakeAngle;
         j["Fakelag"] = fakelag;
-        j["Teleport"] = tickbase;
+        j["Tickbase"] = tickbase;
         to_json(j["Doubletap Key"], doubletapkey, KeyBind::NONE);
         j["Backtrack"] = backtrack;
         j["Glow"] = Glow::toJson();

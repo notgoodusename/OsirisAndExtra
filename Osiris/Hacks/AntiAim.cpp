@@ -109,7 +109,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
     if (cmd->viewangles.z == currentViewAngles.z && config->rageAntiAim.roll)
     {
 
-        if (localPlayer->velocity().length2D() < 1.3f || (config->tickbase.enabled && config->misc.autoPeekKey.isActive()))
+        if (localPlayer->velocity().length2D() < 1.3f || config->misc.autoPeekKey.isActive())
         {
             config->rageAntiAim.rolling = true;
             cmd->viewangles.z = invert ? 38.f : -38.f;

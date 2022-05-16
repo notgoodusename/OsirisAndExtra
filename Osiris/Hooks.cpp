@@ -252,7 +252,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Resolver::processMissedShots();
     
     memory->globalVars->serverTime(cmd);
-    if (Tickbase::isShifting && config->tickbase.enabled)
+    if (Tickbase::isShifting && config->doubletapkey.isActive())
     {
         sendPacket = Tickbase::ticksToShift == 1;
         Misc::autoPeek(cmd, currentViewAngles);
@@ -1026,7 +1026,7 @@ static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) no
 
     static float realTime = 0.0f;
 
-    if (!config->tickbase.enabled)
+    if (!config->doubletapkey.isActive())
         return original(accumulatedExtraSamples, finalTick);
 
     if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())

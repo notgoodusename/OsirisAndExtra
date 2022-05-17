@@ -13,6 +13,8 @@ namespace Tickbase
 
     bool CanFireWeapon(float curtime);
 
+    float Firerate();
+
     bool CanFireWithExploit(int m_iShiftedTick);
 
     void updateInput() noexcept;

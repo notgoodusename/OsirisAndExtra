@@ -553,7 +553,7 @@ void Misc::unlockHiddenCvars() noexcept
 
 void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
 {
-    if (!config->misc.fakeduck || !config->misc.fakeduckKey.isActive())
+    if (!config->misc.fakeduck || !config->misc.fakeduckKey.isActive() || config->doubletapkey.isActive())
         return;
 
     if (!localPlayer || !localPlayer->isAlive() || !(localPlayer->flags() & 1))

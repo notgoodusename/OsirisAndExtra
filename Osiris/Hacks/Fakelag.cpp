@@ -11,7 +11,6 @@ void Fakelag::run(bool& sendPacket) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
-
     const auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;
@@ -19,7 +18,7 @@ void Fakelag::run(bool& sendPacket) noexcept
         return;
 
     auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 2 : 0;
-    if (config->fakelag.enabled)
+    if (config->fakelag.enabled && !config->doubletapkey.isActive())
     {
         const float speed = EnginePrediction::getVelocity().length2D() >= 15.0f ? EnginePrediction::getVelocity().length2D() : 0.0f;
         switch (config->fakelag.mode) {

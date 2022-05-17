@@ -634,6 +634,7 @@ public:
     NETVAR(nextAttack, "CBaseCombatCharacter", "m_flNextAttack", float)
 
     NETVAR(readyTime, "CWeaponCSBase", "m_flPostponeFireReadyTime", float)
+    NETVAR(lastshottime, "CWeaponCSBase", "m_fLastShotTime", float)
     NETVAR(burstMode, "CWeaponCSBase", "m_bBurstMode", bool)
 
     NETVAR(burstShotRemaining, "CWeaponCSBaseGun", "m_iBurstShotsRemaining", int)

@@ -116,7 +116,7 @@ void Resolver::getEvent(GameEvent* event) noexcept
 			snapshot.player.workingangle = desyncAng;
 		const auto entity = interfaces->entityList->getEntity(snapshot.playerIndex);
 
-		Logger::addLog("Hit " + entity->getPlayerName() + ", using desync: " + std::to_string(desyncAng));
+		Logger::addLog("[Osiris] Hit " + entity->getPlayerName() + ", using Angle: " + std::to_string(desyncAng) + "°");
 		snapshots.pop_front(); //Hit somebody so dont calculate
 		break;
 	}
@@ -197,21 +197,20 @@ void Resolver::processMissedShots() noexcept
 		if (Aimbot::hitboxIntersection(matrix, hitbox, set, snapshot.eyePosition, end))
 		{
 			resolverMissed = true;
-			std::string missed = "Missed " + entity->getPlayerName() + " due to resolver";
+			std::string missed = "[Osiris] Missed " + entity->getPlayerName() + " due to resolver";
 			if (snapshot.backtrackRecord > 0)
 				missed += ", BT[" + std::to_string(snapshot.backtrackRecord) + "]";
 			if (!(std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng))) {
 				snapshot.player.blacklisted.push_back(desyncAng);
-				missed += ", Desync: " + std::to_string(desyncAng);
+				missed += ", Angle: " + std::to_string(desyncAng) + "°";
 			}
 			Logger::addLog(missed);
 			Animations::setPlayer(snapshot.playerIndex)->misses++;
-			Logger::addLog(std::to_string(Animations::getPlayer(snapshot.playerIndex).misses));
 			break;
 		}
 	}
 	if (!resolverMissed)
-		Logger::addLog("Missed " + entity->getPlayerName() + " due to spread");
+		Logger::addLog("[Osiris] Missed " + entity->getPlayerName() + " due to spread");
 }
 float clampedangle(float initialangle)
 {
@@ -253,12 +252,14 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 	if (player.chokedPackets <= 0)
 		return;
 	if (!localPlayer || !localPlayer->isAlive())
-	{
 		return;
-	}
 
 	if (snapshots.empty())
 		return;
+
+	Resolver::setup_detect(player, entity);
+	Resolver::ResolveEntity(player, entity);
+	desyncAng = entity->getAnimstate()->footYaw;
 
 }
 
@@ -275,35 +276,18 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 	if (player.chokedPackets <= 0)
 		return;
 	if (!localPlayer || !localPlayer->isAlive())
-	{
 		return;
-	}
 
 	if (snapshots.empty())
 		return;
 
 	auto& snapshot = snapshots.front();
 
-	Resolver::setup_detect(player, entity);
-
-	if (misses > 0 || entity->velocity().length2D() >= 3.0f)
-	{
-		if (float angle = snapshot.player.workingangle; angle != 0.f)
-		{
-			entity->getAnimstate()->footYaw = angle;
-			desyncAng = angle;
-		}
-		else
-		{
-			ResolveEntity(player, entity);
-			desyncAng = entity->getAnimstate()->footYaw;
-		}
-	}
-	else if (entity->velocity().length2D() < 3.0f)
+	if (entity->velocity().length2D() < 0.1f)
 	{
 		auto animstate = entity->getAnimstate();
 		float angle = snapshot.player.workingangle;
-		static int side{};
+		static int side = player.side;
 		if (angle != 0.f)
 		{
 			animstate->footYaw = angle;
@@ -311,7 +295,6 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 		}
 		else
 		{
-			detect_side(entity, &side);
 			if (player.extended)
 			{
 				if (side == 1)
@@ -319,17 +302,18 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 				else if (side == -1)
 					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle());
 			}
-			else 
+			else
 			{
 				if (side == 1)
 					desyncAng = entity->getAnimstate()->eyeYaw + (entity->getMaxDesyncAngle() / 1.42f);
 				else if (side == -1)
 					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle() / 1.42f);
 			}
-			
+
 			animstate->footYaw = desyncAng;
 		}
 	}
+	
 
 }
 float build_server_abs_yaw(Animations::Players player, Entity* entity, float angle)
@@ -566,8 +550,8 @@ void Resolver::setup_detect(Animations::Players player, Entity* entity) {
 		}
 	}
 	/* calling detect side */
-	static int side{};
-	Resolver::detect_side(entity, &side);
+	Resolver::detect_side(entity, &player.side);
+	int side = player.side;
 	/* bruting vars */
 	float resolve_value = 50.f;
 	static float brute = 0.f;
@@ -586,7 +570,6 @@ void Resolver::setup_detect(Animations::Players player, Entity* entity) {
 	if (player.extended) {
 		resolve_value = fl_max_rotation;
 	}
-
 	/* setup brting */
 	if (fl_shots == 0) {
 		brute = perfect_resolve_yaw * (fl_foword ? -side : side);

@@ -6,6 +6,15 @@ namespace Tickbase
 {
     void run(UserCmd*) noexcept;
 
+    bool CanDT();
+
+    bool DTWeapon();
+
+
+    bool CanFireWeapon(float curtime);
+
+    bool CanFireWithExploit(int m_iShiftedTick);
+
     void updateInput() noexcept;
 
     int doubletapCharge = 0,
@@ -15,4 +24,6 @@ namespace Tickbase
         shiftAmount = 0,
         maxTicks = 16;
     bool isShifting = false;
+    bool reset = false;
+    bool charged = false;
 }

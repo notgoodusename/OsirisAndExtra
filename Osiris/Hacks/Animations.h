@@ -68,6 +68,7 @@ namespace Animations
 		std::vector<float> blacklisted;
 		float workingangle = 0.f;
 		bool extended{ false };
+		int side{};
 		bool shot{ false };
 
 		Vector mins{}, maxs{};
@@ -99,7 +100,7 @@ namespace Animations
 			oldDuckAmount = 0.0f;
 
 			flags = 0;
-
+			side = -5;
 			origin = Vector{};
 			oldOrigin = Vector{};
 			absAngle = Vector{};

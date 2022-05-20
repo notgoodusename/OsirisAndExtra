@@ -629,7 +629,7 @@ void GUI::renderTickbaseWindow() noexcept
     ImGui::PushID("DT Key");
     ImGui::hotkey2("", config->doubletapkey);
     ImGui::PopID();
-    ImGui::Checkbox("Teleport", &config->tickbase.teleport);
+    ImGui::Checkbox("Hideshots", &config->tickbase.hideshots);
     ImGui::NextColumn();
     ImGui::Columns(1);
 }

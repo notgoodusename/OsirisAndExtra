@@ -83,12 +83,13 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
 {
     if (cmd->viewangles.x == currentViewAngles.x && config->rageAntiAim.enabled)
     {
+        /*
         if (config->fakeAngle.enabled)
             if (!config->fakelag.enabled)
                 sendPacket = cmd->tickCount % 2;
         if (!sendPacket && (cmd->buttons & UserCmd::IN_ATTACK))
             return;
-
+            */
         switch (config->rageAntiAim.pitch)
         {
         case 0: //None
@@ -159,16 +160,18 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             case 1: //Paranoia
             {
                 yaw += (isInvertToggled ? -15 : +15) + 180.f;
-                if (!autoDirection(cmd->viewangles))
+                if (!config->misc.slowwalk || !config->misc.slowwalkKey.isActive())
                 {
-                    config->rageAntiAim.yawAdd = RandomFloat(0.f, 33.f, 1.f);
-                    break;
+                    if (!autoDirection(cmd->viewangles))
+                    {
+                        config->rageAntiAim.yawAdd = RandomFloat(0.f, 33.f, 1.f);
+                    }
+                    else
+                    {
+                        config->rageAntiAim.yawAdd = RandomFloat(-33.f, 0.f, 1.f);
+                    }
                 }
-                else
-                {
-                    config->rageAntiAim.yawAdd = RandomFloat(-33.f, 0.f, 1.f);
-                    break;
-                }
+                break;
             }
             case 2: //Back
                 yaw += 180.f;
@@ -259,6 +262,31 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             if (sendPacket)
                 return;
             cmd->viewangles.y += invert ? leftDesyncAngle : rightDesyncAngle;
+        }
+    }
+    if (config->fakeAngle.enabled && config->rageAntiAim.yawBase != 0 && config->rageAntiAim.enabled && config->misc.slowwalk && config->misc.slowwalkKey.isActive())
+    {
+        if (config->rageAntiAim.yawBase == 1)
+        {
+            if (!autoDirection(cmd->viewangles))
+            {
+                config->rageAntiAim.yawAdd = RandomFloat(164.f, 180.f, 1.f);
+            }
+            else
+            {
+                config->rageAntiAim.yawAdd = RandomFloat(-180.f, -164.f, 1.f);
+            }
+        }
+        else
+        {
+            if (!autoDirection(cmd->viewangles))
+            {
+                config->rageAntiAim.yawAdd += RandomFloat(0.f, 16.f, 1.f);
+            }
+            else
+            {
+                config->rageAntiAim.yawAdd -= RandomFloat(0.f, 16.f, 1.f);
+            }
         }
     }
 }

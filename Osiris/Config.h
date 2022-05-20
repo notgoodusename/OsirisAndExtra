@@ -74,7 +74,7 @@ public:
     } rageAntiAim;
     struct Tickbase {
         bool enabled = false;
-        bool teleport = false;
+        bool hideshots = false;
     } tickbase;
 
 

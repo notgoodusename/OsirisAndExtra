@@ -321,7 +321,7 @@ static void from_json(const json& j, Config::Fakelag& f)
 static void from_json(const json& j, Config::Tickbase& f)
 {
     read(j, "Enabled", f.enabled);
-    read(j, "Teleport", f.teleport);
+    read(j, "Hideshots", f.hideshots);
 }
 
 
@@ -961,7 +961,7 @@ static void to_json(json& j, const Config::Fakelag& o, const Config::Fakelag& du
 static void to_json(json& j, const Config::Tickbase& o, const Config::Tickbase& dummy = {})
 {
     WRITE("Enabled", enabled);
-    WRITE("Teleport", teleport);
+    WRITE("Hideshots", hideshots);
 }
 
 static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack& dummy = {})

@@ -200,9 +200,9 @@ void Resolver::processMissedShots() noexcept
 			std::string missed = "[Osiris] Missed " + entity->getPlayerName() + " due to resolver";
 			if (snapshot.backtrackRecord > 0)
 				missed += ", BT[" + std::to_string(snapshot.backtrackRecord) + "]";
+			missed += ", Angle: " + std::to_string(desyncAng);
 			if (!(std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng))) {
 				snapshot.player.blacklisted.push_back(desyncAng);
-				missed += ", Angle: " + std::to_string(desyncAng) + "°";
 			}
 			Logger::addLog(missed);
 			Animations::setPlayer(snapshot.playerIndex)->misses++;
@@ -257,6 +257,7 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 	if (snapshots.empty())
 		return;
 
+	desyncAng = 0;
 	Resolver::setup_detect(player, entity);
 	Resolver::ResolveEntity(player, entity);
 	desyncAng = entity->getAnimstate()->footYaw;
@@ -283,7 +284,7 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 
 	auto& snapshot = snapshots.front();
 
-	if (entity->velocity().length2D() < 0.1f)
+	if (entity->velocity().length2D() < 1.f)
 	{
 		auto animstate = entity->getAnimstate();
 		float angle = snapshot.player.workingangle;
@@ -298,16 +299,39 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 			if (player.extended)
 			{
 				if (side == 1)
+				{
 					desyncAng = entity->getAnimstate()->eyeYaw + (entity->getMaxDesyncAngle());
+					if (std::count(player.blacklisted.begin(), player.blacklisted.end(), desyncAng)) {
+						desyncAng -= 10.f;
+					}
+				}
 				else if (side == -1)
+				{
 					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle());
+					if (std::count(player.blacklisted.begin(), player.blacklisted.end(), desyncAng)) {
+						desyncAng += 10.f;
+					}
+				}
+					
 			}
 			else
 			{
 				if (side == 1)
-					desyncAng = entity->getAnimstate()->eyeYaw + (entity->getMaxDesyncAngle() / 1.42f);
+				{
+					desyncAng = entity->getAnimstate()->eyeYaw + (entity->getMaxDesyncAngle() / 5.0f);
+					if (std::count(player.blacklisted.begin(), player.blacklisted.end(), desyncAng)) {
+						desyncAng += 10.f;
+					}
+				}
+					
 				else if (side == -1)
-					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle() / 1.42f);
+				{
+					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle() / 5.0f);
+					if (std::count(player.blacklisted.begin(), player.blacklisted.end(), desyncAng)) {
+						desyncAng -= 10.f;
+					}
+				}
+
 			}
 
 			animstate->footYaw = desyncAng;

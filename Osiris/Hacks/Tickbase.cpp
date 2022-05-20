@@ -5,17 +5,15 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/NetworkChannel.h"
 #define TICKS_TO_TIME( t )		(memory->globalVars->intervalPerTick *( t ) )
+#define TIME_TO_TICKS( dt )		( (int)( 0.5 + (float)(dt) / memory->globalVars->intervalPerTick ) )
 //TODO: fix random prediction errors, make ragebot backtrack on tickbase manip
 
 void Tickbase::run(UserCmd* cmd) noexcept
 {
-	if (localPlayer)
-		return;
-	if (!localPlayer->isAlive())
-		return;
 	static float spawnTime = 0.f;
 	if (CanDT())
 	{
+
 		if (spawnTime != localPlayer->spawnTime())
 		{
 			spawnTime = localPlayer->spawnTime();
@@ -41,34 +39,74 @@ void Tickbase::run(UserCmd* cmd) noexcept
 		auto netChannel = interfaces->engine->getNetworkChannel();
 		if (!netChannel)
 			return;
-
-		maxTicks = ((*memory->gameRules)->isValveDS()) ? 8 : 16;
-
-		int ticksPerShot = max(0, static_cast<int>(weaponData->cycletime / memory->globalVars->intervalPerTick));
-
-		//If it has been clamped dont remove ticks
-		if (ticksPerShot > maxTicks)
-			ticksPerShot = maxTicks;
-		else //If it has not been clamped you need to do -2 ticks to get prediction to work well
-			ticksPerShot -= 2;
-
-		shiftAmount = std::clamp(ticksPerShot, 0, maxTicks - netChannel->chokedPackets);
-
-		if (shiftAmount > doubletapCharge)
+		if (localPlayer->flags() & (1 << 5))
+			return;
+		if (localPlayer->flags() & (1 << 6))
 			return;
 
-		if (CanFireWithExploit(lastShift))
+		maxTicks = ((*memory->gameRules)->isValveDS()) ? 8 : 19;
+		if (!config->tickbase.hideshots)
 		{
-			if (memory->globalVars->currenttime - (Firerate() - 0.05f) < activeWeapon->lastshottime())
+			if (!localPlayer || !localPlayer->isAlive())
 				return;
-			if ((cmd->buttons & UserCmd::IN_ATTACK))
+			int ticksPerShot = max(0, static_cast<int>(weaponData->cycletime / memory->globalVars->intervalPerTick));
+
+			//If it has been clamped dont remove ticks
+			if (ticksPerShot > maxTicks)
+				ticksPerShot = maxTicks;
+			else //If it has not been clamped you need to do -2 ticks to get prediction to work well
+				ticksPerShot -= 2;
+			if (localPlayer && localPlayer->isAlive())
+				shiftAmount = std::clamp(ticksPerShot, 0, maxTicks - netChannel->chokedPackets);
+
+			if (shiftAmount > doubletapCharge)
+				return;
+			if (CanFireWithExploit(lastShift))
 			{
-				ticksToShift = shiftAmount;
-				lastShift = shiftAmount;
-				commandNumber = cmd->commandNumber;
+				if ((memory->globalVars->currenttime - (Firerate() - 0.05f)) > activeWeapon->lastshottime())
+				{
+					if ((cmd->buttons & UserCmd::IN_ATTACK))
+					{
+						if (localPlayer && localPlayer->isAlive())
+						{
+							ticksToShift = shiftAmount;
+							lastShift = shiftAmount;
+							commandNumber = cmd->commandNumber;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			if (config->tickbase.hideshots)
+			{
+				if (!localPlayer || !localPlayer->isAlive())
+					return;
+				int ticksPerShot = TIME_TO_TICKS(2.0f);
+				ticksPerShot = max(-ticksPerShot, -6);
+				if (localPlayer && localPlayer->isAlive())
+					shiftAmount = std::clamp(ticksPerShot, -6, maxTicks - netChannel->chokedPackets);
+
+				if (CanFireWithExploit(lastShift))
+				{
+					if ((memory->globalVars->currenttime - (Firerate() - 0.05f)) > activeWeapon->lastshottime())
+					{
+						if ((cmd->buttons & UserCmd::IN_ATTACK))
+						{
+							if (localPlayer && localPlayer->isAlive())
+							{
+								ticksToShift = shiftAmount;
+								lastShift = shiftAmount;
+								commandNumber = cmd->commandNumber;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
+	
 }
 
 bool Tickbase::CanDT() {
@@ -82,26 +120,18 @@ bool Tickbase::CanDT() {
 	if (!*memory->gameRules || (*memory->gameRules)->freezePeriod())
 		return false;
 
-	auto activeWeapon = localPlayer->getActiveWeapon();
-	if (!activeWeapon)
-		return false;
-
 	return true;
 }
 bool Tickbase::DTWeapon() {
-	switch (localPlayer->getActiveWeapon()->itemDefinitionIndex2()) {
-	case WeaponId::Taser: return false; break;
-	case WeaponId::Flashbang: return false; break;
-	case WeaponId::HeGrenade: return false; break;
-	case WeaponId::C4: return false; break;
-	case WeaponId::Revolver: return false; break;
-	case WeaponId::Awp: return false; break;
-	case WeaponId::Mag7: return false; break;
-	case WeaponId::Sawedoff: return false; break;
-	case WeaponId::Nova: return false; break;
-	}
-
-
+		switch (localPlayer->getActiveWeapon()->itemDefinitionIndex2()) {
+		case WeaponId::Taser: return false; break;
+		case WeaponId::C4: return false; break;
+		case WeaponId::Awp: return false; break;
+		case WeaponId::Mag7: return false; break;
+		case WeaponId::Sawedoff: return false; break;
+		case WeaponId::Nova: return false; break;
+		}
+	
 	return true;
 }
 bool Tickbase::CanFireWeapon(float curtime) {

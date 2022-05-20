@@ -22,6 +22,10 @@ namespace Resolver
 
 	void setup_detect(Animations::Players player, Entity* entity);
 
+	void Antionetap(Animations::Players player, Entity* entity, Vector shot);
+
+	void CmdGrabber(UserCmd* cmd);
+
 	void ResolveEntity(Animations::Players player, Entity* entity);
 
 	void updateEventListeners(bool forceRemove = false) noexcept;

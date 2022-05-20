@@ -266,27 +266,15 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
     }
     if (config->fakeAngle.enabled && config->rageAntiAim.yawBase != 0 && config->rageAntiAim.enabled && config->misc.slowwalk && config->misc.slowwalkKey.isActive())
     {
-        if (config->rageAntiAim.yawBase == 1)
+        if (!autoDirection(cmd->viewangles))
         {
-            if (!autoDirection(cmd->viewangles))
-            {
-                config->rageAntiAim.yawAdd = RandomFloat(164.f, 180.f, 1.f);
-            }
-            else
-            {
-                config->rageAntiAim.yawAdd = RandomFloat(-180.f, -164.f, 1.f);
-            }
+            config->rageAntiAim.yawAdd = 0;
+            config->rageAntiAim.yawAdd += RandomFloat(0.f, 16.f, 1.f);
         }
         else
         {
-            if (!autoDirection(cmd->viewangles))
-            {
-                config->rageAntiAim.yawAdd += RandomFloat(0.f, 16.f, 1.f);
-            }
-            else
-            {
-                config->rageAntiAim.yawAdd -= RandomFloat(0.f, 16.f, 1.f);
-            }
+            config->rageAntiAim.yawAdd = 0;
+            config->rageAntiAim.yawAdd -= RandomFloat(0.f, 16.f, 1.f);
         }
     }
 }

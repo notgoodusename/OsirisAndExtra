@@ -309,6 +309,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::jumpBug(cmd);
     Misc::runFreeCam(cmd, viewAngles);
     Misc::moonwalk(cmd);
+    Resolver::CmdGrabber(cmd);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();

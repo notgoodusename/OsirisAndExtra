@@ -2,14 +2,14 @@
 #include "Animations.h"
 #include "Resolver.h"
 #include "AntiAim.h"
-
+#include "../SDK/UserCmd.h"
 #include "../Logger.h"
 
 #include "../SDK/GameEvent.h"
 
 std::deque<Resolver::SnapShot> snapshots;
 float desyncAng{ 0 };
-
+UserCmd* command;
 void Resolver::reset() noexcept
 {
 	snapshots.clear();
@@ -111,12 +111,11 @@ void Resolver::getEvent(GameEvent* event) noexcept
 			break;
 
 		auto& snapshot = snapshots.front();
-
-		if (snapshot.player.workingangle != 0)
-			snapshot.player.workingangle = desyncAng;
+		if (hitgroup  == HitGroup::Head)
+		snapshot.player.workingangle = desyncAng;
 		const auto entity = interfaces->entityList->getEntity(snapshot.playerIndex);
 
-		Logger::addLog("[Osiris] Hit " + entity->getPlayerName() + ", using Angle: " + std::to_string(desyncAng) + "°");
+		Logger::addLog("[Osiris] Hit " + entity->getPlayerName() + ", using Angle: " + std::to_string(desyncAng));
 		snapshots.pop_front(); //Hit somebody so dont calculate
 		break;
 	}
@@ -125,17 +124,27 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		if (snapshots.empty())
 			break;
 
-		if (event->getInt("userid") != localPlayer->getUserId())
-			break;
-
 		auto& snapshot = snapshots.front();
-
-		if (!snapshot.gotImpact)
+		if (event->getInt("userid") != localPlayer->getUserId())
 		{
-			snapshot.time = memory->globalVars->serverTime();
-			snapshot.bulletImpact = Vector{ event->getFloat("x"), event->getFloat("y"), event->getFloat("z") };
-			snapshot.gotImpact = true;
+
+			if (!snapshot.gotImpact)
+			{
+				snapshot.time = memory->globalVars->serverTime();
+				snapshot.bulletImpact = Vector{ event->getFloat("x"), event->getFloat("y"), event->getFloat("z") };
+				snapshot.gotImpact = true;
+			}
 		}
+		else if (event->getInt("userid") == snapshot.playerIndex)
+		{
+			const auto entity = interfaces->entityList->getEntity(snapshot.playerIndex);
+			Antionetap(snapshot.player, entity, Vector{ event->getFloat("x"), event->getFloat("y"), event->getFloat("z") });
+		}
+
+			
+
+
+		
 		break;
 	}
 	default:
@@ -614,6 +623,46 @@ void Resolver::setup_detect(Animations::Players player, Entity* entity) {
 
 	/* fix goalfeet yaw */
 	entity->getAnimstate()->footYaw = fl_eye_yaw + brute;
+}
+Vector calcAngle(Vector source, Vector entityPos) {
+	Vector delta = {};
+	delta.x = source.x - entityPos.x;
+	delta.y = source.y - entityPos.y;
+	delta.z = source.z - entityPos.z;
+	Vector angles = {};
+	Vector viewangles = command->viewangles;
+	angles.x = Helpers::rad2deg(atan(delta.z / hypot(delta.x, delta.y))) - viewangles.x;
+	angles.y = Helpers::rad2deg(atan(delta.y / delta.x)) - viewangles.y;
+	angles.z = 0;
+	if (delta.x >= 0.f)
+		angles.y += 180;
+
+		return angles;
+}
+void Resolver::Antionetap(Animations::Players player, Entity* entity, Vector shot)
+{
+	int shots = 0;
+	Vector pos = shot;
+	Vector eyepos = entity->getEyePosition();
+	Vector ang = calcAngle(eyepos, pos);
+	Vector angToLocal = calcAngle(eyepos, localPlayer->getEyePosition());
+	Vector delta = { angToLocal.x - ang.x, angToLocal.y - ang.y, 0 };
+	float FOV = sqrt(delta.x * delta.x + delta.y * delta.y);
+	if (FOV < 10.f)
+		shots++;
+	if (shots > 0)
+	{
+		Logger::addLog("[Osiris] " + entity->getPlayerName() + " missed");
+		if (!(shots % 4))
+			config->fakeAngle.invert.setToggleTo(true);
+		else
+			config->fakeAngle.invert.setToggleTo(false);
+	}
+	
+}
+void Resolver::CmdGrabber(UserCmd* cmd)
+{
+	command = cmd;
 }
 void Resolver::updateEventListeners(bool forceRemove) noexcept
 {

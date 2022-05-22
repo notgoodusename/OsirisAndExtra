@@ -1101,6 +1101,39 @@ void Misc::fixTabletSignal() noexcept
     }
 }
 
+void Misc::killfeedChanger(GameEvent& event) noexcept
+{
+    if (!config->misc.killfeedChanger.enabled)
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (const auto localUserId = localPlayer->getUserId(); event.getInt("attacker") != localUserId || event.getInt("userid") == localUserId)
+        return;
+
+    if (config->misc.killfeedChanger.headshot)
+        event.setInt("headshot", 1);
+
+    if (config->misc.killfeedChanger.dominated)
+        event.setInt("Dominated", 1);
+
+    if (config->misc.killfeedChanger.revenge)
+        event.setInt("Revenge", 1);
+
+    if (config->misc.killfeedChanger.penetrated)
+        event.setInt("penetrated", 1);
+
+    if (config->misc.killfeedChanger.noscope)
+        event.setInt("noscope", 1);
+
+    if (config->misc.killfeedChanger.thrusmoke)
+        event.setInt("thrusmoke", 1);
+
+    if (config->misc.killfeedChanger.attackerblind)
+        event.setInt("attackerblind", 1);
+}
+
 void Misc::killMessage(GameEvent& event) noexcept
 {
     if (!config->misc.killMessage)

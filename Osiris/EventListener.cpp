@@ -59,6 +59,7 @@ void EventListener::fireGameEvent(GameEvent* event)
     case fnv::hash("player_death"):
         SkinChanger::updateStatTrak(*event);
         SkinChanger::overrideHudIcon(*event);
+        Misc::killfeedChanger(*event);
         Misc::killMessage(*event);
         Misc::killSound(*event);
         Resolver::getEvent(event);

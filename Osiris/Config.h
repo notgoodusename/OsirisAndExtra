@@ -291,6 +291,7 @@ public:
         bool oppositeHandKnife = false;
         bool svPureBypass{ true };
         bool inventoryUnlocker{ false };
+        KillfeedChanger killfeedChanger;
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];
         KeyBind edgejumpkey{ std::string("edgejump") };

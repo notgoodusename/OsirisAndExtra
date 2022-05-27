@@ -164,6 +164,17 @@ struct PreserveKillfeed {
     bool onlyHeadshots = false;
 };
 
+struct KillfeedChanger {
+    bool enabled = false;
+    bool headshot = false;
+    bool dominated = false;
+    bool revenge = false;
+    bool penetrated = false;
+    bool noscope = false;
+    bool thrusmoke = false;
+    bool attackerblind = false;
+};
+
 struct OffscreenEnemies : ColorToggle {
     OffscreenEnemies() : ColorToggle{ { 1.0f, 0.26f, 0.21f, 1.0f } } {}
     HealthBar healthBar;

@@ -1734,6 +1734,26 @@ void GUI::renderMiscWindow() noexcept
     }
     ImGui::PopID();
 
+    ImGui::Checkbox("Killfeed changer", &config->misc.killfeedChanger.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Killfeed changer");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::Checkbox("Headshot", &config->misc.killfeedChanger.headshot);
+        ImGui::Checkbox("Dominated", &config->misc.killfeedChanger.dominated);
+        ImGui::SameLine();
+        ImGui::Checkbox("Revenge", &config->misc.killfeedChanger.revenge);
+        ImGui::Checkbox("Penetrated", &config->misc.killfeedChanger.penetrated);
+        ImGui::Checkbox("Noscope", &config->misc.killfeedChanger.noscope);
+        ImGui::Checkbox("Thrusmoke", &config->misc.killfeedChanger.thrusmoke);
+        ImGui::Checkbox("Attackerblind", &config->misc.killfeedChanger.attackerblind);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     ImGui::Checkbox("Purchase List", &config->misc.purchaseList.enabled);
     ImGui::SameLine();
 

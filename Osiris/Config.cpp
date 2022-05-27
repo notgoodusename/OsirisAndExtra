@@ -485,6 +485,18 @@ static void from_json(const json& j, PreserveKillfeed& o)
     read(j, "Only Headshots", o.onlyHeadshots);
 }
 
+static void from_json(const json& j, KillfeedChanger& o)
+{
+    read(j, "Enabled", o.enabled);
+    read(j, "Headshot", o.headshot);
+    read(j, "Dominated", o.dominated);
+    read(j, "Revenge", o.revenge);
+    read(j, "Penetrated", o.penetrated);
+    read(j, "Noscope", o.noscope);
+    read(j, "Thrusmoke", o.thrusmoke);
+    read(j, "Attackerblind", o.attackerblind);
+}
+
 static void from_json(const json& j, AutoBuy& o)
 {
     read(j, "Enabled", o.enabled);
@@ -604,6 +616,7 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Reportbot", m.reportbot);
     read(j, "Opposite Hand Knife", m.oppositeHandKnife);
     read<value_t::object>(j, "Preserve Killfeed", m.preserveKillfeed);
+    read<value_t::object>(j, "Killfeed changer", m.killfeedChanger);
     read(j, "Sv pure bypass", m.svPureBypass);
     read(j, "Inventory Unlocker", m.inventoryUnlocker);
     read<value_t::object>(j, "Autobuy", m.autoBuy);
@@ -1008,6 +1021,18 @@ static void to_json(json& j, const PreserveKillfeed& o, const PreserveKillfeed& 
     WRITE("Only Headshots", onlyHeadshots);
 }
 
+static void to_json(json& j, const KillfeedChanger& o, const KillfeedChanger& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Headshot", headshot);
+    WRITE("Dominated", dominated);
+    WRITE("Revenge", revenge);
+    WRITE("Penetrated", penetrated);
+    WRITE("Noscope", noscope);
+    WRITE("Thrusmoke", thrusmoke);
+    WRITE("Attackerblind", attackerblind);
+}
+
 static void to_json(json& j, const AutoBuy& o, const AutoBuy& dummy = {})
 {
     WRITE("Enabled", enabled);
@@ -1132,6 +1157,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Reportbot", reportbot);
     WRITE("Opposite Hand Knife", oppositeHandKnife);
     WRITE("Preserve Killfeed", preserveKillfeed);
+    WRITE("Killfeed changer", killfeedChanger);
     WRITE("Sv pure bypass", svPureBypass);
     WRITE("Inventory Unlocker", inventoryUnlocker);
     WRITE("Autobuy", autoBuy);

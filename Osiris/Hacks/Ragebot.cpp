@@ -17,6 +17,7 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/ModelInfo.h"
 #include "Resolver.h"
+#include "Tickbase.h"
 
 static bool keyPressed = false;
 
@@ -71,26 +72,26 @@ void Ragebot::run(UserCmd* cmd) noexcept
     const auto aimPunch = localPlayer->getAimPunch();
 
     std::array<bool, Hitboxes::Max> hitbox{ false };
-
+    
     // Head
     hitbox[Hitboxes::Head] = (cfg[weaponIndex].hitboxes & 1 << 0) == 1 << 0;
     // Chest
     hitbox[Hitboxes::UpperChest] = (cfg[weaponIndex].hitboxes & 1 << 1) == 1 << 1;
-    hitbox[Hitboxes::Thorax] = (cfg[weaponIndex].hitboxes & 1 << 1) == 1 << 1;
-    hitbox[Hitboxes::LowerChest] = (cfg[weaponIndex].hitboxes & 1 << 1) == 1 << 1;
+    hitbox[Hitboxes::Thorax] = (cfg[weaponIndex].hitboxes & 1 << 2) == 1 << 2;
+    hitbox[Hitboxes::LowerChest] = (cfg[weaponIndex].hitboxes & 1 << 3) == 1 << 3;
     //Stomach
-    hitbox[Hitboxes::Belly] = (cfg[weaponIndex].hitboxes & 1 << 2) == 1 << 2;
-    hitbox[Hitboxes::Pelvis] = (cfg[weaponIndex].hitboxes & 1 << 2) == 1 << 2;
+    hitbox[Hitboxes::Belly] = (cfg[weaponIndex].hitboxes & 1 << 4) == 1 << 4;
+    hitbox[Hitboxes::Pelvis] = (cfg[weaponIndex].hitboxes & 1 << 5) == 1 << 5;
     //Arms
-    hitbox[Hitboxes::RightUpperArm] = (cfg[weaponIndex].hitboxes & 1 << 3) == 1 << 3;
-    hitbox[Hitboxes::RightForearm] = (cfg[weaponIndex].hitboxes & 1 << 3) == 1 << 3;
-    hitbox[Hitboxes::LeftUpperArm] = (cfg[weaponIndex].hitboxes & 1 << 3) == 1 << 3;
-    hitbox[Hitboxes::LeftForearm] = (cfg[weaponIndex].hitboxes & 1 << 3) == 1 << 3;
+    hitbox[Hitboxes::RightUpperArm] = (cfg[weaponIndex].hitboxes & 1 << 6) == 1 << 6;
+    hitbox[Hitboxes::RightForearm] = (cfg[weaponIndex].hitboxes & 1 << 7) == 1 << 7;
+    hitbox[Hitboxes::LeftUpperArm] = (cfg[weaponIndex].hitboxes & 1 << 8) == 1 << 8;
+    hitbox[Hitboxes::LeftForearm] = (cfg[weaponIndex].hitboxes & 1 << 9) == 1 << 9;
     //Legs
-    hitbox[Hitboxes::RightCalf] = (cfg[weaponIndex].hitboxes & 1 << 4) == 1 << 4;
-    hitbox[Hitboxes::RightThigh] = (cfg[weaponIndex].hitboxes & 1 << 4) == 1 << 4;
-    hitbox[Hitboxes::LeftCalf] = (cfg[weaponIndex].hitboxes & 1 << 4) == 1 << 4;
-    hitbox[Hitboxes::LeftThigh] = (cfg[weaponIndex].hitboxes & 1 << 4) == 1 << 4;
+    hitbox[Hitboxes::RightCalf] = (cfg[weaponIndex].hitboxes & 1 << 10) == 1 << 10;
+    hitbox[Hitboxes::RightThigh] = (cfg[weaponIndex].hitboxes & 1 << 11) == 1 << 11;
+    hitbox[Hitboxes::LeftCalf] = (cfg[weaponIndex].hitboxes & 1 << 12) == 1 << 12;
+    hitbox[Hitboxes::LeftThigh] = (cfg[weaponIndex].hitboxes & 1 << 13) == 1 << 13;
 
 
     std::vector<Ragebot::Enemies> enemies;
@@ -142,7 +143,27 @@ void Ragebot::run(UserCmd* cmd) noexcept
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
-        const int minDamage = std::clamp(std::clamp(cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
+        int minDamage = std::clamp(std::clamp(cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
+        if (cfg[weaponIndex].killshot)
+        {
+            if (target.health < 70)
+            {
+                if (target.health > 40)
+                    minDamage = std::clamp((target.health + 5), 0, activeWeapon->getWeaponData()->damage);
+                else
+                    minDamage = std::clamp((target.health + 15), 0, activeWeapon->getWeaponData()->damage);
+
+            }
+            else 
+            {
+                if (config->doubletapkey.isActive() && (Tickbase::doubletapCharge < Tickbase::maxTicks && Tickbase::maxTicks > 10 || Tickbase::doubletapCharge <= Tickbase::maxTicks && Tickbase::maxTicks < 9))
+                {
+                    minDamage = std::clamp((target.health / 2), 0, activeWeapon->getWeaponData()->damage);
+                }
+            }
+                
+        }
+                
         damageDiff = FLT_MAX;
 
         auto backupBoneCache = entity->getBoneCache().memory;

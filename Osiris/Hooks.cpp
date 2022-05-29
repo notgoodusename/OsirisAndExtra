@@ -252,12 +252,20 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Resolver::processMissedShots();
     
     memory->globalVars->serverTime(cmd);
-    if (Tickbase::isShifting && config->tickbase.enabled)
+    if (Tickbase::isShifting)
     {
-        if (config->doubletapkey.isActive())
+        if (config->tickbase.enabled)
         {
-            sendPacket = Tickbase::ticksToShift == 1;
-            Misc::autoPeek(cmd, currentViewAngles);
+            if (config->doubletapkey.isActive() || config->hideshotskey.isActive())
+            {
+                if (!Tickbase::warmup)
+                {
+                    Misc::autoPeek(cmd, currentViewAngles);
+                    sendPacket = Tickbase::ticksToShift == 1;
+                    cmd->tickCount += 200;
+                    cmd->hasbeenpredicted = true;
+                }
+            }
         }
         return false;
     }
@@ -454,6 +462,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Misc::updateEventListeners();
         Visuals::updateEventListeners();
         Resolver::updateEventListeners();
+        Tickbase::updateEventListeners(false);
     }
     if (interfaces->engine->isInGame()) {
         Visuals::drawBulletImpacts();
@@ -1020,16 +1029,19 @@ static void __cdecl clMoveHook(float accumulatedExtraSamples, bool finalTick) no
 
     static float realTime = 0.0f;
 
-    if (!config->tickbase.enabled)
-        return original(accumulatedExtraSamples, finalTick);
-
-    if (!config->doubletapkey.isActive())
-        return original(accumulatedExtraSamples, finalTick);
-
     if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
         return original(accumulatedExtraSamples, finalTick);
 
     if (!localPlayer || !localPlayer->isAlive())
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (Tickbase::warmup)
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (!config->tickbase.enabled)
+        return original(accumulatedExtraSamples, finalTick);
+
+    if (!config->doubletapkey.isActive() && !config->hideshotskey.isActive())
         return original(accumulatedExtraSamples, finalTick);
 
     if (Tickbase::doubletapCharge < Tickbase::shiftAmount && memory->globalVars->realtime - realTime > 1.0f)
@@ -1389,6 +1401,7 @@ void Hooks::uninstall() noexcept
     Misc::updateEventListeners(true);
     Visuals::updateEventListeners(true);
     Resolver::updateEventListeners(true);
+    Tickbase::updateEventListeners(true);
 
     if constexpr (std::is_same_v<HookType, MinHook>) {
         MH_DisableHook(MH_ALL_HOOKS);

@@ -39,6 +39,7 @@
 #include "../GameData.h"
 
 #include "../imguiCustom.h"
+#include "Tickbase.h"
 
 static bool worldToScreen(const Vector& in, ImVec2& out) noexcept
 {
@@ -490,6 +491,10 @@ void Misc::autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept
                     difference.z };
                 cmd->forwardmove = -velocity.x * 20.f;
                 cmd->sidemove = velocity.y * 20.f;
+                if (config->tickbase.telepeek)
+                {
+                    Tickbase::Telepeek();
+                }
             }
             else
             {
@@ -551,7 +556,7 @@ void Misc::unlockHiddenCvars() noexcept
 
 void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
 {
-    if (!config->misc.fakeduck || !config->misc.fakeduckKey.isActive() || config->doubletapkey.isActive())
+    if (!config->misc.fakeduck || !config->misc.fakeduckKey.isActive())
         return;
 
     if (!localPlayer || !localPlayer->isAlive() || !(localPlayer->flags() & 1))
@@ -646,7 +651,134 @@ void Misc::updateClanTag(bool tagChanged) noexcept
     }
     
     static auto lastTime = 0.0f;
-
+    int time = memory->globalVars->currenttime * M_PI;
+    if (config->misc.faketag != 0)
+    {
+        int tag = config->misc.faketag;
+        if (time != lastTime)
+        {
+            if (tag == 0)
+            {
+                memory->setClanTag("", "");
+            }
+            if (tag == 1)
+            {
+                switch (time % 21)
+                {
+                case 1: { memory->setClanTag(" ", " "); break; }
+                case 2: { memory->setClanTag("g", "g"); break; }
+                case 3: { memory->setClanTag("ga", "ga"); break; }
+                case 4: { memory->setClanTag("gam", "gam"); break; }
+                case 5: { memory->setClanTag("game", "game"); break; }
+                case 6: { memory->setClanTag("games", "games"); break; }
+                case 7: { memory->setClanTag("gamese", "gamese"); break; }
+                case 8: { memory->setClanTag("gamesen", "gamesen"); break; }
+                case 9: { memory->setClanTag("gamesens", "gamesens"); break; }
+                case 10: { memory->setClanTag("gamesense", "gamesense"); break; }
+                case 11: { memory->setClanTag("gamesense", "gamesense"); break; }
+                case 12: { memory->setClanTag("gamesense", "gamesense"); break; }
+                case 13: { memory->setClanTag("gamesense", "gamesense"); break; }
+                case 14: { memory->setClanTag("amesense", "amesense"); break; }
+                case 15: { memory->setClanTag("mesense", "mesense"); break; }
+                case 16: { memory->setClanTag("sense", "sense"); break; }
+                case 17: { memory->setClanTag("ense", "ense"); break; }
+                case 18: { memory->setClanTag("nse", "nse"); break; }
+                case 19: { memory->setClanTag("se", "se"); break; }
+                case 20: { memory->setClanTag("e", "e"); break; }
+                case 21: { memory->setClanTag(" ", " "); break; }
+                }
+            }
+            if (tag == 2)
+            {
+                switch (time % 26)
+                {
+                case 1: { memory->setClanTag("", ""); break; }
+                case 2: { memory->setClanTag(" s ", " s "); break; }
+                case 3: { memory->setClanTag(" sk ", " sk "); break; }
+                case 4: { memory->setClanTag(" ske ", " ske "); break; }
+                case 5: { memory->setClanTag(" skee ", " skee "); break; }
+                case 6: { memory->setClanTag(" skeet ", " skeet "); break; }
+                case 7: { memory->setClanTag(" skeet. ", " skeet. "); break; }
+                case 8: { memory->setClanTag(" skeet.c ", " skeet.c "); break; }
+                case 9: { memory->setClanTag(" skeet.cc ", " skeet.cc "); break; }
+                case 10: { memory->setClanTag(" skeet.cc ", " skeet.cc "); break; }
+                case 11: { memory->setClanTag(" skeet.cc ", " skeet.cc "); break; }
+                case 12: { memory->setClanTag(" skeet.c ", " skeet.c "); break; }
+                case 13: { memory->setClanTag(" skeet. ", " skeet. "); break; }
+                case 14: { memory->setClanTag(" skeet ", " skeet "); break; }
+                case 15: { memory->setClanTag(" skee ", " skee "); break; }
+                case 16: { memory->setClanTag(" ske ", " ske "); break; }
+                case 17: { memory->setClanTag(" sk ", " sk "); break; }
+                case 18: { memory->setClanTag(" s ", " s "); break; }
+                case 19: { memory->setClanTag("  ", "  "); break; }
+                case 20: { memory->setClanTag("", ""); break; }
+                }
+            }
+            if (tag == 3)
+            {
+                switch (time % 55)
+                {
+                case 1: { memory->setClanTag("  ", "  "); break; }
+                case 2: { memory->setClanTag(" | ", " | "); break; }
+                case 3: { memory->setClanTag(" |\\ ", " |\\ "); break; }
+                case 4: { memory->setClanTag(" |\\| ", " |\\| "); break; }
+                case 5: { memory->setClanTag(" N ", " N "); break; }
+                case 6: { memory->setClanTag(" N3 ", " N3 "); break; }
+                case 7: { memory->setClanTag(" Ne ", " Ne "); break; }
+                case 8: { memory->setClanTag(" Ne\\ ", " Ne\\ "); break; }
+                case 9: { memory->setClanTag(" Ne\\/ ", " Ne\\/ "); break; }
+                case 10: { memory->setClanTag(" Nev ", " Nev "); break; }
+                case 11: { memory->setClanTag(" Nev3 ", " Nev3 "); break; }
+                case 12: { memory->setClanTag(" Neve ", " Neve "); break; }
+                case 13: { memory->setClanTag(" Neve| ", " Neve| "); break; }
+                case 14: { memory->setClanTag(" Neve|2 ", " Neve|2 "); break; }
+                case 15: { memory->setClanTag(" Never|_ ", " Never|_ "); break; }
+                case 16: { memory->setClanTag(" Neverl ", " Neverl "); break; }
+                case 17: { memory->setClanTag(" Neverl0 ", " Neverl0 "); break; }
+                case 18: { memory->setClanTag(" Neverlo ", " Neverlo "); break; }
+                case 19: { memory->setClanTag(" Neverlo5 ", " Neverlo5 "); break; }
+                case 20: { memory->setClanTag(" Neverlos ", " Neverlos "); break; }
+                case 21: { memory->setClanTag(" Neverlos3 ", " Neverlos3 "); break; }
+                case 22: { memory->setClanTag(" Neverlose ", " Neverlose "); break; }
+                case 23: { memory->setClanTag(" Neverlose. ", " Neverlose. "); break; }
+                case 24: { memory->setClanTag(" Neverlose.< ", " Neverlose.< "); break; }
+                case 25: { memory->setClanTag(" Neverlose.c< ", " Neverlose.c< "); break; }
+                case 26: { memory->setClanTag(" Neverlose.cc ", " Neverlose.cc "); break; }
+                case 27: { memory->setClanTag(" Neverlose.cc ", " Neverlose.cc "); break; }
+                case 28: { memory->setClanTag(" Neverlose.c< ", " Neverlose.c< "); break; }
+                case 29: { memory->setClanTag(" Neverlose.< ", " Neverlose.< "); break; }
+                case 30: { memory->setClanTag(" Neverlose. ", " Neverlose. "); break; }
+                case 31: { memory->setClanTag(" Neverlose ", " Neverlose "); break; }
+                case 32: { memory->setClanTag(" Neverlos3 ", " Neverlos3 "); break; }
+                case 33: { memory->setClanTag(" Neverlos ", " Neverlos "); break; }
+                case 34: { memory->setClanTag(" Neverlo5 ", " Neverlo5 "); break; }
+                case 35: { memory->setClanTag(" Neverlo ", " Neverlo "); break; }
+                case 36: { memory->setClanTag(" Neverl0 ", " Neverl0 "); break; }
+                case 37: { memory->setClanTag(" Neverl ", " Neverl "); break; }
+                case 38: { memory->setClanTag(" Never|_ ", " Never|_ "); break; }
+                case 39: { memory->setClanTag(" Never|2 ", " Never|2 "); break; }
+                case 40: { memory->setClanTag(" Neve|2 ", " Neve|2 "); break; }
+                case 41: { memory->setClanTag(" Neve| ", " Neve| "); break; }
+                case 42: { memory->setClanTag(" Neve ", " Neve "); break; }
+                case 43: { memory->setClanTag(" Nev3 ", " Nev3 "); break; }
+                case 44: { memory->setClanTag(" Nev ", " Nev "); break; }
+                case 45: { memory->setClanTag(" Ne\\/ ", " Ne\\/ "); break; }
+                case 46: { memory->setClanTag(" Ne\\ ", " Ne\\ "); break; }
+                case 47: { memory->setClanTag(" Ne ", " Ne "); break; }
+                case 48: { memory->setClanTag(" N3 ", " N3 "); break; }
+                case 49: { memory->setClanTag(" N ", " N "); break; }
+                case 50: { memory->setClanTag(" |\\| ", " |\\| "); break; }
+                case 51: { memory->setClanTag(" |\\ ", " |\\ "); break; }
+                case 52: { memory->setClanTag(" | ", " | "); break; }
+                case 53: { memory->setClanTag("  ", "  "); break; }
+                case 55: { memory->setClanTag("", ""); break; }
+                }
+            }
+      
+            //}
+        }
+        lastTime = time;
+    }
     if (config->misc.clocktag) {
         if (memory->globalVars->realtime - lastTime < 1.0f)
             return;
@@ -667,7 +799,7 @@ void Misc::updateClanTag(bool tagChanged) noexcept
             if (offset != -1 && static_cast<std::size_t>(offset) <= clanTag.length())
                 std::rotate(clanTag.begin(), clanTag.begin() + offset, clanTag.end());
         }
-        lastTime = memory->globalVars->realtime;
+        lastTime = time;
         memory->setClanTag(clanTag.c_str(), clanTag.c_str());
     }
 }
@@ -695,9 +827,10 @@ const bool anyActiveKeybinds() noexcept
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
     const bool doubletap = config->doubletapkey.canShowKeybind();
+    const bool hideshots = config->hideshotskey.canShowKeybind();
 
     return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
-        || zoom || thirdperson || freeCam || blockbot || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver || doubletap;
+        || zoom || thirdperson || freeCam || blockbot || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver || doubletap || hideshots;
 }
 
 void Misc::showKeybinds() noexcept
@@ -757,7 +890,10 @@ void Misc::showKeybinds() noexcept
     if (config->misc.autoPeek.enabled)
         config->misc.autoPeekKey.showKeybind();
     if (config->tickbase.enabled)
+    {
+        config->hideshotskey.showKeybind();
         config->doubletapkey.showKeybind();
+    }
     if (config->misc.prepareRevolver)
         config->misc.prepareRevolverKey.showKeybind();
 
@@ -1115,6 +1251,39 @@ void Misc::fixTabletSignal() noexcept
         if (auto activeWeapon{ localPlayer->getActiveWeapon() }; activeWeapon && activeWeapon->getClientClass()->classId == ClassId::Tablet)
             activeWeapon->tabletReceptionIsBlocked() = false;
     }
+}
+
+void Misc::killfeedChanger(GameEvent& event) noexcept
+{
+    if (!config->misc.killfeedChanger.enabled)
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (const auto localUserId = localPlayer->getUserId(); event.getInt("attacker") != localUserId || event.getInt("userid") == localUserId)
+        return;
+
+    if (config->misc.killfeedChanger.headshot)
+        event.setInt("headshot", 1);
+
+    if (config->misc.killfeedChanger.dominated)
+        event.setInt("Dominated", 1);
+
+    if (config->misc.killfeedChanger.revenge)
+        event.setInt("Revenge", 1);
+
+    if (config->misc.killfeedChanger.penetrated)
+        event.setInt("penetrated", 1);
+
+    if (config->misc.killfeedChanger.noscope)
+        event.setInt("noscope", 1);
+
+    if (config->misc.killfeedChanger.thrusmoke)
+        event.setInt("thrusmoke", 1);
+
+    if (config->misc.killfeedChanger.attackerblind)
+        event.setInt("attackerblind", 1);
 }
 
 void Misc::killMessage(GameEvent& event) noexcept

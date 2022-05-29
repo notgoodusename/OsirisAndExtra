@@ -81,15 +81,9 @@ float RandomFloat(float a, float b ,float multiplier) {
 }
 void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
+    rollaavalue = 0;
     if (cmd->viewangles.x == currentViewAngles.x && config->rageAntiAim.enabled)
     {
-        /*
-        if (config->fakeAngle.enabled)
-            if (!config->fakelag.enabled)
-                sendPacket = cmd->tickCount % 2;
-        if (!sendPacket && (cmd->buttons & UserCmd::IN_ATTACK))
-            return;
-            */
         switch (config->rageAntiAim.pitch)
         {
         case 0: //None
@@ -109,17 +103,21 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
     }
     if (cmd->viewangles.z == currentViewAngles.z && config->rageAntiAim.roll)
     {
-
-        if (localPlayer->velocity().length2D() < 1.3f || config->misc.autoPeekKey.isActive())
+        if ((localPlayer->velocity().length2D() < 100.f) && ~localPlayer->flags() & (1 << 1))
         {
+            float roll = ((*memory->gameRules)->isValveDS()) ? RandomFloat(0.f, 45.f, 1.f) : RandomFloat(0.f, 60.f, 1.f);
             config->rageAntiAim.rolling = true;
-            cmd->viewangles.z = invert ? 38.f : -38.f;
+            rollaavalue = invert ? roll : -roll;
         }
-        else
-        {
-            if (config->rageAntiAim.rolling)
-                config->rageAntiAim.rolling = false;
+        else {
+            config->rageAntiAim.rolling = false;
+            rollaavalue = 0.f;
         }
+    }
+    else if (!config->rageAntiAim.roll)
+    {
+        config->rageAntiAim.rolling = false;
+        rollaavalue = 0.f;
     }
     
     if (cmd->viewangles.y == currentViewAngles.y)
@@ -159,17 +157,14 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             {
             case 1: //Paranoia
             {
-                yaw += (isInvertToggled ? -15 : +15) + 180.f;
-                if (!config->misc.slowwalk || !config->misc.slowwalkKey.isActive())
+                yaw += (isInvertToggled ? -11 : +11) + 180.f;
+                if (!autoDirection(cmd->viewangles))
                 {
-                    if (!autoDirection(cmd->viewangles))
-                    {
-                        config->rageAntiAim.yawAdd = RandomFloat(0.f, 33.f, 1.f);
-                    }
-                    else
-                    {
-                        config->rageAntiAim.yawAdd = RandomFloat(-33.f, 0.f, 1.f);
-                    }
+                    config->rageAntiAim.yawAdd = RandomFloat(0.f, 33.f, 1.f);
+                }
+                else
+                {
+                    config->rageAntiAim.yawAdd = RandomFloat(-33.f, 0.f, 1.f);
                 }
                 break;
             }
@@ -264,19 +259,6 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             cmd->viewangles.y += invert ? leftDesyncAngle : rightDesyncAngle;
         }
     }
-    if (config->fakeAngle.enabled && config->rageAntiAim.yawBase != 0 && config->rageAntiAim.enabled && config->misc.slowwalk && config->misc.slowwalkKey.isActive())
-    {
-        if (!autoDirection(cmd->viewangles))
-        {
-            config->rageAntiAim.yawAdd = 0;
-            config->rageAntiAim.yawAdd += RandomFloat(0.f, 16.f, 1.f);
-        }
-        else
-        {
-            config->rageAntiAim.yawAdd = 0;
-            config->rageAntiAim.yawAdd -= RandomFloat(0.f, 16.f, 1.f);
-        }
-    }
 }
 
 void AntiAim::legit(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
@@ -347,8 +329,8 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if (activeWeapon->isThrowing())
         return false;
 
-    if (activeWeapon->isGrenade())
-        return true;
+    if (activeWeapon->isGrenade() && cmd->buttons & (UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2))
+        return false;
 
     if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto() || localPlayer->waitForNoAttack())
         return true;

@@ -503,8 +503,8 @@ void NadePrediction::draw() noexcept
 		return;
 
 	static const auto redColor = ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f));
-	static const auto whiteColor = ImGui::GetColorU32(ImVec4(1.f, 1.f, 1.f, 1.f));
-	auto blueColor = ImGui::GetColorU32(ImVec4(0.f, 0.5f, 1.f, 1.f));
+	static const auto whiteColor = ImGui::GetColorU32(ImVec4(0.3f, 0.1f, 0.3f, 1.f));
+	auto blueColor = ImGui::GetColorU32(ImVec4(0.3f, 0.1f, 0.3f, 1.f));
 
 	auto drawList = ImGui::GetBackgroundDrawList();
 	// draw end nade path

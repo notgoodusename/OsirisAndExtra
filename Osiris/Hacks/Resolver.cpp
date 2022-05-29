@@ -79,20 +79,6 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		Animations::setPlayer(index)->shot = true;
 			break;
 	}
-	case fnv::hash("player_death"):
-	{
-		//Reset player
-		if (snapshots.empty())
-			break;
-
-		const auto playerId = event->getInt("userid");
-		if (playerId == localPlayer->getUserId())
-			break;
-
-		const auto index = interfaces->engine->getPlayerForUserID(playerId);
-		Animations::setPlayer(index)->misses = 0;
-		break;
-	}
 	case fnv::hash("player_hurt"):
 	{
 		if (snapshots.empty())
@@ -109,13 +95,20 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		const auto hitgroup = event->getInt("hitgroup");
 		if (hitgroup < HitGroup::Head || hitgroup > HitGroup::RightLeg)
 			break;
-
+		const auto index = interfaces->engine->getPlayerForUserID(event->getInt("userid"));
 		auto& snapshot = snapshots.front();
-		if (hitgroup  == HitGroup::Head)
-		snapshot.player.workingangle = desyncAng;
+		if (desyncAng != 0.f)
+		{
+			if (hitgroup == HitGroup::Head)
+			{
+				Animations::setPlayer(index)->workingangle = desyncAng;
+			}
+		}
 		const auto entity = interfaces->entityList->getEntity(snapshot.playerIndex);
 
 		Logger::addLog("[Osiris] Hit " + entity->getPlayerName() + ", using Angle: " + std::to_string(desyncAng));
+		if (!entity->isAlive())
+			desyncAng = 0.f;
 		snapshots.pop_front(); //Hit somebody so dont calculate
 		break;
 	}
@@ -125,7 +118,7 @@ void Resolver::getEvent(GameEvent* event) noexcept
 			break;
 
 		auto& snapshot = snapshots.front();
-		if (event->getInt("userid") != localPlayer->getUserId())
+		if (event->getInt("userid") == localPlayer->getUserId())
 		{
 
 			if (!snapshot.gotImpact)
@@ -137,14 +130,10 @@ void Resolver::getEvent(GameEvent* event) noexcept
 		}
 		else if (event->getInt("userid") == snapshot.playerIndex)
 		{
-			const auto entity = interfaces->entityList->getEntity(snapshot.playerIndex);
-			Antionetap(snapshot.player, entity, Vector{ event->getFloat("x"), event->getFloat("y"), event->getFloat("z") });
+			if (snapshot.player.shot)
+			Antionetap(snapshot.player, interfaces->entityList->getEntity(snapshot.playerIndex), Vector{ event->getFloat("x"), event->getFloat("y"), event->getFloat("z") });
 		}
 
-			
-
-
-		
 		break;
 	}
 	default:
@@ -206,35 +195,23 @@ void Resolver::processMissedShots() noexcept
 		if (Aimbot::hitboxIntersection(matrix, hitbox, set, snapshot.eyePosition, end))
 		{
 			resolverMissed = true;
-			std::string missed = "[Osiris] Missed " + entity->getPlayerName() + " due to resolver";
+			if (desyncAng == snapshot.player.workingangle && desyncAng != 0.f)
+				snapshot.player.workingangle = 0.f;
+			std::string missed = "[Osiris] Missed " + std::to_string(snapshot.player.misses+1) + " shots to " + entity->getPlayerName() + " due to resolver";
 			if (snapshot.backtrackRecord > 0)
 				missed += ", BT[" + std::to_string(snapshot.backtrackRecord) + "]";
 			missed += ", Angle: " + std::to_string(desyncAng);
+			Animations::setPlayer(snapshot.playerIndex)->misses++;
 			if (!(std::count(snapshot.player.blacklisted.begin(), snapshot.player.blacklisted.end(), desyncAng))) {
 				snapshot.player.blacklisted.push_back(desyncAng);
 			}
 			Logger::addLog(missed);
-			Animations::setPlayer(snapshot.playerIndex)->misses++;
+			desyncAng = 0;
 			break;
 		}
 	}
 	if (!resolverMissed)
 		Logger::addLog("[Osiris] Missed " + entity->getPlayerName() + " due to spread");
-}
-float clampedangle(float initialangle)
-{
-	float result = initialangle;
-	if (initialangle > 60.f)
-	{
-		result = initialangle / 2.f;
-		desyncAng = result;
-	}
-	else if (initialangle < -60.f)
-	{
-		result = initialangle / 2.f;
-		desyncAng = result;
-	}
-	return result;
 }
 float get_backward_side(Entity* entity) {
 	if (!entity->isAlive())
@@ -265,12 +242,21 @@ void Resolver::runPreUpdate(Animations::Players player, Entity* entity) noexcept
 
 	if (snapshots.empty())
 		return;
-
-	desyncAng = 0;
+	auto& snapshot = snapshots.front();
 	Resolver::setup_detect(player, entity);
 	Resolver::ResolveEntity(player, entity);
 	desyncAng = entity->getAnimstate()->footYaw;
-
+	auto animstate = entity->getAnimstate();
+	animstate->footYaw = desyncAng;
+	if (snapshot.player.workingangle != 0.f && fabs(desyncAng) > fabs(snapshot.player.workingangle))
+	{
+		if (snapshot.player.workingangle < 0.f && player.side == 1)
+			snapshot.player.workingangle = fabs(snapshot.player.workingangle);
+		else if (snapshot.player.workingangle > 0.f && player.side == -1)
+			snapshot.player.workingangle = snapshot.player.workingangle * (-1.f);
+		desyncAng = snapshot.player.workingangle;
+		animstate->footYaw = desyncAng;
+	}
 }
 
 void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcept
@@ -292,62 +278,19 @@ void Resolver::runPostUpdate(Animations::Players player, Entity* entity) noexcep
 		return;
 
 	auto& snapshot = snapshots.front();
-
-	if (entity->velocity().length2D() < 1.f)
+	auto animstate = entity->getAnimstate();
+	Resolver::setup_detect(player, entity);
+	Resolver::ResolveEntity(player, entity);
+	desyncAng = animstate->footYaw;
+	if (snapshot.player.workingangle != 0.f && fabs(desyncAng) > fabs(snapshot.player.workingangle))
 	{
-		auto animstate = entity->getAnimstate();
-		float angle = snapshot.player.workingangle;
-		static int side = player.side;
-		if (angle != 0.f)
-		{
-			animstate->footYaw = angle;
-			desyncAng = angle;
-		}
-		else
-		{
-			if (player.extended)
-			{
-				if (side == 1)
-				{
-					desyncAng = entity->getAnimstate()->eyeYaw + (entity->getMaxDesyncAngle());
-					if (std::count(player.blacklisted.begin(), player.blacklisted.end(), desyncAng)) {
-						desyncAng -= 10.f;
-					}
-				}
-				else if (side == -1)
-				{
-					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle());
-					if (std::count(player.blacklisted.begin(), player.blacklisted.end(), desyncAng)) {
-						desyncAng += 10.f;
-					}
-				}
-					
-			}
-			else
-			{
-				if (side == 1)
-				{
-					desyncAng = entity->getAnimstate()->eyeYaw + (entity->getMaxDesyncAngle() / 5.0f);
-					if (std::count(player.blacklisted.begin(), player.blacklisted.end(), desyncAng)) {
-						desyncAng += 10.f;
-					}
-				}
-					
-				else if (side == -1)
-				{
-					desyncAng = entity->getAnimstate()->eyeYaw - (entity->getMaxDesyncAngle() / 5.0f);
-					if (std::count(player.blacklisted.begin(), player.blacklisted.end(), desyncAng)) {
-						desyncAng -= 10.f;
-					}
-				}
-
-			}
-
-			animstate->footYaw = desyncAng;
-		}
+		if (snapshot.player.workingangle < 0.f && player.side == 1)
+			snapshot.player.workingangle = fabs(snapshot.player.workingangle);
+		else if (snapshot.player.workingangle > 0.f && player.side == -1)
+			snapshot.player.workingangle = snapshot.player.workingangle * (-1.f);
+		desyncAng = snapshot.player.workingangle;
+		animstate->footYaw = desyncAng;
 	}
-	
-
 }
 float build_server_abs_yaw(Animations::Players player, Entity* entity, float angle)
 {
@@ -624,6 +567,7 @@ void Resolver::setup_detect(Animations::Players player, Entity* entity) {
 	/* fix goalfeet yaw */
 	entity->getAnimstate()->footYaw = fl_eye_yaw + brute;
 }
+
 Vector calcAngle(Vector source, Vector entityPos) {
 	Vector delta = {};
 	delta.x = source.x - entityPos.x;
@@ -641,22 +585,25 @@ Vector calcAngle(Vector source, Vector entityPos) {
 }
 void Resolver::Antionetap(Animations::Players player, Entity* entity, Vector shot)
 {
-	int shots = 0;
 	Vector pos = shot;
 	Vector eyepos = entity->getEyePosition();
 	Vector ang = calcAngle(eyepos, pos);
 	Vector angToLocal = calcAngle(eyepos, localPlayer->getEyePosition());
 	Vector delta = { angToLocal.x - ang.x, angToLocal.y - ang.y, 0 };
 	float FOV = sqrt(delta.x * delta.x + delta.y * delta.y);
-	if (FOV < 10.f)
-		shots++;
-	if (shots > 0)
+	if (FOV < 20.f)
 	{
+		auto key = config->fakeAngle.invert;
+		bool isInvertToggled = key.isActive();
 		Logger::addLog("[Osiris] " + entity->getPlayerName() + " missed");
-		if (!(shots % 4))
-			config->fakeAngle.invert.setToggleTo(true);
-		else
-			config->fakeAngle.invert.setToggleTo(false);
+		if (isInvertToggled)
+		{
+			key.keyMode = KeyMode::Off;
+		}
+		else 
+		{
+			key.keyMode = KeyMode::Always;
+		}
 	}
 	
 }
@@ -681,7 +628,6 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		interfaces->gameEventManager->addListener(&listener[1], "player_hurt");
 		interfaces->gameEventManager->addListener(&listener[2], "round_start");
 		interfaces->gameEventManager->addListener(&listener[3], "weapon_fire");
-		//interfaces->gameEventManager->addListener(&listener[4], "player_death"); //causes crash
 		listenerRegistered = true;
 	}
 
@@ -690,7 +636,6 @@ void Resolver::updateEventListeners(bool forceRemove) noexcept
 		interfaces->gameEventManager->removeListener(&listener[1]);
 		interfaces->gameEventManager->removeListener(&listener[2]);
 		interfaces->gameEventManager->removeListener(&listener[3]);
-		//interfaces->gameEventManager->removeListener(&listener[4]);
 		listenerRegistered = false;
 	}
 }

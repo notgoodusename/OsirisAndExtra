@@ -39,6 +39,7 @@ namespace Misc
     bool changeName(bool, const char*, float) noexcept;
     void bunnyHop(UserCmd*) noexcept;
     void fixTabletSignal() noexcept;
+    void killfeedChanger(GameEvent& event) noexcept;
     void killMessage(GameEvent& event) noexcept;
     void fixMovement(UserCmd* cmd, float yaw) noexcept;
     void antiAfkKick(UserCmd* cmd) noexcept;

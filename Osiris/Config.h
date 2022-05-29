@@ -43,6 +43,7 @@ public:
         bool autoShot{ false };
         bool autoScope{ false };
         bool autoStop{ false };
+        bool killshot{ false };
         bool disableMultipointIfLowFPS{ false };
         bool disableBacktrackIfLowFPS{ false };
         bool betweenShots{ false };
@@ -75,6 +76,7 @@ public:
     struct Tickbase {
         bool enabled = false;
         bool hideshots = false;
+        bool telepeek = false;
     } tickbase;
 
 
@@ -129,6 +131,7 @@ public:
     std::array<Triggerbot, 40> triggerbot;
     KeyBind triggerbotKey{ std::string("triggerbot") };
     KeyBind doubletapkey{ std::string("doubletap") };
+    KeyBind hideshotskey{ std::string("hideshots") };
 
     struct Backtrack {
         bool enabled = false;
@@ -269,6 +272,7 @@ public:
         bool bunnyHop{ false };
         bool customClanTag{ false };
         bool clocktag{ false };
+        int faketag{ 0 };
         bool animatedClanTag{ false };
         bool fastDuck{ false };
         bool knifeBot{ false };
@@ -303,6 +307,7 @@ public:
         bool svPureBypass{ true };
         bool inventoryUnlocker{ false };
         PreserveKillfeed preserveKillfeed;
+        KillfeedChanger killfeedChanger;
         char clanTag[16];
         KeyBind edgejumpkey{ std::string("edgejump") };
         KeyBind jumpBugKey{ std::string("jump bug") };
@@ -344,7 +349,7 @@ public:
         Watermark watermark;
         float aspectratio{ 0 };
         std::string killMessageString{ "Gotcha!" };
-        ColorToggle3 bombTimer{ 1.0f, 0.55f, 0.0f };
+        ColorToggle3 bombTimer{ 0.3f, 0.1f, 0.3f };
         KeyBind prepareRevolverKey{ std::string("prepare revolver") };
         int hitSound{ 0 };
         int quickHealthshotKey{ 0 };

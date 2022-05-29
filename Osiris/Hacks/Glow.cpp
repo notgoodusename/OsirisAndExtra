@@ -162,6 +162,8 @@ void Glow::updateInput() noexcept
 
 void Glow::drawGUI() noexcept
 {
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 150.0f);
     ImGui::hotkey2("Key", glowKey, 80.0f);
     ImGui::Separator();
 
@@ -191,8 +193,6 @@ void Glow::drawGUI() noexcept
     ImGui::SameLine();
     ImGui::Checkbox("Enabled", &currentItem->enabled);
     ImGui::Separator();
-    ImGui::Columns(2, nullptr, false);
-    ImGui::SetColumnOffset(1, 150.0f);
     ImGui::Checkbox("Health based", &currentItem->healthBased);
 
     ImGuiCustom::colorPicker("Color", *currentItem);

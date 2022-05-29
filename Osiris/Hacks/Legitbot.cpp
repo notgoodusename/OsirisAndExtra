@@ -47,7 +47,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
 
     if (cfg[weaponIndex].enabled && (cmd->buttons & UserCmd::IN_ATTACK || cfg[weaponIndex].aimlock)) {
 
-        auto bestFov = cfg[weaponIndex].fov;
+        auto bestFov = (cfg[weaponIndex].fov / 10.f);
         Vector bestTarget{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
 

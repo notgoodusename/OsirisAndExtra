@@ -10,6 +10,7 @@
 #include "Interfaces.h"
 #include "Logger.h"
 #include "Memory.h"
+#include "Hacks/Tickbase.h"
 
 EventListener::EventListener() noexcept
 {
@@ -20,6 +21,7 @@ EventListener::EventListener() noexcept
 
     interfaces->gameEventManager->addListener(this, "round_start");
     interfaces->gameEventManager->addListener(this, "round_freeze_end");
+    interfaces->gameEventManager->addListener(this, "round_end");
     interfaces->gameEventManager->addListener(this, "player_hurt");
     interfaces->gameEventManager->addListener(this, "bullet_impact");
 
@@ -31,6 +33,8 @@ EventListener::EventListener() noexcept
 
     interfaces->gameEventManager->addListener(this, "player_death");
     interfaces->gameEventManager->addListener(this, "vote_cast");
+    interfaces->gameEventManager->addListener(this, "cs_win_panel_match");
+    interfaces->gameEventManager->addListener(this, "cs_intermission");
 
     if (const auto desc = memory->getEventDescriptor(interfaces->gameEventManager, "player_death", nullptr))
         std::swap(desc->listeners[0], desc->listeners[desc->listeners.size - 1]);
@@ -53,16 +57,20 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::preserveKillfeed(true);
         Misc::autoBuy(event);
         Resolver::getEvent(event);
+        Tickbase::getEvent(event);
         Visuals::bulletTracer(*event);
         [[fallthrough]];
     case fnv::hash("round_freeze_end"):
         Misc::purchaseList(event);
+        Tickbase::getEvent(event);
         break;
     case fnv::hash("player_death"):
         SkinChanger::updateStatTrak(*event);
         SkinChanger::overrideHudIcon(*event);
+        Misc::killfeedChanger(*event);
         Misc::killMessage(*event);
         Misc::killSound(*event);
+        Tickbase::getEvent(event);
         Resolver::getEvent(event);
         break;
     case fnv::hash("player_hurt"):
@@ -81,11 +89,20 @@ void EventListener::fireGameEvent(GameEvent* event)
     case fnv::hash("vote_cast"):
         Misc::voteRevealer(*event);
         break;
+    case fnv::hash("cs_win_panel_match"):
+        Tickbase::getEvent(event);
+        break;
+    case fnv::hash("cs_intermission"):
+        Tickbase::getEvent(event);
+        break;
     case fnv::hash("bomb_planted"):
         Logger::getEvent(event);
         break;
     case fnv::hash("grenade_thrown"):
         Misc::GrenadeAnimationCancel(*event);
+        break;
+    case fnv::hash("round_end"):
+        Tickbase::getEvent(event);
         break;
     case fnv::hash("hostage_follows"):
         Logger::getEvent(event);

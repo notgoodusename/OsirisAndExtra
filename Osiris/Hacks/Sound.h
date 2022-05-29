@@ -4,7 +4,7 @@
 
 #include "../ConfigStructs.h"
 
-#define OSIRIS_SOUND() true
+#define THE_SOUND_OF_GOD() true
 
 namespace Sound
 {

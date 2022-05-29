@@ -259,6 +259,7 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Auto shot", r.autoShot);
     read(j, "Auto scope", r.autoScope);
     read(j, "Auto stop", r.autoStop);
+    read(j, "Killshot", r.killshot);
     read(j, "Between shots", r.betweenShots);
     read(j, "Disable multipoint if low fps", r.disableMultipointIfLowFPS);
     read(j, "Disable backtrack if low fps", r.disableBacktrackIfLowFPS);
@@ -322,6 +323,7 @@ static void from_json(const json& j, Config::Tickbase& f)
 {
     read(j, "Enabled", f.enabled);
     read(j, "Hideshots", f.hideshots);
+    read(j, "Telepeek", f.telepeek);
 }
 
 
@@ -495,6 +497,18 @@ static void from_json(const json& j, PreserveKillfeed& o)
     read(j, "Only Headshots", o.onlyHeadshots);
 }
 
+static void from_json(const json& j, KillfeedChanger& o)
+{
+    read(j, "Enabled", o.enabled);
+    read(j, "Headshot", o.headshot);
+    read(j, "Dominated", o.dominated);
+    read(j, "Revenge", o.revenge);
+    read(j, "Penetrated", o.penetrated);
+    read(j, "Noscope", o.noscope);
+    read(j, "Thrusmoke", o.thrusmoke);
+    read(j, "Attackerblind", o.attackerblind);
+}
+
 static void from_json(const json& j, AutoBuy& o)
 {
     read(j, "Enabled", o.enabled);
@@ -556,6 +570,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Bunny hop", m.bunnyHop);
     read(j, "Custom clan tag", m.customClanTag);
     read(j, "Clock tag", m.clocktag);
+    read(j, "Fake tag", m.faketag);
     read(j, "Clan tag", m.clanTag, sizeof(m.clanTag));
     read(j, "Animated clan tag", m.animatedClanTag);
     read(j, "Fast duck", m.fastDuck);
@@ -615,6 +630,7 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Reportbot", m.reportbot);
     read(j, "Opposite Hand Knife", m.oppositeHandKnife);
     read<value_t::object>(j, "Preserve Killfeed", m.preserveKillfeed);
+    read<value_t::object>(j, "Killfeed changer", m.killfeedChanger);
     read(j, "Sv pure bypass", m.svPureBypass);
     read(j, "Inventory Unlocker", m.inventoryUnlocker);
     read<value_t::object>(j, "Autobuy", m.autoBuy);
@@ -670,6 +686,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read<value_t::object>(j, "Fakelag", fakelag);
     read<value_t::object>(j, "Tickbase", tickbase);
     read(j, "Doubletap Key", doubletapkey);
+    read(j, "Hideshots Key", hideshotskey);
     read<value_t::object>(j, "Backtrack", backtrack);
     Glow::fromJson(j["Glow"]);
     read(j, "Chams", chams);
@@ -855,6 +872,7 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Auto shot", autoShot);
     WRITE("Auto scope", autoScope);
     WRITE("Auto stop", autoStop);
+    WRITE("Killshot", killshot);
     WRITE("Between shots", betweenShots);
     WRITE("Disable multipoint if low fps", disableMultipointIfLowFPS);
     WRITE("Disable backtrack if low fps", disableMultipointIfLowFPS);
@@ -962,6 +980,7 @@ static void to_json(json& j, const Config::Tickbase& o, const Config::Tickbase& 
 {
     WRITE("Enabled", enabled);
     WRITE("Hideshots", hideshots);
+    WRITE("Telepeek", telepeek);
 }
 
 static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack& dummy = {})
@@ -1029,6 +1048,18 @@ static void to_json(json& j, const PreserveKillfeed& o, const PreserveKillfeed& 
     WRITE("Only Headshots", onlyHeadshots);
 }
 
+static void to_json(json& j, const KillfeedChanger& o, const KillfeedChanger& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Headshot", headshot);
+    WRITE("Dominated", dominated);
+    WRITE("Revenge", revenge);
+    WRITE("Penetrated", penetrated);
+    WRITE("Noscope", noscope);
+    WRITE("Thrusmoke", thrusmoke);
+    WRITE("Attackerblind", attackerblind);
+}
+
 static void to_json(json& j, const AutoBuy& o, const AutoBuy& dummy = {})
 {
     WRITE("Enabled", enabled);
@@ -1092,6 +1123,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Bunny hop", bunnyHop);
     WRITE("Custom clan tag", customClanTag);
     WRITE("Clock tag", clocktag);
+    WRITE("Fake tag", faketag);
 
     if (o.clanTag[0])
         j["Clan tag"] = o.clanTag;
@@ -1154,6 +1186,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Reportbot", reportbot);
     WRITE("Opposite Hand Knife", oppositeHandKnife);
     WRITE("Preserve Killfeed", preserveKillfeed);
+    WRITE("Killfeed changer", killfeedChanger);
     WRITE("Sv pure bypass", svPureBypass);
     WRITE("Inventory Unlocker", inventoryUnlocker);
     WRITE("Autobuy", autoBuy);
@@ -1294,6 +1327,7 @@ void Config::save(size_t id) const noexcept
         j["Fakelag"] = fakelag;
         j["Tickbase"] = tickbase;
         to_json(j["Doubletap Key"], doubletapkey, KeyBind::NONE);
+        to_json(j["Hideshots Key"], hideshotskey, KeyBind::NONE);
         j["Backtrack"] = backtrack;
         j["Glow"] = Glow::toJson();
         j["Chams"] = chams;

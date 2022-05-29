@@ -18,7 +18,7 @@ void Fakelag::run(bool& sendPacket) noexcept
         return;
 
     auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 2 : 0;
-    if (config->fakelag.enabled && !config->doubletapkey.isActive())
+    if (config->fakelag.enabled && (!config->doubletapkey.isActive() && !config->hideshotskey.isActive()))
     {
         const float speed = EnginePrediction::getVelocity().length2D() >= 15.0f ? EnginePrediction::getVelocity().length2D() : 0.0f;
         switch (config->fakelag.mode) {

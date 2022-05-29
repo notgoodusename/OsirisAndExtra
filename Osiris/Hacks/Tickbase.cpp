@@ -4,32 +4,28 @@
 #include "../SDK/Localplayer.h"
 #include "../SDK/UserCmd.h"
 #include "../SDK/NetworkChannel.h"
+#include "../SDK/GameEvent.h"
 #define TICKS_TO_TIME( t )		(memory->globalVars->intervalPerTick *( t ) )
 #define TIME_TO_TICKS( dt )		( (int)( 0.5 + (float)(dt) / memory->globalVars->intervalPerTick ) )
 //TODO: fix random prediction errors, make ragebot backtrack on tickbase manip
+
 
 void Tickbase::run(UserCmd* cmd) noexcept
 {
 	static float spawnTime = 0.f;
 	if (CanDT())
 	{
-
 		if (spawnTime != localPlayer->spawnTime())
 		{
 			spawnTime = localPlayer->spawnTime();
 			doubletapCharge = 0;
 		}
 
-		static bool enabled = false;
-		if (config->doubletapkey.isActive() != enabled && config->doubletapkey.isActive())
-			doubletapCharge = 0;
-		enabled = config->doubletapkey.isActive();
-
 		auto activeWeapon = localPlayer->getActiveWeapon();
 		if (!activeWeapon)
 			return;
 
-		if (activeWeapon->isGrenade())
+		if (activeWeapon->isGrenade() || activeWeapon->itemDefinitionIndex2() == WeaponId::C4)
 			return;
 
 		auto weaponData = activeWeapon->getWeaponData();
@@ -43,28 +39,72 @@ void Tickbase::run(UserCmd* cmd) noexcept
 			return;
 		if (localPlayer->flags() & (1 << 6))
 			return;
+		if (cmd->buttons & UserCmd::IN_USE)
+			return;
+		
 
 		maxTicks = ((*memory->gameRules)->isValveDS()) ? 8 : 19;
-		if (!config->tickbase.hideshots)
+		if (!localPlayer || !localPlayer->isAlive())
+			return;
+		if (!warmup)
 		{
-			if (!localPlayer || !localPlayer->isAlive())
-				return;
-			int ticksPerShot = max(0, static_cast<int>(weaponData->cycletime / memory->globalVars->intervalPerTick));
-
-			//If it has been clamped dont remove ticks
-			if (ticksPerShot > maxTicks)
-				ticksPerShot = maxTicks;
-			else //If it has not been clamped you need to do -2 ticks to get prediction to work well
-				ticksPerShot -= 2;
-			if (localPlayer && localPlayer->isAlive())
-				shiftAmount = std::clamp(ticksPerShot, 0, maxTicks - netChannel->chokedPackets);
-
-			if (shiftAmount > doubletapCharge)
-				return;
-			if (CanFireWithExploit(lastShift))
+			if ((config->doubletapkey.isActive() && !config->hideshotskey.isActive()) || (config->hideshotskey.isActive() && dotelepeek))
 			{
-				if ((memory->globalVars->currenttime - (Firerate() - 0.05f)) > activeWeapon->lastshottime())
+				A:
+				int ticksPerShot = max(0, static_cast<int>(weaponData->cycletime / memory->globalVars->intervalPerTick));
+				//If it has been clamped dont remove ticks
+				if (ticksPerShot > maxTicks)
+					ticksPerShot = maxTicks;
+				else //If it has not been clamped you need to do -2 ticks to get prediction to work well
+					ticksPerShot -= 2;
+				if (dotelepeek)
+					ticksPerShot = 7;
+				if (maxTicks > 12)
 				{
+					interfaces->cvar->findVar("sv_maxusrcmdprocessticks")->setValue(maxTicks);
+					shiftAmount = std::clamp(ticksPerShot, 0, maxTicks);
+					interfaces->cvar->findVar("cl_clock_correction")->setValue(0);
+				}
+				else 
+				{
+					shiftAmount = std::clamp(ticksPerShot, 0, maxTicks - netChannel->chokedPackets);
+				}
+				if (shiftAmount <= doubletapCharge)
+				{ 
+					if (CanFireWithExploit(lastShift))
+					{
+						if ((memory->globalVars->currenttime - (Firerate() - 0.05f)) >= activeWeapon->lastshottime() || dotelepeek)
+						{
+							if ((cmd->buttons & UserCmd::IN_ATTACK) || dotelepeek)
+							{
+								if (localPlayer && localPlayer->isAlive())
+								{
+									if (dotelepeek)
+									{
+										dotelepeek = false;
+									}
+									ticksToShift = shiftAmount;
+									lastShift = shiftAmount;
+									commandNumber = cmd->commandNumber;
+								}
+							}
+						}
+					}
+				}
+			}
+			else if (!config->doubletapkey.isActive() && config->hideshotskey.isActive() && !dotelepeek)
+			{
+				int hideticks = ((*memory->gameRules)->isValveDS()) ? -6 : -9;
+				int ticksPerShot = max(0, static_cast<int>(weaponData->cycletime / memory->globalVars->intervalPerTick));
+				ticksPerShot = max(-ticksPerShot, hideticks);
+
+				if (localPlayer && localPlayer->isAlive())
+					shiftAmount = std::clamp(ticksPerShot, hideticks, maxTicks - netChannel->chokedPackets);
+				if (CanHideWithExploit(lastShift))
+				{
+					if (doubletapCharge > 1)
+						doubletapCharge = 0;
+
 					if ((cmd->buttons & UserCmd::IN_ATTACK))
 					{
 						if (localPlayer && localPlayer->isAlive())
@@ -76,50 +116,77 @@ void Tickbase::run(UserCmd* cmd) noexcept
 					}
 				}
 			}
-		}
-		else
-		{
-			if (config->tickbase.hideshots)
+			else if (config->doubletapkey.isActive() && config->hideshotskey.isActive())
 			{
-				if (!localPlayer || !localPlayer->isAlive())
-					return;
-				int ticksPerShot = TIME_TO_TICKS(2.0f);
-				ticksPerShot = max(-ticksPerShot, -6);
-				if (localPlayer && localPlayer->isAlive())
-					shiftAmount = std::clamp(ticksPerShot, -6, maxTicks - netChannel->chokedPackets);
-
-				if (CanFireWithExploit(lastShift))
-				{
-					if ((memory->globalVars->currenttime - (Firerate() - 0.05f)) > activeWeapon->lastshottime())
-					{
-						if ((cmd->buttons & UserCmd::IN_ATTACK))
-						{
-							if (localPlayer && localPlayer->isAlive())
-							{
-								ticksToShift = shiftAmount;
-								lastShift = shiftAmount;
-								commandNumber = cmd->commandNumber;
-							}
-						}
-					}
-				}
+				goto A;
 			}
 		}
 	}
 	
 }
 
+void Tickbase::getEvent(GameEvent* event) noexcept
+{
+	if (!event || !localPlayer || interfaces->engine->isHLTV())
+		return;
+
+	switch (fnv::hashRuntime(event->getName())) {
+	case fnv::hash("round_prestart"):
+	{
+		warmup = true;
+		break;
+	}
+	case fnv::hash("round_end"):
+	{
+		warmup = true;
+		break;
+	}
+	case fnv::hash("round_freeze_end"):
+	{
+		warmup = false;
+		break;
+	}
+	case fnv::hash("player_death"):
+	{
+		if (event->getInt("userid") != localPlayer->getUserId())
+			break;
+		warmup = true;
+		break;
+	}
+	case fnv::hash("cs_win_panel_match"):
+	{
+		warmup = true;
+		break;
+	}
+	case fnv::hash("cs_intermission"):
+	{
+		warmup = true;
+		break;
+	}
+	default:
+		break;
+	}
+}
+
 bool Tickbase::CanDT() {
+
+	if (warmup)
+		return false;
+
+	if (config->misc.fakeduckKey.isActive())
+		return false;
 
 	if (!localPlayer || !localPlayer->isAlive())
 		return false;
 
-	if (!config->doubletapkey.isActive() && !config->tickbase.enabled)
+	if (!config->tickbase.enabled)
 		return false;
 
 	if (!*memory->gameRules || (*memory->gameRules)->freezePeriod())
 		return false;
 
+	if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
+		return false;
 	return true;
 }
 bool Tickbase::DTWeapon() {
@@ -133,6 +200,10 @@ bool Tickbase::DTWeapon() {
 		}
 	
 	return true;
+}
+void Tickbase::Telepeek()
+{
+	if (!dotelepeek){ dotelepeek = true; }
 }
 bool Tickbase::CanFireWeapon(float curtime) {
 	if (!localPlayer || !localPlayer->isAlive())
@@ -149,9 +220,23 @@ bool Tickbase::CanFireWeapon(float curtime) {
 
 	return false;
 }
+bool Tickbase::CanHideWeapon(float curtime) {
+	if (!localPlayer || !localPlayer->isAlive())
+		return false;
+
+	auto activeWeapon = localPlayer->getActiveWeapon();
+	if (!activeWeapon)
+		return false;
+
+	if (curtime >= activeWeapon->nextPrimaryAttack()) {
+			return true;
+	}
+
+	return false;
+}
 float Tickbase::Firerate()
 {
-	if (!Tickbase::DTWeapon)
+	if (!Tickbase::DTWeapon())
 		return 0.f;
 	auto pWeapon = localPlayer->getActiveWeapon();
 	if (!pWeapon)
@@ -225,7 +310,45 @@ bool Tickbase::CanFireWithExploit(int m_iShiftedTick) {
 	float curtime = TICKS_TO_TIME(localPlayer->tickBase() - m_iShiftedTick);
 	return CanFireWeapon(curtime);
 }
+bool Tickbase::CanHideWithExploit(int m_iShiftedTick) {
+	float curtime = TICKS_TO_TIME(localPlayer->tickBase() - m_iShiftedTick);
+	return CanFireWeapon(curtime);
+}
+
+void Tickbase::updateEventListeners(bool forceRemove) noexcept
+{
+	class ImpactEventListener : public GameEventListener {
+	public:
+		void fireGameEvent(GameEvent* event) {
+			getEvent(event);
+		}
+	};
+
+	static ImpactEventListener listener[5]; 
+	static bool listenerRegistered = false;
+
+	if (config->tickbase.enabled && !listenerRegistered) {
+		interfaces->gameEventManager->addListener(&listener[0], "round_prestart");
+		interfaces->gameEventManager->addListener(&listener[1], "round_end");
+		interfaces->gameEventManager->addListener(&listener[2], "round_freeze_end");
+		interfaces->gameEventManager->addListener(&listener[3], "player_death");
+		interfaces->gameEventManager->addListener(&listener[4], "cs_win_panel_match");
+		interfaces->gameEventManager->addListener(&listener[5], "cs_intermission");
+		listenerRegistered = true;
+	}
+
+	else if ((!config->tickbase.enabled || forceRemove) && listenerRegistered) {
+		interfaces->gameEventManager->removeListener(&listener[0]);
+		interfaces->gameEventManager->removeListener(&listener[1]);
+		interfaces->gameEventManager->removeListener(&listener[2]);
+		interfaces->gameEventManager->removeListener(&listener[3]);
+		interfaces->gameEventManager->removeListener(&listener[4]);
+		interfaces->gameEventManager->removeListener(&listener[5]);
+		listenerRegistered = false;
+	}
+}
 void Tickbase::updateInput() noexcept
 {
 	config->doubletapkey.handleToggle();
+	config->hideshotskey.handleToggle();
 }

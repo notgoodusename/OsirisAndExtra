@@ -8,7 +8,7 @@
 
 #include "Sound.h"
 
-#if OSIRIS_SOUND()
+#if THE_SOUND_OF_GOD()
 
 static struct SoundConfig {
     int chickenVolume = 100;

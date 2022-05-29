@@ -313,7 +313,8 @@ void drawCircle(Vector position, float points, float radius)
 	}
 }
 
-inline float CSGO_Armor(float flDamage, int ArmorValue) {
+inline auto CSGO_Armor(float flDamage, int ArmorValue)
+{
 	static float flArmorRatio = 0.5f;
 	static float flArmorBonus = 0.5f;
 	if (ArmorValue > 0) {
@@ -331,35 +332,47 @@ inline float CSGO_Armor(float flDamage, int ArmorValue) {
 }
 
 void drawDamage(Vector position) {
-	static float a = 105.0f;
-	static float b = 25.0f;
-	static float c = 140.0f;
+	static auto mp_friendlyfire = interfaces->cvar->findVar("mp_friendlyfire");
+	static auto ff_damage_reduction_grenade = interfaces->cvar->findVar("ff_damage_reduction_grenade");
 
 	ImVec2 pos{};
 
-	for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i)
-	{
-		const auto entity{ interfaces->entityList->getEntity(i) };
-		if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get()) || entity->gunGameImmunity())
+	GameData::Lock lock;
+	for (auto& player : GameData::players()) {
+		if (player.handle == localPlayer || player.dormant || !player.alive)
 			continue;
 
-		float dist = (entity->origin() - position).length();
+		Vector center = player.origin + (player.obbMins + player.obbMaxs) * 0.5f;
+		const float dist = (center - position).length();
 		if (dist > 350.f)
 			continue;
 
-		float d = ((dist - b) / c);
-		float flDamage = a * exp(-d * d);
-		auto dmg = max(static_cast<int>(ceilf(CSGO_Armor(flDamage, entity->armor()))), 0);
+		Trace tr;
+		TraceHull(position, center, tr);
+		if (!tr.endpos.notNull() || tr.entity->handle() != player.handle)
+			continue;
+
+		static const float a = 105.0f;
+		static const float b = 25.0f;
+		static const float c = 140.0f;
+
+		const float d = ((dist - b) / c);
+		const float flDamage = a * exp(-d * d);
+		int dmg = max(static_cast<int>(ceilf(CSGO_Armor(flDamage, player.armor))), 0);
+		dmg = min(dmg, (player.armor > 0) ? 57.f : 98.f);
+
+		if (mp_friendlyfire->getInt() > 0 && !player.enemy)
+			dmg *= ff_damage_reduction_grenade->getFloat();
 
 		if (dmg < 1)
 			continue;
 
-		std::string dmg2text = entity->health() - dmg > 0 ? std::to_string(dmg) : "kILL";
-		if (worldToScreen(entity->origin(), pos))
+		std::string dmg2text = player.health - dmg > 0 ? std::to_string(dmg) : "kILL";
+		if (worldToScreen(player.origin, pos))
 		{
 			dmgPoints.emplace_back(std::pair<ImVec2, std::string>{ pos, dmg2text });
 		}
-		
+
 	}
 }
 
@@ -520,16 +533,12 @@ void NadePrediction::draw() noexcept
 	{
 		for (auto& point : dmgPoints)
 		{
-			//renderText(0, 0, redColor, point.second.c_str(), point.first);
-			//renderText(0, 0, redColor, "NMSL", { 960, 540 });
-
 			const auto textSize = ImGui::CalcTextSize(point.second.c_str());
 			const auto horizontalOffset = textSize.x / 2;
 			const auto verticalOffset = textSize.y;
 
 			drawList->AddText({ point.first.x - horizontalOffset + 1.0f, point.first.y - verticalOffset + 1.0f }, Helpers::calculateColor(config->misc.nadeDamagePredict) & IM_COL32_A_MASK, point.second.c_str());
 			drawList->AddText({ point.first.x - horizontalOffset, point.first.y - verticalOffset }, Helpers::calculateColor(config->misc.nadeDamagePredict), point.second.c_str());
-
 		}
 	}
 }

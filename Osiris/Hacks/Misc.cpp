@@ -774,8 +774,60 @@ void Misc::updateClanTag(bool tagChanged) noexcept
                 case 55: { memory->setClanTag("", ""); break; }
                 }
             }
+            if (tag == 4)
+            {
+                switch (time % 54)
+                {
+                case 1: { memory->setClanTag(" ", " "); break; }
+                case 2: { memory->setClanTag(" 5 ", " 5 "); break; }
+                case 3: { memory->setClanTag(" $ ", " $ "); break; }
+                case 4: { memory->setClanTag(" S ", " s "); break; }
+                case 5: { memory->setClanTag(" $c ", " $c "); break; }
+                case 6: { memory->setClanTag(" Sc ", " Sc "); break; }
+                case 7: { memory->setClanTag(" Sc0 ", " Sc0 "); break; }
+                case 8: { memory->setClanTag(" Sco ", " Sco "); break; }
+                case 9: { memory->setClanTag(" Scor ", " Scor "); break; }
+                case 10: { memory->setClanTag(" Scorp ", " Scorp "); break; }
+                case 11: { memory->setClanTag(" Scorp1 ", " Scorp1 "); break; }
+                case 12: { memory->setClanTag(" Scorpi ", " Scorpi "); break; }
+                case 13: { memory->setClanTag(" Scorpi0 ", " Scorpi0 "); break; }
+                case 14: { memory->setClanTag(" Scorpio ", " Scorpio "); break; }
+                case 15: { memory->setClanTag(" Scorpion ", " Scorpion "); break; }
+                case 16: { memory->setClanTag(" Scorpion\\ ", " Scorpion\\ "); break; }
+                case 17: { memory->setClanTag(" Scorpion\\/ ", " Scorpion\\/ "); break; }
+                case 18: { memory->setClanTag(" Scorpion\\/\\ ", " Scorpion\\/\\ "); break; }
+                case 19: { memory->setClanTag(" Scorpion\\/\\/ ", " Scorpion\\/\\/ "); break; }
+                case 20: { memory->setClanTag(" ScorpionW ", " ScorpionW "); break; }
+                case 21: { memory->setClanTag(" ScorpionW4 ", " ScorpionW4 "); break; }
+                case 22: { memory->setClanTag(" ScorpionWa ", " ScorpionWa "); break; }
+                case 23: { memory->setClanTag(" ScorpionWar ", " ScorpionWar "); break; }
+                case 24: { memory->setClanTag(" ScorpionWar3 ", " ScorpionWar3 "); break; }
+                case 25: { memory->setClanTag(" ScorpionWare ", " ScorpionWare"); break; }
+                case 33: { memory->setClanTag(" ScorpionWare ", " ScorpionWare"); break; }
+                case 34: { memory->setClanTag(" ScorpionWar ", " ScorpionWar "); break; }
+                case 35: { memory->setClanTag(" ScorpionWa ", " ScorpionWa "); break; }
+                case 36: { memory->setClanTag(" ScorpionW ", " ScorpionW "); break; }
+                case 37: { memory->setClanTag(" Scorpion\\/\\/ ", " Scorpion\\/\\/ "); break; }
+                case 38: { memory->setClanTag(" Scorpion\\/\\ ", " Scorpion\\/\\ "); break; }
+                case 39: { memory->setClanTag(" Scorpion\\/ ", " Scorpion\\/ "); break; }
+                case 40: { memory->setClanTag(" Scorpion\\ ", " Scorpion\\ "); break; }
+                case 41: { memory->setClanTag(" Scorpion ", " Scorpion "); break; }
+                case 42: { memory->setClanTag(" Scorpio ", " Scorpio "); break; }
+                case 43: { memory->setClanTag(" Scorpi0 ", " Scorpi0 "); break; }
+                case 44: { memory->setClanTag(" Scorpi ", " Scorpi "); break; }
+                case 45: { memory->setClanTag(" Scorp1 ", " Scorp1 "); break; }
+                case 46: { memory->setClanTag(" Scorp ", " Scorp "); break; }
+                case 47: { memory->setClanTag(" Scor ", " Scor "); break; }
+                case 48: { memory->setClanTag(" Sco ", " Sco "); break; }
+                case 49: { memory->setClanTag(" Sc0 ", " Sc0 "); break; }
+                case 50: { memory->setClanTag(" Sc ", " Sc "); break; }
+                case 51: { memory->setClanTag(" S ", " S "); break; }
+                case 52: { memory->setClanTag(" $ ", " $ "); break; }
+                case 53: { memory->setClanTag(" 5 ", " 5 "); break; }
+                case 54: { memory->setClanTag(" ", " "); break; }
+                }
       
-            //}
+            }
         }
         lastTime = time;
     }

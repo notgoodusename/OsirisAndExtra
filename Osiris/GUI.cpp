@@ -626,7 +626,7 @@ void GUI::renderTickbaseWindow() noexcept
     ImGui::PopID();
     if (config->tickbase.enabled)
     ImGui::Checkbox("Hideshots", &config->tickbase.hideshots);
-    if (config->tickbase.hideshots)
+    if (config->tickbase.hideshots && config->tickbase.enabled)
     {
         ImGui::hotkey2("HS Key", config->hideshotskey);
         ImGui::Checkbox("TelePeek", &config->tickbase.telepeek);
@@ -1695,7 +1695,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::NextColumn();
     ImGui::Checkbox("Animated clan tag", &config->misc.animatedClanTag);
     ImGui::Checkbox("Clock tag", &config->misc.clocktag);
-    ImGui::Combo("FakeTags", &config->misc.faketag, "None\0Gamesense\0Skeet.cc\0Neverlose\0Osiris\0");
+    ImGui::Combo("FakeTags", &config->misc.faketag, "None\0Gamesense\0Skeet.cc\0Neverlose\0ScorpionWare\0");
     ImGui::Checkbox("Custom clantag", &config->misc.customClanTag);
     ImGui::SameLine();
     ImGui::PushItemWidth(120.0f);

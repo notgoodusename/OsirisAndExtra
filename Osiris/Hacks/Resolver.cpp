@@ -6,6 +6,7 @@
 #include "../Logger.h"
 
 #include "../SDK/GameEvent.h"
+#include "../GameData.h"
 
 std::deque<Resolver::SnapShot> snapshots;
 float desyncAng{ 0 };
@@ -128,10 +129,12 @@ void Resolver::getEvent(GameEvent* event) noexcept
 				snapshot.gotImpact = true;
 			}
 		}
-		else if (event->getInt("userid") == snapshot.playerIndex)
+		else
 		{
 			if (snapshot.player.shot)
-			Antionetap(snapshot.player, interfaces->entityList->getEntity(snapshot.playerIndex), Vector{ event->getFloat("x"), event->getFloat("y"), event->getFloat("z") });
+			{
+				Antionetap(event->getInt("userid"), interfaces->entityList->getEntity(snapshot.playerIndex), Vector{ event->getFloat("x"), event->getFloat("y"), event->getFloat("z") });
+			}
 		}
 
 		break;
@@ -447,6 +450,11 @@ void Resolver::ResolveEntity(Animations::Players player, Entity* entity) {
 	float max_rotation = entity->getMaxDesyncAngle();
 	int index = 0;
 	float eye_yaw = entity->getAnimstate()->eyeYaw;
+	bool extended = player.extended;
+	if (!extended && fabs(max_rotation) > 60.f)
+	{
+		max_rotation = max_rotation / 1.8f;
+	}
 
 	// resolve shooting players separately.
 	if (player.shot) {
@@ -583,29 +591,42 @@ Vector calcAngle(Vector source, Vector entityPos) {
 
 		return angles;
 }
-void Resolver::Antionetap(Animations::Players player, Entity* entity, Vector shot)
+void Resolver::Antionetap(int userid, Entity* entity, Vector shot)
 {
-	Vector pos = shot;
-	Vector eyepos = entity->getEyePosition();
-	Vector ang = calcAngle(eyepos, pos);
-	Vector angToLocal = calcAngle(eyepos, localPlayer->getEyePosition());
-	Vector delta = { angToLocal.x - ang.x, angToLocal.y - ang.y, 0 };
-	float FOV = sqrt(delta.x * delta.x + delta.y * delta.y);
-	if (FOV < 20.f)
-	{
-		auto key = config->fakeAngle.invert;
-		bool isInvertToggled = key.isActive();
-		Logger::addLog("[Osiris] " + entity->getPlayerName() + " missed");
-		if (isInvertToggled)
+	std::vector<std::reference_wrapper<const PlayerData>> playersOrdered{ GameData::players().begin(), GameData::players().end() };
+	std::ranges::sort(playersOrdered, [](const PlayerData& a, const PlayerData& b) {
+		// enemies first
+		if (a.enemy != b.enemy)
+			return a.enemy && !b.enemy;
+
+		return a.handle < b.handle;
+		});
+	for (const PlayerData& player : playersOrdered) {
+		if (player.userId == userid)
 		{
-			key.keyMode = KeyMode::Off;
-		}
-		else 
-		{
-			key.keyMode = KeyMode::Always;
+			if (entity->isAlive())
+			{
+				Vector pos = shot;
+				Vector eyepos = entity->getEyePosition();
+				Vector ang = calcAngle(eyepos, pos);
+				Vector angToLocal = calcAngle(eyepos, localPlayer->getEyePosition());
+				Vector delta = { angToLocal.x - ang.x, angToLocal.y - ang.y, 0 };
+				float FOV = sqrt(delta.x * delta.x + delta.y * delta.y);
+				if (FOV < 20.f)
+				{
+					Logger::addLog("[Osiris] " + player.name + " missed");
+					if (config->rageAntiAim.roll)
+					{
+						config->rageAntiAim.roll = false;
+					}
+					else
+					{
+						config->rageAntiAim.roll = true;
+					}
+				}
+			}
 		}
 	}
-	
 }
 void Resolver::CmdGrabber(UserCmd* cmd)
 {

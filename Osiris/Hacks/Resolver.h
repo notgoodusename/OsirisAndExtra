@@ -22,7 +22,7 @@ namespace Resolver
 
 	void setup_detect(Animations::Players player, Entity* entity);
 
-	void Antionetap(Animations::Players player, Entity* entity, Vector shot);
+	void Antionetap(int userid, Entity* entity, Vector shot);
 
 	void CmdGrabber(UserCmd* cmd);
 

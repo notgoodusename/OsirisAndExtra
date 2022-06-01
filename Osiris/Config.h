@@ -308,7 +308,6 @@ public:
         bool inventoryUnlocker{ false };
         KillfeedChanger killfeedChanger;
         PreserveKillfeed preserveKillfeed;
-        KillfeedChanger killfeedChanger;
         char clanTag[16];
         KeyBind edgejumpkey{ std::string("edgejump") };
         KeyBind jumpBugKey{ std::string("jump bug") };
@@ -349,7 +348,7 @@ public:
         };
         Watermark watermark;
         float aspectratio{ 0 };
-        std::string killMessageString{ "Gotcha!" };
+        std::string killMessageString{ "1" };
         ColorToggle3 bombTimer{ 0.3f, 0.1f, 0.3f };
         KeyBind prepareRevolverKey{ std::string("prepare revolver") };
         int hitSound{ 0 };

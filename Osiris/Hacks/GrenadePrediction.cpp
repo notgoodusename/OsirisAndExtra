@@ -343,7 +343,7 @@ void drawDamage(Vector position) {
 			continue;
 
 		Vector center = player.origin + (player.obbMins + player.obbMaxs) * 0.5f;
-		const float dist = (center - position).length();
+		const float dist = center.distTo(position);
 		if (dist > 350.f)
 			continue;
 

@@ -28,6 +28,7 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/Panorama.h"
+#include "../SDK/Prediction.h"
 #include "../SDK/Surface.h"
 #include "../SDK/UserCmd.h"
 #include "../SDK/ViewSetup.h"
@@ -68,6 +69,125 @@ bool Misc::isInChat() noexcept
     const bool isInChat = *(bool*)((uintptr_t)hudChat + 0x58);
 
     return isInChat;
+}
+
+void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
+{
+    if (!config->misc.edgebug || !config->misc.edgebugkey.isActive())
+        return;
+
+    if (localPlayer->flags() & 1)
+        return;
+
+    shouldEdgebug = zVelBackup < -bugSpeed && round(localPlayer->velocity().z) == -round(bugSpeed) && localPlayer->moveType() != MoveType::LADDER;
+    if (shouldEdgebug)
+        return;
+
+    int nCommandsPredicted = interfaces->prediction->split->commandsPredicted;
+
+    Vector angViewOriginal = angView;
+    Vector angCmdViewOriginal = cmd->viewangles;
+    int buttonsOriginal = cmd->buttons;
+    Vector vecMoveOriginal;
+    vecMoveOriginal.x = cmd->sidemove;
+    vecMoveOriginal.y = cmd->forwardmove;
+
+    static Vector vecMoveLastStrafe;
+    static Vector angViewLastStrafe;
+    static Vector angViewOld = angView;
+    static Vector angViewDeltaStrafe;
+    static bool bAppliedStrafeLast = false;
+    if (!bAppliedStrafeLast)
+    {
+        angViewLastStrafe = angView;
+        vecMoveLastStrafe = vecMoveOriginal;
+        angViewDeltaStrafe = (angView - angViewOld);
+        angViewDeltaStrafe;
+    }
+    bAppliedStrafeLast = false;
+    angViewOld = angView;
+
+    for (int t = 0; t < 4; t++)
+    {
+        static int iLastType;
+        if (iLastType)
+        {
+            t = iLastType;
+            iLastType = 0;
+        }
+        memory->restoreEntityToPredictedFrame(0, nCommandsPredicted - 1);
+        if (buttonsOriginal& UserCmd::IN_DUCK&& t < 2)
+            t = 2;
+        bool bApplyStrafe = !(t % 2);
+        bool bApplyDuck = t > 1;
+
+        cmd->viewangles = angViewLastStrafe;
+        cmd->buttons = buttonsOriginal;
+        cmd->sidemove = vecMoveLastStrafe.x;
+        cmd->forwardmove = vecMoveLastStrafe.y;
+
+        for (int i = 0; i < config->misc.edgebugPredAmnt; i++)
+        {
+            if (bApplyDuck)
+                cmd->buttons |= UserCmd::IN_DUCK;
+            else
+                cmd->buttons &= ~UserCmd::IN_DUCK;
+            if (bApplyStrafe)
+            {
+                cmd->viewangles += angViewDeltaStrafe;
+                cmd->viewangles.normalize();
+                cmd->viewangles.clamp();
+            }
+            else
+            {
+                cmd->sidemove = 0.f;
+                cmd->forwardmove = 0.f;
+            }
+            EnginePrediction::run(cmd);
+            shouldEdgebug = zVelBackup < -bugSpeed && round(localPlayer->velocity().z) == -round(bugSpeed) && localPlayer->moveType() != MoveType::LADDER;
+            zVelBackup = localPlayer->velocity().z;
+            if (shouldEdgebug)
+            {
+                edgebugButtons = cmd->buttons;
+                if (bApplyStrafe)
+                {
+                    bAppliedStrafeLast = true;
+                    angView = (angViewLastStrafe + angViewDeltaStrafe);
+                    angView.normalize();
+                    angView.clamp();
+                    angViewLastStrafe = angView;
+                    cmd->sidemove = vecMoveLastStrafe.x;
+                    cmd->forwardmove = vecMoveLastStrafe.y;
+                }
+                cmd->viewangles = angCmdViewOriginal;
+                iLastType = t;
+                return;
+            }
+
+            if (localPlayer->flags() & 1 || localPlayer->moveType() == MoveType::LADDER)
+                break;
+        }
+    }
+    cmd->viewangles = angCmdViewOriginal;
+    angView = angViewOriginal;
+    cmd->buttons = buttonsOriginal;
+    cmd->sidemove = vecMoveOriginal.x;
+    cmd->forwardmove = vecMoveOriginal.y;
+}
+
+void Misc::PrePred(UserCmd* cmd) noexcept
+{
+    zVelBackup = localPlayer->velocity().z;
+
+    if (shouldEdgebug)
+        cmd->buttons = edgebugButtons;
+
+    static auto sv_gravity = interfaces->cvar->findVar("sv_gravity");
+    bugSpeed = (sv_gravity->getFloat() * 0.5f * memory->globalVars->intervalPerTick);
+
+    static float flZVelPrev = zVelBackup;
+    shouldEdgebug = zVelBackup < -bugSpeed && round(localPlayer->velocity ().z) == -round(bugSpeed) && localPlayer->moveType() != MoveType::LADDER;
+    flZVelPrev = zVelBackup;
 }
 
 void Misc::drawPlayerList() noexcept
@@ -872,6 +992,7 @@ const bool anyActiveKeybinds() noexcept
 
     const bool blockbot = config->misc.blockBot && config->misc.blockBotKey.canShowKeybind();
     const bool edgejump = config->misc.edgejump && config->misc.edgejumpkey.canShowKeybind();
+    const bool edgebug = config->misc.edgebug && config->misc.edgebugkey.canShowKeybind();
     const bool jumpBug = config->misc.jumpBug && config->misc.jumpBugKey.canShowKeybind();
     const bool slowwalk = config->misc.slowwalk && config->misc.slowwalkKey.canShowKeybind();
     const bool fakeduck = config->misc.fakeduck && config->misc.fakeduckKey.canShowKeybind();
@@ -882,7 +1003,7 @@ const bool anyActiveKeybinds() noexcept
     const bool hideshots = config->hideshotskey.canShowKeybind();
 
     return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
-        || zoom || thirdperson || freeCam || blockbot || edgejump || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver || doubletap || hideshots;
+        || zoom || thirdperson || freeCam || blockbot || edgejump || edgebug || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver || doubletap || hideshots;
 }
 
 void Misc::showKeybinds() noexcept
@@ -933,6 +1054,8 @@ void Misc::showKeybinds() noexcept
         config->misc.blockBotKey.showKeybind();
     if (config->misc.edgejump)
         config->misc.edgejumpkey.showKeybind();
+    if (config->misc.edgebug)
+        config->misc.edgebugkey.showKeybind();
     if (config->misc.jumpBug)
         config->misc.jumpBugKey.showKeybind();
     if (config->misc.slowwalk)
@@ -2063,6 +2186,7 @@ void Misc::updateInput() noexcept
 {
     config->misc.blockBotKey.handleToggle();
     config->misc.edgejumpkey.handleToggle();
+    config->misc.edgebugkey.handleToggle();
     config->misc.jumpBugKey.handleToggle();
     config->misc.slowwalkKey.handleToggle();
     config->misc.fakeduckKey.handleToggle();

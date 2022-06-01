@@ -12,6 +12,8 @@ static const float epsilon = 0.03125f;
 
 namespace EnginePrediction
 {
+	inline bool inPrediction{ false };
+
 	void reset() noexcept;
 
 	void update() noexcept;

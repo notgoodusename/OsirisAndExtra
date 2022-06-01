@@ -281,6 +281,8 @@ public:
         bool blockBot{ false };
         KeyBind blockBotKey{ std::string("block bot") };
         bool edgejump{ false };
+        bool edgebug{ false };
+        int edgebugPredAmnt{ 20 };
         bool jumpBug{ false };
         bool slowwalk{ false };
         bool fakeduck{ false };
@@ -310,6 +312,7 @@ public:
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];
         KeyBind edgejumpkey{ std::string("edgejump") };
+        KeyBind edgebugkey{ std::string("edge bug") };
         KeyBind jumpBugKey{ std::string("jump bug") };
         KeyBind slowwalkKey{ std::string("slowwalk") };
         KeyBind fakeduckKey{ std::string("fakeduck") };

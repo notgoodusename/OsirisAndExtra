@@ -145,6 +145,14 @@ struct Vector {
         return v;
     }
 
+    Vector clamp() noexcept
+    {
+        this->x = std::clamp(this->x, -89.f, 89.f);
+        this->y = std::clamp(this->y, -180.f, 180.f);
+        this->z = std::clamp(this->z, -50.f, 50.f);
+        return *this;
+    }
+
     Vector& normalize() noexcept
     {
         x = std::isfinite(x) ? std::remainder(x, 360.0f) : 0.0f;

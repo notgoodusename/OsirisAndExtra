@@ -350,6 +350,7 @@ public:
         float aspectratio{ 0 };
         std::string killMessageString{ "1" };
         ColorToggle3 bombTimer{ 0.3f, 0.1f, 0.3f };
+        ColorToggle3 hurtIndicator{ 0.0f, 0.8f, 0.7f };
         KeyBind prepareRevolverKey{ std::string("prepare revolver") };
         int hitSound{ 0 };
         int quickHealthshotKey{ 0 };

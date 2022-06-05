@@ -1567,6 +1567,14 @@ void GUI::renderMiscWindow() noexcept
     ImGui::PushID("Edge Jump Key");
     ImGui::hotkey2("", config->misc.edgejumpkey);
     ImGui::PopID();
+    ImGui::Checkbox("Edge Bug", &config->misc.edgebug);
+    ImGui::SameLine();
+    ImGui::PushID("Edge Bug Key");
+    ImGui::hotkey2("", config->misc.edgebugkey);
+    ImGui::PopID();
+    if (config->misc.edgebug) {
+        ImGui::SliderInt("Pred Amnt", &config->misc.edgebugPredAmnt, 0, 128, "%d ticks");
+    }
     ImGui::Checkbox("Jump Bug", &config->misc.jumpBug);
     ImGui::SameLine();
     ImGui::PushID("Jump Bug Key");

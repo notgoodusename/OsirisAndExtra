@@ -42,6 +42,8 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
+
+    inPrediction = true;
     
     localPlayerFlags = localPlayer->flags();
     localPlayerVelocity = localPlayer->velocity();
@@ -58,6 +60,9 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
     interfaces->prediction->setupMove(localPlayer.get(), cmd, memory->moveHelper, memory->moveData);
     interfaces->gameMovement->processMovement(localPlayer.get(), memory->moveData);
     interfaces->prediction->finishMove(localPlayer.get(), cmd, memory->moveData);
+
+    inPrediction = false;
+
     memory->moveHelper->setHost(nullptr);
 
     *memory->predictionRandomSeed = -1;

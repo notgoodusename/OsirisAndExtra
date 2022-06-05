@@ -568,6 +568,9 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Block bot Key", m.blockBotKey);
     read(j, "Edge Jump", m.edgejump);
     read(j, "Edge Jump Key", m.edgejumpkey);
+    read(j, "Edge Bug", m.edgebug);
+    read(j, "Edge Bug Key", m.edgebugkey);
+    read(j, "Pred Amnt", m.edgebugPredAmnt);
     read(j, "Jump Bug", m.jumpBug);
     read(j, "Jump Bug Key", m.jumpBugKey);
     read(j, "Slowwalk", m.slowwalk);
@@ -1109,6 +1112,9 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Block bot Key", blockBotKey);
     WRITE("Edge Jump", edgejump);
     WRITE("Edge Jump Key", edgejumpkey);
+    WRITE("Edge Bug", edgebug);
+    WRITE("Edge Bug Key", edgebugkey);
+    WRITE("Pred Amnt", edgebugPredAmnt);
     WRITE("Jump Bug", jumpBug);
     WRITE("Jump Bug Key", jumpBugKey);
     WRITE("Slowwalk", slowwalk);

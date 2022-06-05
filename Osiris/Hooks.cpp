@@ -246,6 +246,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     const auto viewAngles{ cmd->viewangles };
     auto currentViewAngles{ cmd->viewangles };
     const auto currentCmd{ *cmd };
+    auto angOldViewPoint{ cmd->viewangles };
 
     Resolver::processMissedShots();
     
@@ -266,6 +267,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::revealRanks(cmd);
     Misc::fixTabletSignal();
     Misc::slowwalk(cmd);
+    Misc::PrePred(cmd);
     Backtrack::updateIncomingSequences();
 
     EnginePrediction::update();
@@ -294,6 +296,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::fakeDuck(cmd, sendPacket);
     Misc::autoStrafe(cmd, currentViewAngles);
     Misc::jumpBug(cmd);
+    Misc::edgeBug(cmd, angOldViewPoint);
     Misc::runFreeCam(cmd, viewAngles);
     Misc::moonwalk(cmd);
 
@@ -463,6 +466,9 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
 
 static int __stdcall emitSound(void* filter, int entityIndex, int channel, const char* soundEntry, unsigned int soundEntryHash, const char* sample, float volume, int seed, int soundLevel, int flags, int pitch, const Vector& origin, const Vector& direction, void* utlVecOrigins, bool updatePositions, float soundtime, int speakerentity, void* soundParams) noexcept
 {
+    if (EnginePrediction::inPrediction) {
+        return 0;
+    }
     Sound::modulateSound(soundEntry, entityIndex, volume);
     Misc::autoAccept(soundEntry);
 

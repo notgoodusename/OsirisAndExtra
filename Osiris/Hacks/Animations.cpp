@@ -546,6 +546,12 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         //Backtrack records
 
+        if (!config->backtrack.enabled)
+        {
+            player.backtrackRecords.clear();
+            return;
+        }
+
         if (runPostUpdate)
         {
             if (!player.backtrackRecords.empty() && (player.backtrackRecords.front().simulationTime == entity->simulationTime()))

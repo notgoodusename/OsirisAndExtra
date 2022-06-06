@@ -349,7 +349,7 @@ void drawDamage(Vector position) {
 
 		Trace tr;
 		TraceHull(position, center, tr);
-		if (!tr.endpos.notNull() || tr.entity->handle() != player.handle)
+		if (!tr.endpos.notNull() || !tr.entity || tr.entity->handle() != player.handle)
 			continue;
 
 		static const float a = 105.0f;

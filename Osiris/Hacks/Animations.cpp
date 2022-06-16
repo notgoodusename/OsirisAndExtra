@@ -522,7 +522,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
         if (!config->backtrack.enabled)
         {
             player.backtrackRecords.clear();
-            return;
+            continue;
         }
 
         if (runPostUpdate)

@@ -313,25 +313,24 @@ void drawCircle(Vector position, float points, float radius)
 	}
 }
 
-inline auto CSGO_Armor(float flDamage, int ArmorValue)
+float calculateArmor(float damage, int armorValue) noexcept
 {
-	static float flArmorRatio = 0.5f;
-	static float flArmorBonus = 0.5f;
-	if (ArmorValue > 0) {
-		float flNew = flDamage * flArmorRatio;
-		float flArmor = (flDamage - flNew) * flArmorBonus;
+	if (armorValue > 0) {
+		float newDamage = damage * 0.5f;
+		float armor = (damage - newDamage) * 0.5f;
 
-		if (flArmor > static_cast<float>(ArmorValue)) {
-			flArmor = static_cast<float>(ArmorValue) * (1.f / flArmorBonus);
-			flNew = flDamage - flArmor;
+		if (armor > static_cast<float>(armorValue)) {
+			armor = static_cast<float>(armorValue) * (1.f / 0.5f);
+			newDamage = damage - armor;
 		}
 
-		flDamage = flNew;
+		damage = newDamage;
 	}
-	return flDamage;
+	return damage;
 }
 
-void drawDamage(Vector position) {
+void drawDamage(Vector position) noexcept
+{
 	static auto mp_friendlyfire = interfaces->cvar->findVar("mp_friendlyfire");
 	static auto ff_damage_reduction_grenade = interfaces->cvar->findVar("ff_damage_reduction_grenade");
 
@@ -357,9 +356,9 @@ void drawDamage(Vector position) {
 		static const float c = 140.0f;
 
 		const float d = ((dist - b) / c);
-		const float flDamage = a * exp(-d * d);
-		int dmg = max(static_cast<int>(ceilf(CSGO_Armor(flDamage, player.armor))), 0);
-		dmg = min(dmg, (player.armor > 0) ? 57.f : 98.f);
+		const float damage = a * exp(-d * d);
+		float dmg = max(ceilf(calculateArmor(damage, player.armor)), 0.0f);
+		dmg = min(dmg, (player.armor > 0) ? 57.0f : 98.0f);
 
 		if (mp_friendlyfire->getInt() > 0 && !player.enemy)
 			dmg *= ff_damage_reduction_grenade->getFloat();
@@ -367,7 +366,7 @@ void drawDamage(Vector position) {
 		if (dmg < 1)
 			continue;
 
-		std::string dmg2text = player.health - dmg > 0 ? std::to_string(dmg) : "kILL";
+		std::string dmg2text = player.health - dmg > 0 ? std::to_string(static_cast<int>(dmg)) : "Kill";
 		if (worldToScreen(player.origin, pos))
 		{
 			dmgPoints.emplace_back(std::pair<ImVec2, std::string>{ pos, dmg2text });

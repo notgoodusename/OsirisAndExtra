@@ -481,16 +481,8 @@ static int __stdcall emitSound(void* filter, int entityIndex, int channel, const
 static bool __stdcall shouldDrawFog() noexcept
 {
     if constexpr (std::is_same_v<HookType, MinHook>) {
-#ifdef _DEBUG
-    // Check if we always get the same return address
-    if (*static_cast<std::uint32_t*>(_ReturnAddress()) == 0x6274C084) {
-        static const auto returnAddress = std::uintptr_t(_ReturnAddress());
-        assert(returnAddress == std::uintptr_t(_ReturnAddress()));
-    }
-#endif
-
-    if (*static_cast<std::uint32_t*>(_ReturnAddress()) != 0x6274C084)
-        return hooks->clientMode.callOriginal<bool, 17>();
+        if ((std::uintptr_t)_ReturnAddress() != memory->shouldDrawFogReturnAddress)
+            return hooks->clientMode.callOriginal<bool, 17>();
     }
 
     return !config->visuals.noFog;

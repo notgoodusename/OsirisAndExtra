@@ -164,18 +164,20 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
     return hooks->originalReset(device, params);
 }
 
-static int __stdcall getUnverifiedFileHashes(void* thisPointer, int maxFiles)
+static bool __stdcall getUnverifiedFileHashes(void* thisPointer, int maxFiles)
 {
     if (config->misc.svPureBypass)
-        return 0;
-    return hooks->fileSystem.callOriginal<int, 101>(thisPointer, maxFiles);
+        return false;
+    return hooks->fileSystem.callOriginal<bool, 101>(thisPointer, maxFiles);
 }
 
-static int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexcept
+static bool __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexcept
 {
     if (config->misc.svPureBypass)
-        return 1;
-    return hooks->fileSystem.callOriginal<int, 128>(thisPointer);
+        return true;
+    static auto original = hooks->fileSystem.getOriginal<bool, 128>();
+
+    return original(thisPointer);
 }
 
 static bool __stdcall isConnected() noexcept
@@ -506,16 +508,8 @@ static int __stdcall emitSound(void* filter, int entityIndex, int channel, const
 static bool __stdcall shouldDrawFog() noexcept
 {
     if constexpr (std::is_same_v<HookType, MinHook>) {
-#ifdef _DEBUG
-    // Check if we always get the same return address
-    if (*static_cast<std::uint32_t*>(_ReturnAddress()) == 0x6274C084) {
-        static const auto returnAddress = std::uintptr_t(_ReturnAddress());
-        assert(returnAddress == std::uintptr_t(_ReturnAddress()));
-    }
-#endif
-
-    if (*static_cast<std::uint32_t*>(_ReturnAddress()) != 0x6274C084)
-        return hooks->clientMode.callOriginal<bool, 17>();
+        if ((std::uintptr_t)_ReturnAddress() != memory->shouldDrawFogReturnAddress)
+            return hooks->clientMode.callOriginal<bool, 17>();
     }
 
     return !config->visuals.noFog;

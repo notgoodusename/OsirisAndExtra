@@ -118,6 +118,8 @@ public:
         setOrAddAttributeValueByName(attributeList, attribute, *reinterpret_cast<float*>(&value) /* hack, but CSGO does that */);
     }
 
+    std::uintptr_t shouldDrawFogReturnAddress;
+
     // Custom
     ClientState* clientState;
     MemAlloc* memalloc;

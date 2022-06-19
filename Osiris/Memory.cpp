@@ -138,6 +138,8 @@ Memory::Memory() noexcept
 
     localPlayer.init(*reinterpret_cast<Entity***>(findPattern(CLIENT_DLL, "\xA1????\x89\x45\xBC\x85\xC0") + 1));
 
+    shouldDrawFogReturnAddress = relativeToAbsolute<std::uintptr_t>(findPattern(CLIENT_DLL, "\xE8????\x8B\x0D????\x0F\xB6\xD0") + 1) + 82;
+
     // Custom
     clientState = **reinterpret_cast<ClientState***>(findPattern(ENGINE_DLL, "\xA1????\x8B\x80????\xC3") + 1); //52
     memalloc = *reinterpret_cast<MemAlloc**>(GetProcAddress(GetModuleHandleA("tier0.dll"), "g_pMemAlloc"));

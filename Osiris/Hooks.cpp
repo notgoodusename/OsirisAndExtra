@@ -161,6 +161,8 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
     return hooks->originalReset(device, params);
 }
 
+#pragma optimize( "", off)
+#pragma runtime_checks("", off)
 static bool __stdcall getUnverifiedFileHashes(void* thisPointer, int maxFiles)
 {
     if (config->misc.svPureBypass)
@@ -168,14 +170,16 @@ static bool __stdcall getUnverifiedFileHashes(void* thisPointer, int maxFiles)
     return hooks->fileSystem.callOriginal<bool, 101>(thisPointer, maxFiles);
 }
 
-static bool __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexcept
+static int __fastcall canLoadThirdPartyFiles(void* thisPointer, void* edx) noexcept
 {
     if (config->misc.svPureBypass)
-        return true;
-    static auto original = hooks->fileSystem.getOriginal<bool, 128>();
+        return 1;
+    static auto original = hooks->fileSystem.getOriginal<int, 128>();
 
     return original(thisPointer);
 }
+#pragma runtime_checks("", restore)
+#pragma optimize("", on)
 
 static bool __stdcall isConnected() noexcept
 {

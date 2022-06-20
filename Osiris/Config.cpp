@@ -1098,7 +1098,7 @@ static void to_json(json& j, const Config::Visuals::Viewmodel& o, const Config::
     WRITE("Roll", roll);
 }
 
-static void to_json(json& j, const Config::Visuals::Rain& r, const Config::Visuals::Rain& dummy)
+static void to_json(json& j, const Config::Visuals::Rain& o, const Config::Visuals::Rain& dummy)
 {
     WRITE("Enabled", enabled);
     WRITE("Length", length);

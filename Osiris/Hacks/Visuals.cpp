@@ -55,16 +55,12 @@ void Visuals::rainConvars() noexcept
         return;
     
     static auto r_rainlength = interfaces->cvar->findVar("r_rainlength");
-    static auto r_rainspeed = interfaces->cvar->findVar("r_rainspeed");
-    static auto r_rainradius = interfaces->cvar->findVar("r_rainradius");
     static auto cl_windspeed = interfaces->cvar->findVar("cl_windspeed");
     static auto r_rainwidth = interfaces->cvar->findVar("r_rainwidth");
     static auto r_RainSideVel = interfaces->cvar->findVar("r_RainSideVel");
     static auto r_rainalpha = interfaces->cvar->findVar("r_rainalpha");
 
     r_rainlength->setValue(config->visuals.rain.length);
-    r_rainspeed->setValue(config->visuals.rain.speed);
-    r_rainradius->setValue(config->visuals.rain.radius);
     cl_windspeed->setValue(config->visuals.rain.windSpeed);
     r_rainwidth->setValue(config->visuals.rain.width);
     r_RainSideVel->setValue(config->visuals.rain.sideVel);
@@ -73,20 +69,47 @@ void Visuals::rainConvars() noexcept
 
 static bool shouldEnable = false;
 static ClientClass* clientClass = nullptr;
+static Entity* precipitation= nullptr;
 
 void Visuals::rain(FrameStage stage) noexcept
 {
-    if (stage != FrameStage::NET_UPDATE_POSTDATAUPDATE_START)
+    if (stage != FrameStage::NET_UPDATE_END)
         return;
+
+    static bool isInReplay = false;
+
+    if (interfaces->engine->isHLTV())
+        isInReplay = true;
+
+    if (isInReplay && !interfaces->engine->isHLTV())
+    {
+        isInReplay = false;
+        shouldEnable = false;
+        if (precipitation)
+        {
+            precipitation->release();
+            precipitation = nullptr;
+        }
+    }
 
     if (shouldEnable != config->visuals.rain.enabled)
     {
         shouldEnable = config->visuals.rain.enabled;
-        if (!shouldEnable)
+        if (!shouldEnable || precipitation)
             return;
     }
     else
+    {
+        if (!config->visuals.rain.enabled)
+        {
+            if (precipitation)
+            {
+                precipitation->release();
+                precipitation = nullptr;
+            }
+        }
         return;
+    }
 
     if (!clientClass)
         clientClass = interfaces->client->getAllClasses();
@@ -102,14 +125,11 @@ void Visuals::rain(FrameStage stage) noexcept
     if (!clientClass)
         return;
 
-    const auto entry = interfaces->entityList->getHighestEntityIndex() + 1;
-    const auto serial = 4095;//math::random_int(0, 4095);
-
-    const auto precipitationNetwork = clientClass->createFunction(entry, serial);
+    const auto precipitationNetwork = clientClass->createFunction(2047, 0);
     if (!precipitationNetwork)
         return;
 
-    const auto precipitation = reinterpret_cast<Entity*>(uintptr_t(precipitationNetwork) - sizeof(uintptr_t) * 2);
+    precipitation = reinterpret_cast<Entity*>(uintptr_t(precipitationNetwork) - sizeof(uintptr_t) * 2);
     if (!precipitation)
         return;
 
@@ -1058,6 +1078,7 @@ void Visuals::updateInput() noexcept
 void Visuals::reset() noexcept
 {
     shotRecord.clear();
+    precipitation = nullptr;
     shouldEnable = false;
     clientClass = nullptr;
 }

@@ -1182,28 +1182,25 @@ void GUI::renderVisualsWindow() noexcept
         ImGui::SliderFloat("Length", &config->visuals.rain.length, 0.0f, 2.0f, "Length: %.2f");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
-        ImGui::PushID(14);
-        ImGui::SliderFloat("Speed", &config->visuals.rain.speed, 100.0f, 1000.0f, "Speed: %.1f");
-        ImGui::PopID();
-        ImGui::PushItemWidth(290.0f);
-        ImGui::PushID(15);
-        ImGui::SliderInt("Radius", &config->visuals.rain.radius, 1000, 3000, "Radius: %d");
-        ImGui::PopID();
         ImGui::PushID(16);
         ImGui::SliderInt("Wind speed", &config->visuals.rain.windSpeed, 0, 500, "Wind speed: %d");
         ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
         ImGui::PushID(17);
         ImGui::SliderFloat("Width", &config->visuals.rain.width, 0.1f, 2.0f, "Width: %.2f");
         ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
         ImGui::PushID(18);
         ImGui::SliderInt("Side velocity", &config->visuals.rain.sideVel, 100, 300, "Side velocity: %d");
         ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
         ImGui::PushID(19);
         ImGui::SliderFloat("Alpha", &config->visuals.rain.alpha, 0.1f, 1.0f, "Alpha: %.2f");
         ImGui::PopID();
 
         ImGui::EndPopup();
     }
+    ImGui::PopID();
 
     ImGuiCustom::colorPicker("Fog controller", config->visuals.fog);
     ImGui::SameLine();

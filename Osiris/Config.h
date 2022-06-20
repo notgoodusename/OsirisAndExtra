@@ -247,8 +247,6 @@ public:
         {
             bool enabled{ false };
             float length{ 0.1f };
-            float speed{ 600.0f };
-            int radius{ 1500 };
             int windSpeed{ 0 };
             float width{ 0.5f };
             int sideVel{ 130 };

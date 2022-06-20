@@ -10,6 +10,7 @@ struct UserCmd;
 
 namespace Visuals
 {
+    void rain(FrameStage stage) noexcept;
     void shadowChanger() noexcept;
     void visualizeSpread(ImDrawList* drawList) noexcept;
     void fullBright() noexcept;

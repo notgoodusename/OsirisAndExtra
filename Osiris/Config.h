@@ -242,6 +242,13 @@ public:
             float z { 0.0f };
             float roll { 0.0f };
         } viewModel;
+
+        struct Rain
+        {
+            bool enabled{ false };
+
+        } rain;
+
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
         ColorToggle3 mapColor;
     } visuals;

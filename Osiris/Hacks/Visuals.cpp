@@ -15,6 +15,7 @@
 #include "Visuals.h"
 
 #include "../SDK/ConVar.h"
+#include "../SDK/Client.h"
 #include "../SDK/DebugOverlay.h"
 #include "../SDK/Entity.h"
 #include "../SDK/FrameStage.h"
@@ -46,6 +47,66 @@ static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noe
     if (floor)
         out = ImFloor(out);
     return true;
+}
+
+static bool shouldEnable = false;
+static ClientClass* clientClass = nullptr;
+
+void Visuals::rain(FrameStage stage) noexcept
+{
+    if (stage != FrameStage::NET_UPDATE_POSTDATAUPDATE_START)
+        return;
+
+    if (shouldEnable != config->visuals.rain.enabled)
+    {
+        shouldEnable = config->visuals.rain.enabled;
+        if (!shouldEnable)
+            return;
+    }
+    else
+        return;
+
+    if (!clientClass)
+        clientClass = interfaces->client->getAllClasses();
+
+    while (clientClass)
+    {
+        if ((int)clientClass->classId == dynamicClassId->precipitation)
+            break;
+
+        clientClass = clientClass->next;
+    }
+
+    if (!clientClass)
+        return;
+
+    const auto entry = interfaces->entityList->getHighestEntityIndex() + 1;
+    const auto serial = 4095;//math::random_int(0, 4095);
+
+    const auto precipitationNetwork = clientClass->createFunction(entry, serial);
+    if (!precipitationNetwork)
+        return;
+
+    const auto precipitation = reinterpret_cast<Entity*>(uintptr_t(precipitationNetwork) - sizeof(uintptr_t) * 2);
+    if (!precipitation)
+        return;
+
+    precipitation->preDataUpdate(0);
+    precipitation->onPreDataChanged(0);
+
+    precipitation->precipitationType() = 1;
+
+    precipitation->vecMaxs() = Vector{ 32768.0f, 32768.0f, 32768.0f };
+    precipitation->vecMins() = Vector{ -32768.0f, -32768.0f, -32768.0f };
+
+    precipitation->getCollideable()->obbMaxs() = Vector{ 32768.0f, 32768.0f, 32768.0f };
+    precipitation->getCollideable()->obbMins() = Vector{ -32768.0f, -32768.0f, -32768.0f };
+
+    memory->setAbsOrigin(precipitation, (precipitation->getCollideable()->obbMaxs() + precipitation->getCollideable()->obbMins()) * 0.5f);
+    precipitation->origin() = (precipitation->getCollideable()->obbMaxs() + precipitation->getCollideable()->obbMins()) * 0.5f;
+
+    precipitation->onDataChanged(0);
+    precipitation->postDataUpdate(0);
 }
 
 void Visuals::shadowChanger() noexcept
@@ -975,4 +1036,6 @@ void Visuals::updateInput() noexcept
 void Visuals::reset() noexcept
 {
     shotRecord.clear();
+    shouldEnable = false;
+    clientClass = nullptr;
 }

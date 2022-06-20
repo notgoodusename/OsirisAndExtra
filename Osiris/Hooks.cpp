@@ -449,6 +449,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Resolver::updateEventListeners();
     }
     if (interfaces->engine->isInGame()) {
+        Visuals::rain(stage);
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);

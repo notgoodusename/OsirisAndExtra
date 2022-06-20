@@ -411,6 +411,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Viewmodel", v.viewModel);
     read<value_t::object>(j, "Spread circle", v.spreadCircle);
     read<value_t::object>(j, "Map color", v.mapColor);
+    read<value_t::object>(j, "Rain", v.rain);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -546,6 +547,16 @@ static void from_json(const json& j, Config::Visuals::Viewmodel& vxyz)
     read(j, "Y", vxyz.y);
     read(j, "Z", vxyz.z);
     read(j, "Roll", vxyz.roll);
+}
+
+static void from_json(const json& j, Config::Visuals::Rain& r)
+{
+    read(j, "Enabled", r.enabled);
+    read(j, "Length", r.length);
+    read(j, "Wind speed", r.windSpeed);
+    read(j, "Width", r.width);
+    read(j, "Side velocity", r.sideVel);
+    read(j, "Alpha", r.alpha);
 }
 
 static void from_json(const json& j, Config::Misc& m)
@@ -1087,6 +1098,16 @@ static void to_json(json& j, const Config::Visuals::Viewmodel& o, const Config::
     WRITE("Roll", roll);
 }
 
+static void to_json(json& j, const Config::Visuals::Rain& r, const Config::Visuals::Rain& dummy)
+{
+    WRITE("Enabled", enabled);
+    WRITE("Length", length);
+    WRITE("Wind speed", windSpeed);
+    WRITE("Width", width);
+    WRITE("Side velocity", sideVel);
+    WRITE("Alpha", alpha);
+}
+
 static void to_json(json& j, const Config::Misc& o)
 {
     const Config::Misc dummy;
@@ -1227,6 +1248,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Molotov Hull", molotovHull);
     WRITE("Smoke Hull", smokeHull);
     WRITE("Viewmodel", viewModel);
+    WRITE("Rain", rain);
     WRITE("Spread circle", spreadCircle);
     WRITE("Map color", mapColor);
 }

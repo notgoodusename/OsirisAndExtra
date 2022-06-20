@@ -49,6 +49,28 @@ static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noe
     return true;
 }
 
+void Visuals::rainConvars() noexcept
+{
+    if (!config->visuals.rain.enabled)
+        return;
+    
+    static auto r_rainlength = interfaces->cvar->findVar("r_rainlength");
+    static auto r_rainspeed = interfaces->cvar->findVar("r_rainspeed");
+    static auto r_rainradius = interfaces->cvar->findVar("r_rainradius");
+    static auto cl_windspeed = interfaces->cvar->findVar("cl_windspeed");
+    static auto r_rainwidth = interfaces->cvar->findVar("r_rainwidth");
+    static auto r_RainSideVel = interfaces->cvar->findVar("r_RainSideVel");
+    static auto r_rainalpha = interfaces->cvar->findVar("r_rainalpha");
+
+    r_rainlength->setValue(config->visuals.rain.length);
+    r_rainspeed->setValue(config->visuals.rain.speed);
+    r_rainradius->setValue(config->visuals.rain.radius);
+    cl_windspeed->setValue(config->visuals.rain.windSpeed);
+    r_rainwidth->setValue(config->visuals.rain.width);
+    r_RainSideVel->setValue(config->visuals.rain.sideVel);
+    r_rainalpha->setValue(config->visuals.rain.alpha);
+}
+
 static bool shouldEnable = false;
 static ClientClass* clientClass = nullptr;
 

@@ -546,7 +546,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
         //Backtrack records
 
-        if (!config->backtrack.enabled)
+        if (!config->backtrack.enabled || !entity->isOtherEnemy(localPlayer.get()))
         {
             player.backtrackRecords.clear();
             continue;
@@ -557,7 +557,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             if (!player.backtrackRecords.empty() && (player.backtrackRecords.front().simulationTime == entity->simulationTime()))
                 continue;
 
-            if (!Backtrack::valid(entity->simulationTime()))
+            if (!Backtrack::valid(player.simulationTime))
                 continue;
 
             Players::Record record{ };

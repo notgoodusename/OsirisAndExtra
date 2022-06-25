@@ -51,7 +51,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     Vector bestTargetPosition{ };
     int bestRecord{ };
 
-    const auto aimPunch = localPlayer->getActiveWeapon()->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+    const auto aimPunch = localPlayer->getAimPunch();
 
     for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
         auto entity = interfaces->entityList->getEntity(i);

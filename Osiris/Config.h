@@ -112,11 +112,6 @@ public:
         int minDamage{ 1 };
         bool killshot{ false };
         bool betweenShots{ true };
-        bool recoilControlSystem{ false };
-        bool silentRCS{ false };
-        int shotsFiredRCS{ 0 };
-        float recoilControlHorizontal{ 0.0f };
-        float recoilControlVertical{ 0.0f };
     };
     std::array<Legitbot, 40> legitbot;
     KeyBind legitbotKey{ std::string("legitbot") };

@@ -66,8 +66,8 @@ void Legitbot::run(UserCmd* cmd) noexcept
                 else
                     currentPunch = lastAimPunch - aimPunch;
 
-                currentPunch.x *= cfg[weaponIndex].recoilControlHorizontal;
-                currentPunch.y *= cfg[weaponIndex].recoilControlVertical;
+                currentPunch.x *= cfg[weaponIndex].recoilControlVertical;
+                currentPunch.y *= cfg[weaponIndex].recoilControlHorizontal;
 
                 if (cfg[weaponIndex].silentRCS)
                     cmd->viewangles -= currentPunch;

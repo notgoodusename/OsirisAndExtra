@@ -295,6 +295,14 @@ void GUI::renderLegitbotWindow() noexcept
     ImGui::Checkbox("Auto scope", &config->legitbot[currentWeapon].autoScope);
     ImGui::Checkbox("Killshot", &config->legitbot[currentWeapon].killshot);
     ImGui::Checkbox("Between shots", &config->legitbot[currentWeapon].betweenShots);
+    ImGui::Checkbox("Recoil control system", &config->legitbot[currentWeapon].recoilControlSystem);
+    if (config->legitbot[currentWeapon].recoilControlSystem) {
+        ImGui::SameLine();
+        ImGui::Checkbox("Silent RCS", &config->legitbot[currentWeapon].silentRCS);
+        ImGui::SliderInt("RCS Ignore Shots", &config->legitbot[currentWeapon].shotsFiredRCS, 0, 150, "%d");
+        ImGui::SliderFloat("RCS Horizontal", &config->legitbot[currentWeapon].recoilControlHorizontal, 0.0f, 1.0f, "%.5f");
+        ImGui::SliderFloat("RCS Vertical", &config->legitbot[currentWeapon].recoilControlVertical, 0.0f, 1.0f, "%.5f");
+    }
     ImGui::Columns(1);
 }
 

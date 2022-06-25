@@ -51,7 +51,35 @@ void Legitbot::run(UserCmd* cmd) noexcept
         Vector bestTarget{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
 
-        const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+        static auto weaponRecoilScale = interfaces->cvar->findVar("weapon_recoil_scale");
+
+        const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() * weaponRecoilScale->getFloat() : Vector{ };
+        
+        if (cfg[weaponIndex].recoilControlSystem && (cfg[weaponIndex].recoilControlHorizontal || cfg[weaponIndex].recoilControlVertical) && activeWeapon->requiresRecoilControl())
+        {
+            static Vector lastAimPunch{ };
+            if (localPlayer->shotsFired() > cfg[weaponIndex].shotsFiredRCS)
+            {
+                Vector currentPunch;
+                if (cfg[weaponIndex].silentRCS)
+                    currentPunch = aimPunch;
+                else
+                    currentPunch = lastAimPunch - aimPunch;
+
+                currentPunch.x *= cfg[weaponIndex].recoilControlHorizontal;
+                currentPunch.y *= cfg[weaponIndex].recoilControlVertical;
+
+                if (cfg[weaponIndex].silentRCS)
+                    cmd->viewangles -= currentPunch;
+                else
+                    cmd->viewangles += currentPunch;
+            }
+
+            if (!cfg[weaponIndex].silentRCS)
+                interfaces->engine->setViewAngles(cmd->viewangles);
+
+            lastAimPunch = aimPunch;
+        }
 
         std::array<bool, Hitboxes::Max> hitbox{ false };
 

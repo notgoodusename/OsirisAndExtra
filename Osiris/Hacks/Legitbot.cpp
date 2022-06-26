@@ -51,9 +51,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
         Vector bestTarget{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
 
-        static auto weaponRecoilScale = interfaces->cvar->findVar("weapon_recoil_scale");
-
-        const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() * weaponRecoilScale->getFloat() : Vector{ };
+        const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
         
         if (cfg[weaponIndex].recoilControlSystem && (cfg[weaponIndex].recoilControlHorizontal || cfg[weaponIndex].recoilControlVertical) && activeWeapon->requiresRecoilControl())
         {

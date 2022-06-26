@@ -52,6 +52,32 @@ void Legitbot::run(UserCmd* cmd) noexcept
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
 
         const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+        
+        if (cfg[weaponIndex].recoilControlSystem && (cfg[weaponIndex].recoilControlHorizontal || cfg[weaponIndex].recoilControlVertical) && cmd->buttons & UserCmd::IN_ATTACK && aimPunch.notNull())
+        {
+            static Vector lastAimPunch{ };
+            if (localPlayer->shotsFired() > cfg[weaponIndex].shotsFiredRCS)
+            {
+                Vector currentPunch;
+                if (cfg[weaponIndex].silentRCS)
+                    currentPunch = aimPunch;
+                else
+                    currentPunch = lastAimPunch - aimPunch;
+
+                currentPunch.x *= cfg[weaponIndex].recoilControlVertical;
+                currentPunch.y *= cfg[weaponIndex].recoilControlHorizontal;
+
+                if (cfg[weaponIndex].silentRCS)
+                    cmd->viewangles -= currentPunch;
+                else
+                    cmd->viewangles += currentPunch;
+            }
+
+            if (!cfg[weaponIndex].silentRCS)
+                interfaces->engine->setViewAngles(cmd->viewangles);
+
+            lastAimPunch = aimPunch;
+        }
 
         std::array<bool, Hitboxes::Max> hitbox{ false };
 

@@ -53,7 +53,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
 
         const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
         
-        if (cfg[weaponIndex].recoilControlSystem && (cfg[weaponIndex].recoilControlHorizontal || cfg[weaponIndex].recoilControlVertical) && activeWeapon->requiresRecoilControl())
+        if (cfg[weaponIndex].recoilControlSystem && (cfg[weaponIndex].recoilControlHorizontal || cfg[weaponIndex].recoilControlVertical) && cmd->buttons & UserCmd::IN_ATTACK && aimPunch.notNull())
         {
             static Vector lastAimPunch{ };
             if (localPlayer->shotsFired() > cfg[weaponIndex].shotsFiredRCS)

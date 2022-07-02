@@ -502,7 +502,7 @@ struct MotionBlurHistory
 
 void Visuals::motionBlur(ViewSetup* setup) noexcept
 {
-    if (!config->visuals.motionBlur.enabled)
+    if (!localPlayer || !config->visuals.motionBlur.enabled)
         return;
 
     static MotionBlurHistory history;

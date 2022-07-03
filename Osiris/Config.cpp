@@ -304,6 +304,7 @@ static void from_json(const json& j, Config::RageAntiAimConfig& a)
     read(j, "Roll", a.roll);
     read(j, "Yaw base", a.yawBase);
     read(j, "Yaw add", a.yawAdd);
+    read(j, "Jitter Range", a.jitterRange);
     read(j, "Spin base", a.spinBase);
     read(j, "At targets", a.atTargets);
 }
@@ -428,6 +429,8 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Viewmodel", v.viewModel);
     read<value_t::object>(j, "Spread circle", v.spreadCircle);
     read<value_t::object>(j, "Map color", v.mapColor);
+    read(j, "Asus walls", v.asusWalls);
+    read(j, "Asus props", v.asusProps);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -969,6 +972,7 @@ static void to_json(json& j, const Config::RageAntiAimConfig& o, const Config::R
     WRITE("Pitch", pitch);
     WRITE("Yaw base", yawBase);
     WRITE("Yaw add", yawAdd);
+    WRITE("Jitter Range", jitterRange);
     WRITE("Spin base", spinBase);
     WRITE("At targets", atTargets);
 }
@@ -1271,6 +1275,8 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Viewmodel", viewModel);
     WRITE("Spread circle", spreadCircle);
     WRITE("Map color", mapColor);
+    WRITE("Asus walls", asusWalls);
+    WRITE("Asus props", asusProps);
 }
 
 static void to_json(json& j, const ImVec4& o)

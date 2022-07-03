@@ -9,6 +9,8 @@
 
 #include "../Interfaces.h"
 
+static bool flipJitter{ false };
+
 bool updateLby(bool update = false) noexcept
 {
     static float timer = 0.f;
@@ -127,6 +129,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
         {
             float yaw = 0.f;
             static float staticYaw = 0.f;
+            flipJitter ^= 1;
             if (config->rageAntiAim.atTargets)
             {
                 Vector localPlayerEyePosition = localPlayer->getEyePosition();
@@ -177,9 +180,12 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             case 4: //Left
                 yaw += 90.f;
                 break;
-            case 5:
+            case 5: //Spin
                 staticYaw += static_cast<float>(config->rageAntiAim.spinBase);
                 yaw += staticYaw;
+                break;
+            case 6: //Jitter
+                yaw += flipJitter ? 180.f + config->rageAntiAim.jitterRange : 180.f - config->rageAntiAim.jitterRange;
                 break;
             default:
                 break;

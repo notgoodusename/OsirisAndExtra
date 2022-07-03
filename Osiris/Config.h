@@ -71,6 +71,7 @@ public:
         int yawBase = 0; //Off, Forward, Backward, Right, Left, Spin
         int yawAdd = 0; //-180/180
         int spinBase = 0; //-180/180
+        int jitterRange = 0;
         bool atTargets = false;
     } rageAntiAim;
     struct Tickbase {
@@ -262,6 +263,8 @@ public:
         } viewModel;
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
         ColorToggle3 mapColor;
+        int asusWalls = 100;
+        int asusProps = 100;
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

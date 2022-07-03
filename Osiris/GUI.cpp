@@ -682,10 +682,14 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::hotkey2("", config->misc.fakeduckKey);
     ImGui::PopID();
     ImGui::Combo("Pitch", &config->rageAntiAim.pitch, "Off\0Down\0Zero\0Up\0");
-    ImGui::Combo("Yaw base", &config->rageAntiAim.yawBase, "Off\0Paranoia\0Backward\0Right\0Left\0Spin\0");
+    ImGui::Combo("Yaw base", &config->rageAntiAim.yawBase, "Off\0Paranoia\0Backward\0Right\0Left\0Spin\0Jitter\0");
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Yaw offset", &config->rageAntiAim.yawAdd, -180, 180, "%d");
     ImGui::PopItemWidth();
+        if ((config->rageAntiAim.yawBase == 6))
+    {
+        ImGui::SliderInt("Jitter yaw range", &config->rageAntiAim.jitterRange, 0, 180, "%d");
+    }
 
     if (config->rageAntiAim.yawBase == 5)
     {
@@ -1369,6 +1373,12 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::PopID();
     ImGui::Combo("Skybox", &config->visuals.skybox, Visuals::skyboxList.data(), Visuals::skyboxList.size());
     ImGuiCustom::colorPicker("Map color", config->visuals.mapColor);
+    ImGui::PushID(13);
+    ImGui::SliderInt("", &config->visuals.asusWalls, 0, 100, "Asus walls: %d");
+    ImGui::PopID();
+    ImGui::PushID(14);
+    ImGui::SliderInt("", &config->visuals.asusProps, 0, 100, "Asus props: %d");
+    ImGui::PopID();
     ImGui::Checkbox("Deagle spinner", &config->visuals.deagleSpinner);
     ImGui::Combo("Screen effect", &config->visuals.screenEffect, "None\0Drone cam\0Drone cam with noise\0Underwater\0Healthboost\0Dangerzone\0");
     ImGui::Combo("Hit effect", &config->visuals.hitEffect, "None\0Drone cam\0Drone cam with noise\0Underwater\0Healthboost\0Dangerzone\0");

@@ -67,6 +67,7 @@ public:
         int yawBase = 0; //Off, Forward, Backward, Right, Left, Spin
         int yawAdd = 0; //-180/180
         int spinBase = 0; //-180/180
+        int jitterRange = 0;
         bool atTargets = false;
     } rageAntiAim;
 

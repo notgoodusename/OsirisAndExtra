@@ -417,6 +417,8 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Viewmodel", v.viewModel);
     read<value_t::object>(j, "Spread circle", v.spreadCircle);
     read<value_t::object>(j, "Map color", v.mapColor);
+    read(j, "Asus walls", v.asusWalls);
+    read(j, "Asus props", v.asusProps);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -1241,6 +1243,8 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Viewmodel", viewModel);
     WRITE("Spread circle", spreadCircle);
     WRITE("Map color", mapColor);
+    WRITE("Asus walls", asusWalls);
+    WRITE("Asus props", asusProps);
 }
 
 static void to_json(json& j, const ImVec4& o)

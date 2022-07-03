@@ -1313,6 +1313,12 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::PopID();
     ImGui::Combo("Skybox", &config->visuals.skybox, Visuals::skyboxList.data(), Visuals::skyboxList.size());
     ImGuiCustom::colorPicker("Map color", config->visuals.mapColor);
+    ImGui::PushID(13);
+    ImGui::SliderInt("", &config->visuals.asusWalls, 0, 100, "Asus walls: %d");
+    ImGui::PopID();
+    ImGui::PushID(14);
+    ImGui::SliderInt("", &config->visuals.asusProps, 0, 100, "Asus props: %d");
+    ImGui::PopID();
     ImGui::Checkbox("Deagle spinner", &config->visuals.deagleSpinner);
     ImGui::Combo("Screen effect", &config->visuals.screenEffect, "None\0Drone cam\0Drone cam with noise\0Underwater\0Healthboost\0Dangerzone\0");
     ImGui::Combo("Hit effect", &config->visuals.hitEffect, "None\0Drone cam\0Drone cam with noise\0Underwater\0Healthboost\0Dangerzone\0");

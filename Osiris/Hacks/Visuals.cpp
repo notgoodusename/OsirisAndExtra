@@ -1,5 +1,6 @@
 #include <array>
 #include <cstring>
+#include <string.h>
 #include <deque>
 #include <sys/stat.h>
 
@@ -452,6 +453,34 @@ void Visuals::hitEffect(GameEvent* event) noexcept
             DRAW_SCREEN_EFFECT(material)
         }
     }
+}
+
+void Visuals::transparentWorld(bool reset) noexcept
+{
+    static int asus[2] = { -1, -1 };
+
+    if (reset)
+    {
+        asus[0] = -1;
+        asus[1] = -1;
+    }
+
+    if (asus[0] == config->visuals.asusWalls && asus[1] == config->visuals.asusProps)
+        return;
+
+    for (short h = interfaces->materialSystem->firstMaterial(); h != interfaces->materialSystem->invalidMaterial(); h = interfaces->materialSystem->nextMaterial(h)) {
+        const auto mat = interfaces->materialSystem->getMaterial(h);
+
+        const std::string_view textureGroup = mat->getTextureGroupName();
+
+        if (asus[0] != config->visuals.asusWalls && textureGroup.starts_with("World"))
+            mat->alphaModulate(static_cast<float>(config->visuals.asusWalls) / 100.0f);
+
+        if (asus[1] != config->visuals.asusProps && textureGroup.starts_with("StaticProp"))
+            mat->alphaModulate(static_cast<float>(config->visuals.asusProps) / 100.0f);
+    }
+    asus[0] = config->visuals.asusWalls;
+    asus[1] = config->visuals.asusProps;
 }
 
 void Visuals::hitMarker(GameEvent* event, ImDrawList* drawList) noexcept
@@ -975,4 +1004,5 @@ void Visuals::updateInput() noexcept
 void Visuals::reset() noexcept
 {
     shotRecord.clear();
+    Visuals::transparentWorld(true);
 }

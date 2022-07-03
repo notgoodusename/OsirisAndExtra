@@ -250,6 +250,8 @@ public:
         } viewModel;
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
         ColorToggle3 mapColor;
+        int asusWalls = 100;
+        int asusProps = 100;
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

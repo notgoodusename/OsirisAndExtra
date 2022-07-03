@@ -447,6 +447,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Misc::updateEventListeners();
         Visuals::updateEventListeners();
         Resolver::updateEventListeners();
+        Visuals::transparentWorld();
     }
     if (interfaces->engine->isInGame()) {
         Visuals::drawBulletImpacts();
@@ -1095,7 +1096,7 @@ static bool __stdcall isDepthOfFieldEnabledHook() noexcept
 
 static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* edx) noexcept
 {
-    return config->visuals.mapColor.enabled;
+    return config->visuals.mapColor.enabled || config->visuals.asusProps != 100;
 }
 
 static char __fastcall newFunctionClientBypass(void* thisPointer, void* edx, const char* moduleName) noexcept

@@ -311,6 +311,12 @@ public:
         return *reinterpret_cast<std::add_pointer_t<std::array<float, 24>>>(reinterpret_cast<uintptr_t>(this) + m_flPoseParameter);
     }
 
+    bool& frozenSet()
+    {
+        static auto m_flFrozen = Netvars::get(fnv::hash("CBaseAnimating->m_flFrozen")) + 0x4;
+        return *(bool*)((uintptr_t)this + m_flFrozen);
+    }
+
     void createState(AnimState* state) noexcept
     {
         static auto createAnimState = reinterpret_cast<void(__thiscall*)(AnimState*, Entity*)>(memory->createState);

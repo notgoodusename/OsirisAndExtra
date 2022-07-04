@@ -146,6 +146,9 @@ bool Chams::render(void* ctx, void* state, const ModelRenderInfo& info, matrix3x
         const auto entity = interfaces->entityList->getEntity(info.entityIndex);
         if (entity && !entity->isDormant() && entity->isPlayer())
             renderPlayer(entity);
+
+        if (entity && !entity->isDormant() && entity->getClientClass()->classId == ClassId::CSRagdoll)
+            renderRagdolls();
     }
 
     return appliedChams;
@@ -197,6 +200,14 @@ void Chams::renderPlayer(Entity* player) noexcept
         applyChams(config->chams["Allies"].materials, health);
     }
 }
+void Chams::renderRagdolls() noexcept
+{
+    if (!localPlayer)
+        return;
+
+    applyChams(config->chams["Ragdolls"].materials);
+}
+
 void Chams::renderDesync(int health) noexcept
 {
     if (Animations::gotFakeMatrix()) 

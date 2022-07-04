@@ -568,14 +568,25 @@ struct RenderableInfo {
 static int __stdcall listLeavesInBox(const Vector& mins, const Vector& maxs, unsigned short* list, int listMax) noexcept
 {
     if (config->misc.disableModelOcclusion && std::uintptr_t(_ReturnAddress()) == memory->insertIntoTree) {
+
         if (const auto info = *reinterpret_cast<RenderableInfo**>(std::uintptr_t(_AddressOfReturnAddress()) - sizeof(std::uintptr_t) + 0x18); info && info->renderable) {
-            if (const auto ent = VirtualMethod::call<Entity*, 7>(info->renderable - sizeof(std::uintptr_t)); ent && ent->isPlayer()) {
-                constexpr float maxCoord = 16384.0f;
-                constexpr float minCoord = -maxCoord;
-                constexpr Vector min{ minCoord, minCoord, minCoord };
-                constexpr Vector max{ maxCoord, maxCoord, maxCoord };
+            const auto entity = VirtualMethod::call<Entity*, 7>(info->renderable - sizeof(std::uintptr_t));
+            if (!entity)
+                return hooks->bspQuery.callOriginal<int, 6>(std::cref(mins), std::cref(maxs), list, listMax);
+
+            constexpr float maxCoord = 16384.0f;
+            constexpr float minCoord = -maxCoord;
+            constexpr Vector min{ minCoord, minCoord, minCoord };
+            constexpr Vector max{ maxCoord, maxCoord, maxCoord };
+
+            if (!entity->isDormant() && entity->getClientClass()->classId == ClassId::CSRagdoll)
+            {
+                entity->frozenSet() = false;
                 return hooks->bspQuery.callOriginal<int, 6>(std::cref(min), std::cref(max), list, listMax);
             }
+
+            if (entity->isPlayer())
+                return hooks->bspQuery.callOriginal<int, 6>(std::cref(min), std::cref(max), list, listMax);
         }
     }
 

@@ -11,6 +11,8 @@ struct UserCmd;
 namespace Visuals
 {
     void shadowChanger() noexcept;
+    void drawSmokeTimerEvent(GameEvent* event) noexcept;
+    void drawSmokeTimer(ImDrawList* drawList) noexcept;
     void visualizeSpread(ImDrawList* drawList) noexcept;
     void fullBright() noexcept;
     void playerModel(FrameStage stage) noexcept;

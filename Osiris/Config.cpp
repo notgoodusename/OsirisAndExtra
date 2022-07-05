@@ -419,6 +419,10 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Map color", v.mapColor);
     read(j, "Asus walls", v.asusWalls);
     read(j, "Asus props", v.asusProps);
+    read(j, "Smoke timer", v.smokeTimer);
+    read<value_t::object>(j, "Smoke timer BG", v.smokeTimerBG);
+    read<value_t::object>(j, "Smoke timer TIMER", v.smokeTimerTimer);
+    read<value_t::object>(j, "Smoke timer TEXT", v.smokeTimerText);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -1247,6 +1251,10 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Map color", mapColor);
     WRITE("Asus walls", asusWalls);
     WRITE("Asus props", asusProps);
+    WRITE("Smoke timer", smokeTimer);
+    WRITE("Smoke timer BG", smokeTimerBG);
+    WRITE("Smoke timer TIMER", smokeTimerTimer);
+    WRITE("Smoke timer TEXT", smokeTimerText);
 }
 
 static void to_json(json& j, const ImVec4& o)

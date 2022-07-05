@@ -252,6 +252,10 @@ public:
         ColorToggle3 mapColor;
         int asusWalls = 100;
         int asusProps = 100;
+        bool smokeTimer{ false };
+        Color4 smokeTimerBG{ 1.0f, 1.0f, 1.0f, 0.5f };
+        Color4 smokeTimerTimer{ 0.0f, 0.0f, 1.0f, 1.0f };
+        Color4 smokeTimerText{ 0.0f, 0.0f, 0.0f, 1.0f };
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

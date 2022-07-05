@@ -1330,6 +1330,19 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::SliderFloat("Bullet Impacts time", &config->visuals.bulletImpactsTime, 0.1f, 5.0f, "Bullet Impacts time: %.2fs");
     ImGuiCustom::colorPicker("Molotov Hull", config->visuals.molotovHull);
     ImGuiCustom::colorPicker("Smoke Hull", config->visuals.smokeHull);
+
+    ImGui::Checkbox("Smoke Timer", &config->visuals.smokeTimer);
+    ImGui::SameLine();
+    if (ImGui::Button("...##smoke_timer"))
+        ImGui::OpenPopup("popup_smokeTimer");
+
+    if (ImGui::BeginPopup("popup_smokeTimer"))
+    {
+        ImGuiCustom::colorPicker("BackGround color", config->visuals.smokeTimerBG);
+        ImGuiCustom::colorPicker("Text color", config->visuals.smokeTimerText);
+        ImGuiCustom::colorPicker("Timer color", config->visuals.smokeTimerTimer);
+        ImGui::EndPopup();
+    }
     ImGuiCustom::colorPicker("Spread circle", config->visuals.spreadCircle);
 
     ImGui::Checkbox("Viewmodel", &config->visuals.viewModel.enabled);

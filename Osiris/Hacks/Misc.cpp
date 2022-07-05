@@ -1161,7 +1161,7 @@ void Misc::hurtIndicator() noexcept
     ImGui::SetNextWindowSizeConstraints({ 0, -1 }, { FLT_MAX, -1 });
     ImGui::Begin("Hurt Indicator", nullptr, ImGuiWindowFlags_NoTitleBar | (gui->isOpen() ? 0 : ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration));
 
-    std::ostringstream ss; ss << "Slowed down " << static_cast<int>(round(local.velocityModifier * 100.f)) << "%";
+    std::ostringstream ss; ss << "Slowed down " << static_cast<int>(local.velocityModifier * 100.f) << "%";
     ImGui::textUnformattedCentered(ss.str().c_str());
 
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Helpers::calculateColor(config->misc.hurtIndicator));

@@ -357,6 +357,7 @@ void LocalPlayerData::update() noexcept
     alive = localPlayer->isAlive();
     inaccuracy = Vector{};
     team = localPlayer->getTeamNumber();
+    velocityModifier = localPlayer->velocityModifier();
 
     if (const auto activeWeapon = localPlayer->getActiveWeapon()) {
         inaccuracy = localPlayer->getEyePosition() + Vector::fromAngle(interfaces->engine->getViewAngles() + Vector{ Helpers::rad2deg(activeWeapon->getInaccuracy() + activeWeapon->getSpread()), 0.0f, 0.0f }) * 1000.0f;

@@ -78,6 +78,7 @@ struct LocalPlayerData {
     Vector origin;
     Vector inaccuracy;
     Team team;
+    float velocityModifier;
 };
 
 class Entity;

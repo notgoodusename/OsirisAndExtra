@@ -1133,6 +1133,47 @@ void Misc::drawBombTimer() noexcept
     ImGui::End();
 }
 
+void Misc::hurtIndicator() noexcept
+{
+    if (!config->misc.hurtIndicator.enabled)
+        return;
+
+    GameData::Lock;
+
+    const auto& local = GameData::local();
+    if ((!local.exists || !local.alive) && !gui->isOpen())
+        return;
+
+    if (local.velocityModifier >= 0.99f && !gui->isOpen())
+        return;
+
+    if (!gui->isOpen()) {
+        ImGui::SetNextWindowBgAlpha(0.3f);
+    }
+
+    static float windowWidth = 140.0f;
+    ImGui::SetNextWindowPos({ (ImGui::GetIO().DisplaySize.x - 140.0f) / 2.0f, 260.0f }, ImGuiCond_Once);
+    ImGui::SetNextWindowSize({ windowWidth, 0 }, ImGuiCond_Once);
+
+    if (!gui->isOpen())
+        ImGui::SetNextWindowSize({ windowWidth, 0 });
+
+    ImGui::SetNextWindowSizeConstraints({ 0, -1 }, { FLT_MAX, -1 });
+    ImGui::Begin("Hurt Indicator", nullptr, ImGuiWindowFlags_NoTitleBar | (gui->isOpen() ? 0 : ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration));
+
+    std::ostringstream ss; ss << "Slowed down " << static_cast<int>(round(local.velocityModifier * 100.f)) << "%";
+    ImGui::textUnformattedCentered(ss.str().c_str());
+
+    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Helpers::calculateColor(config->misc.hurtIndicator));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });
+    ImGui::progressBarFullWidth(local.velocityModifier, 1.0f);
+
+    windowWidth = ImGui::GetCurrentWindow()->SizeFull.x;
+
+    ImGui::PopStyleColor(2);
+    ImGui::End();
+}
+
 void Misc::stealNames() noexcept
 {
     if (!config->misc.nameStealer)

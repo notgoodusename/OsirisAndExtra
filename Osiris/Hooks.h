@@ -5,6 +5,8 @@
 #include <d3d9.h>
 #include <Windows.h>
 
+#include "AntiDetection.h"
+
 #include "Hooks/MinHook.h"
 #include "Hooks/VmtHook.h"
 #include "Hooks/VmtSwap.h"
@@ -85,3 +87,4 @@ private:
 };
 
 inline std::unique_ptr<Hooks> hooks;
+inline std::unique_ptr<AntiDetection> antiDetection;

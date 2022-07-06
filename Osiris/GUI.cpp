@@ -1207,7 +1207,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("No 3d sky", &config->visuals.no3dSky);
     ImGui::Checkbox("No aim punch", &config->visuals.noAimPunch);
     ImGui::Checkbox("No view punch", &config->visuals.noViewPunch);
-    ImGui::Checkbox("No viewBob", &config->visuals.noViewBob);
+    ImGui::Checkbox("No view bob", &config->visuals.noViewBob);
     ImGui::Checkbox("No hands", &config->visuals.noHands);
     ImGui::Checkbox("No sleeves", &config->visuals.noSleeves);
     ImGui::Checkbox("No weapons", &config->visuals.noWeapons);

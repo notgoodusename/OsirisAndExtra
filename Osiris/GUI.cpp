@@ -310,8 +310,8 @@ void GUI::renderLegitbotWindow() noexcept
 
 void GUI::renderRagebotWindow() noexcept
 {
-    static const char* hitboxes[]{ "Head","Chest","Stomach","Arms","Legs" };
-    static bool hitbox[ARRAYSIZE(hitboxes)] = { false, false, false, false, false };
+    static const char* hitboxes[]{ "Head","UpperChest","Thorax","LowerChest","Belly","Pelvis","RightUpperArm","RightForearm","LeftUpperArm","LeftForearm","RightCalf","RightThigh","LeftCalf","LeftThigh" };
+    static bool hitbox[ARRAYSIZE(hitboxes)] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false };
     static std::string previewvalue = "";
     bool once = false;
 

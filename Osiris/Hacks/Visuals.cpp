@@ -519,11 +519,11 @@ void Visuals::hitEffect(GameEvent* event) noexcept
     }
 }
 
-void Visuals::transparentWorld(bool reset) noexcept
+void Visuals::transparentWorld(int resetType) noexcept
 {
     static int asus[2] = { -1, -1 };
 
-    if (reset)
+    if (resetType >= 0)
     {
         asus[0] = -1;
         asus[1] = -1;
@@ -536,6 +536,16 @@ void Visuals::transparentWorld(bool reset) noexcept
         const auto mat = interfaces->materialSystem->getMaterial(h);
 
         const std::string_view textureGroup = mat->getTextureGroupName();
+
+        if (resetType == 1)
+        {
+            if (textureGroup.starts_with("World"))
+                mat->alphaModulate(1.0f);
+
+            if (textureGroup.starts_with("StaticProp"))
+                mat->alphaModulate(1.0f);
+            continue;
+        }
 
         if (asus[0] != config->visuals.asusWalls && textureGroup.starts_with("World"))
             mat->alphaModulate(static_cast<float>(config->visuals.asusWalls) / 100.0f);
@@ -1065,8 +1075,26 @@ void Visuals::updateInput() noexcept
     config->visuals.zoomKey.handleToggle();
 }
 
-void Visuals::reset() noexcept
+void Visuals::reset(int resetType) noexcept
 {
     shotRecord.clear();
-    Visuals::transparentWorld(true);
+    Visuals::transparentWorld(resetType);
+    if (resetType == 1)
+    {
+        //Reset convars
+        static auto bright = interfaces->cvar->findVar("mat_fullbright");
+        static auto sky = interfaces->cvar->findVar("r_3dsky");
+        static auto shadows = interfaces->cvar->findVar("cl_csm_enabled");
+        static auto cl_csm_rot_override = interfaces->cvar->findVar("cl_csm_rot_override");
+        bright->setValue(0);
+        sky->setValue(1);
+        shadows->setValue(1);
+        cl_csm_rot_override->setValue(0);
+
+        //Disable thirdperson/freecam
+        const bool freeCamming = config->visuals.freeCam && config->visuals.freeCamKey.isActive() && localPlayer && localPlayer->isAlive();
+        const bool thirdPerson = config->visuals.thirdperson && config->visuals.thirdpersonKey.isActive() && localPlayer && localPlayer->isAlive();
+        if (freeCamming || thirdPerson)
+            memory->input->isCameraInThirdPerson = false;
+    }
 }

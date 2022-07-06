@@ -1975,3 +1975,14 @@ void Misc::updateInput() noexcept
     config->misc.autoPeekKey.handleToggle();
     config->misc.prepareRevolverKey.handleToggle();
 }
+
+void Misc::reset(int resetType) noexcept
+{
+    if (resetType == 1)
+    {
+        static auto ragdollGravity = interfaces->cvar->findVar("cl_ragdoll_gravity");
+        static auto blur = interfaces->cvar->findVar("@panorama_disable_blur");
+        ragdollGravity->setValue(600);
+        blur->setValue(0);
+    }
+}

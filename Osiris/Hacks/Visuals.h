@@ -27,7 +27,7 @@ namespace Visuals
     void applyZoom(FrameStage stage) noexcept;
     void applyScreenEffects() noexcept;
     void hitEffect(GameEvent* event = nullptr) noexcept;
-    void transparentWorld(bool reset = false) noexcept;
+    void transparentWorld(int resetType = -1) noexcept;
     void hitMarker(GameEvent* event, ImDrawList* drawList = nullptr) noexcept;
     void motionBlur(ViewSetup* setup) noexcept;
     void disablePostProcessing(FrameStage stage) noexcept;
@@ -47,5 +47,5 @@ namespace Visuals
 
     void updateEventListeners(bool forceRemove = false) noexcept;
     void updateInput() noexcept;
-    void reset() noexcept;
+    void reset(int resetType) noexcept;
 }

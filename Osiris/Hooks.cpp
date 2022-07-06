@@ -1179,13 +1179,14 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     return Animations::getLocalAngle();
 }
 
-void resetAll() noexcept
+void resetAll(int resetType) noexcept
 {
     Animations::reset();
     Logger::reset();
     EnginePrediction::reset();
     Glow::clearCustomObjects();
-    Visuals::reset();
+    Visuals::reset(resetType);
+    Misc::reset(resetType);
 }
 
 static void __fastcall levelShutDown(void* thisPointer) noexcept
@@ -1193,7 +1194,7 @@ static void __fastcall levelShutDown(void* thisPointer) noexcept
     static auto original = hooks->client.getOriginal<void, 7>();
 
     original(thisPointer);
-    resetAll();
+    resetAll(0);
 }
 
 
@@ -1373,7 +1374,7 @@ void Hooks::uninstall() noexcept
     Netvars::restore();
 
     Glow::clearCustomObjects();
-    resetAll();
+    resetAll(1);
 
     SetWindowLongPtrW(window, GWLP_WNDPROC, LONG_PTR(originalWndProc));
     **reinterpret_cast<void***>(memory->present) = originalPresent;

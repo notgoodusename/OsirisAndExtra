@@ -2086,14 +2086,38 @@ void GUI::renderConfigWindow() noexcept
                 Misc::updateClanTag(true);
             }
             if (ImGui::Button("Save selected", { 100.0f, 25.0f }))
-                config->save(currentConfig);
-            if (ImGui::Button("Delete selected", { 100.0f, 25.0f })) {
-                config->remove(currentConfig);
-
-                if (static_cast<std::size_t>(currentConfig) < configItems.size())
-                    buffer = configItems[currentConfig];
-                else
-                    buffer.clear();
+                ImGui::OpenPopup("##reallySave");
+            if (ImGui::BeginPopup("##reallySave"))
+            {
+                ImGui::TextUnformatted("Are you sure?");
+                if (ImGui::Button("No", { 45.0f, 0.0f }))
+                    ImGui::CloseCurrentPopup();
+                ImGui::SameLine();
+                if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                {
+                    config->save(currentConfig);
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+            if (ImGui::Button("Delete selected", { 100.0f, 25.0f }))
+                ImGui::OpenPopup("##reallyDelete");
+            if (ImGui::BeginPopup("##reallyDelete"))
+            {
+                ImGui::TextUnformatted("Are you sure?");
+                if (ImGui::Button("No", { 45.0f, 0.0f }))
+                    ImGui::CloseCurrentPopup();
+                ImGui::SameLine();
+                if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                {
+                    config->remove(currentConfig);
+                    if (static_cast<std::size_t>(currentConfig) < configItems.size())
+                        buffer = configItems[currentConfig];
+                    else
+                        buffer.clear();
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
             }
         }
         ImGui::Columns(1);

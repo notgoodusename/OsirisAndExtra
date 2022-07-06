@@ -49,6 +49,7 @@ public:
 
     MinHook setupBones;
     MinHook eyeAngles;
+    MinHook calcViewBob;
 
     MinHook postDataUpdate;
 

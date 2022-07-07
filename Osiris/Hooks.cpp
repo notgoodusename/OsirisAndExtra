@@ -248,6 +248,21 @@ static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int upda
     return;
 }
 
+static void __fastcall calcViewBobHook(void* thisPointer, void* edx, float eyeOrigin) noexcept
+{
+    static auto original = hooks->calcViewBob.getOriginal<void>(eyeOrigin);
+
+    auto entity = reinterpret_cast<Entity*>(thisPointer);
+
+    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, eyeOrigin);
+
+    if (config->visuals.noViewBob)
+        return;
+
+    original(thisPointer, eyeOrigin);
+}
+
 static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& sendPacket) noexcept
 {
     static auto previousViewAngles{ cmd->viewangles };
@@ -1260,6 +1275,7 @@ void Hooks::install() noexcept
     isDepthOfFieldEnabled.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
     eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
     clSendMove.detour(memory->clSendMove, clSendMoveHook);
+    calcViewBob.detour(memory->calcViewBob, calcViewBobHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());

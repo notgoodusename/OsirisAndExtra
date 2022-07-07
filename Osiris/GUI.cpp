@@ -1252,6 +1252,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("No 3d sky", &config->visuals.no3dSky);
     ImGui::Checkbox("No aim punch", &config->visuals.noAimPunch);
     ImGui::Checkbox("No view punch", &config->visuals.noViewPunch);
+    ImGui::Checkbox("No view bob", &config->visuals.noViewBob);
     ImGui::Checkbox("No hands", &config->visuals.noHands);
     ImGui::Checkbox("No sleeves", &config->visuals.noSleeves);
     ImGui::Checkbox("No weapons", &config->visuals.noWeapons);
@@ -2131,14 +2132,38 @@ void GUI::renderConfigWindow() noexcept
                 Misc::updateClanTag(true);
             }
             if (ImGui::Button("Save selected", { 100.0f, 25.0f }))
-                config->save(currentConfig);
-            if (ImGui::Button("Delete selected", { 100.0f, 25.0f })) {
-                config->remove(currentConfig);
-
-                if (static_cast<std::size_t>(currentConfig) < configItems.size())
-                    buffer = configItems[currentConfig];
-                else
-                    buffer.clear();
+                ImGui::OpenPopup("##reallySave");
+            if (ImGui::BeginPopup("##reallySave"))
+            {
+                ImGui::TextUnformatted("Are you sure?");
+                if (ImGui::Button("No", { 45.0f, 0.0f }))
+                    ImGui::CloseCurrentPopup();
+                ImGui::SameLine();
+                if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                {
+                    config->save(currentConfig);
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+            if (ImGui::Button("Delete selected", { 100.0f, 25.0f }))
+                ImGui::OpenPopup("##reallyDelete");
+            if (ImGui::BeginPopup("##reallyDelete"))
+            {
+                ImGui::TextUnformatted("Are you sure?");
+                if (ImGui::Button("No", { 45.0f, 0.0f }))
+                    ImGui::CloseCurrentPopup();
+                ImGui::SameLine();
+                if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                {
+                    config->remove(currentConfig);
+                    if (static_cast<std::size_t>(currentConfig) < configItems.size())
+                        buffer = configItems[currentConfig];
+                    else
+                        buffer.clear();
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
             }
         }
         ImGui::Columns(1);

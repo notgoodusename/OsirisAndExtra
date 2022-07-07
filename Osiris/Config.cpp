@@ -388,6 +388,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "No 3d sky", v.no3dSky);
     read(j, "No aim punch", v.noAimPunch);
     read(j, "No view punch", v.noViewPunch);
+    read(j, "No view bob", v.noViewBob);
     read(j, "No hands", v.noHands);
     read(j, "No sleeves", v.noSleeves);
     read(j, "No weapons", v.noWeapons);
@@ -1238,6 +1239,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("No 3d sky", no3dSky);
     WRITE("No aim punch", noAimPunch);
     WRITE("No view punch", noViewPunch);
+    WRITE("No view bob", noViewBob);
     WRITE("No hands", noHands);
     WRITE("No sleeves", noSleeves);
     WRITE("No weapons", noWeapons);

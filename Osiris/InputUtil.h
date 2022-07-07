@@ -141,6 +141,8 @@ public:
     bool canShowKeybind() noexcept;
     void showKeybind() noexcept;
 
+    void reset() noexcept { keyCode = KeyCode::NONE; }
+
     KeyMode keyMode = KeyMode::Always;
     std::string activeName = { };
 private:

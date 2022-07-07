@@ -772,6 +772,51 @@ void GUI::renderChamsWindow() noexcept
     ImGui::Columns(1);
 }
 
+void GUI::renderGlowWindow() noexcept
+{
+    ImGui::hotkey2("Key", config->glowKey, 80.0f);
+    ImGui::Separator();
+
+    static int currentCategory{ 0 };
+    ImGui::PushItemWidth(110.0f);
+    ImGui::PushID(0);
+    constexpr std::array categories{ "Allies", "Enemies", "Planting", "Defusing", "Local Player", "Weapons", "C4", "Planted C4", "Chickens", "Defuse Kits", "Projectiles", "Hostages" };
+    ImGui::Combo("", &currentCategory, categories.data(), categories.size());
+    ImGui::PopID();
+    Config::GlowItem* currentItem;
+    if (currentCategory <= 3) {
+        ImGui::SameLine();
+        static int currentType{ 0 };
+        ImGui::PushID(1);
+        ImGui::Combo("", &currentType, "All\0Visible\0Occluded\0");
+        ImGui::PopID();
+        auto& cfg = config->playerGlow[categories[currentCategory]];
+        switch (currentType) {
+        case 0: currentItem = &cfg.all; break;
+        case 1: currentItem = &cfg.visible; break;
+        case 2: currentItem = &cfg.occluded; break;
+        }
+    }
+    else {
+        currentItem = &config->glow[categories[currentCategory]];
+    }
+
+    ImGui::SameLine();
+    ImGui::Checkbox("Enabled", &currentItem->enabled);
+    ImGui::Separator();
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 150.0f);
+    ImGui::Checkbox("Health based", &currentItem->healthBased);
+
+    ImGuiCustom::colorPicker("Color", *currentItem);
+
+    ImGui::NextColumn();
+    ImGui::SetNextItemWidth(100.0f);
+    ImGui::Combo("Style", &currentItem->style, "Default\0Rim3d\0Edge\0Edge Pulse\0");
+
+    ImGui::Columns(1);
+}
+
 void GUI::renderStreamProofESPWindow() noexcept
 {
     ImGui::hotkey2("Key", config->streamProofESP.key, 80.0f);
@@ -2059,16 +2104,16 @@ void GUI::renderConfigWindow() noexcept
                 if (ImGui::Selectable(names[i])) {
                     switch (i) {
                     case 0: config->reset(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
-                    case 1: config->legitbot = { }; config->legitbotKey = KeyBind::NONE; break;
+                    case 1: config->legitbot = { }; config->legitbotKey.reset(); break;
                     case 2: config->legitAntiAim = { }; break;
-                    case 3: config->ragebot = { }; config->ragebotKey = KeyBind::NONE;  break;
+                    case 3: config->ragebot = { }; config->ragebotKey.reset();  break;
                     case 4: config->rageAntiAim = { };  break;
                     case 5: config->fakeAngle = { }; break;
                     case 6: config->fakelag = { }; break;
                     case 7: config->backtrack = { }; break;
-                    case 8: config->triggerbot = { }; config->triggerbotKey = KeyBind::NONE; break;
+                    case 8: config->triggerbot = { }; config->triggerbotKey.reset(); break;
                     case 9: Glow::resetConfig(); break;
-                    case 10: config->chams = { }; config->chamsKey = KeyBind::NONE; break;
+                    case 10: config->chams = { }; config->chamsKey.reset(); break;
                     case 11: config->streamProofESP = { }; break;
                     case 12: config->visuals = { }; break;
                     case 13: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
@@ -2306,7 +2351,7 @@ void GUI::renderGuiStyle() noexcept
                                     break;
                                 case 4:
                                     //Glow
-                                    Glow::drawGUI();
+                                    renderGlowWindow();
                                     break;
                                 case 5:
                                     //Skins

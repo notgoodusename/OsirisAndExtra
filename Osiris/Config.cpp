@@ -351,6 +351,22 @@ static void from_json(const json& j, Config::Chams& c)
     read_array_opt(j, "Materials", c.materials);
 }
 
+static void from_json(const json& j, Config::GlowItem& g)
+{
+    from_json(j, static_cast<Color4&>(g));
+
+    read(j, "Enabled", g.enabled);
+    read(j, "Health based", g.healthBased);
+    read(j, "Style", g.style);
+}
+
+static void from_json(const json& j, Config::PlayerGlow& g)
+{
+    read<value_t::object>(j, "All", g.all);
+    read<value_t::object>(j, "Visible", g.visible);
+    read<value_t::object>(j, "Occluded", g.occluded);
+}
+
 static void from_json(const json& j, Config::StreamProofESP& e)
 {
     read(j, "Key", e.key);
@@ -687,7 +703,11 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read<value_t::object>(j, "Fake angle", fakeAngle);
     read<value_t::object>(j, "Fakelag", fakelag);
     read<value_t::object>(j, "Backtrack", backtrack);
-    Glow::fromJson(j["Glow"]);
+
+    read(j["Glow"], "Items", glow);
+    read(j["Glow"], "Players", playerGlow);
+    read(j["Glow"], "Key", glowKey);
+
     read(j, "Chams", chams);
     read(j["Chams"], "Key", chamsKey);
     read<value_t::object>(j, "ESP", streamProofESP);
@@ -917,6 +937,21 @@ static void to_json(json& j, const Config::Chams::Material& o)
 static void to_json(json& j, const Config::Chams& o)
 {
     j["Materials"] = o.materials;
+}
+
+static void to_json(json& j, const Config::GlowItem& o, const  Config::GlowItem& dummy = {})
+{
+    to_json(j, static_cast<const Color4&>(o), dummy);
+    WRITE("Enabled", enabled);
+    WRITE("Health based", healthBased);
+    WRITE("Style", style);
+}
+
+static void to_json(json& j, const  Config::PlayerGlow& o, const  Config::PlayerGlow& dummy = {})
+{
+    WRITE("All", all);
+    WRITE("Visible", visible);
+    WRITE("Occluded", occluded);
 }
 
 static void to_json(json& j, const Config::StreamProofESP& o, const Config::StreamProofESP& dummy = {})
@@ -1328,7 +1363,11 @@ void Config::save(size_t id) const noexcept
         j["Fake angle"] = fakeAngle;
         j["Fakelag"] = fakelag;
         j["Backtrack"] = backtrack;
-        j["Glow"] = Glow::toJson();
+
+        j["Glow"]["Items"] = glow;
+        j["Glow"]["Players"] = playerGlow;
+        to_json(j["Glow"]["Key"], glowKey, KeyBind::NONE);
+
         j["Chams"] = chams;
         to_json(j["Chams"]["Key"], chamsKey, KeyBind::NONE);
         j["ESP"] = streamProofESP;

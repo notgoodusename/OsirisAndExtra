@@ -152,6 +152,21 @@ public:
     std::unordered_map<std::string, Chams> chams;
     KeyBind chamsKey{ std::string("chams") };
 
+    struct GlowItem : Color4 {
+        bool enabled = false;
+        bool healthBased = false;
+        int style = 0;
+    };
+
+    struct PlayerGlow {
+        GlowItem all, visible, occluded;
+    };
+
+    std::unordered_map<std::string, PlayerGlow> playerGlow;
+    std::unordered_map<std::string, GlowItem> glow;
+    KeyBind glowKey{ std::string("glow") };
+
+
     struct StreamProofESP {
         KeyBind key{ std::string("esp") };
 

@@ -787,6 +787,7 @@ const bool anyActiveKeybinds() noexcept
     const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
     const bool legitBot = config->legitbotKey.canShowKeybind();
     const bool triggerBot = config->triggerbotKey.canShowKeybind();
+    const bool glow = config->glowKey.canShowKeybind();
     const bool chams = config->chamsKey.canShowKeybind();
     const bool esp = config->streamProofESP.key.canShowKeybind();
 
@@ -803,7 +804,7 @@ const bool anyActiveKeybinds() noexcept
     const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
-    return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
+    return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || glow || esp
         || zoom || thirdperson || freeCam || blockbot || edgejump || edgebug || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
 }
 
@@ -842,6 +843,7 @@ void Misc::showKeybinds() noexcept
     config->legitbotKey.showKeybind();
     config->triggerbotKey.showKeybind();
     config->chamsKey.showKeybind();
+    config->glowKey.showKeybind();
     config->streamProofESP.key.showKeybind();
 
     if (config->visuals.zoom)

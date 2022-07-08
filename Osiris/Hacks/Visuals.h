@@ -11,6 +11,8 @@ struct UserCmd;
 namespace Visuals
 {
     void shadowChanger() noexcept;
+    void drawSmokeTimerEvent(GameEvent* event) noexcept;
+    void drawSmokeTimer(ImDrawList* drawList) noexcept;
     void visualizeSpread(ImDrawList* drawList) noexcept;
     void fullBright() noexcept;
     void playerModel(FrameStage stage) noexcept;
@@ -26,7 +28,7 @@ namespace Visuals
     void applyZoom(FrameStage stage) noexcept;
     void applyScreenEffects() noexcept;
     void hitEffect(GameEvent* event = nullptr) noexcept;
-    void transparentWorld(bool reset = false) noexcept;
+    void transparentWorld(int resetType = -1) noexcept;
     void hitMarker(GameEvent* event, ImDrawList* drawList = nullptr) noexcept;
     void motionBlur(ViewSetup* setup) noexcept;
     void disablePostProcessing(FrameStage stage) noexcept;
@@ -46,5 +48,5 @@ namespace Visuals
 
     void updateEventListeners(bool forceRemove = false) noexcept;
     void updateInput() noexcept;
-    void reset() noexcept;
+    void reset(int resetType) noexcept;
 }

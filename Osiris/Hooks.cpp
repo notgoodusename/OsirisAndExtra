@@ -122,6 +122,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         Visuals::hitMarker(nullptr, ImGui::GetBackgroundDrawList());
         Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
         Visuals::drawSmokeHull(ImGui::GetBackgroundDrawList());
+        Visuals::drawSmokeTimer(ImGui::GetBackgroundDrawList());
         Misc::watermark();
         Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
         Logger::process(ImGui::GetBackgroundDrawList());
@@ -247,6 +248,21 @@ static void __fastcall postDataUpdateHook(void* thisPointer, void* edx, int upda
     
     Animations::postDataUpdate();
     return;
+}
+
+static void __fastcall calcViewBobHook(void* thisPointer, void* edx, float eyeOrigin) noexcept
+{
+    static auto original = hooks->calcViewBob.getOriginal<void>(eyeOrigin);
+
+    auto entity = reinterpret_cast<Entity*>(thisPointer);
+
+    if (!entity || !entity->isAlive() || !entity->isPlayer() || !localPlayer || entity != localPlayer.get())
+        return original(thisPointer, eyeOrigin);
+
+    if (config->visuals.noViewBob)
+        return;
+
+    original(thisPointer, eyeOrigin);
 }
 
 static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& sendPacket) noexcept
@@ -1234,13 +1250,14 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     return Animations::getLocalAngle();
 }
 
-void resetAll() noexcept
+void resetAll(int resetType) noexcept
 {
     Animations::reset();
     Logger::reset();
     EnginePrediction::reset();
     Glow::clearCustomObjects();
-    Visuals::reset();
+    Visuals::reset(resetType);
+    Misc::reset(resetType);
 }
 
 static void __fastcall levelShutDown(void* thisPointer) noexcept
@@ -1248,7 +1265,7 @@ static void __fastcall levelShutDown(void* thisPointer) noexcept
     static auto original = hooks->client.getOriginal<void, 7>();
 
     original(thisPointer);
-    resetAll();
+    resetAll(0);
 }
 
 
@@ -1315,6 +1332,7 @@ void Hooks::install() noexcept
     isDepthOfFieldEnabled.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
     eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
     clSendMove.detour(memory->clSendMove, clSendMoveHook);
+    calcViewBob.detour(memory->calcViewBob, calcViewBobHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
@@ -1430,7 +1448,7 @@ void Hooks::uninstall() noexcept
     Netvars::restore();
 
     Glow::clearCustomObjects();
-    resetAll();
+    resetAll(1);
 
     SetWindowLongPtrW(window, GWLP_WNDPROC, LONG_PTR(originalWndProc));
     **reinterpret_cast<void***>(memory->present) = originalPresent;

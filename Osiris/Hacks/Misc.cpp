@@ -983,6 +983,7 @@ const bool anyActiveKeybinds() noexcept
     const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
     const bool legitBot = config->legitbotKey.canShowKeybind();
     const bool triggerBot = config->triggerbotKey.canShowKeybind();
+    const bool glow = config->glowKey.canShowKeybind();
     const bool chams = config->chamsKey.canShowKeybind();
     const bool esp = config->streamProofESP.key.canShowKeybind();
 
@@ -998,11 +999,10 @@ const bool anyActiveKeybinds() noexcept
     const bool fakeduck = config->misc.fakeduck && config->misc.fakeduckKey.canShowKeybind();
     const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
-
     const bool doubletap = config->doubletapkey.canShowKeybind();
     const bool hideshots = config->hideshotskey.canShowKeybind();
 
-    return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || esp
+    return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || glow || esp
         || zoom || thirdperson || freeCam || blockbot || edgejump || edgebug || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver || doubletap || hideshots;
 }
 
@@ -1041,6 +1041,7 @@ void Misc::showKeybinds() noexcept
     config->legitbotKey.showKeybind();
     config->triggerbotKey.showKeybind();
     config->chamsKey.showKeybind();
+    config->glowKey.showKeybind();
     config->streamProofESP.key.showKeybind();
 
     if (config->visuals.zoom)
@@ -1365,7 +1366,7 @@ void Misc::hurtIndicator() noexcept
     ImGui::SetNextWindowSizeConstraints({ 0, -1 }, { FLT_MAX, -1 });
     ImGui::Begin("Hurt Indicator", nullptr, ImGuiWindowFlags_NoTitleBar | (gui->isOpen() ? 0 : ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration));
 
-    std::ostringstream ss; ss << "Slowed down " << static_cast<int>(round(local.velocityModifier * 100.f)) << "%";
+    std::ostringstream ss; ss << "Slowed down " << static_cast<int>(local.velocityModifier * 100.f) << "%";
     ImGui::textUnformattedCentered(ss.str().c_str());
 
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Helpers::calculateColor(config->misc.hurtIndicator));
@@ -2192,4 +2193,15 @@ void Misc::updateInput() noexcept
     config->misc.fakeduckKey.handleToggle();
     config->misc.autoPeekKey.handleToggle();
     config->misc.prepareRevolverKey.handleToggle();
+}
+
+void Misc::reset(int resetType) noexcept
+{
+    if (resetType == 1)
+    {
+        static auto ragdollGravity = interfaces->cvar->findVar("cl_ragdoll_gravity");
+        static auto blur = interfaces->cvar->findVar("@panorama_disable_blur");
+        ragdollGravity->setValue(600);
+        blur->setValue(0);
+    }
 }

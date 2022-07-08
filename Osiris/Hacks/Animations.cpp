@@ -477,6 +477,9 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
                     memory->globalVars->currenttime = currentTimeBackup;
                 }
+                entity->getEFlags() &= ~0x1000;
+                entity->getAbsVelocity() = player.velocity;
+                entity->duckAmount() = player.duckAmount;
             }
             updatingEntity = false;
 

@@ -164,6 +164,21 @@ public:
     std::unordered_map<std::string, Chams> chams;
     KeyBind chamsKey{ std::string("chams") };
 
+    struct GlowItem : Color4 {
+        bool enabled = false;
+        bool healthBased = false;
+        int style = 0;
+    };
+
+    struct PlayerGlow {
+        GlowItem all, visible, occluded;
+    };
+
+    std::unordered_map<std::string, PlayerGlow> playerGlow;
+    std::unordered_map<std::string, GlowItem> glow;
+    KeyBind glowKey{ std::string("glow") };
+
+
     struct StreamProofESP {
         KeyBind key{ std::string("esp") };
 
@@ -195,6 +210,7 @@ public:
         bool no3dSky{ false };
         bool noAimPunch{ false };
         bool noViewPunch{ false };
+        bool noViewBob{ false };
         bool noHands{ false };
         bool noSleeves{ false };
         bool noWeapons{ false };
@@ -265,6 +281,10 @@ public:
         ColorToggle3 mapColor;
         int asusWalls = 100;
         int asusProps = 100;
+        bool smokeTimer{ false };
+        Color4 smokeTimerBG{ 1.0f, 1.0f, 1.0f, 0.5f };
+        Color4 smokeTimerTimer{ 0.0f, 0.0f, 1.0f, 1.0f };
+        Color4 smokeTimerText{ 0.0f, 0.0f, 0.0f, 1.0f };
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

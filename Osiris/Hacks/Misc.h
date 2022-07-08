@@ -73,4 +73,5 @@ namespace Misc
 
     void updateEventListeners(bool forceRemove = false) noexcept;
     void updateInput() noexcept;
+    void reset(int resetType) noexcept;
 }

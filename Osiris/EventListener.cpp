@@ -31,6 +31,8 @@ EventListener::EventListener() noexcept
     interfaces->gameEventManager->addListener(this, "weapon_fire");
     interfaces->gameEventManager->addListener(this, "grenade_thrown");
 
+    interfaces->gameEventManager->addListener(this, "smokegrenade_detonate");
+
     interfaces->gameEventManager->addListener(this, "player_death");
     interfaces->gameEventManager->addListener(this, "vote_cast");
     interfaces->gameEventManager->addListener(this, "cs_win_panel_match");
@@ -106,6 +108,9 @@ void EventListener::fireGameEvent(GameEvent* event)
         break;
     case fnv::hash("hostage_follows"):
         Logger::getEvent(event);
+        break;
+    case fnv::hash("smokegrenade_detonate"):
+        Visuals::drawSmokeTimerEvent(event);
         break;
     }
 }

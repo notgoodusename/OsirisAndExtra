@@ -14,20 +14,6 @@
 #include "../SDK/Utils.h"
 #include "../imguiCustom.h"
 
-struct GlowItem : Color4 {
-    bool enabled = false;
-    bool healthBased = false;
-    int style = 0;
-};
-
-struct PlayerGlow {
-    GlowItem all, visible, occluded;
-};
-
-static std::unordered_map<std::string, PlayerGlow> playerGlowConfig;
-static std::unordered_map<std::string, GlowItem> glowConfig;
-static KeyBind glowKey = KeyBind::NONE;
-
 static std::vector<std::pair<int, int>> customGlowEntities;
 
 void Glow::render() noexcept
@@ -35,11 +21,11 @@ void Glow::render() noexcept
     if (!localPlayer)
         return;
 
-    auto& glow = glowConfig;
+    auto& glow = config->glow;
 
     Glow::clearCustomObjects();
 
-    if (glowKey != KeyBind::NONE && !glowKey.isActive())
+    if (config->glowKey != KeyBind::NONE && !config->glowKey.isActive())
         return;
 
     const auto highestEntityIndex = interfaces->entityList->getHighestEntityIndex();
@@ -77,7 +63,7 @@ void Glow::render() noexcept
         if (glowobject.isUnused() || !entity || entity->isDormant())
             continue;
 
-        auto applyGlow = [&glowobject](const GlowItem& glow, int health = 0) noexcept
+        auto applyGlow = [&glowobject](const Config::GlowItem& glow, int health = 0) noexcept
         {
             if (glow.enabled) {
                 glowobject.renderWhenOccluded = true;
@@ -98,7 +84,7 @@ void Glow::render() noexcept
         };
 
         auto applyPlayerGlow = [applyGlow](const std::string& name, Entity* entity) noexcept {
-            const auto& cfg = playerGlowConfig[name];
+            const auto& cfg = config->playerGlow[name];
             if (cfg.all.enabled)
                 applyGlow(cfg.all, entity->health());
             else if (cfg.visible.enabled && entity->visibleTo(localPlayer.get()))
@@ -157,7 +143,7 @@ void Glow::clearCustomObjects() noexcept
 
 void Glow::updateInput() noexcept
 {
-    glowKey.handleToggle();
+    config->glowKey.handleToggle();
 }
 
 void Glow::drawGUI() noexcept
@@ -253,7 +239,7 @@ void Glow::fromJson(const json& j) noexcept
 
 void Glow::resetConfig() noexcept
 {
-    glowConfig = {};
-    playerGlowConfig = {};
-    glowKey = KeyBind::NONE;
+    config->glow = {};
+    config->playerGlow = {};
+    config->glowKey.reset();
 }

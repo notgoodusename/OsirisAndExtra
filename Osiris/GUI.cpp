@@ -795,6 +795,51 @@ void GUI::renderChamsWindow() noexcept
     ImGui::Columns(1);
 }
 
+void GUI::renderGlowWindow() noexcept
+{
+    ImGui::hotkey2("Key", config->glowKey, 80.0f);
+    ImGui::Separator();
+
+    static int currentCategory{ 0 };
+    ImGui::PushItemWidth(110.0f);
+    ImGui::PushID(0);
+    constexpr std::array categories{ "Allies", "Enemies", "Planting", "Defusing", "Local Player", "Weapons", "C4", "Planted C4", "Chickens", "Defuse Kits", "Projectiles", "Hostages" };
+    ImGui::Combo("", &currentCategory, categories.data(), categories.size());
+    ImGui::PopID();
+    Config::GlowItem* currentItem;
+    if (currentCategory <= 3) {
+        ImGui::SameLine();
+        static int currentType{ 0 };
+        ImGui::PushID(1);
+        ImGui::Combo("", &currentType, "All\0Visible\0Occluded\0");
+        ImGui::PopID();
+        auto& cfg = config->playerGlow[categories[currentCategory]];
+        switch (currentType) {
+        case 0: currentItem = &cfg.all; break;
+        case 1: currentItem = &cfg.visible; break;
+        case 2: currentItem = &cfg.occluded; break;
+        }
+    }
+    else {
+        currentItem = &config->glow[categories[currentCategory]];
+    }
+
+    ImGui::SameLine();
+    ImGui::Checkbox("Enabled", &currentItem->enabled);
+    ImGui::Separator();
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 150.0f);
+    ImGui::Checkbox("Health based", &currentItem->healthBased);
+
+    ImGuiCustom::colorPicker("Color", *currentItem);
+
+    ImGui::NextColumn();
+    ImGui::SetNextItemWidth(100.0f);
+    ImGui::Combo("Style", &currentItem->style, "Default\0Rim3d\0Edge\0Edge Pulse\0");
+
+    ImGui::Columns(1);
+}
+
 void GUI::renderStreamProofESPWindow() noexcept
 {
     ImGui::hotkey2("Key", config->streamProofESP.key, 80.0f);
@@ -1238,6 +1283,7 @@ void GUI::renderVisualsWindow() noexcept
         ImGui::Checkbox("No 3d sky", &config->visuals.no3dSky);
         ImGui::Checkbox("No aim punch", &config->visuals.noAimPunch);
         ImGui::Checkbox("No view punch", &config->visuals.noViewPunch);
+        ImGui::Checkbox("No view bob", &config->visuals.noViewBob);
         ImGui::Checkbox("No hands", &config->visuals.noHands);
         ImGui::Checkbox("No sleeves", &config->visuals.noSleeves);
         ImGui::Checkbox("No weapons", &config->visuals.noWeapons);
@@ -1390,6 +1436,19 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::SliderFloat("", &config->visuals.bulletImpactsTime, 0.1f, 5.0f, "Bullet Impacts time: %.2fs");
     ImGuiCustom::colorPicker("Molotov Hull", config->visuals.molotovHull);
     ImGuiCustom::colorPicker("Smoke Hull", config->visuals.smokeHull);
+
+    ImGui::Checkbox("Smoke Timer", &config->visuals.smokeTimer);
+    ImGui::SameLine();
+    if (ImGui::Button("...##smoke_timer"))
+        ImGui::OpenPopup("popup_smokeTimer");
+
+    if (ImGui::BeginPopup("popup_smokeTimer"))
+    {
+        ImGuiCustom::colorPicker("BackGround color", config->visuals.smokeTimerBG);
+        ImGuiCustom::colorPicker("Text color", config->visuals.smokeTimerText);
+        ImGuiCustom::colorPicker("Timer color", config->visuals.smokeTimerTimer);
+        ImGui::EndPopup();
+    }
     ImGuiCustom::colorPicker("Spread circle", config->visuals.spreadCircle);
     ImGui::Columns(1);
 }
@@ -2076,17 +2135,17 @@ void GUI::renderConfigWindow() noexcept
                 if (ImGui::Selectable(names[i])) {
                     switch (i) {
                     case 0: config->reset(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
-                    case 1: config->legitbot = { }; config->legitbotKey = KeyBind::NONE; break;
+                    case 1: config->legitbot = { }; config->legitbotKey.reset(); break;
                     case 2: config->legitAntiAim = { }; break;
-                    case 3: config->ragebot = { }; config->ragebotKey = KeyBind::NONE;  break;
+                    case 3: config->ragebot = { }; config->ragebotKey.reset();  break;
                     case 4: config->rageAntiAim = { };  break;
                     case 5: config->fakeAngle = { }; break;
                     case 6: config->fakelag = { }; break;
                     case 7: config->tickbase = { }; break;
                     case 8: config->backtrack = { }; break;
-                    case 9: config->triggerbot = { }; config->triggerbotKey = KeyBind::NONE; break;
+                    case 9: config->triggerbot = { }; config->triggerbotKey.reset(); break;
                     case 10: Glow::resetConfig(); break;
-                    case 11: config->chams = { }; config->chamsKey = KeyBind::NONE; break;
+                    case 11: config->chams = { }; config->chamsKey.reset(); break;
                     case 12: config->streamProofESP = { }; break;
                     case 13: config->visuals = { }; break;
                     case 14: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
@@ -2104,14 +2163,38 @@ void GUI::renderConfigWindow() noexcept
                 Misc::updateClanTag(true);
             }
             if (ImGui::Button("Save selected", { 100.0f, 25.0f }))
-                config->save(currentConfig);
-            if (ImGui::Button("Delete selected", { 100.0f, 25.0f })) {
-                config->remove(currentConfig);
-
-                if (static_cast<std::size_t>(currentConfig) < configItems.size())
-                    buffer = configItems[currentConfig];
-                else
-                    buffer.clear();
+                ImGui::OpenPopup("##reallySave");
+            if (ImGui::BeginPopup("##reallySave"))
+            {
+                ImGui::TextUnformatted("Are you sure?");
+                if (ImGui::Button("No", { 45.0f, 0.0f }))
+                    ImGui::CloseCurrentPopup();
+                ImGui::SameLine();
+                if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                {
+                    config->save(currentConfig);
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+            if (ImGui::Button("Delete selected", { 100.0f, 25.0f }))
+                ImGui::OpenPopup("##reallyDelete");
+            if (ImGui::BeginPopup("##reallyDelete"))
+            {
+                ImGui::TextUnformatted("Are you sure?");
+                if (ImGui::Button("No", { 45.0f, 0.0f }))
+                    ImGui::CloseCurrentPopup();
+                ImGui::SameLine();
+                if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                {
+                    config->remove(currentConfig);
+                    if (static_cast<std::size_t>(currentConfig) < configItems.size())
+                        buffer = configItems[currentConfig];
+                    else
+                        buffer.clear();
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
             }
         }
         ImGui::Columns(1);
@@ -2354,7 +2437,7 @@ void GUI::renderGuiStyle() noexcept
                                     break;
                                 case 4:
                                     //Glow
-                                    Glow::drawGUI();
+                                    renderGlowWindow();
                                     break;
                                 case 5:
                                     //Skins

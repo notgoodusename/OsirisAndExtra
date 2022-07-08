@@ -26,6 +26,7 @@ private:
     void renderFakeAngleWindow() noexcept;
     void renderBacktrackWindow() noexcept;
     void renderChamsWindow() noexcept;
+    void renderGlowWindow() noexcept;
     void renderStreamProofESPWindow() noexcept;
     void renderVisualsWindow() noexcept;
     void renderSkinChangerWindow() noexcept;

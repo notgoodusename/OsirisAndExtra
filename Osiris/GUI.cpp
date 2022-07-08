@@ -1232,6 +1232,7 @@ void GUI::renderVisualsWindow() noexcept
 
     if (ImGui::BeginPopup("")) {
 
+        ImGui::Combo("Type", &config->visuals.rain.type, "Rain\0Snow\0");
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(13);
         ImGui::SliderFloat("Length", &config->visuals.rain.length, 0.0f, 2.0f, "Length: %.2f");

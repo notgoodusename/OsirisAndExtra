@@ -268,6 +268,7 @@ public:
         struct Rain
         {
             bool enabled{ false };
+            int type{ 0 };
             float length{ 0.1f };
             int windSpeed{ 0 };
             float width{ 0.5f };

@@ -16,6 +16,7 @@
 #include "Visuals.h"
 
 #include "../SDK/ConVar.h"
+#include "../SDK/Client.h"
 #include "../SDK/DebugOverlay.h"
 #include "../SDK/Entity.h"
 #include "../SDK/FrameStage.h"
@@ -47,6 +48,118 @@ static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noe
     if (floor)
         out = ImFloor(out);
     return true;
+}
+
+void Visuals::rainConvars() noexcept
+{
+    if (!config->visuals.rain.enabled)
+        return;
+    
+    static auto r_rainlength = interfaces->cvar->findVar("r_rainlength");
+    static auto cl_windspeed = interfaces->cvar->findVar("cl_windspeed");
+    static auto r_rainwidth = interfaces->cvar->findVar("r_rainwidth");
+    static auto r_RainSideVel = interfaces->cvar->findVar("r_RainSideVel");
+    static auto r_rainalpha = interfaces->cvar->findVar("r_rainalpha");
+
+    r_rainlength->setValue(config->visuals.rain.length);
+    cl_windspeed->setValue(config->visuals.rain.windSpeed);
+    r_rainwidth->setValue(config->visuals.rain.width);
+    r_RainSideVel->setValue(config->visuals.rain.sideVel);
+    r_rainalpha->setValue(config->visuals.rain.alpha);
+}
+
+static bool shouldEnable = false;
+static ClientClass* clientClass = nullptr;
+static Entity* precipitation= nullptr;
+
+void Visuals::rain(FrameStage stage) noexcept
+{
+    if (stage != FrameStage::NET_UPDATE_END)
+        return;
+
+    static bool isInReplay = false;
+
+    if (interfaces->engine->isHLTV())
+        isInReplay = true;
+
+    if (isInReplay && !interfaces->engine->isHLTV())
+    {
+        isInReplay = false;
+        shouldEnable = false;
+        if (precipitation)
+        {
+            precipitation->release();
+            precipitation = nullptr;
+        }
+    }
+
+    if (shouldEnable != config->visuals.rain.enabled)
+    {
+        shouldEnable = config->visuals.rain.enabled;
+        if (!shouldEnable || precipitation)
+            return;
+    }
+    else
+    {
+        if (!config->visuals.rain.enabled)
+        {
+            if (precipitation)
+            {
+                precipitation->release();
+                precipitation = nullptr;
+            }
+        }
+        return;
+    }
+
+    if (!clientClass)
+        clientClass = interfaces->client->getAllClasses();
+
+    while (clientClass)
+    {
+        if ((int)clientClass->classId == dynamicClassId->precipitation)
+            break;
+
+        clientClass = clientClass->next;
+    }
+
+    if (!clientClass)
+        return;
+
+    const auto precipitationNetwork = clientClass->createFunction(2047, 0);
+    if (!precipitationNetwork)
+        return;
+
+    precipitation = reinterpret_cast<Entity*>(uintptr_t(precipitationNetwork) - sizeof(uintptr_t) * 2);
+    if (!precipitation)
+        return;
+
+    precipitation->preDataUpdate(0);
+    precipitation->onPreDataChanged(0);
+
+    switch (config->visuals.rain.type)
+    {
+    case 0: //Rain
+        precipitation->precipitationType() = 6;
+        break;
+    case 1: //Snow
+        precipitation->precipitationType() = 2;
+        break;
+    default:
+        break;
+    }
+
+    precipitation->vecMaxs() = Vector{ 32768.0f, 32768.0f, 32768.0f };
+    precipitation->vecMins() = Vector{ -32768.0f, -32768.0f, -32768.0f };
+
+    precipitation->getCollideable()->obbMaxs() = Vector{ 32768.0f, 32768.0f, 32768.0f };
+    precipitation->getCollideable()->obbMins() = Vector{ -32768.0f, -32768.0f, -32768.0f };
+
+    memory->setAbsOrigin(precipitation, (precipitation->getCollideable()->obbMaxs() + precipitation->getCollideable()->obbMins()) * 0.5f);
+    precipitation->origin() = (precipitation->getCollideable()->obbMaxs() + precipitation->getCollideable()->obbMins()) * 0.5f;
+
+    precipitation->onDataChanged(0);
+    precipitation->postDataUpdate(0);
 }
 
 void Visuals::shadowChanger() noexcept
@@ -1097,4 +1210,7 @@ void Visuals::reset(int resetType) noexcept
         if (freeCamming || thirdPerson)
             memory->input->isCameraInThirdPerson = false;
     }
+    precipitation = nullptr;
+    shouldEnable = false;
+    clientClass = nullptr;
 }

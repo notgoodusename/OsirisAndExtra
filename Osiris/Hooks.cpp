@@ -280,6 +280,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Visuals::removeShadows();
     Visuals::fullBright();
     Visuals::shadowChanger();
+    Visuals::rainConvars();
     Misc::runReportbot();
     Misc::bunnyHop(cmd);
     Misc::removeCrouchCooldown(cmd);
@@ -467,6 +468,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::transparentWorld();
     }
     if (interfaces->engine->isInGame()) {
+        Visuals::rain(stage);
         Visuals::drawBulletImpacts();
         Visuals::skybox(stage);
         Visuals::removeBlur(stage);

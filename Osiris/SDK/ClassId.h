@@ -69,9 +69,11 @@ public:
     ClassIdManager() noexcept
     {
         fogController = getClassID("CFogController");
+        precipitation = getClassID("CPrecipitation");
     }
 
     int fogController;
+    int precipitation;
 };
 
 inline std::unique_ptr<const ClassIdManager> dynamicClassId;

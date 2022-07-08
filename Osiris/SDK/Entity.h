@@ -116,6 +116,8 @@ public:
 
     VIRTUAL_METHOD(void, release, 1, (), (this + sizeof(uintptr_t) * 2))
         VIRTUAL_METHOD(ClientClass*, getClientClass, 2, (), (this + sizeof(uintptr_t) * 2))
+        VIRTUAL_METHOD(void, onPreDataChanged, 4, (int updateType), (this + sizeof(uintptr_t) * 2, updateType))
+        VIRTUAL_METHOD(void, onDataChanged, 5, (int updateType), (this + sizeof(uintptr_t) * 2, updateType))
         VIRTUAL_METHOD(void, preDataUpdate, 6, (int updateType), (this + sizeof(uintptr_t) * 2, updateType))
         VIRTUAL_METHOD(void, postDataUpdate, 7, (int updateType), (this + sizeof(uintptr_t) * 2, updateType))
         VIRTUAL_METHOD(bool, isDormant, 9, (), (this + sizeof(uintptr_t) * 2))
@@ -579,6 +581,8 @@ public:
     NETVAR(simulationTime, "CBaseEntity", "m_flSimulationTime", float)
     NETVAR(ownerEntity, "CBaseEntity", "m_hOwnerEntity", int)
     NETVAR(spotted, "CBaseEntity", "m_bSpotted", bool)
+    NETVAR(vecMins, "CBaseEntity", "m_vecMins", Vector)
+    NETVAR(vecMaxs, "CBaseEntity", "m_vecMaxs", Vector)
 
     NETVAR(weapons, "CBaseCombatCharacter", "m_hMyWeapons", int[64])
     PNETVAR(wearables, "CBaseCombatCharacter", "m_hMyWearables", int)
@@ -672,6 +676,8 @@ public:
     NETVAR(fireZDelta, "CInferno", "m_fireZDelta", int[100])
     NETVAR(fireIsBurning, "CInferno", "m_bFireIsBurning", bool[100])
     NETVAR(fireCount, "CInferno", "m_fireCount", int)
+
+    NETVAR(precipitationType, "CPrecipitation", "m_nPrecipType", int)
         
     bool isFlashed() noexcept
     {

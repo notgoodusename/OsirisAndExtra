@@ -10,6 +10,8 @@ struct UserCmd;
 
 namespace Visuals
 {
+    void rainConvars() noexcept;
+    void rain(FrameStage stage) noexcept;
     void shadowChanger() noexcept;
     void drawSmokeTimerEvent(GameEvent* event) noexcept;
     void drawSmokeTimer(ImDrawList* drawList) noexcept;

@@ -1224,6 +1224,39 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Keep FOV during scope", &config->visuals.keepFov);
     ImGui::Checkbox("No fog", &config->visuals.noFog);
 
+    ImGui::Checkbox("Rain", &config->visuals.rain.enabled);
+    ImGui::SameLine();
+    ImGui::PushID("Rain");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(13);
+        ImGui::SliderFloat("Length", &config->visuals.rain.length, 0.0f, 2.0f, "Length: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(16);
+        ImGui::SliderInt("Wind speed", &config->visuals.rain.windSpeed, 0, 500, "Wind speed: %d");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(17);
+        ImGui::SliderFloat("Width", &config->visuals.rain.width, 0.1f, 2.0f, "Width: %.2f");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(18);
+        ImGui::SliderInt("Side velocity", &config->visuals.rain.sideVel, 100, 300, "Side velocity: %d");
+        ImGui::PopID();
+        ImGui::PushItemWidth(290.0f);
+        ImGui::PushID(19);
+        ImGui::SliderFloat("Alpha", &config->visuals.rain.alpha, 0.1f, 1.0f, "Alpha: %.2f");
+        ImGui::PopID();
+
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     ImGuiCustom::colorPicker("Fog controller", config->visuals.fog);
     ImGui::SameLine();
 

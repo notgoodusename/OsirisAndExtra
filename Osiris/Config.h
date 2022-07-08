@@ -264,6 +264,17 @@ public:
             float z { 0.0f };
             float roll { 0.0f };
         } viewModel;
+
+        struct Rain
+        {
+            bool enabled{ false };
+            float length{ 0.1f };
+            int windSpeed{ 0 };
+            float width{ 0.5f };
+            int sideVel{ 130 };
+            float alpha{ 0.4f };
+        } rain;
+
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
         ColorToggle3 mapColor;
         int asusWalls = 100;

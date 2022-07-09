@@ -23,6 +23,7 @@ static bool keyPressed = false;
 void Ragebot::updateInput() noexcept
 {
     config->ragebotKey.handleToggle();
+    config->minDamageOverrideKey.handleToggle();
 }
 
 void Ragebot::run(UserCmd* cmd) noexcept
@@ -142,7 +143,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
-        const int minDamage = std::clamp(std::clamp(cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
+        const int minDamage = std::clamp(std::clamp(config->minDamageOverrideKey.isActive() ? cfg[weaponIndex].minDamageOverride : cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
         damageDiff = FLT_MAX;
 
         auto backupBoneCache = entity->getBoneCache().memory;

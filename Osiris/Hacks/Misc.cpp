@@ -783,6 +783,7 @@ void Misc::updateClanTag(bool tagChanged) noexcept
 const bool anyActiveKeybinds() noexcept
 {
     const bool rageBot = config->ragebotKey.canShowKeybind();
+    const bool minDamageOverride = config->minDamageOverrideKey.canShowKeybind();
     const bool fakeAngle = config->fakeAngle.enabled && config->fakeAngle.invert.canShowKeybind();
     const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
     const bool legitBot = config->legitbotKey.canShowKeybind();
@@ -804,7 +805,7 @@ const bool anyActiveKeybinds() noexcept
     const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
-    return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || glow || esp
+    return rageBot || minDamageOverride || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || glow || esp
         || zoom || thirdperson || freeCam || blockbot || edgejump || edgebug || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
 }
 
@@ -836,6 +837,7 @@ void Misc::showKeybinds() noexcept
     ImGui::PopStyleVar();
 
     config->ragebotKey.showKeybind();
+    config->minDamageOverrideKey.showKeybind();
     if (config->fakeAngle.enabled)
         config->fakeAngle.invert.showKeybind();
     if (config->legitAntiAim.enabled)

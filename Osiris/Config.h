@@ -51,9 +51,11 @@ public:
         int hitChance{ 50 };
         int multiPoint{ 0 };
         int minDamage{ 1 };
+        int minDamageOverride{ 1 };
     };
     std::array<Ragebot, 40> ragebot;
     KeyBind ragebotKey{ std::string("ragebot") };
+    KeyBind minDamageOverrideKey{ std::string("min damage override") };
 
     struct Fakelag {
         bool enabled = false;

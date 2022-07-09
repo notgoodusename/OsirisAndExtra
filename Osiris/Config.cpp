@@ -272,6 +272,7 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Hitchance", r.hitChance);
     read(j, "Multipoint", r.multiPoint);
     read(j, "Min damage", r.minDamage);
+    read(j, "Min damage override", r.minDamageOverride);
 }
 
 static void from_json(const json& j, Config::Triggerbot& t)
@@ -695,6 +696,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
 
     read(j, "Ragebot", ragebot);
     read(j, "Ragebot Key", ragebotKey);
+    read(j, "Min Damage Override Key", minDamageOverrideKey);
 
     read(j, "Triggerbot", triggerbot);
     read(j, "Triggerbot Key", triggerbotKey);
@@ -905,6 +907,7 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Hitchance", hitChance);
     WRITE("Multipoint", multiPoint);
     WRITE("Min damage", minDamage);
+    WRITE("Min damage override", minDamageOverride);
 }
 
 static void to_json(json& j, const Config::Triggerbot& o, const Config::Triggerbot& dummy = {})
@@ -1356,6 +1359,7 @@ void Config::save(size_t id) const noexcept
 
         j["Ragebot"] = ragebot;
         to_json(j["Ragebot Key"], ragebotKey, KeyBind::NONE);
+        to_json(j["Min Damage Override Key"], minDamageOverrideKey, KeyBind::NONE);
 
         j["Triggerbot"] = triggerbot;
         to_json(j["Triggerbot Key"], triggerbotKey, KeyBind::NONE);

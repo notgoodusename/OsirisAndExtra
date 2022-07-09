@@ -604,6 +604,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Jump Bug Key", m.jumpBugKey);
     read(j, "Slowwalk", m.slowwalk);
     read(j, "Slowwalk key", m.slowwalkKey);
+    read(j, "Slowwalk Amnt", m.slowwalkAmnt);
     read(j, "Fake duck", m.fakeduck);
     read(j, "Fake duck key", m.fakeduckKey);
     read<value_t::object>(j, "Auto peek", m.autoPeek);
@@ -1174,6 +1175,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Jump Bug Key", jumpBugKey);
     WRITE("Slowwalk", slowwalk);
     WRITE("Slowwalk key", slowwalkKey);
+    WRITE("Slowwalk Amnt", slowwalkAmnt);
     WRITE("Fake duck", fakeduck);
     WRITE("Fake duck key", fakeduckKey);
     WRITE("Auto peek", autoPeek);

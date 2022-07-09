@@ -155,6 +155,8 @@ void Visuals::rain(FrameStage stage) noexcept
     precipitation->getCollideable()->obbMaxs() = Vector{ 32768.0f, 32768.0f, 32768.0f };
     precipitation->getCollideable()->obbMins() = Vector{ -32768.0f, -32768.0f, -32768.0f };
 
+    precipitation->renderMode() = 6;
+
     memory->setAbsOrigin(precipitation, (precipitation->getCollideable()->obbMaxs() + precipitation->getCollideable()->obbMins()) * 0.5f);
     precipitation->origin() = (precipitation->getCollideable()->obbMaxs() + precipitation->getCollideable()->obbMins()) * 0.5f;
 

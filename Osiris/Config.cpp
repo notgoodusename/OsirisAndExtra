@@ -696,7 +696,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
 
     read(j, "Ragebot", ragebot);
     read(j, "Ragebot Key", ragebotKey);
-    read(j, "Min Damage Override Key", minDamageOverrideKey);
+    read(j, "Min damage override Key", minDamageOverrideKey);
 
     read(j, "Triggerbot", triggerbot);
     read(j, "Triggerbot Key", triggerbotKey);
@@ -1359,7 +1359,7 @@ void Config::save(size_t id) const noexcept
 
         j["Ragebot"] = ragebot;
         to_json(j["Ragebot Key"], ragebotKey, KeyBind::NONE);
-        to_json(j["Min Damage Override Key"], minDamageOverrideKey, KeyBind::NONE);
+        to_json(j["Min damage override Key"], minDamageOverrideKey, KeyBind::NONE);
 
         j["Triggerbot"] = triggerbot;
         to_json(j["Triggerbot Key"], triggerbotKey, KeyBind::NONE);

@@ -39,6 +39,44 @@ void Legitbot::run(UserCmd* cmd) noexcept
     if (!cfg[weaponIndex].enabled)
         weaponIndex = 0;
 
+    const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+
+    if (cfg[weaponIndex].recoilControlSystem && (cfg[weaponIndex].recoilControlHorizontal || cfg[weaponIndex].recoilControlVertical) && aimPunch.notNull())
+    {
+        static Vector lastAimPunch{ };
+        if (localPlayer->shotsFired() > cfg[weaponIndex].shotsFiredRCS)
+        {
+            if (cmd->buttons & UserCmd::IN_ATTACK)
+            {
+                Vector currentPunch = aimPunch;
+
+                currentPunch.x *= cfg[weaponIndex].recoilControlVertical;
+                currentPunch.y *= cfg[weaponIndex].recoilControlHorizontal;
+
+                if (!cfg[weaponIndex].silentRCS)
+                {
+                    cmd->viewangles.y += lastAimPunch.y - currentPunch.y;
+                    cmd->viewangles.x += lastAimPunch.x - currentPunch.x;
+                    lastAimPunch.y = currentPunch.y;
+                    lastAimPunch.x = currentPunch.x;
+                }
+                else
+                {
+                    cmd->viewangles.y -= currentPunch.y;
+                    cmd->viewangles.x -= currentPunch.x;
+                    lastAimPunch = Vector{ };
+                }
+            }
+        }
+        else
+        {
+            lastAimPunch = Vector{ };
+        }
+
+        if (!cfg[weaponIndex].silentRCS)
+            interfaces->engine->setViewAngles(cmd->viewangles);
+    }
+
     if (!cfg[weaponIndex].betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 
@@ -50,34 +88,6 @@ void Legitbot::run(UserCmd* cmd) noexcept
         auto bestFov = cfg[weaponIndex].fov;
         Vector bestTarget{ };
         const auto localPlayerEyePosition = localPlayer->getEyePosition();
-
-        const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
-        
-        if (cfg[weaponIndex].recoilControlSystem && (cfg[weaponIndex].recoilControlHorizontal || cfg[weaponIndex].recoilControlVertical) && cmd->buttons & UserCmd::IN_ATTACK && aimPunch.notNull())
-        {
-            static Vector lastAimPunch{ };
-            if (localPlayer->shotsFired() > cfg[weaponIndex].shotsFiredRCS)
-            {
-                Vector currentPunch;
-                if (cfg[weaponIndex].silentRCS)
-                    currentPunch = aimPunch;
-                else
-                    currentPunch = lastAimPunch - aimPunch;
-
-                currentPunch.x *= cfg[weaponIndex].recoilControlVertical;
-                currentPunch.y *= cfg[weaponIndex].recoilControlHorizontal;
-
-                if (cfg[weaponIndex].silentRCS)
-                    cmd->viewangles -= currentPunch;
-                else
-                    cmd->viewangles += currentPunch;
-            }
-
-            if (!cfg[weaponIndex].silentRCS)
-                interfaces->engine->setViewAngles(cmd->viewangles);
-
-            lastAimPunch = aimPunch;
-        }
 
         std::array<bool, Hitboxes::Max> hitbox{ false };
 

@@ -7,6 +7,7 @@
 
 #include "nlohmann/json.hpp"
 #include "InputUtil.h"
+#include "imgui/imgui.h"
 
 enum class WeaponId : short;
 
@@ -151,6 +152,7 @@ struct PurchaseList {
     bool onlyDuringFreezeTime = false;
     bool showPrices = false;
     bool noTitleBar = false;
+    ImVec2 pos;
 
     enum Mode {
         Details = 0,

@@ -140,25 +140,28 @@ void Visuals::rain(FrameStage stage) noexcept
     switch (config->visuals.rain.type)
     {
     case 0: //Rain
-        precipitation->precipitationType() = 6;
+        precipitation->precipitationType() = 0;
         break;
-    case 1: //Snow
-        precipitation->precipitationType() = 2;
+    case 1: //Particle Rain
+        precipitation->precipitationType() = 4;
+        break;
+    case 2: //Particle Snow
+        precipitation->precipitationType() = 7;
         break;
     default:
         break;
     }
 
-    precipitation->vecMaxs() = Vector{ 32768.0f, 32768.0f, 32768.0f };
-    precipitation->vecMins() = Vector{ -32768.0f, -32768.0f, -32768.0f };
+    precipitation->vecMaxs() = Vector{ 1793.0f, 961.0f, 577.0f };
+    precipitation->vecMins() = Vector{ -3457.0f, -3425.0f, -353.0f };
 
-    precipitation->getCollideable()->obbMaxs() = Vector{ 32768.0f, 32768.0f, 32768.0f };
-    precipitation->getCollideable()->obbMins() = Vector{ -32768.0f, -32768.0f, -32768.0f };
+    precipitation->getCollideable()->obbMaxs() = Vector{ 1793.0f, 961.0f, 577.0f };
+    precipitation->getCollideable()->obbMins() = Vector{ -3457.0f, -3425.0f, -353.0f };
 
     precipitation->renderMode() = 6;
 
-    memory->setAbsOrigin(precipitation, (precipitation->getCollideable()->obbMaxs() + precipitation->getCollideable()->obbMins()) * 0.5f);
-    precipitation->origin() = (precipitation->getCollideable()->obbMaxs() + precipitation->getCollideable()->obbMins()) * 0.5f;
+    memory->setAbsOrigin(precipitation, Vector{ 0.0f, 0.0f, 0.0f });
+    precipitation->origin() = Vector{ 0.0f, 0.0f, 0.0f };
 
     precipitation->onDataChanged(0);
     precipitation->postDataUpdate(0);

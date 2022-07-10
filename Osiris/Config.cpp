@@ -440,7 +440,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Smoke timer BG", v.smokeTimerBG);
     read<value_t::object>(j, "Smoke timer TIMER", v.smokeTimerTimer);
     read<value_t::object>(j, "Smoke timer TEXT", v.smokeTimerText);
-    read<value_t::object>(j, "Rain", v.rain);
+    read<value_t::object>(j, "Weather", v.weather);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -578,7 +578,7 @@ static void from_json(const json& j, Config::Visuals::Viewmodel& vxyz)
     read(j, "Roll", vxyz.roll);
 }
 
-static void from_json(const json& j, Config::Visuals::Rain& r)
+static void from_json(const json& j, Config::Visuals::Weather& r)
 {
     read(j, "Enabled", r.enabled);
     read(j, "Type", r.type);
@@ -1154,7 +1154,7 @@ static void to_json(json& j, const Config::Visuals::Viewmodel& o, const Config::
     WRITE("Roll", roll);
 }
 
-static void to_json(json& j, const Config::Visuals::Rain& o, const Config::Visuals::Rain& dummy)
+static void to_json(json& j, const Config::Visuals::Weather& o, const Config::Visuals::Weather& dummy)
 {
     WRITE("Enabled", enabled);
     WRITE("Type", type);
@@ -1307,7 +1307,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Molotov Hull", molotovHull);
     WRITE("Smoke Hull", smokeHull);
     WRITE("Viewmodel", viewModel);
-    WRITE("Rain", rain);
+    WRITE("Weather", weather);
     WRITE("Spread circle", spreadCircle);
     WRITE("Map color", mapColor);
     WRITE("Asus walls", asusWalls);

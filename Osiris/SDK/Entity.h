@@ -584,6 +584,7 @@ public:
     NETVAR(vecMins, "CBaseEntity", "m_vecMins", Vector)
     NETVAR(vecMaxs, "CBaseEntity", "m_vecMaxs", Vector)
     NETVAR(renderMode, "CBaseEntity", "m_nRenderMode", int)
+    NETVAR(solidType, "CBaseEntity", "m_nSolidType", int)
 
     NETVAR(weapons, "CBaseCombatCharacter", "m_hMyWeapons", int[64])
     PNETVAR(wearables, "CBaseCombatCharacter", "m_hMyWearables", int)

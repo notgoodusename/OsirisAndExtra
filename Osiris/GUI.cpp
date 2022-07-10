@@ -1224,34 +1224,34 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("Keep FOV during scope", &config->visuals.keepFov);
     ImGui::Checkbox("No fog", &config->visuals.noFog);
 
-    ImGui::Checkbox("Rain", &config->visuals.rain.enabled);
+    ImGui::Checkbox("Weather", &config->visuals.weather.enabled);
     ImGui::SameLine();
-    ImGui::PushID("Rain");
+    ImGui::PushID("Weather");
     if (ImGui::Button("..."))
         ImGui::OpenPopup("");
 
     if (ImGui::BeginPopup("")) {
 
-        ImGui::Combo("Type", &config->visuals.rain.type, "Rain\0Snow\0");
+        ImGui::Combo("Type", &config->visuals.weather.type, "Rain\0Partcle rain\0Particle snow\0");
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(13);
-        ImGui::SliderFloat("Length", &config->visuals.rain.length, 0.0f, 2.0f, "Length: %.2f");
+        ImGui::SliderFloat("Length", &config->visuals.weather.length, 0.0f, 2.0f, "Length: %.2f");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(16);
-        ImGui::SliderInt("Wind speed", &config->visuals.rain.windSpeed, 0, 500, "Wind speed: %d");
+        ImGui::SliderInt("Wind speed", &config->visuals.weather.windSpeed, 0, 500, "Wind speed: %d");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(17);
-        ImGui::SliderFloat("Width", &config->visuals.rain.width, 0.1f, 2.0f, "Width: %.2f");
+        ImGui::SliderFloat("Width", &config->visuals.weather.width, 0.1f, 2.0f, "Width: %.2f");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(18);
-        ImGui::SliderInt("Side velocity", &config->visuals.rain.sideVel, 100, 300, "Side velocity: %d");
+        ImGui::SliderInt("Side velocity", &config->visuals.weather.sideVel, 100, 300, "Side velocity: %d");
         ImGui::PopID();
         ImGui::PushItemWidth(290.0f);
         ImGui::PushID(19);
-        ImGui::SliderFloat("Alpha", &config->visuals.rain.alpha, 0.1f, 1.0f, "Alpha: %.2f");
+        ImGui::SliderFloat("Alpha", &config->visuals.weather.alpha, 0.1f, 1.0f, "Alpha: %.2f");
         ImGui::PopID();
 
         ImGui::EndPopup();

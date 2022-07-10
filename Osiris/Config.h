@@ -265,7 +265,7 @@ public:
             float roll { 0.0f };
         } viewModel;
 
-        struct Rain
+        struct Weather
         {
             bool enabled{ false };
             int type{ 0 };
@@ -274,7 +274,7 @@ public:
             float width{ 0.5f };
             int sideVel{ 130 };
             float alpha{ 0.4f };
-        } rain;
+        } weather;
 
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
         ColorToggle3 mapColor;

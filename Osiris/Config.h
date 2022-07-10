@@ -302,6 +302,7 @@ public:
         int edgebugPredAmnt{ 20 };
         bool jumpBug{ false };
         bool slowwalk{ false };
+        int slowwalkAmnt{ 0 };
         bool fakeduck{ false };
         ColorToggle autoPeek{ 1.0f, 1.0f, 1.0f, 1.0f };
         bool autoPistol{ false };

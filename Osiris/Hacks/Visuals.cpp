@@ -52,7 +52,7 @@ static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noe
 
 void Visuals::rainConvars() noexcept
 {
-    if (!config->visuals.rain.enabled)
+    if (!config->visuals.weather.enabled)
         return;
     
     static auto r_rainlength = interfaces->cvar->findVar("r_rainlength");
@@ -61,11 +61,11 @@ void Visuals::rainConvars() noexcept
     static auto r_RainSideVel = interfaces->cvar->findVar("r_RainSideVel");
     static auto r_rainalpha = interfaces->cvar->findVar("r_rainalpha");
 
-    r_rainlength->setValue(config->visuals.rain.length);
-    cl_windspeed->setValue(config->visuals.rain.windSpeed);
-    r_rainwidth->setValue(config->visuals.rain.width);
-    r_RainSideVel->setValue(config->visuals.rain.sideVel);
-    r_rainalpha->setValue(config->visuals.rain.alpha);
+    r_rainlength->setValue(config->visuals.weather.length);
+    cl_windspeed->setValue(config->visuals.weather.windSpeed);
+    r_rainwidth->setValue(config->visuals.weather.width);
+    r_RainSideVel->setValue(config->visuals.weather.sideVel);
+    r_rainalpha->setValue(config->visuals.weather.alpha);
 }
 
 static bool shouldEnable = false;
@@ -93,15 +93,15 @@ void Visuals::rain(FrameStage stage) noexcept
         }
     }
 
-    if (shouldEnable != config->visuals.rain.enabled)
+    if (shouldEnable != config->visuals.weather.enabled)
     {
-        shouldEnable = config->visuals.rain.enabled;
+        shouldEnable = config->visuals.weather.enabled;
         if (!shouldEnable || precipitation)
             return;
     }
     else
     {
-        if (!config->visuals.rain.enabled)
+        if (!config->visuals.weather.enabled)
         {
             if (precipitation)
             {
@@ -137,7 +137,7 @@ void Visuals::rain(FrameStage stage) noexcept
     precipitation->preDataUpdate(0);
     precipitation->onPreDataChanged(0);
 
-    switch (config->visuals.rain.type)
+    switch (config->visuals.weather.type)
     {
     case 0: //Rain
         precipitation->precipitationType() = 0;

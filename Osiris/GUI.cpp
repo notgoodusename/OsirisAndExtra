@@ -1672,7 +1672,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::PushID("Fakeduck Key");
     ImGui::hotkey2("", config->misc.fakeduckKey);
     ImGui::PopID();
-    ImGuiCustom::colorPicker("Auto peek", config->misc.autoPeek.color.data(), &config->misc.autoPeek.color[3], nullptr, nullptr, &config->misc.autoPeek.enabled);
+    ImGuiCustom::colorPicker("Auto peek", config->misc.autoPeek.color.data(), &config->misc.autoPeek.color[3], &config->misc.autoPeek.rainbow, &config->misc.autoPeek.rainbowSpeed, &config->misc.autoPeek.enabled);
     ImGui::SameLine();
     ImGui::PushID("Auto peek Key");
     ImGui::hotkey2("", config->misc.autoPeekKey);

@@ -978,6 +978,11 @@ void Misc::watermark() noexcept
     if (!config->misc.watermark.enabled)
         return;
 
+    if (config->misc.watermark.pos != ImVec2{}) {
+        ImGui::SetNextWindowPos(config->misc.watermark.pos);
+        config->misc.watermark.pos = {};
+    }
+
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (!gui->isOpen())
         windowFlags |= ImGuiWindowFlags_NoInputs;
@@ -1630,6 +1635,11 @@ void Misc::purchaseList(GameEvent* event) noexcept
 
         if ((!interfaces->engine->isInGame() || freezeEnd != 0.0f && memory->globalVars->realtime > freezeEnd + (!config->misc.purchaseList.onlyDuringFreezeTime ? mp_buytime->getFloat() : 0.0f) || playerPurchases.empty() || purchaseTotal.empty()) && !gui->isOpen())
             return;
+
+        if (config->misc.purchaseList.pos != ImVec2{}) {
+            ImGui::SetNextWindowPos(config->misc.purchaseList.pos);
+            config->misc.purchaseList.pos = {};
+        }
 
         ImGui::SetNextWindowSize({ 200.0f, 200.0f }, ImGuiCond_Once);
 

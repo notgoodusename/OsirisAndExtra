@@ -476,6 +476,7 @@ static void from_json(const json& j, PurchaseList& pl)
     read(j, "Show Prices", pl.showPrices);
     read(j, "No Title Bar", pl.noTitleBar);
     read(j, "Mode", pl.mode);
+    read<value_t::object>(j, "Pos", pl.pos);
 }
 
 static void from_json(const json& j, Config::Misc::SpectatorList& sl)
@@ -507,6 +508,7 @@ static void from_json(const json& j, Config::Misc::PlayerList& o)
 static void from_json(const json& j, Config::Misc::Watermark& o)
 {
     read(j, "Enabled", o.enabled);
+    read<value_t::object>(j, "Pos", o.pos);
 }
 
 static void from_json(const json& j, PreserveKillfeed& o)
@@ -1035,6 +1037,10 @@ static void to_json(json& j, const PurchaseList& o, const PurchaseList& dummy = 
     WRITE("Show Prices", showPrices);
     WRITE("No Title Bar", noTitleBar);
     WRITE("Mode", mode);
+
+    if (const auto window = ImGui::FindWindowByName("Purchases")) {
+        j["Pos"] = window->Pos;
+    }
 }
 
 static void to_json(json& j, const Config::Misc::SpectatorList& o, const Config::Misc::SpectatorList& dummy = {})
@@ -1075,6 +1081,10 @@ static void to_json(json& j, const Config::Misc::PlayerList& o, const Config::Mi
 static void to_json(json& j, const Config::Misc::Watermark& o, const Config::Misc::Watermark& dummy = {})
 {
     WRITE("Enabled", enabled);
+
+    if (const auto window = ImGui::FindWindowByName("Watermark")) {
+        j["Pos"] = window->Pos;
+    }
 }
 
 static void to_json(json& j, const PreserveKillfeed& o, const PreserveKillfeed& dummy = {})

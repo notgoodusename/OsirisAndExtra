@@ -364,6 +364,7 @@ public:
 
         struct Watermark {
             bool enabled = false;
+            ImVec2 pos;
         };
         Watermark watermark;
         float aspectratio{ 0 };

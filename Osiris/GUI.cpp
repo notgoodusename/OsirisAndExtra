@@ -1665,7 +1665,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::hotkey2("", config->misc.slowwalkKey);
     ImGui::PopID();
     if (config->misc.slowwalk) {
-        ImGui::SliderInt("Slowwalk Amnt", &config->misc.slowwalkAmnt, 0, 50, "%d u/s");
+        ImGui::SliderInt("Slowwalk Amnt", &config->misc.slowwalkAmnt, 0, 50, config->misc.slowwalkAmnt ? "%d u/s" : "Default");
     }
     ImGui::Checkbox("Fakeduck", &config->misc.fakeduck);
     ImGui::SameLine();

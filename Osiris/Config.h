@@ -113,6 +113,7 @@ public:
     };
     std::array<Legitbot, 40> legitbot;
     KeyBind legitbotKey{ std::string("legitbot") };
+    ColorToggleOutline legitbotFov{ 1.0f, 1.0f, 1.0f, 0.25f };
 
     struct Triggerbot {
         bool enabled = false;

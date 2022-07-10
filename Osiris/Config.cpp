@@ -693,6 +693,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
 
     read(j, "Legitbot", legitbot);
     read(j, "Legitbot Key", legitbotKey);
+    read<value_t::object>(j, "Draw legitbot fov", legitbotFov);
 
     read(j, "Ragebot", ragebot);
     read(j, "Ragebot Key", ragebotKey);
@@ -1356,6 +1357,7 @@ void Config::save(size_t id) const noexcept
 
         j["Legitbot"] = legitbot;
         to_json(j["Legitbot Key"], legitbotKey, KeyBind::NONE);
+        j["Draw legitbot fov"] = legitbotFov;
 
         j["Ragebot"] = ragebot;
         to_json(j["Ragebot Key"], ragebotKey, KeyBind::NONE);

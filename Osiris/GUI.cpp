@@ -252,6 +252,7 @@ void GUI::renderLegitbotWindow() noexcept
     ImGui::SetColumnOffset(1, 220.0f);
     ImGui::Checkbox("Aimlock", &config->legitbot[currentWeapon].aimlock);
     ImGui::Checkbox("Silent", &config->legitbot[currentWeapon].silent);
+    ImGuiCustom::colorPicker("Draw fov", config->legitbotFov);
     ImGui::Checkbox("Friendly fire", &config->legitbot[currentWeapon].friendlyFire);
     ImGui::Checkbox("Visible only", &config->legitbot[currentWeapon].visibleOnly);
     ImGui::Checkbox("Scoped only", &config->legitbot[currentWeapon].scopedOnly);

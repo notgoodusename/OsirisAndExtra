@@ -1142,8 +1142,7 @@ void Misc::hurtIndicator() noexcept
     if (!config->misc.hurtIndicator.enabled)
         return;
 
-    GameData::Lock;
-
+    GameData::Lock lock;
     const auto& local = GameData::local();
     if ((!local.exists || !local.alive) && !gui->isOpen())
         return;

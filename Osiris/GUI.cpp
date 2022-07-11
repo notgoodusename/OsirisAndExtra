@@ -471,11 +471,11 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::SliderInt("Multipoint", &config->ragebot[currentWeapon].multiPoint, 0, 100, "%d");
     ImGui::SliderInt("Min damage", &config->ragebot[currentWeapon].minDamage, 0, 101, "%d");
     config->ragebot[currentWeapon].minDamage = std::clamp(config->ragebot[currentWeapon].minDamage, 0, 250);
-    ImGui::SliderInt("Min damage override", &config->ragebot[currentWeapon].minDamageOverride, 0, 101, "%d");
-    config->ragebot[currentWeapon].minDamageOverride = std::clamp(config->ragebot[currentWeapon].minDamageOverride, 0, 250);
     ImGui::PushID("Min damage override Key");
     ImGui::hotkey2("Min damage override Key", config->minDamageOverrideKey);
     ImGui::PopID();
+    ImGui::SliderInt("Min damage override", &config->ragebot[currentWeapon].minDamageOverride, 0, 101, "%d");
+    config->ragebot[currentWeapon].minDamageOverride = std::clamp(config->ragebot[currentWeapon].minDamageOverride, 0, 250);
     ImGui::Columns(1);
 }
 

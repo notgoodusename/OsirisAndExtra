@@ -300,7 +300,11 @@ static void from_json(const json& j, Config::RageAntiAimConfig& a)
 {
     read(j, "Enabled", a.enabled);
     read(j, "Pitch", a.pitch);
-    read(j, "Yaw base", a.yawBase);
+    read(j, "Yaw base", reinterpret_cast<int&>(a.yawBase));
+    read(j, "Manual forward Key", a.manualForward);
+    read(j, "Manual backward Key", a.manualBackward);
+    read(j, "Manual right Key", a.manualRight);
+    read(j, "Manual left Key", a.manualLeft);
     read(j, "Yaw add", a.yawAdd);
     read(j, "Jitter Range", a.jitterRange);
     read(j, "Spin base", a.spinBase);
@@ -637,6 +641,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Fast Stop", m.fastStop);
     read<value_t::object>(j, "Bomb timer", m.bombTimer);
     read<value_t::object>(j, "Hurt indicator", m.hurtIndicator);
+    read<value_t::object>(j, "Yaw indicator", m.yawIndicator);
     read(j, "Prepare revolver", m.prepareRevolver);
     read(j, "Prepare revolver key", m.prepareRevolverKey);
     read(j, "Hit sound", m.hitSound);
@@ -997,7 +1002,11 @@ static void to_json(json& j, const Config::RageAntiAimConfig& o, const Config::R
 {
     WRITE("Enabled", enabled);
     WRITE("Pitch", pitch);
-    WRITE("Yaw base", yawBase);
+    WRITE_ENUM("Yaw base", yawBase);
+    to_json(j["Manual forward Key"], o.manualForward, KeyBind::NONE);
+    to_json(j["Manual backward Key"], o.manualBackward, KeyBind::NONE);
+    to_json(j["Manual right Key"], o.manualRight, KeyBind::NONE);
+    to_json(j["Manual left Key"], o.manualLeft, KeyBind::NONE);
     WRITE("Yaw add", yawAdd);
     WRITE("Jitter Range", jitterRange);
     WRITE("Spin base", spinBase);
@@ -1219,6 +1228,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Fast Stop", fastStop);
     WRITE("Bomb timer", bombTimer);
     WRITE("Hurt indicator", hurtIndicator);
+    WRITE("Yaw indicator", yawIndicator);
     WRITE("Prepare revolver", prepareRevolver);
     WRITE("Prepare revolver key", prepareRevolverKey);
     WRITE("Hit sound", hitSound);

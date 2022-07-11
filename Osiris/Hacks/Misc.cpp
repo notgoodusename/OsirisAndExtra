@@ -31,7 +31,6 @@
 #include "../SDK/Prediction.h"
 #include "../SDK/Surface.h"
 #include "../SDK/UserCmd.h"
-#include "../SDK/ViewSetup.h"
 #include "../SDK/WeaponData.h"
 #include "../SDK/WeaponSystem.h"
 
@@ -1180,6 +1179,74 @@ void Misc::hurtIndicator() noexcept
 
     ImGui::PopStyleColor(2);
     ImGui::End();
+}
+
+void Misc::yawIndicator(ImDrawList* drawList) noexcept
+{
+    if (!config->misc.yawIndicator.enabled || !config->rageAntiAim.enabled)
+        return;
+
+    /*
+        This can get out of sync when switching from another yaw to "manual".
+        While it could easily be synced up with AntiAim this would create additional
+        overhead and would need some parts to be rewritten for it to look clean.
+
+        This out-of-sync state only persists until manual AA got changed at least once.
+    */
+    switch (config->rageAntiAim.yawBase)
+    {
+    case AntiAim::Yaw::forward:
+        yawOrientation = YawOrientation::forward;
+        break;
+    case AntiAim::Yaw::backward:
+        yawOrientation = YawOrientation::backward;
+        break;
+    case AntiAim::Yaw::right:
+        yawOrientation = YawOrientation::right;
+        break;
+    case AntiAim::Yaw::left:
+        yawOrientation = YawOrientation::left;
+        break;
+    case AntiAim::Yaw::manual:
+        if (config->rageAntiAim.manualForward.isDown())
+            yawOrientation = YawOrientation::forward;
+        else if (config->rageAntiAim.manualBackward.isDown())
+            yawOrientation = YawOrientation::backward;
+        else if (config->rageAntiAim.manualRight.isDown())
+            yawOrientation = YawOrientation::right;
+        else if (config->rageAntiAim.manualLeft.isDown())
+            yawOrientation = YawOrientation::left;
+        break;
+    default:
+        return;
+    }
+
+    {
+        GameData::Lock lock;
+        if (const auto& local = GameData::local(); !local.exists || !local.alive)
+            return;
+    }
+
+    ImVec2 pos = ImGui::GetIO().DisplaySize / 2;
+    ImU32 col = Helpers::calculateColor(config->misc.yawIndicator);
+
+    switch (yawOrientation)
+    {
+    case YawOrientation::forward:
+        drawList->AddTriangleFilled(pos + ImVec2{ -20, -20 }, pos + ImVec2{ 20, -20 }, pos + ImVec2{ 0, -50 }, col);
+        break;
+    case YawOrientation::backward:
+        drawList->AddTriangleFilled(pos + ImVec2{ -20, 20 }, pos + ImVec2{ 20, 20 }, pos + ImVec2{ 0, 50 }, col);
+        break;
+    case YawOrientation::right:
+        drawList->AddTriangleFilled(pos + ImVec2{ 20, 20 }, pos + ImVec2{ 20, -20 }, pos + ImVec2{ 50, 0 }, col);
+        break;
+    case YawOrientation::left:
+        drawList->AddTriangleFilled(pos + ImVec2{ -20, 20 }, pos + ImVec2{ -20, -20 }, pos + ImVec2{ -50, 0 }, col);
+        break;
+    default:
+        break;
+    }
 }
 
 void Misc::stealNames() noexcept

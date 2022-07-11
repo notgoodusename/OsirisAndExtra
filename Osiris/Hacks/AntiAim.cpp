@@ -10,6 +10,7 @@
 #include "../Interfaces.h"
 
 static bool flipJitter{ false };
+static float manualYaw{ 0.f };
 
 bool updateLby(bool update = false) noexcept
 {
@@ -99,7 +100,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
     }
     if (cmd->viewangles.y == currentViewAngles.y)
     {
-        if (config->rageAntiAim.yawBase != 0 
+        if (config->rageAntiAim.yawBase != Yaw::off
             && config->rageAntiAim.enabled)   //AntiAim
         {
             float yaw = 0.f;
@@ -128,29 +129,41 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw = yawAngle;
             }
 
-            if (config->rageAntiAim.yawBase != 5)
+            if (config->rageAntiAim.yawBase != Yaw::spin)
                 staticYaw = 0.f;
 
             switch (config->rageAntiAim.yawBase)
             {
-            case 1: //Forward
+            case Yaw::forward:
                 yaw += 0.f;
                 break;
-            case 2: //Back
+            case Yaw::backward:
                 yaw += 180.f;
                 break;
-            case 3: //Right
+            case Yaw::right:
                 yaw += -90.f;
                 break;
-            case 4: //Left
+            case Yaw::left:
                 yaw += 90.f;
                 break;
-            case 5: //Spin
+            case Yaw::spin:
                 staticYaw += static_cast<float>(config->rageAntiAim.spinBase);
                 yaw += staticYaw;
                 break;
-            case 6: //Jitter
+            case Yaw::jitter:
                 yaw += flipJitter ? 180.f + config->rageAntiAim.jitterRange : 180.f - config->rageAntiAim.jitterRange;
+                break;
+            case Yaw::manual:
+                if (config->rageAntiAim.manualForward.isDown())
+                    manualYaw = 0.f;
+                else if (config->rageAntiAim.manualBackward.isDown())
+                    manualYaw = 180.f;
+                else if (config->rageAntiAim.manualRight.isDown())
+                    manualYaw = -90.f;
+                else if (config->rageAntiAim.manualLeft.isDown())
+                    manualYaw = 90.f;
+
+                yaw += manualYaw;
                 break;
             default:
                 break;

@@ -10,6 +10,7 @@
 #include "Hacks/SkinChanger.h"
 #include "ConfigStructs.h"
 #include "InputUtil.h"
+#include "Hacks/AntiAim.h"
 
 class Config {
 public:
@@ -66,7 +67,11 @@ public:
     struct RageAntiAimConfig {
         bool enabled = false;
         int pitch = 0; //Off, Down, Zero, Up
-        int yawBase = 0; //Off, Forward, Backward, Right, Left, Spin
+        AntiAim::Yaw yawBase = AntiAim::Yaw::off;
+        KeyBind manualForward{ std::string("manual forward") },
+            manualBackward{ std::string("manual backward") },
+            manualRight{ std::string("manual right") },
+            manualLeft{ std::string("manual left") };
         int yawAdd = 0; //-180/180
         int spinBase = 0; //-180/180
         int jitterRange = 0;
@@ -372,6 +377,7 @@ public:
         std::string killMessageString{ "Gotcha!" };
         ColorToggle3 bombTimer{ 1.0f, 0.55f, 0.0f };
         ColorToggle3 hurtIndicator{ 0.0f, 0.8f, 0.7f };
+        ColorToggle yawIndicator{ 0.47f, 0.32f, 0.66f, 0.8f };
         KeyBind prepareRevolverKey{ std::string("prepare revolver") };
         int hitSound{ 0 };
         int quickHealthshotKey{ 0 };

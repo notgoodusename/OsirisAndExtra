@@ -1,18 +1,22 @@
 #pragma once
 
-enum class FrameStage;
-class GameEvent;
-struct ImDrawList;
-struct UserCmd;
-struct Vector;
-struct ViewSetup;
+#include "../SDK/ViewSetup.h";
 
 namespace Misc
 {
+    enum class YawOrientation {
+        none,
+        forward,
+        backward,
+        right,
+        left
+    };
+
     inline bool shouldEdgebug;
     inline float zVelBackup;
     inline float bugSpeed;
     inline int edgebugButtons;
+    inline YawOrientation yawOrientation{ YawOrientation::forward };
 
     bool isInChat() noexcept;
     void edgeBug(UserCmd* cmd, Vector& angView) noexcept;
@@ -42,6 +46,7 @@ namespace Misc
     void fastStop(UserCmd*) noexcept;
     void drawBombTimer() noexcept;
     void hurtIndicator() noexcept;
+    void yawIndicator(ImDrawList* drawList) noexcept;
     void stealNames() noexcept;
     void disablePanoramablur() noexcept;
     bool changeName(bool, const char*, float) noexcept;

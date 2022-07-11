@@ -661,20 +661,28 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->rageAntiAim.enabled);
     ImGui::Combo("Pitch", &config->rageAntiAim.pitch, "Off\0Down\0Zero\0Up\0");
-    ImGui::Combo("Yaw base", &config->rageAntiAim.yawBase, "Off\0Forward\0Backward\0Right\0Left\0Spin\0Jitter\0");
+    ImGui::Combo("Yaw base", reinterpret_cast<int*>(&config->rageAntiAim.yawBase), "Off\0Forward\0Backward\0Right\0Left\0Spin\0Jitter\0Manual\0");
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Yaw add", &config->rageAntiAim.yawAdd, -180, 180, "%d");
     ImGui::PopItemWidth();
-        if ((config->rageAntiAim.yawBase == 6))
+    switch (config->rageAntiAim.yawBase)
     {
-        ImGui::SliderInt("Jitter yaw range", &config->rageAntiAim.jitterRange, 0, 180, "%d");
-    }
-
-    if (config->rageAntiAim.yawBase == 5)
-    {
+    case AntiAim::Yaw::spin:
         ImGui::PushItemWidth(220.0f);
         ImGui::SliderInt("Spin base", &config->rageAntiAim.spinBase, -180, 180, "%d");
         ImGui::PopItemWidth();
+        break;
+    case AntiAim::Yaw::jitter:
+        ImGui::SliderInt("Jitter yaw range", &config->rageAntiAim.jitterRange, 0, 180, "%d");
+        break;
+    case AntiAim::Yaw::manual:
+        ImGui::hotkey("Forward", config->rageAntiAim.manualForward, 60.f);
+        ImGui::hotkey("Backward", config->rageAntiAim.manualBackward, 60.f);
+        ImGui::hotkey("Right", config->rageAntiAim.manualRight, 60.f);
+        ImGui::hotkey("Left", config->rageAntiAim.manualLeft, 60.f);
+        break;
+    default:
+        break;
     }
 
     ImGui::Checkbox("At targets", &config->rageAntiAim.atTargets);
@@ -1776,6 +1784,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Fast Stop", &config->misc.fastStop);
     ImGuiCustom::colorPicker("Bomb timer", config->misc.bombTimer);
     ImGuiCustom::colorPicker("Hurt indicator", config->misc.hurtIndicator);
+    ImGuiCustom::colorPicker("Yaw indicator", config->misc.yawIndicator);
     ImGui::Checkbox("Prepare revolver", &config->misc.prepareRevolver);
     ImGui::SameLine();
     ImGui::PushID("Prepare revolver Key");

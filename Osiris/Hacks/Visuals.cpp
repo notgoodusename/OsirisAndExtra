@@ -195,7 +195,7 @@ void Visuals::drawAimbotFov(ImDrawList* drawList) noexcept
     if (ImVec2 pos; worldToScreen(local.aimPunch, pos))
     {
         const auto& displaySize = ImGui::GetIO().DisplaySize;
-        const auto radius = std::tan(Helpers::deg2rad(cfg[weaponIndex].fov) / 2.0f) / std::tan(Helpers::deg2rad(localPlayer->isScoped() ? localPlayer->fov() : (config->visuals.fov + 90.0f)) / 2.0f) * displaySize.x;
+        const auto radius = std::tan(Helpers::deg2rad(cfg[weaponIndex].fov) / (16.0f/6.0f)) / std::tan(Helpers::deg2rad(localPlayer->isScoped() ? localPlayer->fov() : (config->visuals.fov + 90.0f)) / 2.0f) * displaySize.x;
         if (radius > displaySize.x || radius > displaySize.y || !std::isfinite(radius))
             return;
 

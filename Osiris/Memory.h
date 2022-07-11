@@ -194,6 +194,7 @@ public:
     std::uintptr_t eyeAngles;
     std::uintptr_t eyePositionAndVectors;
     std::uintptr_t calcViewBob;
+    std::uintptr_t getClientModelRenderable;
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;

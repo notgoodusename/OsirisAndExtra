@@ -1085,6 +1085,11 @@ static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void* 
     return original(thisPointer, player, traceParams);
 }
 
+static void* __stdcall getClientModelRenderableHook() noexcept
+{
+    return nullptr;
+}
+
 static bool __fastcall dispatchUserMessage(void* thisPointer, void* edx, int messageType, int argument, int secondArgument, void* data) noexcept
 {
     static auto original = hooks->client.getOriginal<bool, 38>(messageType, argument, secondArgument, data);
@@ -1277,6 +1282,7 @@ void Hooks::install() noexcept
     eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
     clSendMove.detour(memory->clSendMove, clSendMoveHook);
     calcViewBob.detour(memory->calcViewBob, calcViewBobHook);
+    getClientModelRenderable.detour(memory->getClientModelRenderable, getClientModelRenderableHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());

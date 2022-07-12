@@ -70,9 +70,17 @@ bool Misc::isInChat() noexcept
     return isInChat;
 }
 
+bool shouldEdgebug = false;
+float zVelBackup = 0.0f;
+float bugSpeed = 0.0f;
+int edgebugButtons = 0;
+
 void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
 {
     if (!config->misc.edgebug || !config->misc.edgebugkey.isActive())
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
         return;
 
     if (localPlayer->flags() & 1)
@@ -82,11 +90,11 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
     if (shouldEdgebug)
         return;
 
-    int nCommandsPredicted = interfaces->prediction->split->commandsPredicted;
+    const int commandsPredicted = interfaces->prediction->split->commandsPredicted;
 
-    Vector angViewOriginal = angView;
-    Vector angCmdViewOriginal = cmd->viewangles;
-    int buttonsOriginal = cmd->buttons;
+    const Vector angViewOriginal = angView;
+    const Vector angCmdViewOriginal = cmd->viewangles;
+    const int buttonsOriginal = cmd->buttons;
     Vector vecMoveOriginal;
     vecMoveOriginal.x = cmd->sidemove;
     vecMoveOriginal.y = cmd->forwardmove;
@@ -95,30 +103,30 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
     static Vector angViewLastStrafe;
     static Vector angViewOld = angView;
     static Vector angViewDeltaStrafe;
-    static bool bAppliedStrafeLast = false;
-    if (!bAppliedStrafeLast)
+    static bool appliedStrafeLast = false;
+    if (!appliedStrafeLast)
     {
         angViewLastStrafe = angView;
         vecMoveLastStrafe = vecMoveOriginal;
         angViewDeltaStrafe = (angView - angViewOld);
         angViewDeltaStrafe;
     }
-    bAppliedStrafeLast = false;
+    appliedStrafeLast = false;
     angViewOld = angView;
 
     for (int t = 0; t < 4; t++)
     {
-        static int iLastType;
-        if (iLastType)
+        static int lastType = 0;
+        if (lastType)
         {
-            t = iLastType;
-            iLastType = 0;
+            t = lastType;
+            lastType = 0;
         }
-        memory->restoreEntityToPredictedFrame(0, nCommandsPredicted - 1);
+        memory->restoreEntityToPredictedFrame(0, commandsPredicted - 1);
         if (buttonsOriginal& UserCmd::IN_DUCK&& t < 2)
             t = 2;
-        bool bApplyStrafe = !(t % 2);
-        bool bApplyDuck = t > 1;
+        bool applyStrafe = !(t % 2);
+        bool applyDuck = t > 1;
 
         cmd->viewangles = angViewLastStrafe;
         cmd->buttons = buttonsOriginal;
@@ -127,11 +135,11 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
 
         for (int i = 0; i < config->misc.edgebugPredAmnt; i++)
         {
-            if (bApplyDuck)
+            if (applyDuck)
                 cmd->buttons |= UserCmd::IN_DUCK;
             else
                 cmd->buttons &= ~UserCmd::IN_DUCK;
-            if (bApplyStrafe)
+            if (applyStrafe)
             {
                 cmd->viewangles += angViewDeltaStrafe;
                 cmd->viewangles.normalize();
@@ -148,9 +156,9 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
             if (shouldEdgebug)
             {
                 edgebugButtons = cmd->buttons;
-                if (bApplyStrafe)
+                if (applyStrafe)
                 {
-                    bAppliedStrafeLast = true;
+                    appliedStrafeLast = true;
                     angView = (angViewLastStrafe + angViewDeltaStrafe);
                     angView.normalize();
                     angView.clamp();
@@ -159,7 +167,7 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
                     cmd->forwardmove = vecMoveLastStrafe.y;
                 }
                 cmd->viewangles = angCmdViewOriginal;
-                iLastType = t;
+                lastType = t;
                 return;
             }
 
@@ -174,19 +182,20 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
     cmd->forwardmove = vecMoveOriginal.y;
 }
 
-void Misc::PrePred(UserCmd* cmd) noexcept
+void Misc::prePrediction(UserCmd* cmd) noexcept
 {
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
     zVelBackup = localPlayer->velocity().z;
 
     if (shouldEdgebug)
         cmd->buttons = edgebugButtons;
 
-    static auto sv_gravity = interfaces->cvar->findVar("sv_gravity");
-    bugSpeed = (sv_gravity->getFloat() * 0.5f * memory->globalVars->intervalPerTick);
+    static auto gravity = interfaces->cvar->findVar("sv_gravity");
+    bugSpeed = (gravity->getFloat() * 0.5f * memory->globalVars->intervalPerTick);
 
-    static float flZVelPrev = zVelBackup;
     shouldEdgebug = zVelBackup < -bugSpeed && round(localPlayer->velocity ().z) == -round(bugSpeed) && localPlayer->moveType() != MoveType::LADDER;
-    flZVelPrev = zVelBackup;
 }
 
 void Misc::drawPlayerList() noexcept

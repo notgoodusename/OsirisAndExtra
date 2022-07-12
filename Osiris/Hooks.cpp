@@ -290,7 +290,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::revealRanks(cmd);
     Misc::fixTabletSignal();
     Misc::slowwalk(cmd);
-    Misc::PrePred(cmd);
+    Misc::prePrediction(cmd);
     Backtrack::updateIncomingSequences();
 
     EnginePrediction::update();

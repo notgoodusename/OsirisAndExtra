@@ -80,7 +80,7 @@
     <ClCompile Include="Hacks\Chams.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
-    <ClCompile Include="Hacks\Aimbot.cpp">
+    <ClCompile Include="Hacks\AimbotFunctions.cpp">
       <Filter>Hacks</Filter>
     </ClCompile>
     <ClCompile Include="Netvars.cpp">
@@ -343,7 +343,7 @@
     <ClInclude Include="SDK\RenderView.h">
       <Filter>SDK</Filter>
     </ClInclude>
-    <ClInclude Include="Hacks\Aimbot.h">
+    <ClInclude Include="Hacks\AimbotFunctions.h">
       <Filter>Hacks</Filter>
     </ClInclude>
     <ClInclude Include="SDK\Entity.h">

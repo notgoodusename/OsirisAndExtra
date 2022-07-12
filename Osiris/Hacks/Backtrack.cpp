@@ -1,5 +1,5 @@
 #include "Backtrack.h"
-#include "Aimbot.h"
+#include "AimbotFunctions.h"
 #include "Animations.h"
 #include "../Config.h"
 #include "../SDK/ConVar.h"
@@ -61,7 +61,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
 
         const auto& origin = entity->getAbsOrigin();
 
-        auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, origin, cmd->viewangles + aimPunch);
+        auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, origin, cmd->viewangles + aimPunch);
         auto fov = std::hypotf(angle.x, angle.y);
         if (fov < bestFov) {
             bestFov = fov;
@@ -87,7 +87,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
             if (!valid(record.simulationTime))
                 continue;
 
-            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
+            auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
             auto fov = std::hypotf(angle.x, angle.y);
             if (fov < bestFov) {
                 bestFov = fov;

@@ -12,7 +12,7 @@
 #include "../GameData.h"
 #include "../Helpers.h"
 
-#include "Aimbot.h"
+#include "AimbotFunctions.h"
 #include "Visuals.h"
 
 #include "../SDK/ConVar.h"
@@ -918,7 +918,7 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         }
 
         const auto bulletImpact = Vector{ event.getFloat("x"),  event.getFloat("y"),  event.getFloat("z") };
-        const auto angle = Aimbot::calculateRelativeAngle(shotRecord.front().eyePosition, bulletImpact, Vector{ });
+        const auto angle = AimbotFunction::calculateRelativeAngle(shotRecord.front().eyePosition, bulletImpact, Vector{ });
         const auto end = bulletImpact + Vector::fromAngle(angle) * 2000.f;
 
         BeamInfo beamInfo;

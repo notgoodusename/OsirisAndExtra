@@ -40,21 +40,6 @@
 
 #include "../imguiCustom.h"
 
-static bool worldToScreen(const Vector& in, ImVec2& out) noexcept
-{
-    const auto& matrix = GameData::toScreenMatrix();
-
-    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
-    if (w < 0.001f)
-        return false;
-
-    out = ImGui::GetIO().DisplaySize / 2.0f;
-    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
-    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
-    out = ImFloor(out);
-    return true;
-}
-
 bool Misc::isInChat() noexcept
 {
     if (!localPlayer)
@@ -560,7 +545,7 @@ void Misc::drawAutoPeek(ImDrawList* drawList) noexcept
         {
             const auto& point3d = Vector{ std::sin(lat), std::cos(lat), 0.f } *15.f;
             ImVec2 point2d;
-            if (worldToScreen(peekPosition + point3d, point2d))
+            if (Helpers::worldToScreen(peekPosition + point3d, point2d))
                 points.push_back(point2d);
         }
 
@@ -977,7 +962,7 @@ void Misc::recoilCrosshair(ImDrawList* drawList) noexcept
     if (!localPlayerData.shooting)
         return;
 
-    if (ImVec2 pos; worldToScreen(localPlayerData.aimPunch, pos))
+    if (ImVec2 pos; Helpers::worldToScreen(localPlayerData.aimPunch, pos))
         drawCrosshair(drawList, pos, Helpers::calculateColor(config->misc.recoilCrosshair));
 }
 

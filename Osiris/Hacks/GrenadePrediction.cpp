@@ -29,22 +29,6 @@ std::mutex renderMutex;
 
 int grenade_act{ 1 };
 
-static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = true) noexcept
-{
-	const auto& matrix = GameData::toScreenMatrix();
-
-	const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
-	if (w < 0.001f)
-		return false;
-
-	out = ImGui::GetIO().DisplaySize / 2.0f;
-	out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
-	out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
-	if (floor)
-		out = ImFloor(out);
-	return true;
-}
-
 void TraceHull(Vector& src, Vector& end, Trace& tr)
 {
 	if (!config->misc.nadePredict)
@@ -304,7 +288,7 @@ void drawCircle(Vector position, float points, float radius)
 		if (!tr.endpos.notNull())
 			continue;
 
-		if (worldToScreen(tr.endpos, start2d) && worldToScreen(lastPos, end2d) && lastPos != Vector{ })
+		if (Helpers::worldToScreen(tr.endpos, start2d) && Helpers::worldToScreen(lastPos, end2d) && lastPos != Vector{ })
 		{
 			if (start2d != ImVec2{ } && end2d != ImVec2{ })
 				endPoints.emplace_back(std::pair<ImVec2, ImVec2>{ end2d, start2d });
@@ -367,7 +351,7 @@ void drawDamage(Vector position) noexcept
 			continue;
 
 		std::string dmg2text = player.health - dmg > 0 ? std::to_string(static_cast<int>(dmg)) : "Kill";
-		if (worldToScreen(player.origin, pos))
+		if (Helpers::worldToScreen(player.origin, pos))
 		{
 			dmgPoints.emplace_back(std::pair<ImVec2, std::string>{ pos, dmg2text });
 		}
@@ -475,7 +459,7 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 	Vector lastPos{ };
 	for (auto& nade : path)
 	{
-		if (worldToScreen(prev, nadeStart) && worldToScreen(nade, nadeEnd))
+		if (Helpers::worldToScreen(prev, nadeStart) && Helpers::worldToScreen(nade, nadeEnd))
 		{
 			screenPoints.emplace_back(std::pair<ImVec2, ImVec2>{ nadeStart, nadeEnd });
 			prev = nade;

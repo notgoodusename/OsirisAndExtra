@@ -33,22 +33,6 @@
 #include "../SDK/ViewRenderBeams.h"
 #include "../SDK/ViewSetup.h"
 
-static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noexcept
-{
-    const auto& matrix = GameData::toScreenMatrix();
-
-    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
-    if (w < 0.001f)
-        return false;
-
-    out = ImGui::GetIO().DisplaySize / 2.0f;
-    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
-    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
-    if (floor)
-        out = ImFloor(out);
-    return true;
-}
-
 void Visuals::shadowChanger() noexcept
 {
     static auto cl_csm_rot_override = interfaces->cvar->findVar("cl_csm_rot_override");
@@ -109,7 +93,7 @@ void Visuals::drawSmokeTimer(ImDrawList* drawList) noexcept
         ImVec2 pos;
 
         if (time >= 0.0f) {
-            if (worldToScreen(smoke.pos, pos)) {
+            if (Helpers::worldToScreen(smoke.pos, pos)) {
                 ImRect rect_out(
                     pos.x + (textSize.x / 2) + 2.f,
                     pos.y + (textSize.y / 2) + 10.f,
@@ -146,7 +130,7 @@ void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
     if (memory->input->isCameraInThirdPerson)
         return;
 
-    if (ImVec2 edge; worldToScreen(local.inaccuracy, edge))
+    if (ImVec2 edge; Helpers::worldToScreen(local.inaccuracy, edge))
     {
         const auto& displaySize = ImGui::GetIO().DisplaySize;
         const auto radius = std::sqrtf(ImLengthSqr(edge - displaySize / 2.0f));
@@ -192,7 +176,7 @@ void Visuals::drawAimbotFov(ImDrawList* drawList) noexcept
     if (!cfg[weaponIndex].enabled)
         weaponIndex = 0;
 
-    if (ImVec2 pos; worldToScreen(local.aimPunch, pos))
+    if (ImVec2 pos; Helpers::worldToScreen(local.aimPunch, pos))
     {
         const auto& displaySize = ImGui::GetIO().DisplaySize;
         const auto radius = std::tan(Helpers::deg2rad(cfg[weaponIndex].fov) / (16.0f/6.0f)) / std::tan(Helpers::deg2rad(localPlayer->isScoped() ? localPlayer->fov() : (config->visuals.fov + 90.0f)) / 2.0f) * displaySize.x;
@@ -1029,7 +1013,7 @@ void Visuals::drawMolotovHull(ImDrawList* drawList) noexcept
             std::size_t count = 0;
 
             for (const auto& point : flameCircumference) {
-                if (worldToScreen(pos + point, screenPoints[count]))
+                if (Helpers::worldToScreen(pos + point, screenPoints[count]))
                     ++count;
             }
 
@@ -1075,7 +1059,7 @@ void Visuals::drawSmokeHull(ImDrawList* drawList) noexcept
 
         for (const auto& point : smokeCircumference)
         {
-            if (worldToScreen(smoke.origin + point, screenPoints[count]))
+            if (Helpers::worldToScreen(smoke.origin + point, screenPoints[count]))
                 ++count;
         }
 

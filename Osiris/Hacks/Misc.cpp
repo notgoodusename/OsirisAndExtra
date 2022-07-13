@@ -11,6 +11,9 @@
 #include "../Interfaces.h"
 #include "../Memory.h"
 #include "../Netvars.h"
+#include "../GUI.h"
+#include "../Helpers.h"
+#include "../GameData.h"
 
 #include "EnginePrediction.h"
 #include "Misc.h"
@@ -34,10 +37,6 @@
 #include "../SDK/ViewSetup.h"
 #include "../SDK/WeaponData.h"
 #include "../SDK/WeaponSystem.h"
-
-#include "../GUI.h"
-#include "../Helpers.h"
-#include "../GameData.h"
 
 #include "../imguiCustom.h"
 

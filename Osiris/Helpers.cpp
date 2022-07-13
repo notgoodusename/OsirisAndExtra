@@ -10,6 +10,7 @@
 #include "GameData.h"
 #include "Helpers.h"
 #include "Memory.h"
+
 #include "SDK/GlobalVars.h"
 
 static auto rainbowColor(float time, float speed, float alpha) noexcept

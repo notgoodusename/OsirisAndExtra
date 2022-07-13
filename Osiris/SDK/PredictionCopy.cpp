@@ -1,6 +1,6 @@
-#include "PredictionCopy.h"
-
 #include "../Memory.h"
+
+#include "PredictionCopy.h"
 
 PredictionCopy::PredictionCopy(int type, byte* dest, bool dest_packed, const byte* src, bool src_packed, optype_t opType, FN_FIELD_COMPARE func) noexcept
 {

@@ -1,15 +1,17 @@
 #include "../Config.h"
 #include "../Interfaces.h"
 #include "../Memory.h"
-#include "../SDK/Entity.h"
-#include "../SDK/UserCmd.h"
-#include "../SDK/WeaponData.h"
-#include "../SDK/WeaponId.h"
-#include "Triggerbot.h"
-#include "../SDK/ModelInfo.h"
+
 #include "Animations.h"
 #include "AimbotFunctions.h"
 #include "Backtrack.h"
+#include "Triggerbot.h"
+
+#include "../SDK/Entity.h"
+#include "../SDK/UserCmd.h"
+#include "../SDK/ModelInfo.h"
+#include "../SDK/WeaponData.h"
+#include "../SDK/WeaponId.h"
 
 static bool keyPressed;
 

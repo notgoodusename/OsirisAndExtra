@@ -3,13 +3,15 @@
 #include "EventListener.h"
 #include "fnv.h"
 #include "GameData.h"
+
+#include "Interfaces.h"
+#include "Memory.h"
+#include "Logger.h"
+
 #include "Hacks/Misc.h"
 #include "Hacks/Resolver.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Visuals.h"
-#include "Interfaces.h"
-#include "Logger.h"
-#include "Memory.h"
 
 EventListener::EventListener() noexcept
 {

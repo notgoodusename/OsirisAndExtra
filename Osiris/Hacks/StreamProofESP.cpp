@@ -1,5 +1,4 @@
 #define NOMINMAX
-#include "StreamProofESP.h"
 
 #include "../imgui/imgui.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -9,9 +8,12 @@
 #include "../fnv.h"
 #include "../GameData.h"
 #include "../Helpers.h"
+#include "../Memory.h"
+
+#include "StreamProofESP.h"
+
 #include "../SDK/Engine.h"
 #include "../SDK/GlobalVars.h"
-#include "../Memory.h"
 
 #include <limits>
 #include <tuple>

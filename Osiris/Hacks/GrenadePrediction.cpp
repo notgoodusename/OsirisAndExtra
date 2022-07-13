@@ -1,4 +1,15 @@
 #include <string>
+#include <mutex>
+
+#include "../imgui/imgui.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "../imgui/imgui_internal.h"
+
+#include "../Config.h"
+#include "../GameData.h"
+#include "../Memory.h"
+#include "../Interfaces.h"
+
 #include "GrenadePrediction.h"
 
 #include "../SDK/Cvar.h"
@@ -7,17 +18,6 @@
 #include "../SDK/Entity.h"
 #include "../SDK/GlobalVars.h"
 #include "../SDK/Surface.h"
-
-#include "../Config.h"
-#include "../GameData.h"
-#include "../Memory.h"
-#include "../Interfaces.h"
-
-#include "../imgui/imgui.h"
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include "../imgui/imgui_internal.h"
-
-#include <mutex>
 
 
 std::vector<std::pair<ImVec2, ImVec2>> screenPoints;

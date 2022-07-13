@@ -1,12 +1,13 @@
+#include "../Config.h"
+#include "../Interfaces.h"
+#include "../Memory.h"
+
 #include "AimbotFunctions.h"
 #include "Animations.h"
 #include "Backtrack.h"
 #include "Ragebot.h"
 #include "EnginePrediction.h"
-
-#include "../Config.h"
-#include "../Interfaces.h"
-#include "../Memory.h"
+#include "Resolver.h"
 
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
@@ -16,7 +17,6 @@
 #include "../SDK/GlobalVars.h"
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/ModelInfo.h"
-#include "Resolver.h"
 
 static bool keyPressed = false;
 

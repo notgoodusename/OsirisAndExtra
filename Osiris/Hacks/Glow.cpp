@@ -3,16 +3,18 @@
 #include "../nlohmann/json.hpp"
 
 #include "../Config.h"
-#include "Glow.h"
 #include "../Helpers.h"
 #include "../Interfaces.h"
 #include "../Memory.h"
+#include "../imguiCustom.h"
+
+#include "Glow.h"
+
 #include "../SDK/Entity.h"
 #include "../SDK/ClientClass.h"
 #include "../SDK/GlowObjectManager.h"
 #include "../SDK/GlobalVars.h"
 #include "../SDK/Utils.h"
-#include "../imguiCustom.h"
 
 static std::vector<std::pair<int, int>> customGlowEntities;
 

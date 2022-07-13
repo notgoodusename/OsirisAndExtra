@@ -1,3 +1,5 @@
+#include "../Interfaces.h"
+
 #include "AimbotFunctions.h"
 #include "AntiAim.h"
 
@@ -6,8 +8,6 @@
 #include "../SDK/EntityList.h"
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
-
-#include "../Interfaces.h"
 
 static bool flipJitter{ false };
 

@@ -7,7 +7,9 @@
 #include <unordered_map>
 
 #include "imgui/imgui.h"
+
 #include "Hacks/SkinChanger.h"
+
 #include "ConfigStructs.h"
 #include "InputUtil.h"
 

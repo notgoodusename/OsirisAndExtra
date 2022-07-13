@@ -2,11 +2,12 @@
 
 #include "../Config.h"
 #include "../Interfaces.h"
+
+#include "Sound.h"
+
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
 #include "../SDK/LocalPlayer.h"
-
-#include "Sound.h"
 
 #if OSIRIS_SOUND()
 

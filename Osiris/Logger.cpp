@@ -1,13 +1,13 @@
+#include "Interfaces.h"
+#include "Memory.h"
+
+#include "Logger.h"
+
 #include "SDK/ConVar.h"
 #include "SDK/GameEvent.h"
 #include "SDK/Engine.h"
 #include "SDK/Entity.h"
 #include "SDK/LocalPlayer.h"
-
-#include "Interfaces.h"
-#include "Logger.h"
-#include "Memory.h"
-
 
 std::string getStringFromHitgroup(int hitgroup) noexcept
 {

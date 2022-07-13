@@ -1,6 +1,8 @@
 #include "../Interfaces.h"
 #include "../Memory.h"
 
+#include "EnginePrediction.h"
+
 #include "../SDK/ClientState.h"
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
@@ -11,8 +13,6 @@
 #include "../SDK/MoveHelper.h"
 #include "../SDK/Prediction.h"
 #include "../SDK/PredictionCopy.h"
-
-#include "EnginePrediction.h"
 
 static int localPlayerFlags;
 static Vector localPlayerVelocity;

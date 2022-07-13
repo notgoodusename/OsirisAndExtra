@@ -1,9 +1,10 @@
 #pragma once
 
+#include "../Memory.h"
+
 #include "VirtualMethod.h"
 #include "Pad.h"
 #include "MemAlloc.h"
-#include "../Memory.h"
 
 enum ECstrike15UserMessages
 {

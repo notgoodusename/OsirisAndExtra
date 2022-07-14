@@ -75,6 +75,11 @@ public:
         bool atTargets = false;
     } rageAntiAim;
 
+    struct Tickbase {
+        bool enabled = false;
+        bool teleport = false;
+    } tickbase;
+    
     struct FakeAngle {
         bool enabled = false;
         KeyBind invert{ std::string("fake angle invert") };

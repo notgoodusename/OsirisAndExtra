@@ -148,6 +148,7 @@ public:
     void(__thiscall* setCollisionBounds)(void*, const Vector&, const Vector&);
 
     std::uintptr_t calculateView;
+    std::uintptr_t clMove;
 
     std::uintptr_t setupVelocity;
     std::uintptr_t setupMovement;

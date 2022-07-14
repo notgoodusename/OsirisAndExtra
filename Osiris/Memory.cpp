@@ -170,6 +170,7 @@ Memory::Memory() noexcept
 
     setCollisionBounds = relativeToAbsolute<decltype(setCollisionBounds)>(findPattern(CLIENT_DLL, "\xE8????\x0F\xBF\x87????") + 1);
     calculateView = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\xFF\x75\x18");
+    clMove = relativeToAbsolute<decltype(clMove)>(findPattern(ENGINE_DLL, "\xE8????\xFF\x15????\xF2\x0F\x10\x05????\xDC\x25????\xDD\x5D\xF0") + 1);
 
     setupVelocity = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x56\x57\x8B\x3D");
     setupMovement = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x56\x57\x8B\x3D????\x8B\xF1");

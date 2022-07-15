@@ -141,7 +141,7 @@ void Visuals::drawMolotovTimerEvent(GameEvent* event) noexcept
 
 void Visuals::drawMolotovTimer(ImDrawList* drawList) noexcept
 {
-    if (!config->others.molotovTimer)
+    if (!config->visuals.molotovTimer)
         return;
 
     if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
@@ -170,9 +170,9 @@ void Visuals::drawMolotovTimer(ImDrawList* drawList) noexcept
                     pos.x - (textSize.x / 2),
                     pos.y + (textSize.y));
 
-                drawList->AddRectFilled(rect_out.Min, rect_out.Max, Helpers::calculateColor(config->others.molotovTimerBG));
-                drawList->AddRectFilled(rect_in.Min, rect_in.Max, Helpers::calculateColor(config->others.molotovTimerTimer));
-                drawList->AddText({ pos.x - (textSize.x / 2), pos.y - (textSize.y / 2) }, Helpers::calculateColor(config->others.molotovTimerText), text.str().c_str());
+                drawList->AddRectFilled(rect_out.Min, rect_out.Max, Helpers::calculateColor(config->visuals.molotovTimerBG));
+                drawList->AddRectFilled(rect_in.Min, rect_in.Max, Helpers::calculateColor(config->visuals.molotovTimerTimer));
+                drawList->AddText({ pos.x - (textSize.x / 2), pos.y - (textSize.y / 2) }, Helpers::calculateColor(config->visuals.molotovTimerText), text.str().c_str());
             }
         }
         else

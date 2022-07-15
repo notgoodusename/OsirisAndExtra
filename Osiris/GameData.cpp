@@ -478,6 +478,7 @@ void PlayerData::update(Entity* entity) noexcept
         armor = pr->armor()[idx];
         skillgroup = pr->competitiveRanking()[idx];
         competitiveWins = pr->competitiveWins()[idx];
+        hasBomb = idx == pr->playerC4Index();
         if (const auto clantag = pr->getClan(idx); 
             clantag && clantag[0] != '\0')
         {

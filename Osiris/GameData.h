@@ -159,6 +159,7 @@ struct PlayerData : BaseData {
     std::string activeWeapon;
     std::vector<std::pair<Vector, Vector>> bones;
     int skillgroup;
+    bool hasBomb;
 
     class Texture {
         ImTextureID texture = nullptr;

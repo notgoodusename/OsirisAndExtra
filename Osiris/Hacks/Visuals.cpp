@@ -139,6 +139,14 @@ void Visuals::drawMolotovTimerEvent(GameEvent* event) noexcept
     molotovs.push_back(data);
 }
 
+void Visuals::molotovExtinguishEvent(GameEvent* event) noexcept {
+
+    if (!event)
+        return;
+
+    molotovs.erase(molotovs.begin());
+}
+
 void Visuals::drawMolotovTimer(ImDrawList* drawList) noexcept
 {
     if (!config->visuals.molotovTimer)
@@ -175,8 +183,6 @@ void Visuals::drawMolotovTimer(ImDrawList* drawList) noexcept
                 drawList->AddText({ pos.x - (textSize.x / 2), pos.y - (textSize.y / 2) }, Helpers::calculateColor(config->visuals.molotovTimerText), text.str().c_str());
             }
         }
-        else
-            molotovs.erase(molotovs.begin() + i);
     }
 }
 

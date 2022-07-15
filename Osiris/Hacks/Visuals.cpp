@@ -116,6 +116,70 @@ void Visuals::drawSmokeTimer(ImDrawList* drawList) noexcept
     }
 }
 
+#define MOLOTOV_LIFETIME 7.0f
+
+struct molotovData
+{
+    float destructionTime;
+    Vector pos;
+};
+
+static std::vector<molotovData> molotovs;
+
+void Visuals::drawMolotovTimerEvent(GameEvent* event) noexcept
+{
+    if (!event)
+        return;
+
+    molotovData data{};
+    const auto time = memory->globalVars->realtime + MOLOTOV_LIFETIME;
+    const auto pos = Vector(event->getFloat("x"), event->getFloat("y"), event->getFloat("z"));
+    data.destructionTime = time;
+    data.pos = pos;
+    molotovs.push_back(data);
+}
+
+void Visuals::drawMolotovTimer(ImDrawList* drawList) noexcept
+{
+    if (!config->others.molotovTimer)
+        return;
+
+    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+        return;
+
+    for (size_t i = 0; i < molotovs.size(); i++) {
+        const auto& molotov = molotovs[i];
+
+        auto time = molotov.destructionTime - memory->globalVars->realtime;
+        std::ostringstream text; text << std::fixed << std::showpoint << std::setprecision(1) << time << " sec.";
+        auto textSize = ImGui::CalcTextSize(text.str().c_str());
+
+        ImVec2 pos;
+
+        if (time >= 0.0f) {
+            if (Helpers::worldToScreen(molotov.pos, pos)) {
+                ImRect rect_out(
+                    pos.x + (textSize.x / 2) + 2.f,
+                    pos.y + (textSize.y / 2) + 10.f,
+                    pos.x - (textSize.x / 2) - 2.f,
+                    pos.y - (textSize.y / 2) - 2.f);
+
+                ImRect rect_in(
+                    (pos.x + (textSize.x / 2)) - (textSize.x * (1.0f - (time / MOLOTOV_LIFETIME))),
+                    pos.y + (textSize.y / 2),
+                    pos.x - (textSize.x / 2),
+                    pos.y + (textSize.y));
+
+                drawList->AddRectFilled(rect_out.Min, rect_out.Max, Helpers::calculateColor(config->others.molotovTimerBG));
+                drawList->AddRectFilled(rect_in.Min, rect_in.Max, Helpers::calculateColor(config->others.molotovTimerTimer));
+                drawList->AddText({ pos.x - (textSize.x / 2), pos.y - (textSize.y / 2) }, Helpers::calculateColor(config->others.molotovTimerText), text.str().c_str());
+            }
+        }
+        else
+            molotovs.erase(molotovs.begin() + i);
+    }
+}
+
 void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
 {
     if (!config->visuals.spreadCircle.enabled)

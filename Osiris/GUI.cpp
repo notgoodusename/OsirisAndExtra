@@ -1398,6 +1398,18 @@ void GUI::renderVisualsWindow() noexcept
         ImGuiCustom::colorPicker("Timer color", config->visuals.smokeTimerTimer);
         ImGui::EndPopup();
     }
+    ImGui::Checkbox("Molotov Timer", &config->visuals.molotovTimer);
+    ImGui::SameLine();
+    if (ImGui::Button("...##molotov_timer"))
+        ImGui::OpenPopup("popup_molotovTimer");
+
+    if (ImGui::BeginPopup("popup_molotovTimer"))
+    {
+        ImGuiCustom::colorPicker("BackGround color", config->visuals.molotovTimerBG);
+        ImGuiCustom::colorPicker("Text color", config->visuals.molotovTimerText);
+        ImGuiCustom::colorPicker("Timer color", config->visuals.molotovTimerTimer);
+        ImGui::EndPopup();
+    }
     ImGuiCustom::colorPicker("Spread circle", config->visuals.spreadCircle);
 
     ImGui::Checkbox("Viewmodel", &config->visuals.viewModel.enabled);

@@ -122,6 +122,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
         Visuals::drawSmokeHull(ImGui::GetBackgroundDrawList());
         Visuals::drawSmokeTimer(ImGui::GetBackgroundDrawList());
+        Visuals::drawMolotovTimer(ImGui::GetBackgroundDrawList());
         Misc::watermark();
         Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
         Logger::process(ImGui::GetBackgroundDrawList());

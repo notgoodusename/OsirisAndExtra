@@ -1174,6 +1174,8 @@ void Misc::hurtIndicator() noexcept
     ImGui::End();
 }
 
+Misc::YawOrientation yawOrientation = Misc::YawOrientation::forward;
+
 void Misc::yawIndicator(ImDrawList* drawList) noexcept
 {
     if (!config->misc.yawIndicator.enabled || !config->rageAntiAim.enabled)

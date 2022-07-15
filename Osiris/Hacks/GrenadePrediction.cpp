@@ -1,4 +1,15 @@
 #include <string>
+#include <mutex>
+
+#include "../imgui/imgui.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "../imgui/imgui_internal.h"
+
+#include "../Config.h"
+#include "../GameData.h"
+#include "../Memory.h"
+#include "../Interfaces.h"
+
 #include "GrenadePrediction.h"
 
 #include "../SDK/Cvar.h"
@@ -8,17 +19,6 @@
 #include "../SDK/GlobalVars.h"
 #include "../SDK/Surface.h"
 
-#include "../Config.h"
-#include "../GameData.h"
-#include "../Memory.h"
-#include "../Interfaces.h"
-
-#include "../imgui/imgui.h"
-#define IMGUI_DEFINE_MATH_OPERATORS
-#include "../imgui/imgui_internal.h"
-
-#include <mutex>
-
 
 std::vector<std::pair<ImVec2, ImVec2>> screenPoints;
 std::vector<std::pair<ImVec2, ImVec2>> endPoints;
@@ -27,36 +27,14 @@ std::vector<std::pair<ImVec2, ImVec2>> savedPoints;
 
 std::mutex renderMutex;
 
-int grenade_act{ 1 };
+int grenadeAct{ 1 };
 
-static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = true) noexcept
+void traceHull(Vector& src, Vector& end, Trace& tr) noexcept
 {
-	const auto& matrix = GameData::toScreenMatrix();
-
-	const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
-	if (w < 0.001f)
-		return false;
-
-	out = ImGui::GetIO().DisplaySize / 2.0f;
-	out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
-	out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
-	if (floor)
-		out = ImFloor(out);
-	return true;
-}
-
-void TraceHull(Vector& src, Vector& end, Trace& tr)
-{
-	if (!config->misc.nadePredict)
-		return;
-
-	if (!localPlayer)
-		return;
-
 	interfaces->engineTrace->traceRay({ src, end, Vector{-2.0f, -2.0f, -2.0f}, Vector{2.0f, 2.0f, 2.0f} }, 0x200400B, { localPlayer.get() }, tr);
 }
 
-void Setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles)
+void setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles) noexcept
 {
 	auto AngleVectors = [](const Vector & angles, Vector * forward, Vector * right, Vector * up)
 	{
@@ -111,7 +89,7 @@ void Setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles)
 	float flVel = 750.0f * 0.9f;
 
 	static const float power[] = { 1.0f, 1.0f, 0.5f, 0.0f };
-	float b = power[grenade_act];
+	float b = power[grenadeAct];
 	b = b * 0.7f;
 	b = b + 0.3f;
 	flVel *= b;
@@ -120,14 +98,14 @@ void Setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles)
 	AngleVectors(angThrow, &vForward, &vRight, &vUp);
 
 	vecSrc = localPlayer->getEyePosition();
-	float off = (power[grenade_act] * 12.0f) - 12.0f;
+	float off = (power[grenadeAct] * 12.0f) - 12.0f;
 	vecSrc.z += off;
 
 	Trace tr;
 	Vector vecDest = vecSrc;
 	vecDest += vForward * 22.0f;
 
-	TraceHull(vecSrc, vecDest, tr);
+	traceHull(vecSrc, vecDest, tr);
 
 	Vector vecBack = vForward; vecBack *= 6.0f;
 	vecSrc = tr.endpos;
@@ -137,7 +115,7 @@ void Setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles)
 	vecThrow += vForward * flVel;
 }
 
-int PhysicsClipVelocity(const Vector& in, const Vector& normal, Vector& out, float overbounce)
+int physicsClipVelocity(const Vector& in, const Vector& normal, Vector& out, float overbounce) noexcept
 {
 	static const float STOP_EPSILON = 0.1f;
 
@@ -174,37 +152,31 @@ int PhysicsClipVelocity(const Vector& in, const Vector& normal, Vector& out, flo
 	return blocked;
 }
 
-void PushEntity(Vector& src, const Vector& move, Trace& tr)
+void pushEntity(Vector& src, const Vector& move, Trace& tr) noexcept
 {
-	if (!config->misc.nadePredict)
-		return;
-
 	Vector vecAbsEnd = src;
 	vecAbsEnd += move;
-	TraceHull(src, vecAbsEnd, tr);
+	traceHull(src, vecAbsEnd, tr);
 }
 
-void ResolveFlyCollisionCustom(Trace& tr, Vector& vecVelocity, float interval)
+void resolveFlyCollisionCustom(Trace& tr, Vector& vecVelocity, float interval) noexcept
 {
-	if (!config->misc.nadePredict)
-		return;
-
 	// Calculate elasticity
-	float flSurfaceElasticity = 1.0;
-	float flGrenadeElasticity = 0.45f;
-	float flTotalElasticity = flGrenadeElasticity * flSurfaceElasticity;
-	if (flTotalElasticity > 0.9f) flTotalElasticity = 0.9f;
-	if (flTotalElasticity < 0.0f) flTotalElasticity = 0.0f;
+	const float surfaceElasticity = 1.0;
+	const float grenadeElasticity = 0.45f;
+	float totalElasticity = grenadeElasticity * surfaceElasticity;
+	if (totalElasticity > 0.9f) totalElasticity = 0.9f;
+	if (totalElasticity < 0.0f) totalElasticity = 0.0f;
 
 	// Calculate bounce
 	Vector vecAbsVelocity;
-	PhysicsClipVelocity(vecVelocity, tr.plane.normal, vecAbsVelocity, 2.0f);
-	vecAbsVelocity *= flTotalElasticity;
+	physicsClipVelocity(vecVelocity, tr.plane.normal, vecAbsVelocity, 2.0f);
+	vecAbsVelocity *= totalElasticity;
 
-	float flSpeedSqr = vecAbsVelocity.squareLength();
-	static const float flMinSpeedSqr = 20.0f * 20.0f;
+	float speedSqr = vecAbsVelocity.squareLength();
+	static const float minSpeedSqr = 20.0f * 20.0f;
 
-	if (flSpeedSqr < flMinSpeedSqr)
+	if (speedSqr < minSpeedSqr)
 	{
 		vecAbsVelocity.x = 0.0f;
 		vecAbsVelocity.y = 0.0f;
@@ -215,7 +187,7 @@ void ResolveFlyCollisionCustom(Trace& tr, Vector& vecVelocity, float interval)
 	{
 		vecVelocity = vecAbsVelocity;
 		vecAbsVelocity *= ((1.0f - tr.fraction) * interval);
-		PushEntity(tr.endpos, vecAbsVelocity, tr);
+		pushEntity(tr.endpos, vecAbsVelocity, tr);
 	}
 	else
 	{
@@ -223,7 +195,7 @@ void ResolveFlyCollisionCustom(Trace& tr, Vector& vecVelocity, float interval)
 	}
 }
 
-void AddGravityMove(Vector& move, Vector& vel, float frametime, bool onground)
+void addGravityMove(Vector& move, Vector& vel, float frametime, bool onground) noexcept
 {
 	if (!config->misc.nadePredict)
 		return;
@@ -254,20 +226,18 @@ enum ACT
 	ACT_DROP,
 };
 
-void Tick(int buttons)
+void tick(int buttons) noexcept
 {
 	bool in_attack = buttons & UserCmd::IN_ATTACK;
 	bool in_attack2 = buttons & UserCmd::IN_ATTACK2;
 
-	grenade_act = (in_attack && in_attack2) ? ACT_LOB :
+	grenadeAct = (in_attack && in_attack2) ? ACT_LOB :
 		(in_attack2) ? ACT_DROP :
 		(in_attack) ? ACT_THROW :
 		ACT_NONE;
 }
 
-
-
-bool checkDetonate(const Vector& vecThrow, const Trace& tr, int tick, float interval, Entity* activeWeapon)
+bool checkDetonate(const Vector& vecThrow, const Trace& tr, int tick, float interval, Entity* activeWeapon) noexcept
 {
 	switch (activeWeapon->itemDefinitionIndex2())
 	{
@@ -291,7 +261,7 @@ bool checkDetonate(const Vector& vecThrow, const Trace& tr, int tick, float inte
 	}
 }
 
-void drawCircle(Vector position, float points, float radius)
+void drawCircle(Vector position, float points, float radius) noexcept
 {
 	float step = 3.141592654f * 2.0f / points;
 	ImVec2 end2d{}, start2d{};
@@ -300,11 +270,11 @@ void drawCircle(Vector position, float points, float radius)
 		Vector start{ radius * cosf(a) + position.x, radius * sinf(a) + position.y, position.z };
 
 		Trace tr;
-		TraceHull(position, start, tr);
+		traceHull(position, start, tr);
 		if (!tr.endpos.notNull())
 			continue;
 
-		if (worldToScreen(tr.endpos, start2d) && worldToScreen(lastPos, end2d) && lastPos != Vector{ })
+		if (Helpers::worldToScreen(tr.endpos, start2d) && Helpers::worldToScreen(lastPos, end2d) && lastPos != Vector{ })
 		{
 			if (start2d != ImVec2{ } && end2d != ImVec2{ })
 				endPoints.emplace_back(std::pair<ImVec2, ImVec2>{ end2d, start2d });
@@ -347,7 +317,7 @@ void drawDamage(Vector position) noexcept
 			continue;
 
 		Trace tr;
-		TraceHull(position, center, tr);
+		traceHull(position, center, tr);
 		if (!tr.endpos.notNull() || !tr.entity || tr.entity->handle() != player.handle)
 			continue;
 
@@ -367,15 +337,12 @@ void drawDamage(Vector position) noexcept
 			continue;
 
 		std::string dmg2text = player.health - dmg > 0 ? std::to_string(static_cast<int>(dmg)) : "Kill";
-		if (worldToScreen(player.origin, pos))
-		{
+		if (Helpers::worldToScreen(player.origin, pos))
 			dmgPoints.emplace_back(std::pair<ImVec2, std::string>{ pos, dmg2text });
-		}
-
 	}
 }
 
-void NadePrediction::run(UserCmd* cmd) noexcept
+void GrenadePrediction::run(UserCmd* cmd) noexcept
 {
 	renderMutex.lock();
 
@@ -395,18 +362,19 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 		return;
 	}
 
+	if (localPlayer->moveType() == MoveType::NOCLIP)
+	{
+		renderMutex.unlock();
+		return;
+	}
+	
 	if (interfaces->engine->isHLTV())
 	{
 		renderMutex.unlock();
 		return;
 	}
 
-	Tick(cmd->buttons);
-	if (localPlayer->moveType() == MoveType::NOCLIP)
-	{
-		renderMutex.unlock();
-		return;
-	}
+	tick(cmd->buttons);
 
 	auto activeWeapon = localPlayer->getActiveWeapon();
 	if (!activeWeapon || !activeWeapon->isGrenade())
@@ -427,7 +395,7 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 	}
 
 	Vector vecSrc, vecThrow;
-	Setup(vecSrc, vecThrow, cmd->viewangles);
+	setup(vecSrc, vecThrow, cmd->viewangles);
 
 	float interval = memory->globalVars->intervalPerTick;
 	int logstep = static_cast<int>(0.05f / interval);
@@ -441,11 +409,11 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 			path.emplace_back(vecSrc);
 
 		Vector move;
-		AddGravityMove(move, vecThrow, interval, false);
+		addGravityMove(move, vecThrow, interval, false);
 
 		// Push entity
 		Trace tr;
-		PushEntity(vecSrc, move, tr);
+		pushEntity(vecSrc, move, tr);
 
 		int result = 0;
 		if (checkDetonate(vecThrow, tr, i, interval, activeWeapon))
@@ -454,7 +422,7 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 		if (tr.fraction != 1.0f)
 		{
 			result |= 2; // Collision!
-			ResolveFlyCollisionCustom(tr, vecThrow, interval);
+			resolveFlyCollisionCustom(tr, vecThrow, interval);
 		}
 
 		vecSrc = tr.endpos;
@@ -475,7 +443,7 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 	Vector lastPos{ };
 	for (auto& nade : path)
 	{
-		if (worldToScreen(prev, nadeStart) && worldToScreen(nade, nadeEnd))
+		if (Helpers::worldToScreen(prev, nadeStart) && Helpers::worldToScreen(nade, nadeEnd))
 		{
 			screenPoints.emplace_back(std::pair<ImVec2, ImVec2>{ nadeStart, nadeEnd });
 			prev = nade;
@@ -493,7 +461,7 @@ void NadePrediction::run(UserCmd* cmd) noexcept
 	renderMutex.unlock();
 }
 
-void NadePrediction::draw() noexcept
+void GrenadePrediction::draw() noexcept
 {
 	if (!config->misc.nadePredict)
 		return;

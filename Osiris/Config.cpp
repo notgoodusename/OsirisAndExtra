@@ -10,11 +10,13 @@
 
 #include "Config.h"
 #include "Helpers.h"
-#include "SDK/Platform.h"
+
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"
 #include "Hacks/Glow.h"
 #include "Hacks/Sound.h"
+
+#include "SDK/Platform.h"
 
 int CALLBACK fontCallback(const LOGFONTW* lpelfe, const TEXTMETRICW*, DWORD, LPARAM lParam)
 {
@@ -205,6 +207,7 @@ static void from_json(const json& j, Player& p)
     read<value_t::object>(j, "Health Bar", p.healthBar);
     read<value_t::object>(j, "Skeleton", p.skeleton);
     read<value_t::object>(j, "Head Box", p.headBox);
+    read<value_t::object>(j, "Line of sight", p.lineOfSight);
 }
 
 static void from_json(const json& j, OffscreenEnemies& o)
@@ -445,6 +448,10 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Smoke timer BG", v.smokeTimerBG);
     read<value_t::object>(j, "Smoke timer TIMER", v.smokeTimerTimer);
     read<value_t::object>(j, "Smoke timer TEXT", v.smokeTimerText);
+    read(j, "Molotov timer", v.molotovTimer);
+    read<value_t::object>(j, "Molotov timer BG", v.molotovTimerBG);
+    read<value_t::object>(j, "Molotov timer TIMER", v.molotovTimerTimer);
+    read<value_t::object>(j, "Molotov timer TEXT", v.molotovTimerText);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -821,6 +828,7 @@ static void to_json(json& j, const Player& o, const Player& dummy = {})
     WRITE("Health Bar", healthBar);
     WRITE("Skeleton", skeleton);
     WRITE("Head Box", headBox);
+    WRITE("Line of sight", lineOfSight);
 }
 
 static void to_json(json& j, const Weapon& o, const Weapon& dummy = {})
@@ -1318,6 +1326,10 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Smoke timer BG", smokeTimerBG);
     WRITE("Smoke timer TIMER", smokeTimerTimer);
     WRITE("Smoke timer TEXT", smokeTimerText);
+    WRITE("Molotov timer", molotovTimer);
+    WRITE("Molotov timer BG", molotovTimerBG);
+    WRITE("Molotov timer TIMER", molotovTimerTimer);
+    WRITE("Molotov timer TEXT", molotovTimerText);
 }
 
 static void to_json(json& j, const ImVec4& o)

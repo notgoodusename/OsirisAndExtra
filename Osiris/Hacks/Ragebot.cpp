@@ -1,12 +1,13 @@
-#include "Aimbot.h"
+#include "../Config.h"
+#include "../Interfaces.h"
+#include "../Memory.h"
+
+#include "AimbotFunctions.h"
 #include "Animations.h"
 #include "Backtrack.h"
 #include "Ragebot.h"
 #include "EnginePrediction.h"
-
-#include "../Config.h"
-#include "../Interfaces.h"
-#include "../Memory.h"
+#include "Resolver.h"
 
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
@@ -16,7 +17,6 @@
 #include "../SDK/GlobalVars.h"
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/ModelInfo.h"
-#include "Resolver.h"
 
 static bool keyPressed = false;
 
@@ -106,7 +106,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             || !entity->isOtherEnemy(localPlayer.get()) && !cfg[weaponIndex].friendlyFire || entity->gunGameImmunity())
             continue;
 
-        const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, player.matrix[8].origin(), cmd->viewangles + aimPunch) };
+        const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, player.matrix[8].origin(), cmd->viewangles + aimPunch) };
         const auto origin{ entity->getAbsOrigin() };
         const auto fov{ angle.length2D() }; //fov
         const auto health{ entity->health() }; //health
@@ -187,9 +187,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!hitbox)
                 continue;
 
-            for (auto &bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, i, multiPoint))
+            for (auto &bonePosition : AimbotFunction::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, i, multiPoint))
             {
-                const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
+                const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
                 const auto fov{ angle.length2D() };
                 if (fov > cfg[weaponIndex].fov)
                     continue;
@@ -197,7 +197,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                     continue;
 
-                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                float damage = AimbotFunction::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
                 damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
                 if (damage <= 0.f)
                     continue;
@@ -242,7 +242,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         if (bestTarget.notNull())
         {
-            if (!Aimbot::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
+            if (!AimbotFunction::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
             {
                 bestTarget = Vector{ };
                 bestAngle = Vector{ };
@@ -324,9 +324,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
             if (!hitbox)
                 continue;
 
-            for (auto& bonePosition : Aimbot::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, multiPoint))
+            for (auto& bonePosition : AimbotFunction::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, multiPoint))
             {
-                const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, (cmd->viewangles + aimPunch)) };
+                const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, (cmd->viewangles + aimPunch)) };
                 const auto fov{ angle.length2D() };
                 if (fov > cfg[weaponIndex].fov)
                     continue;
@@ -334,7 +334,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                     continue;
 
-                float damage = Aimbot::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
+                float damage = AimbotFunction::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
                 damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
                 if (damage <= 0.f)
                     continue;
@@ -380,7 +380,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         if (bestTarget.notNull())
         {
-            if (!Aimbot::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
+            if (!AimbotFunction::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
             {
                 bestTarget = Vector{ };
                 bestAngle = Vector{ };
@@ -403,7 +403,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         if (lastCommand == cmd->commandNumber - 1 && lastAngles.notNull() && cfg[weaponIndex].silent)
             cmd->viewangles = lastAngles;
 
-        auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bestTarget, cmd->viewangles + aimPunch);
+        auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bestTarget, cmd->viewangles + aimPunch);
         bool clamped{ false };
 
         if (std::abs(angle.x) > config->misc.maxAngleDelta || std::abs(angle.y) > config->misc.maxAngleDelta) {

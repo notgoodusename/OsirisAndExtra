@@ -11,16 +11,10 @@ namespace Misc
         right,
         left
     };
-
-    inline bool shouldEdgebug;
-    inline float zVelBackup;
-    inline float bugSpeed;
-    inline int edgebugButtons;
-    inline YawOrientation yawOrientation{ YawOrientation::forward };
-
+    
     bool isInChat() noexcept;
     void edgeBug(UserCmd* cmd, Vector& angView) noexcept;
-    void PrePred(UserCmd* cmd) noexcept;
+    void prePrediction(UserCmd* cmd) noexcept;
     void drawPlayerList() noexcept;
     void blockBot(UserCmd* cmd) noexcept; 
     void runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept;

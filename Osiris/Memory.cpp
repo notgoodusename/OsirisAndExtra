@@ -7,9 +7,10 @@
 #include <Windows.h>
 #include <Psapi.h>
 
+#include "SDK/LocalPlayer.h"
+
 #include "Interfaces.h"
 #include "Memory.h"
-#include "SDK/LocalPlayer.h"
 
 #define getName(VariableName) # VariableName
 

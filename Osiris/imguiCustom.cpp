@@ -402,7 +402,7 @@ void ImGui::hotkey2(const char* label, KeyBind& key, float samelineOffset, const
                 key.keyMode = KeyMode::Toggle;
 
             if (ImGui::Selectable("Unset"))
-                key = KeyBind::NONE;
+                key.reset();
 
             ImGui::EndPopup();
         }

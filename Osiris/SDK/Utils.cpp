@@ -1,6 +1,7 @@
 #include <cmath>
 
 #include "../Memory.h"
+
 #include "GlobalVars.h"
 #include "Entity.h"
 #include "matrix3x4.h"

@@ -2,13 +2,13 @@
 
 #include <cstddef>
 
+#include "../Interfaces.h"
+
 #include "Cvar.h"
 #include "ConVar.h"
 #include "Vector.h"
 #include "VirtualMethod.h"
 #include "WeaponData.h"
-
-#include "../Interfaces.h"
 
 class matrix3x4;
 

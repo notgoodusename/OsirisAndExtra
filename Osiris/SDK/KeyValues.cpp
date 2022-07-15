@@ -1,5 +1,6 @@
-#include "KeyValues.h"
 #include "../Memory.h"
+
+#include "KeyValues.h"
 
 KeyValues* KeyValues::fromString(const char* name, const char* value) noexcept
 {

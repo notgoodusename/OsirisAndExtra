@@ -7,7 +7,9 @@
 #include <unordered_map>
 
 #include "imgui/imgui.h"
+
 #include "Hacks/SkinChanger.h"
+
 #include "ConfigStructs.h"
 #include "InputUtil.h"
 #include "Hacks/AntiAim.h"
@@ -280,6 +282,10 @@ public:
         Color4 smokeTimerBG{ 1.0f, 1.0f, 1.0f, 0.5f };
         Color4 smokeTimerTimer{ 0.0f, 0.0f, 1.0f, 1.0f };
         Color4 smokeTimerText{ 0.0f, 0.0f, 0.0f, 1.0f };
+        bool molotovTimer{ false };
+        Color4 molotovTimerBG{ 1.0f, 1.0f, 1.0f, 0.5f };
+        Color4 molotovTimerTimer{ 0.0f, 0.0f, 1.0f, 1.0f };
+        Color4 molotovTimerText{ 0.0f, 0.0f, 0.0f, 1.0f };
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

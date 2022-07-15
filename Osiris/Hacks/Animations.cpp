@@ -1,9 +1,10 @@
-#include "Animations.h"
-#include "EnginePrediction.h"
-#include "Resolver.h"
-
 #include "../Memory.h"
 #include "../Interfaces.h"
+
+#include "Animations.h"
+#include "Backtrack.h"
+#include "EnginePrediction.h"
+#include "Resolver.h"
 
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/Cvar.h"
@@ -14,7 +15,6 @@
 #include "../SDK/MemAlloc.h"
 #include "../SDK/Input.h"
 #include "../SDK/Vector.h"
-#include "Backtrack.h"
 
 static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};

@@ -1,4 +1,4 @@
-#include "Aimbot.h"
+#include "AimbotFunctions.h"
 #include "Animations.h"
 #include "Legitbot.h"
 
@@ -142,9 +142,9 @@ void Legitbot::run(UserCmd* cmd) noexcept
                 if (!hitbox)
                     continue;
 
-                for (auto& bonePosition : Aimbot::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, j, 0))
+                for (auto& bonePosition : AimbotFunction::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, j, 0))
                 {
-                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
+                    const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
                     const auto fov{ angle.length2D() };
                     if (fov > bestFov)
                         continue;
@@ -152,7 +152,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
                     if (!cfg[weaponIndex].ignoreSmoke && memory->lineGoesThroughSmoke(localPlayerEyePosition, bonePosition, 1))
                         continue;
 
-                    if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !Aimbot::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg[weaponIndex].killshot ? entity->health() : cfg[weaponIndex].minDamage, cfg[weaponIndex].friendlyFire)))
+                    if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !AimbotFunction::canScan(entity, bonePosition, activeWeapon->getWeaponData(), cfg[weaponIndex].killshot ? entity->health() : cfg[weaponIndex].minDamage, cfg[weaponIndex].friendlyFire)))
                         continue;
 
                     if (fov < bestFov) {
@@ -175,7 +175,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
             if (lastCommand == cmd->commandNumber - 1 && lastAngles.notNull() && cfg[weaponIndex].silent)
                 cmd->viewangles = lastAngles;
 
-            auto angle = Aimbot::calculateRelativeAngle(localPlayerEyePosition, bestTarget, cmd->viewangles + aimPunch);
+            auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bestTarget, cmd->viewangles + aimPunch);
             bool clamped{ false };
 
             if (std::abs(angle.x) > config->misc.maxAngleDelta || std::abs(angle.y) > config->misc.maxAngleDelta) {

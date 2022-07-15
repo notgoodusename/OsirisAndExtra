@@ -1,4 +1,6 @@
-#include "Aimbot.h"
+#include "../Interfaces.h"
+
+#include "AimbotFunctions.h"
 #include "AntiAim.h"
 
 #include "../SDK/Engine.h"
@@ -6,8 +8,6 @@
 #include "../SDK/EntityList.h"
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
-
-#include "../Interfaces.h"
 
 static bool flipJitter{ false };
 static float manualYaw{ 0.f };
@@ -118,7 +118,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                         || !entity->isOtherEnemy(localPlayer.get()) || entity->gunGameImmunity())
                         continue;
 
-                    const auto angle{ Aimbot::calculateRelativeAngle(localPlayerEyePosition, entity->getAbsOrigin(), cmd->viewangles + aimPunch) };
+                    const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, entity->getAbsOrigin(), cmd->viewangles + aimPunch) };
                     const auto fov{ angle.length2D() };
                     if (fov < bestFov)
                     {

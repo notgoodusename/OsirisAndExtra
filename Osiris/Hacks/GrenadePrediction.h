@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 
 #include "../imgui/imgui.h"
 
@@ -6,9 +7,8 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/Vector.h"
 
-#include <array>
-
-namespace NadePrediction {
+namespace GrenadePrediction 
+{
 	void run(UserCmd* cmd) noexcept;
 	void draw() noexcept;
 };

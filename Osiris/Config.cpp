@@ -444,6 +444,10 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Smoke timer BG", v.smokeTimerBG);
     read<value_t::object>(j, "Smoke timer TIMER", v.smokeTimerTimer);
     read<value_t::object>(j, "Smoke timer TEXT", v.smokeTimerText);
+    read(j, "Molotov timer", v.molotovTimer);
+    read<value_t::object>(j, "Molotov timer BG", v.molotovTimerBG);
+    read<value_t::object>(j, "Molotov timer TIMER", v.molotovTimerTimer);
+    read<value_t::object>(j, "Molotov timer TEXT", v.molotovTimerText);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -1312,6 +1316,10 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Smoke timer BG", smokeTimerBG);
     WRITE("Smoke timer TIMER", smokeTimerTimer);
     WRITE("Smoke timer TEXT", smokeTimerText);
+    WRITE("Molotov timer", molotovTimer);
+    WRITE("Molotov timer BG", molotovTimerBG);
+    WRITE("Molotov timer TIMER", molotovTimerTimer);
+    WRITE("Molotov timer TEXT", molotovTimerText);
 }
 
 static void to_json(json& j, const ImVec4& o)

@@ -13,6 +13,8 @@ namespace Visuals
     void shadowChanger() noexcept;
     void drawSmokeTimerEvent(GameEvent* event) noexcept;
     void drawSmokeTimer(ImDrawList* drawList) noexcept;
+    void drawMolotovTimerEvent(GameEvent* event) noexcept;
+    void drawMolotovTimer(ImDrawList* drawList) noexcept;
     void visualizeSpread(ImDrawList* drawList) noexcept;
     void drawAimbotFov(ImDrawList* drawList) noexcept;
     void fullBright() noexcept;

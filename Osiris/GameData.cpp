@@ -17,6 +17,7 @@
 
 #include "SDK/ClientClass.h"
 #include "SDK/Engine.h"
+#include "SDK/EngineTrace.h"
 #include "SDK/Entity.h"
 #include "SDK/EntityList.h"
 #include "SDK/GlobalVars.h"
@@ -504,6 +505,13 @@ void PlayerData::update(Entity* entity) noexcept
     inViewFrustum = !interfaces->engine->cullBox(obbMins + origin, obbMaxs + origin);
     alive = entity->isAlive();
     lastContactTime = alive ? memory->globalVars->realtime : 0.0f;
+
+    const Vector start = entity->getEyePosition();
+    const Vector end = start + Vector::fromAngle(entity->eyeAngles()) * 1000.0f;
+
+    Trace trace;
+    interfaces->engineTrace->traceRay({ start, end }, 0x80040FF, entity, trace);
+    lookingAt = trace.endpos;
 
     if (localPlayer) {
         enemy = memory->isOtherEnemy(entity, localPlayer.get());

@@ -444,6 +444,25 @@ static void drawPlayerSkeleton(const ColorToggleThickness& config, const std::ve
         drawList->AddLine(bonePoint, parentPoint, color, config.thickness);
 }
 
+static void drawLineOfSight(const ColorToggleThickness& config, const PlayerData& playerData)
+{
+    if (!config.enabled)
+        return;
+
+    const auto color = Helpers::calculateColor(config);
+
+    ImVec2 start, end;
+
+    bool draw = Helpers::worldToScreen((playerData.headMaxs + playerData.headMins) / 2, start);
+    draw = draw && Helpers::worldToScreen(playerData.lookingAt, end);
+
+    if (draw)
+    {
+        drawList->AddLine(start, end, color, config.thickness);
+        drawList->AddCircle(end, 5.0f, color, 0, config.thickness);
+    }
+}
+
 static bool renderPlayerEsp(const PlayerData& playerData, const Player& playerConfig) noexcept
 {
     if (!playerConfig.enabled)
@@ -463,6 +482,8 @@ static bool renderPlayerEsp(const PlayerData& playerData, const Player& playerCo
 
     if (const BoundingBox headBbox{ playerData.headMins, playerData.headMaxs, playerConfig.headBox.scale })
         renderBox(headBbox, playerConfig.headBox);
+
+    drawLineOfSight(playerConfig.lineOfSight, playerData);
 
     Helpers::setAlphaFactor(1.0f);
 

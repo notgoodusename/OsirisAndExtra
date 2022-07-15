@@ -112,6 +112,7 @@ struct Player : Shared {
     HealthBar healthBar;
     ColorToggleThickness skeleton;
     Box headBox;
+    ColorToggleThickness lineOfSight;
 
     using Shared::operator=;
 };

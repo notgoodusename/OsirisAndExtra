@@ -207,6 +207,7 @@ static void from_json(const json& j, Player& p)
     read<value_t::object>(j, "Health Bar", p.healthBar);
     read<value_t::object>(j, "Skeleton", p.skeleton);
     read<value_t::object>(j, "Head Box", p.headBox);
+    read<value_t::object>(j, "Line of sight", p.lineOfSight);
 }
 
 static void from_json(const json& j, OffscreenEnemies& o)
@@ -818,6 +819,7 @@ static void to_json(json& j, const Player& o, const Player& dummy = {})
     WRITE("Health Bar", healthBar);
     WRITE("Skeleton", skeleton);
     WRITE("Head Box", headBox);
+    WRITE("Line of sight", lineOfSight);
 }
 
 static void to_json(json& j, const Weapon& o, const Weapon& dummy = {})

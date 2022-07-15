@@ -1170,6 +1170,9 @@ void GUI::renderStreamProofESPWindow() noexcept
             }
 
             ImGui::PopID();
+
+            ImGuiCustom::colorPicker("Line of sight", playerConfig.lineOfSight);
+
         } else if (currentCategory == 2) {
             auto& weaponConfig = config->streamProofESP.weapons[currentItem];
             ImGuiCustom::colorPicker("Ammo", weaponConfig.ammo);

@@ -155,6 +155,7 @@ struct PlayerData : BaseData {
     std::string clanTag;
     Vector headMins, headMaxs;
     Vector origin;
+    Vector lookingAt;
     std::string activeWeapon;
     std::vector<std::pair<Vector, Vector>> bones;
     int skillgroup;

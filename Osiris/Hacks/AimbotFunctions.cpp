@@ -124,7 +124,7 @@ void AimbotFunction::calculateArmorDamage(float armorRatio, int armorValue, bool
 }
 
 bool AimbotFunction::canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept
- {
+{
     if (!localPlayer)
         return false;
 
@@ -132,8 +132,9 @@ bool AimbotFunction::canScan(Entity* entity, const Vector& destination, const We
 
     Vector start{ localPlayer->getEyePosition() };
     Vector direction{ destination - start };
-    float distance{ direction.length() };
-    direction /= distance;
+    float maxDistance{ direction.length() };
+    float curDistance{ 0.0f };
+    direction /= maxDistance;
 
     int hitsLeft = 4;
 
@@ -147,8 +148,11 @@ bool AimbotFunction::canScan(Entity* entity, const Vector& destination, const We
         if (trace.fraction == 1.0f)
             break;
 
+        curDistance += trace.fraction * (maxDistance - curDistance);
+        damage *= std::pow(weaponData->rangeModifier, curDistance / 500.0f);
+
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber())) * damage * powf(weaponData->rangeModifier, distance / 500.0f);
+            damage *= HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber()));
 
             if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet(), trace.entity->armor(), trace.entity->hasHeavyArmor()))
                 calculateArmorDamage(armorRatio, trace.entity->armor(), trace.entity->hasHeavyArmor(), damage);
@@ -177,7 +181,9 @@ float AimbotFunction::getScanDamage(Entity* entity, const Vector& destination, c
 
     Vector start{ localPlayer->getEyePosition() };
     Vector direction{ destination - start };
-    direction /= direction.length();
+    float maxDistance{ direction.length() };
+    float curDistance{ 0.0f };
+    direction /= maxDistance;
 
     int hitsLeft = 4;
 
@@ -191,12 +197,15 @@ float AimbotFunction::getScanDamage(Entity* entity, const Vector& destination, c
         if (trace.fraction == 1.0f)
             break;
 
+        curDistance += trace.fraction * (maxDistance - curDistance);
+        damage *= std::pow(weaponData->rangeModifier, curDistance / 500.0f);
+
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber())) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+            damage *= HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber()));
 
             if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet(), trace.entity->armor(), trace.entity->hasHeavyArmor()))
                 calculateArmorDamage(armorRatio, trace.entity->armor(), trace.entity->hasHeavyArmor(), damage);
-           
+
             if (damage >= minDamage)
                 return damage;
             return 0.f;

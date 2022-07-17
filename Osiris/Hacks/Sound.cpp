@@ -48,7 +48,7 @@ void Sound::modulateSound(std::string_view name, int entityIndex, float& volume)
     else if (name.find("Step"sv) != std::string_view::npos)
         modulateVolume(&SoundConfig::Player::footstepVolume);
     else if (name.find("Chicken"sv) != std::string_view::npos)
-       volume *= soundConfig.chickenVolume / 100.0f;
+        volume *= soundConfig.chickenVolume / 100.0f;
 }
 
 void Sound::drawGUI() noexcept

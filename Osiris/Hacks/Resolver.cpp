@@ -1,4 +1,4 @@
-#include "Aimbot.h"
+#include "AimbotFunctions.h"
 #include "Animations.h"
 #include "Resolver.h"
 #include "AntiAim.h"
@@ -186,7 +186,7 @@ void Resolver::processMissedShots() noexcept
 	if (!set)
 		return;
 
-	const auto angle = Aimbot::calculateRelativeAngle(snapshot.eyePosition, snapshot.bulletImpact, Vector{ });
+	const auto angle = AimbotFunction::calculateRelativeAngle(snapshot.eyePosition, snapshot.bulletImpact, Vector{ });
 	const auto end = snapshot.bulletImpact + Vector::fromAngle(angle) * 2000.f;
 
 	const auto matrix = snapshot.backtrackRecord == -1 ? snapshot.player.matrix.data() : snapshot.player.backtrackRecords.at(snapshot.backtrackRecord).matrix;
@@ -195,7 +195,7 @@ void Resolver::processMissedShots() noexcept
 
 	for (int hitbox = 0; hitbox < Hitboxes::Max; hitbox++)
 	{
-		if (Aimbot::hitboxIntersection(matrix, hitbox, set, snapshot.eyePosition, end))
+		if (AimbotFunction::hitboxIntersection(matrix, hitbox, set, snapshot.eyePosition, end))
 		{
 			resolverMissed = true;
 			if (desyncAng == snapshot.player.workingangle && desyncAng != 0.f)

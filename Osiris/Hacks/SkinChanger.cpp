@@ -13,10 +13,11 @@
 #include "../imgui/imgui.h"
 
 #include "../Interfaces.h"
-
-#include "SkinChanger.h"
 #include "../Config.h"
 #include "../Texture.h"
+#include "../Helpers.h"
+
+#include "SkinChanger.h"
 
 #include "../SDK/Client.h"
 #include "../SDK/ClientClass.h"
@@ -33,8 +34,6 @@
 #include "../SDK/ModelInfo.h"
 #include "../SDK/Platform.h"
 #include "../SDK/WeaponId.h"
-
-#include "../Helpers.h"
 
 /* This file is part of nSkinz by namazso, licensed under the MIT license:
 *

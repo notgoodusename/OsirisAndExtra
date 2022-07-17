@@ -1,13 +1,15 @@
 #include <cstring>
 #include <functional>
 
-#include "Chams.h"
 #include "../Config.h"
 #include "../Helpers.h"
 #include "../Hooks.h"
 #include "../Interfaces.h"
+
 #include "Animations.h"
 #include "Backtrack.h"
+#include "Chams.h"
+
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
 #include "../SDK/GlobalVars.h"
@@ -144,8 +146,14 @@ bool Chams::render(void* ctx, void* state, const ModelRenderInfo& info, matrix3x
             renderWeapons();
     } else {
         const auto entity = interfaces->entityList->getEntity(info.entityIndex);
-        if (entity && !entity->isDormant() && entity->isPlayer())
-            renderPlayer(entity);
+        if (entity && !entity->isDormant())
+        {
+            if (entity->isPlayer())
+                renderPlayer(entity);
+
+            if (entity->getClientClass()->classId == ClassId::CSRagdoll)
+                applyChams(config->chams["Ragdolls"].materials);
+        }
     }
 
     return appliedChams;

@@ -62,6 +62,7 @@ public:
     MinHook performScreenOverlay;
     MinHook postNetworkDataReceived;
     MinHook isDepthOfFieldEnabled;
+    MinHook getClientModelRenderable;
 
     MinHook newFunctionClientDLL;
     MinHook newFunctionEngineDLL;

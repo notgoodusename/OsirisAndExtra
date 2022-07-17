@@ -10,11 +10,13 @@
 
 #include "Config.h"
 #include "Helpers.h"
-#include "SDK/Platform.h"
+
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"
 #include "Hacks/Glow.h"
 #include "Hacks/Sound.h"
+
+#include "SDK/Platform.h"
 
 int CALLBACK fontCallback(const LOGFONTW* lpelfe, const TEXTMETRICW*, DWORD, LPARAM lParam)
 {
@@ -205,6 +207,7 @@ static void from_json(const json& j, Player& p)
     read<value_t::object>(j, "Health Bar", p.healthBar);
     read<value_t::object>(j, "Skeleton", p.skeleton);
     read<value_t::object>(j, "Head Box", p.headBox);
+    read<value_t::object>(j, "Line of sight", p.lineOfSight);
 }
 
 static void from_json(const json& j, OffscreenEnemies& o)
@@ -274,6 +277,7 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Hitchance", r.hitChance);
     read(j, "Multipoint", r.multiPoint);
     read(j, "Min damage", r.minDamage);
+    read(j, "Min damage override", r.minDamageOverride);
 }
 
 static void from_json(const json& j, Config::Triggerbot& t)
@@ -452,6 +456,10 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Smoke timer BG", v.smokeTimerBG);
     read<value_t::object>(j, "Smoke timer TIMER", v.smokeTimerTimer);
     read<value_t::object>(j, "Smoke timer TEXT", v.smokeTimerText);
+    read(j, "Molotov timer", v.molotovTimer);
+    read<value_t::object>(j, "Molotov timer BG", v.molotovTimerBG);
+    read<value_t::object>(j, "Molotov timer TIMER", v.molotovTimerTimer);
+    read<value_t::object>(j, "Molotov timer TEXT", v.molotovTimerText);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -487,6 +495,7 @@ static void from_json(const json& j, PurchaseList& pl)
     read(j, "Show Prices", pl.showPrices);
     read(j, "No Title Bar", pl.noTitleBar);
     read(j, "Mode", pl.mode);
+    read<value_t::object>(j, "Pos", pl.pos);
 }
 
 static void from_json(const json& j, Config::Misc::SpectatorList& sl)
@@ -518,6 +527,7 @@ static void from_json(const json& j, Config::Misc::PlayerList& o)
 static void from_json(const json& j, Config::Misc::Watermark& o)
 {
     read(j, "Enabled", o.enabled);
+    read<value_t::object>(j, "Pos", o.pos);
 }
 
 static void from_json(const json& j, PreserveKillfeed& o)
@@ -617,6 +627,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Jump Bug Key", m.jumpBugKey);
     read(j, "Slowwalk", m.slowwalk);
     read(j, "Slowwalk key", m.slowwalkKey);
+    read(j, "Slowwalk Amnt", m.slowwalkAmnt);
     read(j, "Fake duck", m.fakeduck);
     read(j, "Fake duck key", m.fakeduckKey);
     read<value_t::object>(j, "Auto peek", m.autoPeek);
@@ -706,9 +717,11 @@ void Config::load(const char8_t* name, bool incremental) noexcept
 
     read(j, "Legitbot", legitbot);
     read(j, "Legitbot Key", legitbotKey);
+    read<value_t::object>(j, "Draw legitbot fov", legitbotFov);
 
     read(j, "Ragebot", ragebot);
     read(j, "Ragebot Key", ragebotKey);
+    read(j, "Min damage override Key", minDamageOverrideKey);
 
     read(j, "Triggerbot", triggerbot);
     read(j, "Triggerbot Key", triggerbotKey);
@@ -827,6 +840,7 @@ static void to_json(json& j, const Player& o, const Player& dummy = {})
     WRITE("Health Bar", healthBar);
     WRITE("Skeleton", skeleton);
     WRITE("Head Box", headBox);
+    WRITE("Line of sight", lineOfSight);
 }
 
 static void to_json(json& j, const Weapon& o, const Weapon& dummy = {})
@@ -924,6 +938,7 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Hitchance", hitChance);
     WRITE("Multipoint", multiPoint);
     WRITE("Min damage", minDamage);
+    WRITE("Min damage override", minDamageOverride);
 }
 
 static void to_json(json& j, const Config::Triggerbot& o, const Config::Triggerbot& dummy = {})
@@ -1058,6 +1073,10 @@ static void to_json(json& j, const PurchaseList& o, const PurchaseList& dummy = 
     WRITE("Show Prices", showPrices);
     WRITE("No Title Bar", noTitleBar);
     WRITE("Mode", mode);
+
+    if (const auto window = ImGui::FindWindowByName("Purchases")) {
+        j["Pos"] = window->Pos;
+    }
 }
 
 static void to_json(json& j, const Config::Misc::SpectatorList& o, const Config::Misc::SpectatorList& dummy = {})
@@ -1098,6 +1117,10 @@ static void to_json(json& j, const Config::Misc::PlayerList& o, const Config::Mi
 static void to_json(json& j, const Config::Misc::Watermark& o, const Config::Misc::Watermark& dummy = {})
 {
     WRITE("Enabled", enabled);
+
+    if (const auto window = ImGui::FindWindowByName("Watermark")) {
+        j["Pos"] = window->Pos;
+    }
 }
 
 static void to_json(json& j, const PreserveKillfeed& o, const PreserveKillfeed& dummy = {})
@@ -1202,6 +1225,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Jump Bug Key", jumpBugKey);
     WRITE("Slowwalk", slowwalk);
     WRITE("Slowwalk key", slowwalkKey);
+    WRITE("Slowwalk Amnt", slowwalkAmnt);
     WRITE("Fake duck", fakeduck);
     WRITE("Fake duck key", fakeduckKey);
     WRITE("Auto peek", autoPeek);
@@ -1322,6 +1346,10 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Smoke timer BG", smokeTimerBG);
     WRITE("Smoke timer TIMER", smokeTimerTimer);
     WRITE("Smoke timer TEXT", smokeTimerText);
+    WRITE("Molotov timer", molotovTimer);
+    WRITE("Molotov timer BG", molotovTimerBG);
+    WRITE("Molotov timer TIMER", molotovTimerTimer);
+    WRITE("Molotov timer TEXT", molotovTimerText);
 }
 
 static void to_json(json& j, const ImVec4& o)
@@ -1383,9 +1411,11 @@ void Config::save(size_t id) const noexcept
 
         j["Legitbot"] = legitbot;
         to_json(j["Legitbot Key"], legitbotKey, KeyBind::NONE);
+        j["Draw legitbot fov"] = legitbotFov;
 
         j["Ragebot"] = ragebot;
         to_json(j["Ragebot Key"], ragebotKey, KeyBind::NONE);
+        to_json(j["Min damage override Key"], minDamageOverrideKey, KeyBind::NONE);
 
         j["Triggerbot"] = triggerbot;
         to_json(j["Triggerbot Key"], triggerbotKey, KeyBind::NONE);

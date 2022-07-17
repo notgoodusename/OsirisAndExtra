@@ -1,7 +1,7 @@
-#include "Entity.h"
-
 #include "../Memory.h"
 #include "../Interfaces.h"
+
+#include "Entity.h"
 #include "GlobalVars.h"
 #include "Localize.h"
 #include "ModelInfo.h"

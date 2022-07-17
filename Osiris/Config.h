@@ -7,7 +7,9 @@
 #include <unordered_map>
 
 #include "imgui/imgui.h"
+
 #include "Hacks/SkinChanger.h"
+
 #include "ConfigStructs.h"
 #include "InputUtil.h"
 
@@ -53,9 +55,11 @@ public:
         int hitChance{ 50 };
         int multiPoint{ 0 };
         int minDamage{ 1 };
+        int minDamageOverride{ 1 };
     };
     std::array<Ragebot, 40> ragebot;
     KeyBind ragebotKey{ std::string("ragebot") };
+    KeyBind minDamageOverrideKey{ std::string("min damage override") };
 
     struct Fakelag {
         bool enabled = false;
@@ -121,6 +125,7 @@ public:
     };
     std::array<Legitbot, 40> legitbot;
     KeyBind legitbotKey{ std::string("legitbot") };
+    ColorToggleOutline legitbotFov{ 1.0f, 1.0f, 1.0f, 0.25f };
 
     struct Triggerbot {
         bool enabled = false;
@@ -285,6 +290,10 @@ public:
         Color4 smokeTimerBG{ 1.0f, 1.0f, 1.0f, 0.5f };
         Color4 smokeTimerTimer{ 0.0f, 0.0f, 1.0f, 1.0f };
         Color4 smokeTimerText{ 0.0f, 0.0f, 0.0f, 1.0f };
+        bool molotovTimer{ false };
+        Color4 molotovTimerBG{ 1.0f, 1.0f, 1.0f, 0.5f };
+        Color4 molotovTimerTimer{ 0.0f, 0.0f, 1.0f, 1.0f };
+        Color4 molotovTimerText{ 0.0f, 0.0f, 0.0f, 1.0f };
     } visuals;
 
     std::array<item_setting, 36> skinChanger;
@@ -313,6 +322,7 @@ public:
         int edgebugPredAmnt{ 20 };
         bool jumpBug{ false };
         bool slowwalk{ false };
+        int slowwalkAmnt{ 0 };
         bool fakeduck{ false };
         ColorToggle autoPeek{ 1.0f, 1.0f, 1.0f, 1.0f };
         bool autoPistol{ false };
@@ -376,6 +386,7 @@ public:
 
         struct Watermark {
             bool enabled = false;
+            ImVec2 pos;
         };
         Watermark watermark;
         float aspectratio{ 0 };

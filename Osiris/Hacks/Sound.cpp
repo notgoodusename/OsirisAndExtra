@@ -2,13 +2,14 @@
 
 #include "../Config.h"
 #include "../Interfaces.h"
+
+#include "Sound.h"
+
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
 #include "../SDK/LocalPlayer.h"
 
-#include "Sound.h"
-
-#if THE_SOUND_OF_GOD()
+#if OSIRIS_SOUND()
 
 static struct SoundConfig {
     int chickenVolume = 100;

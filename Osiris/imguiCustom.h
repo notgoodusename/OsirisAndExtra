@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Config.h"
 #include "imgui/imgui.h"
+
+#include "Config.h"
 
 struct Color4;
 struct ColorToggle;

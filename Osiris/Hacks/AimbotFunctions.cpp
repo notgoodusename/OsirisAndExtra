@@ -1,7 +1,10 @@
-#include "Aimbot.h"
 #include "../Config.h"
 #include "../Interfaces.h"
 #include "../Memory.h"
+
+#include "AimbotFunctions.h"
+#include "Animations.h"
+
 #include "../SDK/Angle.h"
 #include "../SDK/ConVar.h"
 #include "../SDK/Entity.h"
@@ -12,9 +15,8 @@
 #include "../SDK/PhysicsSurfaceProps.h"
 #include "../SDK/WeaponData.h"
 #include "../SDK/ModelInfo.h"
-#include "Animations.h"
 
-Vector Aimbot::calculateRelativeAngle(const Vector& source, const Vector& destination, const Vector& viewAngles) noexcept
+Vector AimbotFunction::calculateRelativeAngle(const Vector& source, const Vector& destination, const Vector& viewAngles) noexcept
 {
     return ((destination - source).toAngle() - viewAngles).normalize();
 }
@@ -100,7 +102,7 @@ static float handleBulletPenetration(SurfaceData* enterSurfaceData, const Trace&
     return damage;
 }
 
-void Aimbot::calculateArmorDamage(float armorRatio, int armorValue, bool hasHeavyArmor, float& damage) noexcept
+void AimbotFunction::calculateArmorDamage(float armorRatio, int armorValue, bool hasHeavyArmor, float& damage) noexcept
 {
     auto armorScale = 1.0f;
     auto armorBonusRatio = 0.5f;
@@ -121,8 +123,8 @@ void Aimbot::calculateArmorDamage(float armorRatio, int armorValue, bool hasHeav
     damage = newDamage;
 }
 
-bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept
- {
+bool AimbotFunction::canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept
+{
     if (!localPlayer)
         return false;
 
@@ -130,7 +132,9 @@ bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo
 
     Vector start{ localPlayer->getEyePosition() };
     Vector direction{ destination - start };
-    direction /= direction.length();
+    float maxDistance{ direction.length() };
+    float curDistance{ 0.0f };
+    direction /= maxDistance;
 
     int hitsLeft = 4;
 
@@ -144,8 +148,11 @@ bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo
         if (trace.fraction == 1.0f)
             break;
 
+        curDistance += trace.fraction * (maxDistance - curDistance);
+        damage *= std::pow(weaponData->rangeModifier, curDistance / 500.0f);
+
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber())) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+            damage *= HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber()));
 
             if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet(), trace.entity->armor(), trace.entity->hasHeavyArmor()))
                 calculateArmorDamage(armorRatio, trace.entity->armor(), trace.entity->hasHeavyArmor(), damage);
@@ -165,7 +172,7 @@ bool Aimbot::canScan(Entity* entity, const Vector& destination, const WeaponInfo
     return false;
 }
 
-float Aimbot::getScanDamage(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept
+float AimbotFunction::getScanDamage(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept
 {
     if (!localPlayer)
         return 0.f;
@@ -174,7 +181,9 @@ float Aimbot::getScanDamage(Entity* entity, const Vector& destination, const Wea
 
     Vector start{ localPlayer->getEyePosition() };
     Vector direction{ destination - start };
-    direction /= direction.length();
+    float maxDistance{ direction.length() };
+    float curDistance{ 0.0f };
+    direction /= maxDistance;
 
     int hitsLeft = 4;
 
@@ -188,12 +197,15 @@ float Aimbot::getScanDamage(Entity* entity, const Vector& destination, const Wea
         if (trace.fraction == 1.0f)
             break;
 
+        curDistance += trace.fraction * (maxDistance - curDistance);
+        damage *= std::pow(weaponData->rangeModifier, curDistance / 500.0f);
+
         if (trace.entity == entity && trace.hitgroup > HitGroup::Generic && trace.hitgroup <= HitGroup::RightLeg) {
-            damage = HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber())) * damage * powf(weaponData->rangeModifier, trace.fraction * weaponData->range / 500.0f);
+            damage *= HitGroup::getDamageMultiplier(trace.hitgroup, weaponData, trace.entity->hasHeavyArmor(), static_cast<int>(trace.entity->getTeamNumber()));
 
             if (float armorRatio{ weaponData->armorRatio / 2.0f }; HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet(), trace.entity->armor(), trace.entity->hasHeavyArmor()))
                 calculateArmorDamage(armorRatio, trace.entity->armor(), trace.entity->hasHeavyArmor(), damage);
-           
+
             if (damage >= minDamage)
                 return damage;
             return 0.f;
@@ -400,7 +412,7 @@ void vectorIRotate(Vector in1, matrix3x4 in2, Vector& out) noexcept
     out.z = in1.x * in2[0][2] + in1.y * in2[1][2] + in1.z * in2[2][2];
 }
 
-bool Aimbot::hitboxIntersection(const matrix3x4 matrix[MAXSTUDIOBONES], int iHitbox, StudioHitboxSet* set, const Vector& start, const Vector& end) noexcept
+bool AimbotFunction::hitboxIntersection(const matrix3x4 matrix[MAXSTUDIOBONES], int iHitbox, StudioHitboxSet* set, const Vector& start, const Vector& end) noexcept
 {
     auto VectorTransform_Wrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
     {
@@ -449,7 +461,7 @@ bool Aimbot::hitboxIntersection(const matrix3x4 matrix[MAXSTUDIOBONES], int iHit
     return false;
 }
 
-std::vector<Vector> Aimbot::multiPoint(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _multiPoint)
+std::vector<Vector> AimbotFunction::multiPoint(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _multiPoint)
 {
     auto VectorTransformWrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
     {
@@ -480,7 +492,7 @@ std::vector<Vector> Aimbot::multiPoint(Entity* entity, const matrix3x4 matrix[MA
     }
     vecArray.emplace_back(center);
 
-    Vector currentAngles = Aimbot::calculateRelativeAngle(center, localEyePos, Vector{});
+    Vector currentAngles = AimbotFunction::calculateRelativeAngle(center, localEyePos, Vector{});
 
     Vector forward;
     Vector::fromAngle(currentAngles, &forward);
@@ -514,7 +526,7 @@ std::vector<Vector> Aimbot::multiPoint(Entity* entity, const matrix3x4 matrix[MA
     return vecArray;
 }
 
-bool Aimbot::hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set, const matrix3x4 matrix[MAXSTUDIOBONES], Entity* activeWeapon, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
+bool AimbotFunction::hitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set, const matrix3x4 matrix[MAXSTUDIOBONES], Entity* activeWeapon, const Vector& destination, const UserCmd* cmd, const int hitChance) noexcept
 {
     static auto isSpreadEnabled = interfaces->cvar->findVar("weapon_accuracy_nospread");
     if (!hitChance || isSpreadEnabled->getInt() >= 1)

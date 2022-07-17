@@ -351,7 +351,7 @@ void ImGui::hotkey2(const char* label, KeyBind& key, float samelineOffset, const
     if (ImGui::GetActiveID() == id)
     {
         ImGui::Button("...");
-        if ((!ImGui::IsItemHovered() && ImGui::GetIO().MouseClicked[0]) || key.setToPressedKey())
+        if (key.setToPressedKey())
             ImGui::ClearActiveID();
     }
     else
@@ -402,7 +402,7 @@ void ImGui::hotkey2(const char* label, KeyBind& key, float samelineOffset, const
                 key.keyMode = KeyMode::Toggle;
 
             if (ImGui::Selectable("Unset"))
-                key = KeyBind::NONE;
+                key.reset();
 
             ImGui::EndPopup();
         }

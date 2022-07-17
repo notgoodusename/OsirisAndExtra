@@ -11,6 +11,9 @@
 #include "../Interfaces.h"
 #include "../Memory.h"
 #include "../Netvars.h"
+#include "../GUI.h"
+#include "../Helpers.h"
+#include "../GameData.h"
 
 #include "EnginePrediction.h"
 #include "Misc.h"
@@ -35,27 +38,8 @@
 #include "../SDK/WeaponData.h"
 #include "../SDK/WeaponSystem.h"
 
-#include "../GUI.h"
-#include "../Helpers.h"
-#include "../GameData.h"
-
 #include "../imguiCustom.h"
 #include "Tickbase.h"
-
-static bool worldToScreen(const Vector& in, ImVec2& out) noexcept
-{
-    const auto& matrix = GameData::toScreenMatrix();
-
-    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
-    if (w < 0.001f)
-        return false;
-
-    out = ImGui::GetIO().DisplaySize / 2.0f;
-    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
-    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
-    out = ImFloor(out);
-    return true;
-}
 
 bool Misc::isInChat() noexcept
 {
@@ -66,14 +50,22 @@ bool Misc::isInChat() noexcept
     if (!hudChat)
         return false;
 
-    const bool isInChat = *(bool*)((uintptr_t)hudChat + 0x58);
+    const bool isInChat = *(bool*)((uintptr_t)hudChat + 0xD);
 
     return isInChat;
 }
 
+bool shouldEdgebug = false;
+float zVelBackup = 0.0f;
+float bugSpeed = 0.0f;
+int edgebugButtons = 0;
+
 void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
 {
     if (!config->misc.edgebug || !config->misc.edgebugkey.isActive())
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
         return;
 
     if (localPlayer->flags() & 1)
@@ -83,11 +75,11 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
     if (shouldEdgebug)
         return;
 
-    int nCommandsPredicted = interfaces->prediction->split->commandsPredicted;
+    const int commandsPredicted = interfaces->prediction->split->commandsPredicted;
 
-    Vector angViewOriginal = angView;
-    Vector angCmdViewOriginal = cmd->viewangles;
-    int buttonsOriginal = cmd->buttons;
+    const Vector angViewOriginal = angView;
+    const Vector angCmdViewOriginal = cmd->viewangles;
+    const int buttonsOriginal = cmd->buttons;
     Vector vecMoveOriginal;
     vecMoveOriginal.x = cmd->sidemove;
     vecMoveOriginal.y = cmd->forwardmove;
@@ -96,30 +88,30 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
     static Vector angViewLastStrafe;
     static Vector angViewOld = angView;
     static Vector angViewDeltaStrafe;
-    static bool bAppliedStrafeLast = false;
-    if (!bAppliedStrafeLast)
+    static bool appliedStrafeLast = false;
+    if (!appliedStrafeLast)
     {
         angViewLastStrafe = angView;
         vecMoveLastStrafe = vecMoveOriginal;
         angViewDeltaStrafe = (angView - angViewOld);
         angViewDeltaStrafe;
     }
-    bAppliedStrafeLast = false;
+    appliedStrafeLast = false;
     angViewOld = angView;
 
     for (int t = 0; t < 4; t++)
     {
-        static int iLastType;
-        if (iLastType)
+        static int lastType = 0;
+        if (lastType)
         {
-            t = iLastType;
-            iLastType = 0;
+            t = lastType;
+            lastType = 0;
         }
-        memory->restoreEntityToPredictedFrame(0, nCommandsPredicted - 1);
+        memory->restoreEntityToPredictedFrame(0, commandsPredicted - 1);
         if (buttonsOriginal& UserCmd::IN_DUCK&& t < 2)
             t = 2;
-        bool bApplyStrafe = !(t % 2);
-        bool bApplyDuck = t > 1;
+        bool applyStrafe = !(t % 2);
+        bool applyDuck = t > 1;
 
         cmd->viewangles = angViewLastStrafe;
         cmd->buttons = buttonsOriginal;
@@ -128,11 +120,11 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
 
         for (int i = 0; i < config->misc.edgebugPredAmnt; i++)
         {
-            if (bApplyDuck)
+            if (applyDuck)
                 cmd->buttons |= UserCmd::IN_DUCK;
             else
                 cmd->buttons &= ~UserCmd::IN_DUCK;
-            if (bApplyStrafe)
+            if (applyStrafe)
             {
                 cmd->viewangles += angViewDeltaStrafe;
                 cmd->viewangles.normalize();
@@ -149,9 +141,9 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
             if (shouldEdgebug)
             {
                 edgebugButtons = cmd->buttons;
-                if (bApplyStrafe)
+                if (applyStrafe)
                 {
-                    bAppliedStrafeLast = true;
+                    appliedStrafeLast = true;
                     angView = (angViewLastStrafe + angViewDeltaStrafe);
                     angView.normalize();
                     angView.clamp();
@@ -160,7 +152,7 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
                     cmd->forwardmove = vecMoveLastStrafe.y;
                 }
                 cmd->viewangles = angCmdViewOriginal;
-                iLastType = t;
+                lastType = t;
                 return;
             }
 
@@ -175,19 +167,20 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
     cmd->forwardmove = vecMoveOriginal.y;
 }
 
-void Misc::PrePred(UserCmd* cmd) noexcept
+void Misc::prePrediction(UserCmd* cmd) noexcept
 {
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
     zVelBackup = localPlayer->velocity().z;
 
     if (shouldEdgebug)
         cmd->buttons = edgebugButtons;
 
-    static auto sv_gravity = interfaces->cvar->findVar("sv_gravity");
-    bugSpeed = (sv_gravity->getFloat() * 0.5f * memory->globalVars->intervalPerTick);
+    static auto gravity = interfaces->cvar->findVar("sv_gravity");
+    bugSpeed = (gravity->getFloat() * 0.5f * memory->globalVars->intervalPerTick);
 
-    static float flZVelPrev = zVelBackup;
     shouldEdgebug = zVelBackup < -bugSpeed && round(localPlayer->velocity ().z) == -round(bugSpeed) && localPlayer->moveType() != MoveType::LADDER;
-    flZVelPrev = zVelBackup;
 }
 
 void Misc::drawPlayerList() noexcept
@@ -553,7 +546,7 @@ void Misc::drawAutoPeek(ImDrawList* drawList) noexcept
         {
             const auto& point3d = Vector{ std::sin(lat), std::cos(lat), 0.f } *15.f;
             ImVec2 point2d;
-            if (worldToScreen(peekPosition + point3d, point2d))
+            if (Helpers::worldToScreen(peekPosition + point3d, point2d))
                 points.push_back(point2d);
         }
 
@@ -740,7 +733,7 @@ void Misc::slowwalk(UserCmd* cmd) noexcept
     if (!weaponData)
         return;
 
-    float maxSpeed = (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) / 6;
+    const float maxSpeed = config->misc.slowwalkAmnt ? config->misc.slowwalkAmnt : (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) / 3;
 
     if (cmd->forwardmove && cmd->sidemove) {
         const float maxSpeedRoot = maxSpeed * static_cast<float>(M_SQRT1_2);
@@ -979,6 +972,7 @@ void Misc::updateClanTag(bool tagChanged) noexcept
 const bool anyActiveKeybinds() noexcept
 {
     const bool rageBot = config->ragebotKey.canShowKeybind();
+    const bool minDamageOverride = config->minDamageOverrideKey.canShowKeybind();
     const bool fakeAngle = config->fakeAngle.enabled && config->fakeAngle.invert.canShowKeybind();
     const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
     const bool legitBot = config->legitbotKey.canShowKeybind();
@@ -1002,7 +996,7 @@ const bool anyActiveKeybinds() noexcept
     const bool doubletap = config->doubletapkey.canShowKeybind();
     const bool hideshots = config->hideshotskey.canShowKeybind();
 
-    return rageBot || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || glow || esp
+    return rageBot || minDamageOverride || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || glow || esp
         || zoom || thirdperson || freeCam || blockbot || edgejump || edgebug || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver || doubletap || hideshots;
 }
 
@@ -1034,6 +1028,7 @@ void Misc::showKeybinds() noexcept
     ImGui::PopStyleVar();
 
     config->ragebotKey.showKeybind();
+    config->minDamageOverrideKey.showKeybind();
     if (config->fakeAngle.enabled)
         config->fakeAngle.invert.showKeybind();
     if (config->legitAntiAim.enabled)
@@ -1170,7 +1165,7 @@ void Misc::recoilCrosshair(ImDrawList* drawList) noexcept
     if (!localPlayerData.shooting)
         return;
 
-    if (ImVec2 pos; worldToScreen(localPlayerData.aimPunch, pos))
+    if (ImVec2 pos; Helpers::worldToScreen(localPlayerData.aimPunch, pos))
         drawCrosshair(drawList, pos, Helpers::calculateColor(config->misc.recoilCrosshair));
 }
 
@@ -1178,6 +1173,11 @@ void Misc::watermark() noexcept
 {
     if (!config->misc.watermark.enabled)
         return;
+
+    if (config->misc.watermark.pos != ImVec2{}) {
+        ImGui::SetNextWindowPos(config->misc.watermark.pos);
+        config->misc.watermark.pos = {};
+    }
 
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (!gui->isOpen())
@@ -1343,8 +1343,7 @@ void Misc::hurtIndicator() noexcept
     if (!config->misc.hurtIndicator.enabled)
         return;
 
-    GameData::Lock;
-
+    GameData::Lock lock;
     const auto& local = GameData::local();
     if ((!local.exists || !local.alive) && !gui->isOpen())
         return;
@@ -1846,6 +1845,11 @@ void Misc::purchaseList(GameEvent* event) noexcept
 
         if ((!interfaces->engine->isInGame() || freezeEnd != 0.0f && memory->globalVars->realtime > freezeEnd + (!config->misc.purchaseList.onlyDuringFreezeTime ? mp_buytime->getFloat() : 0.0f) || playerPurchases.empty() || purchaseTotal.empty()) && !gui->isOpen())
             return;
+
+        if (config->misc.purchaseList.pos != ImVec2{}) {
+            ImGui::SetNextWindowPos(config->misc.purchaseList.pos);
+            config->misc.purchaseList.pos = {};
+        }
 
         ImGui::SetNextWindowSize({ 200.0f, 200.0f }, ImGuiCond_Once);
 

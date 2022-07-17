@@ -2,13 +2,13 @@
 
 #include <cstddef>
 
+#include "../Interfaces.h"
+#include "../Memory.h"
+
 #include "UtlVector.h"
 #include "MDLCache.h"
 #include "Pad.h"
 #include "Vector.h"
-
-#include "../Interfaces.h"
-#include "../Memory.h"
 
 #define CS_PLAYER_SPEED_RUN 260.f
 #define CS_PLAYER_SPEED_WALK_MODIFIER 0.52f

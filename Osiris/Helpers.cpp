@@ -4,13 +4,17 @@
 #include <tuple>
 
 #include "imgui/imgui.h"
+#define IMGUI_DEFINE_MATH_OPERATORS
+#include "../imgui/imgui_internal.h"
 
 #include "Config.h"
 #include "ConfigStructs.h"
 #include "GameData.h"
 #include "Helpers.h"
 #include "Memory.h"
+
 #include "SDK/GlobalVars.h"
+#include "SDK/Engine.h"
 
 static auto rainbowColor(float time, float speed, float alpha) noexcept
 {
@@ -248,6 +252,22 @@ float Helpers::normalizeYaw(float yaw) noexcept
 
     yaw = (yaw < 0.f) ? yaw + (360.f * rot) : yaw - (360.f * rot);
     return yaw;
+}
+
+bool Helpers::worldToScreen(const Vector& in, ImVec2& out, bool floor) noexcept
+{
+    const auto& matrix = GameData::toScreenMatrix();
+
+    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
+    if (w < 0.001f)
+        return false;
+
+    out = ImGui::GetIO().DisplaySize / 2.0f;
+    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
+    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
+    if (floor)
+        out = ImFloor(out);
+    return true;
 }
 
 static float alphaFactor = 1.0f;

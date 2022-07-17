@@ -3,15 +3,16 @@
 #include "EventListener.h"
 #include "fnv.h"
 #include "GameData.h"
+
+#include "Interfaces.h"
+#include "Memory.h"
+#include "Logger.h"
+
 #include "Hacks/Misc.h"
 #include "Hacks/Resolver.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Visuals.h"
-#include "Interfaces.h"
-#include "Logger.h"
-#include "Memory.h"
 #include "Hacks/Tickbase.h"
-
 EventListener::EventListener() noexcept
 {
     assert(interfaces);
@@ -32,6 +33,8 @@ EventListener::EventListener() noexcept
     interfaces->gameEventManager->addListener(this, "grenade_thrown");
 
     interfaces->gameEventManager->addListener(this, "smokegrenade_detonate");
+    interfaces->gameEventManager->addListener(this, "molotov_detonate");
+    interfaces->gameEventManager->addListener(this, "inferno_expire");
 
     interfaces->gameEventManager->addListener(this, "player_death");
     interfaces->gameEventManager->addListener(this, "vote_cast");
@@ -111,6 +114,12 @@ void EventListener::fireGameEvent(GameEvent* event)
         break;
     case fnv::hash("smokegrenade_detonate"):
         Visuals::drawSmokeTimerEvent(event);
+        break;
+    case fnv::hash("molotov_detonate"):
+        Visuals::drawMolotovTimerEvent(event);
+        break;
+    case fnv::hash("inferno_expire"):
+        Visuals::molotovExtinguishEvent(event);
         break;
     }
 }

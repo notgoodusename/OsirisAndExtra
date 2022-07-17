@@ -29,6 +29,7 @@ public:
     NETVAR(assists, "CCSPlayerResource", "m_iAssists", int[65])
     NETVAR(deaths, "CCSPlayerResource", "m_iDeaths", int[65])
     NETVAR(ping, "CCSPlayerResource", "m_iPing", int[65])
+    NETVAR(playerC4Index, "CCSPlayerResource", "m_iPlayerC4", int)
 
     const char* getClan(int idx) noexcept
     {

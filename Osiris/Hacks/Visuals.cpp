@@ -12,7 +12,7 @@
 #include "../GameData.h"
 #include "../Helpers.h"
 
-#include "Aimbot.h"
+#include "AimbotFunctions.h"
 #include "Visuals.h"
 
 #include "../SDK/ConVar.h"
@@ -32,22 +32,6 @@
 #include "../SDK/Vector.h"
 #include "../SDK/ViewRenderBeams.h"
 #include "../SDK/ViewSetup.h"
-
-static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noexcept
-{
-    const auto& matrix = GameData::toScreenMatrix();
-
-    const auto w = matrix._41 * in.x + matrix._42 * in.y + matrix._43 * in.z + matrix._44;
-    if (w < 0.001f)
-        return false;
-
-    out = ImGui::GetIO().DisplaySize / 2.0f;
-    out.x *= 1.0f + (matrix._11 * in.x + matrix._12 * in.y + matrix._13 * in.z + matrix._14) / w;
-    out.y *= 1.0f - (matrix._21 * in.x + matrix._22 * in.y + matrix._23 * in.z + matrix._24) / w;
-    if (floor)
-        out = ImFloor(out);
-    return true;
-}
 
 void Visuals::shadowChanger() noexcept
 {
@@ -109,7 +93,7 @@ void Visuals::drawSmokeTimer(ImDrawList* drawList) noexcept
         ImVec2 pos;
 
         if (time >= 0.0f) {
-            if (worldToScreen(smoke.pos, pos)) {
+            if (Helpers::worldToScreen(smoke.pos, pos)) {
                 ImRect rect_out(
                     pos.x + (textSize.x / 2) + 2.f,
                     pos.y + (textSize.y / 2) + 10.f,
@@ -132,6 +116,76 @@ void Visuals::drawSmokeTimer(ImDrawList* drawList) noexcept
     }
 }
 
+#define MOLOTOV_LIFETIME 7.0f
+
+struct molotovData
+{
+    float destructionTime;
+    Vector pos;
+};
+
+static std::vector<molotovData> molotovs;
+
+void Visuals::drawMolotovTimerEvent(GameEvent* event) noexcept
+{
+    if (!event)
+        return;
+
+    molotovData data{};
+    const auto time = memory->globalVars->realtime + MOLOTOV_LIFETIME;
+    const auto pos = Vector(event->getFloat("x"), event->getFloat("y"), event->getFloat("z"));
+    data.destructionTime = time;
+    data.pos = pos;
+    molotovs.push_back(data);
+}
+
+void Visuals::molotovExtinguishEvent(GameEvent* event) noexcept {
+
+    if (!event)
+        return;
+
+    molotovs.erase(molotovs.begin());
+}
+
+void Visuals::drawMolotovTimer(ImDrawList* drawList) noexcept
+{
+    if (!config->visuals.molotovTimer)
+        return;
+
+    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+        return;
+
+    for (size_t i = 0; i < molotovs.size(); i++) {
+        const auto& molotov = molotovs[i];
+
+        auto time = molotov.destructionTime - memory->globalVars->realtime;
+        std::ostringstream text; text << std::fixed << std::showpoint << std::setprecision(1) << time << " sec.";
+        auto textSize = ImGui::CalcTextSize(text.str().c_str());
+
+        ImVec2 pos;
+
+        if (time >= 0.0f) {
+            if (Helpers::worldToScreen(molotov.pos, pos)) {
+                ImRect rect_out(
+                    pos.x + (textSize.x / 2) + 2.f,
+                    pos.y + (textSize.y / 2) + 10.f,
+                    pos.x - (textSize.x / 2) - 2.f,
+                    pos.y - (textSize.y / 2) - 2.f);
+
+                ImRect rect_in(
+                    (pos.x + (textSize.x / 2)) - (textSize.x * (1.0f - (time / MOLOTOV_LIFETIME))),
+                    pos.y + (textSize.y / 2),
+                    pos.x - (textSize.x / 2),
+                    pos.y + (textSize.y));
+
+                drawList->AddRectFilled(rect_out.Min, rect_out.Max, Helpers::calculateColor(config->visuals.molotovTimerBG));
+                drawList->AddRectFilled(rect_in.Min, rect_in.Max, Helpers::calculateColor(config->visuals.molotovTimerTimer));
+                drawList->AddText({ pos.x - (textSize.x / 2), pos.y - (textSize.y / 2) }, Helpers::calculateColor(config->visuals.molotovTimerText), text.str().c_str());
+            }
+        }
+    }
+}
+
 void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
 {
     if (!config->visuals.spreadCircle.enabled)
@@ -143,7 +197,10 @@ void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
     if (!local.exists || !local.alive || local.inaccuracy.null())
         return;
 
-    if (ImVec2 edge; worldToScreen(local.inaccuracy, edge))
+    if (memory->input->isCameraInThirdPerson)
+        return;
+
+    if (ImVec2 edge; Helpers::worldToScreen(local.inaccuracy, edge))
     {
         const auto& displaySize = ImGui::GetIO().DisplaySize;
         const auto radius = std::sqrtf(ImLengthSqr(edge - displaySize / 2.0f));
@@ -152,9 +209,54 @@ void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
             return;
 
         const auto color = Helpers::calculateColor(config->visuals.spreadCircle);
-        drawList->AddCircleFilled(displaySize / 2, radius, color);
+        drawList->AddCircleFilled(displaySize / 2.0f, radius, color);
         if (config->visuals.spreadCircle.outline)
-            drawList->AddCircle(displaySize / 2, radius, color | IM_COL32_A_MASK);
+            drawList->AddCircle(displaySize / 2.0f, radius, color | IM_COL32_A_MASK);
+    }
+}
+
+void Visuals::drawAimbotFov(ImDrawList* drawList) noexcept
+{
+    if (!config->legitbotFov.enabled || !config->legitbotKey.isActive())
+        return;
+
+    GameData::Lock lock;
+    const auto& local = GameData::local();
+
+    if (!local.exists || !local.alive || local.aimPunch.null())
+        return;
+
+    if (memory->input->isCameraInThirdPerson)
+        return;
+
+    const auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon)
+        return;
+
+    auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
+    if (!weaponIndex)
+        return;
+
+    const auto& cfg = config->legitbot;
+
+    auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
+    if (!cfg[weaponIndex].enabled)
+        weaponIndex = weaponClass;
+
+    if (!cfg[weaponIndex].enabled)
+        weaponIndex = 0;
+
+    if (ImVec2 pos; Helpers::worldToScreen(local.aimPunch, pos))
+    {
+        const auto& displaySize = ImGui::GetIO().DisplaySize;
+        const auto radius = std::tan(Helpers::deg2rad(cfg[weaponIndex].fov) / (16.0f/6.0f)) / std::tan(Helpers::deg2rad(localPlayer->isScoped() ? localPlayer->fov() : (config->visuals.fov + 90.0f)) / 2.0f) * displaySize.x;
+        if (radius > displaySize.x || radius > displaySize.y || !std::isfinite(radius))
+            return;
+
+        const auto color = Helpers::calculateColor(config->legitbotFov);
+        drawList->AddCircleFilled(localPlayer->shotsFired() > 1 ? pos : displaySize / 2.0f, radius, color);
+        if (config->legitbotFov.outline)
+            drawList->AddCircle(localPlayer->shotsFired() > 1 ? pos : displaySize / 2.0f, radius, color | IM_COL32_A_MASK, 360);
     }
 }
 
@@ -880,7 +982,7 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         }
 
         const auto bulletImpact = Vector{ event.getFloat("x"),  event.getFloat("y"),  event.getFloat("z") };
-        const auto angle = Aimbot::calculateRelativeAngle(shotRecord.front().eyePosition, bulletImpact, Vector{ });
+        const auto angle = AimbotFunction::calculateRelativeAngle(shotRecord.front().eyePosition, bulletImpact, Vector{ });
         const auto end = bulletImpact + Vector::fromAngle(angle) * 2000.f;
 
         BeamInfo beamInfo;
@@ -991,7 +1093,7 @@ void Visuals::drawMolotovHull(ImDrawList* drawList) noexcept
             std::size_t count = 0;
 
             for (const auto& point : flameCircumference) {
-                if (worldToScreen(pos + point, screenPoints[count]))
+                if (Helpers::worldToScreen(pos + point, screenPoints[count]))
                     ++count;
             }
 
@@ -1037,7 +1139,7 @@ void Visuals::drawSmokeHull(ImDrawList* drawList) noexcept
 
         for (const auto& point : smokeCircumference)
         {
-            if (worldToScreen(smoke.origin + point, screenPoints[count]))
+            if (Helpers::worldToScreen(smoke.origin + point, screenPoints[count]))
                 ++count;
         }
 

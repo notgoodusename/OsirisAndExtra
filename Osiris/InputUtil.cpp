@@ -8,6 +8,7 @@
 #include "Hacks/Misc.h"
 
 #include "InputUtil.h"
+
 #include "SDK/Platform.h"
 
 struct Key {

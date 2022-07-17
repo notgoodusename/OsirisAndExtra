@@ -21,7 +21,6 @@
 #include "Logger.h"
 #include "Memory.h"
 
-#include "Hacks/Aimbot.h"
 #include "Hacks/Animations.h"
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"
@@ -109,9 +108,10 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
 
     if (const auto& displaySize = ImGui::GetIO().DisplaySize; displaySize.x > 0.0f && displaySize.y > 0.0f) {
         StreamProofESP::render();
-        NadePrediction::draw();
+        GrenadePrediction::draw();
         Misc::purchaseList();
         Visuals::visualizeSpread(ImGui::GetBackgroundDrawList());
+        Visuals::drawAimbotFov(ImGui::GetBackgroundDrawList());
         Misc::noscopeCrosshair(ImGui::GetBackgroundDrawList());
         Misc::recoilCrosshair(ImGui::GetBackgroundDrawList());
         Misc::drawOffscreenEnemies(ImGui::GetBackgroundDrawList());
@@ -123,6 +123,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         Visuals::drawMolotovHull(ImGui::GetBackgroundDrawList());
         Visuals::drawSmokeHull(ImGui::GetBackgroundDrawList());
         Visuals::drawSmokeTimer(ImGui::GetBackgroundDrawList());
+        Visuals::drawMolotovTimer(ImGui::GetBackgroundDrawList());
         Misc::watermark();
         Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
         Logger::process(ImGui::GetBackgroundDrawList());
@@ -311,12 +312,12 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::revealRanks(cmd);
     Misc::fixTabletSignal();
     Misc::slowwalk(cmd);
-    Misc::PrePred(cmd);
+    Misc::prePrediction(cmd);
     Backtrack::updateIncomingSequences();
 
     EnginePrediction::update();
     EnginePrediction::run(cmd);
-    NadePrediction::run(cmd);
+    GrenadePrediction::run(cmd);
 
     Legitbot::run(cmd);
     Backtrack::run(cmd);
@@ -1144,6 +1145,11 @@ static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void* 
     return original(thisPointer, player, traceParams);
 }
 
+static void* __stdcall getClientModelRenderableHook() noexcept
+{
+    return nullptr;
+}
+
 static bool __fastcall dispatchUserMessage(void* thisPointer, void* edx, int messageType, int argument, int secondArgument, void* data) noexcept
 {
     static auto original = hooks->client.getOriginal<bool, 38>(messageType, argument, secondArgument, data);
@@ -1333,6 +1339,7 @@ void Hooks::install() noexcept
     eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
     clSendMove.detour(memory->clSendMove, clSendMoveHook);
     calcViewBob.detour(memory->calcViewBob, calcViewBobHook);
+    getClientModelRenderable.detour(memory->getClientModelRenderable, getClientModelRenderableHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());

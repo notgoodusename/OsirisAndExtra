@@ -1,5 +1,12 @@
 #pragma once
 
+#include <functional>
+
+#include "../Config.h"
+#include "../Interfaces.h"
+#include "../Memory.h"
+#include "../Netvars.h"
+
 #include "AnimState.h"
 #include "ClientClass.h"
 #include "Cvar.h"
@@ -21,13 +28,6 @@
 #include "VirtualMethod.h"
 #include "WeaponData.h"
 #include "WeaponId.h"
-
-#include "../Config.h"
-#include "../Interfaces.h"
-#include "../Memory.h"
-#include "../Netvars.h"
-
-#include <functional>
 
 struct AnimState;
 

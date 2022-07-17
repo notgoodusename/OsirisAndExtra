@@ -632,6 +632,24 @@ void GUI::renderTriggerbotWindow() noexcept
     ImGui::NextColumn();
     ImGui::Columns(1);
 }
+void GUI::renderTickbaseWindow() noexcept
+{
+    ImGui::Columns(2, nullptr, false);
+    ImGui::SetColumnOffset(1, 300.f);
+    ImGui::Checkbox("Enabled", &config->tickbase.enabled);
+    if (config->tickbase.enabled)
+        ImGui::hotkey2("DT Key", config->doubletapkey);
+    ImGui::PopID();
+    if (config->tickbase.enabled)
+        ImGui::Checkbox("Hideshots", &config->tickbase.hideshots);
+    if (config->tickbase.hideshots && config->tickbase.enabled)
+    {
+        ImGui::hotkey2("HS Key", config->hideshotskey);
+        ImGui::Checkbox("TelePeek", &config->tickbase.telepeek);
+    }
+    ImGui::NextColumn();
+    ImGui::Columns(1);
+}
 
 void GUI::renderFakelagWindow() noexcept
 {

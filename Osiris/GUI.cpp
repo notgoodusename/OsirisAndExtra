@@ -1790,6 +1790,16 @@ void GUI::renderMiscWindow() noexcept
     if (ImGui::InputText("", config->misc.clanTag, sizeof(config->misc.clanTag)))
         Misc::updateClanTag(true);
     ImGui::PopID();
+
+    ImGui::Checkbox("Custom name", &config->misc.customName);
+    ImGui::SameLine();
+    ImGui::PushItemWidth(120.0f);
+    ImGui::PushID("Custom name change");
+
+    if (ImGui::InputText("", config->misc.name, sizeof(config->misc.name)) && config->misc.customName)
+        Misc::changeName(false, (std::string{ config->misc.name } + '\x1').c_str(), 0.0f);
+    ImGui::PopID();
+
     ImGui::Checkbox("Kill message", &config->misc.killMessage);
     ImGui::SameLine();
     ImGui::PushItemWidth(120.0f);

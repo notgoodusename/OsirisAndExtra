@@ -59,6 +59,7 @@ Config::Config() noexcept
     path /= "Osiris";
     listConfigs();
     misc.clanTag[0] = '\0';
+    misc.name[0] = '\0';
     visuals.playerModel[0] = '\0';
 
     load(u8"default.json", false);
@@ -671,6 +672,8 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Autobuy", m.autoBuy);
     read<value_t::object>(j, "Logger", m.logger);
     read<value_t::object>(j, "Logger options", m.loggerOptions);
+    read(j, "Name", m.name, sizeof(m.name));
+    read(j, "Custom name", m.customName);
 }
 
 static void from_json(const json& j, Config::Misc::Reportbot& r)
@@ -1260,6 +1263,12 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Autobuy", autoBuy);
     WRITE("Logger", logger);
     WRITE("Logger options", loggerOptions);
+
+    WRITE("Custom name", customClanTag);
+
+    if (o.clanTag[0])
+        j["Name"] = o.name;
+
 }
 
 static void to_json(json& j, const Config::Visuals& o)

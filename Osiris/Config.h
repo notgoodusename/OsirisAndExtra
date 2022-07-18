@@ -293,7 +293,7 @@ public:
     std::array<item_setting, 36> skinChanger;
 
     struct Misc {
-        Misc() { clanTag[0] = '\0'; menuKey.keyMode = KeyMode::Toggle; }
+        Misc() { clanTag[0] = '\0'; name[0] = '\0'; menuKey.keyMode = KeyMode::Toggle; }
 
         KeyBind menuKey = KeyBind::INSERT;
         bool antiAfkKick{ false };
@@ -302,6 +302,7 @@ public:
         bool autoStrafe{ false };
         bool bunnyHop{ false };
         bool customClanTag{ false };
+        bool customName{ false };
         bool clocktag{ false };
         bool animatedClanTag{ false };
         bool fastDuck{ false };
@@ -341,6 +342,7 @@ public:
         KillfeedChanger killfeedChanger;
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];
+        char name[16];
         KeyBind edgejumpkey{ std::string("edgejump") };
         KeyBind edgebugkey{ std::string("edge bug") };
         KeyBind jumpBugKey{ std::string("jump bug") };

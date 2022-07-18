@@ -41,19 +41,19 @@ void Legitbot::run(UserCmd* cmd) noexcept
 
     const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
 
-    if (cfg[weaponIndex].recoilControlSystem && (cfg[weaponIndex].recoilControlHorizontal || cfg[weaponIndex].recoilControlVertical) && aimPunch.notNull())
+    if (config->recoilControlSystem.enabled && (config->recoilControlSystem.horizontal || config->recoilControlSystem.vertical) && aimPunch.notNull())
     {
         static Vector lastAimPunch{ };
-        if (localPlayer->shotsFired() > cfg[weaponIndex].shotsFiredRCS)
+        if (localPlayer->shotsFired() > config->recoilControlSystem.shotsFired)
         {
             if (cmd->buttons & UserCmd::IN_ATTACK)
             {
                 Vector currentPunch = aimPunch;
 
-                currentPunch.x *= cfg[weaponIndex].recoilControlVertical;
-                currentPunch.y *= cfg[weaponIndex].recoilControlHorizontal;
+                currentPunch.x *= config->recoilControlSystem.vertical;
+                currentPunch.y *= config->recoilControlSystem.horizontal;
 
-                if (!cfg[weaponIndex].silentRCS)
+                if (!config->recoilControlSystem.silent)
                 {
                     cmd->viewangles.y += lastAimPunch.y - currentPunch.y;
                     cmd->viewangles.x += lastAimPunch.x - currentPunch.x;
@@ -73,7 +73,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
             lastAimPunch = Vector{ };
         }
 
-        if (!cfg[weaponIndex].silentRCS)
+        if (!config->recoilControlSystem.silent)
             interfaces->engine->setViewAngles(cmd->viewangles);
     }
 

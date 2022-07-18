@@ -302,12 +302,12 @@ void GUI::renderLegitbotWindow() noexcept
     config->legitbot[currentWeapon].minDamage = std::clamp(config->legitbot[currentWeapon].minDamage, 0, 250);
     ImGui::Checkbox("Killshot", &config->legitbot[currentWeapon].killshot);
     ImGui::Checkbox("Between shots", &config->legitbot[currentWeapon].betweenShots);
-    ImGui::Checkbox("Recoil control system", &config->legitbot[currentWeapon].recoilControlSystem);
+    ImGui::Checkbox("Recoil control system", &config->recoilControlSystem.enabled);
     ImGui::SameLine();
-    ImGui::Checkbox("Silent RCS", &config->legitbot[currentWeapon].silentRCS);
-    ImGui::SliderInt("RCS Ignore Shots", &config->legitbot[currentWeapon].shotsFiredRCS, 0, 150, "%d");
-    ImGui::SliderFloat("RCS Horizontal", &config->legitbot[currentWeapon].recoilControlHorizontal, 0.0f, 1.0f, "%.5f");
-    ImGui::SliderFloat("RCS Vertical", &config->legitbot[currentWeapon].recoilControlVertical, 0.0f, 1.0f, "%.5f");
+    ImGui::Checkbox("Silent RCS", &config->recoilControlSystem.silent);
+    ImGui::SliderInt("RCS Ignore Shots", &config->recoilControlSystem.shotsFired, 0, 150, "%d");
+    ImGui::SliderFloat("RCS Horizontal", &config->recoilControlSystem.horizontal, 0.0f, 1.0f, "%.5f");
+    ImGui::SliderFloat("RCS Vertical", &config->recoilControlSystem.vertical, 0.0f, 1.0f, "%.5f");
     ImGui::Columns(1);
 }
 

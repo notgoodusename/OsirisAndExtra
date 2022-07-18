@@ -114,15 +114,18 @@ public:
         int minDamage{ 1 };
         bool killshot{ false };
         bool betweenShots{ true };
-        bool recoilControlSystem{ false };
-        bool silentRCS{ false };
-        int shotsFiredRCS{ 0 };
-        float recoilControlHorizontal{ 0.0f };
-        float recoilControlVertical{ 0.0f };
     };
     std::array<Legitbot, 40> legitbot;
     KeyBind legitbotKey{ std::string("legitbot") };
     ColorToggleOutline legitbotFov{ 1.0f, 1.0f, 1.0f, 0.25f };
+
+    struct RecoilControlSystem {
+        bool enabled{ false };
+        bool silent{ false };
+        int shotsFired{ 0 };
+        float horizontal{ 1.0f };
+        float vertical{ 1.0f };
+    } recoilControlSystem;
 
     struct Triggerbot {
         bool enabled = false;

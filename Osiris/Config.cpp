@@ -247,11 +247,15 @@ static void from_json(const json& j, Config::Legitbot& a)
     read(j, "Min damage", a.minDamage);
     read(j, "Killshot", a.killshot);
     read(j, "Between shots", a.betweenShots);
-    read(j, "Recoil control system", a.recoilControlSystem);
-    read(j, "Silent RCS", a.silentRCS);
-    read(j, "RCS Ignore Shots", a.shotsFiredRCS);
-    read(j, "RCS Horizontal", a.recoilControlHorizontal);
-    read(j, "RCS Vertical", a.recoilControlVertical);
+}
+
+static void from_json(const json& j, Config::RecoilControlSystem& r)
+{
+    read(j, "Enabled", r.enabled);
+    read(j, "Silent", r.silent);
+    read(j, "Ignore Shots", r.shotsFired);
+    read(j, "Horizontal", r.horizontal);
+    read(j, "Vertical", r.vertical);
 }
 
 static void from_json(const json& j, Config::Ragebot& r)
@@ -899,11 +903,15 @@ static void to_json(json& j, const Config::Legitbot& o, const Config::Legitbot& 
     WRITE("Min damage", minDamage);
     WRITE("Killshot", killshot);
     WRITE("Between shots", betweenShots);
-    WRITE("Recoil control system", recoilControlSystem);
-    WRITE("Silent RCS", silentRCS);
-    WRITE("RCS Ignore Shots", shotsFiredRCS);
-    WRITE("RCS Horizontal", recoilControlHorizontal);
-    WRITE("RCS Vertical", recoilControlVertical);
+}
+
+static void to_json(json& j, const Config::RecoilControlSystem& o, const Config::RecoilControlSystem& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Silent", silent);
+    WRITE("Ignore Shots", shotsFired);
+    WRITE("Horizontal", horizontal);
+    WRITE("Vertical", vertical);
 }
 
 static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& dummy = {})

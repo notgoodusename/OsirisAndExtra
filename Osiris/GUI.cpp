@@ -652,6 +652,7 @@ void GUI::renderLegitAntiAimWindow() noexcept
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::hotkey2("Invert Key", config->legitAntiAim.invert, 80.0f);
     ImGui::Checkbox("Enabled", &config->legitAntiAim.enabled);
+    ImGui::Checkbox("Disable in freeztime", &config->disableInFreezetime);
     ImGui::Checkbox("Extend", &config->legitAntiAim.extend);
     ImGui::NextColumn();
     ImGui::Columns(1);
@@ -662,6 +663,7 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->rageAntiAim.enabled);
+    ImGui::Checkbox("Disable in freeztime", &config->disableInFreezetime);
     ImGui::Combo("Pitch", &config->rageAntiAim.pitch, "Off\0Down\0Zero\0Up\0");
     ImGui::Combo("Yaw base", &config->rageAntiAim.yawBase, "Off\0Forward\0Backward\0Right\0Left\0Spin\0Jitter\0");
     ImGui::PushItemWidth(220.0f);

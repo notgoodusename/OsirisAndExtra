@@ -90,6 +90,8 @@ public:
         KeyBind invert{ std::string("legit aa invert") };
     } legitAntiAim;
 
+    bool disableInFreezetime{ true };
+
     struct Legitbot {
         bool enabled{ false };
         bool aimlock{ false };

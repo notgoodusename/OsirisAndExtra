@@ -714,6 +714,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
 
     read<value_t::object>(j, "Legit Anti aim", legitAntiAim);
     read<value_t::object>(j, "Rage Anti aim", rageAntiAim);
+    read(j, "Disable in freezetime", disableInFreezetime);
     read<value_t::object>(j, "Fake angle", fakeAngle);
     read<value_t::object>(j, "Fakelag", fakelag);
     read<value_t::object>(j, "Backtrack", backtrack);
@@ -1392,6 +1393,7 @@ void Config::save(size_t id) const noexcept
 
         j["Legit Anti aim"] = legitAntiAim;
         j["Rage Anti aim"] = rageAntiAim;
+        j["Disable in freezetime"] = disableInFreezetime;
         j["Fake angle"] = fakeAngle;
         j["Fakelag"] = fakelag;
         j["Backtrack"] = backtrack;
@@ -1441,6 +1443,7 @@ void Config::reset() noexcept
     legitAntiAim = { };
     ragebot = { };
     rageAntiAim = { };
+    disableInFreezetime = true;
     fakeAngle = { };
     fakelag = { };
     backtrack = { };

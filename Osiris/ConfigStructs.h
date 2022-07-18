@@ -197,6 +197,17 @@ struct BulletTracers : ColorToggle {
     BulletTracers() : ColorToggle{ { 0.0f, 0.75f, 1.0f, 1.0f } } {}
 };
 
+enum class Yaw {
+    off,
+    forward,
+    backward,
+    right,
+    left,
+    spin,
+    jitter,
+    manual
+};
+
 using json = nlohmann::basic_json<std::map, std::vector, std::string, bool, std::int64_t, std::uint64_t, float>;
 using value_t = json::value_t;
 
@@ -205,6 +216,7 @@ using value_t = json::value_t;
 // - object holding default values named 'dummy'
 // - object to write to json named 'o'
 #define WRITE(name, valueName) to_json(j[name], o.valueName, dummy.valueName)
+#define WRITE_ENUM(name, valueName) to_json(j[name], static_cast<int>(o.valueName), static_cast<int>(dummy.valueName))
 
 template <typename T>
 static void to_json(json& j, const T& o, const T& dummy)

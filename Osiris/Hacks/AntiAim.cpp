@@ -99,7 +99,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
     }
     if (cmd->viewangles.y == currentViewAngles.y)
     {
-        if (config->rageAntiAim.yawBase != 0 
+        if (config->rageAntiAim.yawBase != Yaw::off
             && config->rageAntiAim.enabled)   //AntiAim
         {
             float yaw = 0.f;
@@ -128,28 +128,28 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw = yawAngle;
             }
 
-            if (config->rageAntiAim.yawBase != 5)
+            if (config->rageAntiAim.yawBase != Yaw::spin)
                 staticYaw = 0.f;
 
             switch (config->rageAntiAim.yawBase)
             {
-            case 1: //Forward
+            case Yaw::forward:
                 yaw += 0.f;
                 break;
-            case 2: //Back
+            case Yaw::backward:
                 yaw += 180.f;
                 break;
-            case 3: //Right
+            case Yaw::right:
                 yaw += -90.f;
                 break;
-            case 4: //Left
+            case Yaw::left:
                 yaw += 90.f;
                 break;
-            case 5: //Spin
+            case Yaw::spin:
                 staticYaw += static_cast<float>(config->rageAntiAim.spinBase);
                 yaw += staticYaw;
                 break;
-            case 6: //Jitter
+            case Yaw::jitter:
                 yaw += flipJitter ? 180.f + config->rageAntiAim.jitterRange : 180.f - config->rageAntiAim.jitterRange;
                 break;
             default:

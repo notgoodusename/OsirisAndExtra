@@ -739,6 +739,18 @@ void Misc::updateClanTag(bool tagChanged) noexcept
 {
     static std::string clanTag;
 
+    static auto clanId = interfaces->cvar->findVar("cl_clanid");
+    static bool wasEnabled = false;
+
+    if (wasEnabled && !config->misc.clocktag && !config->misc.customClanTag)
+    {
+        interfaces->engine->clientCmdUnrestricted(("cl_clanid " + std::to_string(clanId->getInt())).c_str());
+        wasEnabled = false;
+        return;
+    }
+
+    wasEnabled = config->misc.clocktag || config->misc.customClanTag;
+
     if (tagChanged) {
         clanTag = config->misc.clanTag;
         if (!clanTag.empty() && clanTag.front() != ' ' && clanTag.back() != ' ')

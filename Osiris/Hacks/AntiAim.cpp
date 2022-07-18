@@ -9,8 +9,6 @@
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
 
-static bool flipJitter{ false };
-
 bool updateLby(bool update = false) noexcept
 {
     static float timer = 0.f;
@@ -104,7 +102,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
         {
             float yaw = 0.f;
             static float staticYaw = 0.f;
-            flipJitter ^= 1;
+            static bool flipJitter = false;
+            if (sendPacket)
+                flipJitter ^= 1;
             if (config->rageAntiAim.atTargets)
             {
                 Vector localPlayerEyePosition = localPlayer->getEyePosition();
@@ -149,13 +149,52 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 staticYaw += static_cast<float>(config->rageAntiAim.spinBase);
                 yaw += staticYaw;
                 break;
-            case Yaw::jitter:
-                yaw += flipJitter ? 180.f + config->rageAntiAim.jitterRange : 180.f - config->rageAntiAim.jitterRange;
+            default:
+                break;
+            }
+
+            const bool forward = config->rageAntiAim.manualForward.isActive();
+            const bool back = config->rageAntiAim.manualBackward.isActive();
+            const bool right = config->rageAntiAim.manualRight.isActive();
+            const bool left = config->rageAntiAim.manualLeft.isActive();
+            const bool isManualSet = forward || back || right || left;
+
+            if (back) {
+                yaw = -180.f;
+                if (left)
+                    yaw -= 45.f;
+                else if (right)
+                    yaw += 45.f;
+            }
+            else if (left) {
+                yaw = 90.f;
+                if (back)
+                    yaw += 45.f;
+                else if (forward)
+                    yaw -= 45.f;
+            }
+            else if (right) {
+                yaw = -90.f;
+                if (back)
+                    yaw -= 45.f;
+                else if (forward)
+                    yaw += 45.f;
+            }
+            else if(forward) {
+                yaw = 0.f;
+            }
+
+            switch (config->rageAntiAim.yawModifier)
+            {
+            case 1: //Jitter
+                yaw -= flipJitter ? config->rageAntiAim.jitterRange : -config->rageAntiAim.jitterRange;
                 break;
             default:
                 break;
             }
-            yaw += static_cast<float>(config->rageAntiAim.yawAdd);
+
+            if (!isManualSet)
+                yaw += static_cast<float>(config->rageAntiAim.yawAdd);
             cmd->viewangles.y += yaw;
         }
         if (config->fakeAngle.enabled) //Fakeangle
@@ -264,6 +303,11 @@ void AntiAim::updateInput() noexcept
 {
     config->legitAntiAim.invert.handleToggle();
     config->fakeAngle.invert.handleToggle();
+
+    config->rageAntiAim.manualForward.handleToggle();
+    config->rageAntiAim.manualBackward.handleToggle();
+    config->rageAntiAim.manualRight.handleToggle();
+    config->rageAntiAim.manualLeft.handleToggle();
 }
 
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept

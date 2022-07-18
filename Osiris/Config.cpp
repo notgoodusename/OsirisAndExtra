@@ -304,6 +304,11 @@ static void from_json(const json& j, Config::RageAntiAimConfig& a)
     read(j, "Enabled", a.enabled);
     read(j, "Pitch", a.pitch);
     read(j, "Yaw base", reinterpret_cast<int&>(a.yawBase));
+    read(j, "Manual forward Key", a.manualForward);
+    read(j, "Manual backward Key", a.manualBackward);
+    read(j, "Manual right Key", a.manualRight);
+    read(j, "Manual left Key", a.manualLeft);
+    read(j, "Yaw modifier", a.yawModifier);
     read(j, "Yaw add", a.yawAdd);
     read(j, "Jitter Range", a.jitterRange);
     read(j, "Spin base", a.spinBase);
@@ -1007,6 +1012,11 @@ static void to_json(json& j, const Config::RageAntiAimConfig& o, const Config::R
     WRITE("Enabled", enabled);
     WRITE("Pitch", pitch);
     WRITE_ENUM("Yaw base", yawBase);
+    to_json(j["Manual forward Key"], o.manualForward, KeyBind::NONE);
+    to_json(j["Manual backward Key"], o.manualBackward, KeyBind::NONE);
+    to_json(j["Manual right Key"], o.manualRight, KeyBind::NONE);
+    to_json(j["Manual left Key"], o.manualLeft, KeyBind::NONE);
+    WRITE("Yaw modifier", yawModifier);
     WRITE("Yaw add", yawAdd);
     WRITE("Jitter Range", jitterRange);
     WRITE("Spin base", spinBase);

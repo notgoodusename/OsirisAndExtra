@@ -778,6 +778,10 @@ const bool anyActiveKeybinds() noexcept
     const bool rageBot = config->ragebotKey.canShowKeybind();
     const bool minDamageOverride = config->minDamageOverrideKey.canShowKeybind();
     const bool fakeAngle = config->fakeAngle.enabled && config->fakeAngle.invert.canShowKeybind();
+    const bool antiAimManualForward = config->rageAntiAim.enabled && config->rageAntiAim.manualForward.canShowKeybind();
+    const bool antiAimManualBackward = config->rageAntiAim.enabled && config->rageAntiAim.manualBackward.canShowKeybind();
+    const bool antiAimManualRight = config->rageAntiAim.enabled && config->rageAntiAim.manualRight.canShowKeybind();
+    const bool antiAimManualLeft = config->rageAntiAim.enabled && config->rageAntiAim.manualLeft.canShowKeybind();
     const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
     const bool legitBot = config->legitbotKey.canShowKeybind();
     const bool triggerBot = config->triggerbotKey.canShowKeybind();
@@ -798,7 +802,8 @@ const bool anyActiveKeybinds() noexcept
     const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
-    return rageBot || minDamageOverride || fakeAngle || legitAntiAim || legitBot || triggerBot || chams || glow || esp
+    return rageBot || minDamageOverride || fakeAngle || antiAimManualForward || antiAimManualBackward || antiAimManualRight  || antiAimManualLeft 
+        || legitAntiAim || legitBot || triggerBot || chams || glow || esp
         || zoom || thirdperson || freeCam || blockbot || edgejump || edgebug || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
 }
 
@@ -833,6 +838,13 @@ void Misc::showKeybinds() noexcept
     config->minDamageOverrideKey.showKeybind();
     if (config->fakeAngle.enabled)
         config->fakeAngle.invert.showKeybind();
+    if (config->rageAntiAim.enabled)
+    {
+        config->rageAntiAim.manualForward.showKeybind();
+        config->rageAntiAim.manualBackward.showKeybind();
+        config->rageAntiAim.manualRight.showKeybind();
+        config->rageAntiAim.manualLeft.showKeybind();
+    }
     if (config->legitAntiAim.enabled)
         config->legitAntiAim.invert.showKeybind();
     config->legitbotKey.showKeybind();
@@ -1394,10 +1406,10 @@ void Misc::autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept
 
     static float angle = 0.f;
 
-    bool back = cmd->buttons & UserCmd::IN_BACK;
-    bool forward = cmd->buttons & UserCmd::IN_FORWARD;
-    bool right = cmd->buttons & UserCmd::IN_MOVERIGHT;
-    bool left = cmd->buttons & UserCmd::IN_MOVELEFT;
+    const bool back = cmd->buttons & UserCmd::IN_BACK;
+    const bool forward = cmd->buttons & UserCmd::IN_FORWARD;
+    const bool right = cmd->buttons & UserCmd::IN_MOVERIGHT;
+    const bool left = cmd->buttons & UserCmd::IN_MOVELEFT;
 
     if (back) {
         angle = -180.f;

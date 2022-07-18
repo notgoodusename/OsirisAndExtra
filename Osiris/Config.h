@@ -69,6 +69,11 @@ public:
         bool enabled = false;
         int pitch = 0; //Off, Down, Zero, Up
         Yaw yawBase = Yaw::off;
+        KeyBind manualForward{ std::string("manual forward"), KeyMode::Off },
+            manualBackward{ std::string("manual backward"), KeyMode::Off },
+            manualRight{ std::string("manual right"), KeyMode::Off },
+            manualLeft{ std::string("manual left"), KeyMode::Off };
+        int yawModifier = 0; //Off, Jitter
         int yawAdd = 0; //-180/180
         int spinBase = 0; //-180/180
         int jitterRange = 0;

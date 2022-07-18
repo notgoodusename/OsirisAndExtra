@@ -665,13 +665,15 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::Checkbox("Enabled", &config->rageAntiAim.enabled);
     ImGui::Checkbox("Disable in freeztime", &config->disableInFreezetime);
     ImGui::Combo("Pitch", &config->rageAntiAim.pitch, "Off\0Down\0Zero\0Up\0");
-    ImGui::Combo("Yaw base", reinterpret_cast<int*>(&config->rageAntiAim.yawBase), "Off\0Forward\0Backward\0Right\0Left\0Spin\0Jitter\0");
+    ImGui::Combo("Yaw base", reinterpret_cast<int*>(&config->rageAntiAim.yawBase), "Off\0Forward\0Backward\0Right\0Left\0Spin\0");
+    ImGui::Combo("Yaw modifier", reinterpret_cast<int*>(&config->rageAntiAim.yawModifier), "Off\0Jitter\0");
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Yaw add", &config->rageAntiAim.yawAdd, -180, 180, "%d");
     ImGui::PopItemWidth();
 
-    if ((config->rageAntiAim.yawBase == Yaw::jitter))
-        ImGui::SliderInt("Jitter yaw range", &config->rageAntiAim.jitterRange, 0, 180, "%d");
+    if (config->rageAntiAim.yawModifier == 1) //Jitter
+        ImGui::SliderInt("Jitter yaw range", &config->rageAntiAim.jitterRange, 0, 90, "%d");
+
     if (config->rageAntiAim.yawBase == Yaw::spin)
     {
         ImGui::PushItemWidth(220.0f);
@@ -680,6 +682,12 @@ void GUI::renderRageAntiAimWindow() noexcept
     }
 
     ImGui::Checkbox("At targets", &config->rageAntiAim.atTargets);
+
+    ImGui::hotkey2("Forward", config->rageAntiAim.manualForward, 60.f);
+    ImGui::hotkey2("Backward", config->rageAntiAim.manualBackward, 60.f);
+    ImGui::hotkey2("Right", config->rageAntiAim.manualRight, 60.f);
+    ImGui::hotkey2("Left", config->rageAntiAim.manualLeft, 60.f);
+
     ImGui::NextColumn();
     ImGui::Columns(1);
 }

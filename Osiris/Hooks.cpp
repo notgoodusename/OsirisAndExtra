@@ -1044,6 +1044,71 @@ static void __fastcall physicsSimulateHook(void* thisPointer, void* edx) noexcep
     EnginePrediction::store();
 }
 
+static void writeUsercmd(bfWrite* buffer, UserCmd* toCmd, UserCmd* fromCmd) noexcept
+{
+    const auto writeCmd = memory->writeUsercmd;
+    __asm
+    {
+        mov     ecx, buffer
+        mov     edx, toCmd
+        push    fromCmd
+        call    writeCmd
+        add     esp, 4
+    }
+}
+
+static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, int slot, bfWrite* buffer, int from, int to, bool newCmd) noexcept
+{
+    static auto original = hooks->client.getOriginal<bool, 24, int, bfWrite*, int, int, bool>(slot, buffer, from, to, newCmd);
+
+    if (Tickbase::getTickshift() <= 0)
+        return original(thisPointer, slot, buffer, from, to, newCmd);
+
+    const int extraCommands = Tickbase::getTickshift();
+    Tickbase::resetTickshift();
+
+    int* backupCommandsPointer = reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(buffer) - 0x30);
+    int* newCommandsPointer = reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(buffer) - 0x2C);
+
+    const int newCommands = *newCommandsPointer;
+    const int nextCommand = memory->clientState->chokedCommands + memory->clientState->lastOutgoingCommand + 1;
+
+    *backupCommandsPointer = 0;
+
+    for (to = nextCommand - newCommands + 1; to <= nextCommand; to++)
+    {
+        if (!original(thisPointer, slot, buffer, from, to, true))
+            return false;
+
+        from = to;
+    }
+
+    *newCommandsPointer = newCommands + extraCommands;
+
+    UserCmd* cmd = memory->input->getUserCmd(slot, from);
+    if (!cmd)
+        return true;
+
+    UserCmd toCmd = *cmd;
+    UserCmd fromCmd = *cmd;
+
+    toCmd.commandNumber++;
+    toCmd.tickCount += 200;
+
+    for (int i = 0; i < extraCommands; i++)
+    {
+        writeUsercmd(buffer, &toCmd, &fromCmd);
+
+        toCmd.tickCount++;
+        toCmd.commandNumber++;
+
+        fromCmd.tickCount = toCmd.tickCount - 1;
+        fromCmd.commandNumber = toCmd.commandNumber - 1;
+    }
+
+    return true;
+}
+
 static void __fastcall getColorModulationHook(void* thisPointer, void* edx, float* r, float* g, float* b) noexcept
 {
     static auto original = hooks->getColorModulation.getOriginal<void>(r, g, b);
@@ -1303,6 +1368,7 @@ void Hooks::install() noexcept
     client.init(interfaces->client);
     client.hookAt(7, levelShutDown);
     client.hookAt(22, createMoveProxy);
+    client.hookAt(24, writeUsercmdDeltaToBuffer);
     client.hookAt(37, frameStageNotify);
     client.hookAt(38, dispatchUserMessage);
     

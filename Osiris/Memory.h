@@ -196,6 +196,8 @@ public:
     std::uintptr_t calcViewBob;
     std::uintptr_t getClientModelRenderable;
     std::uintptr_t physicsSimulate;
+    void* writeUsercmdDeltaToBufferReturn;
+    std::uintptr_t writeUsercmd;
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;

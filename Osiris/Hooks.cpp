@@ -1036,7 +1036,7 @@ static void __fastcall physicsSimulateHook(void* thisPointer, void* edx) noexcep
     if (!commandContext || !commandContext->needsProcessing)
         return;
 
-    localPlayer->tickBase() = Tickbase::getCorrectkTickbase(commandContext->commandNumber);
+    localPlayer->tickBase() = Tickbase::getCorrectTickbase(commandContext->commandNumber);
 
     original(thisPointer);
 

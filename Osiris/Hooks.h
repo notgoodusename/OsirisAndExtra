@@ -62,6 +62,7 @@ public:
     MinHook postNetworkDataReceived;
     MinHook isDepthOfFieldEnabled;
     MinHook getClientModelRenderable;
+    MinHook physicsSimulate;
 
     MinHook newFunctionClientDLL;
     MinHook newFunctionEngineDLL;
@@ -76,7 +77,6 @@ public:
     HookType engine;
     HookType gameMovement;
     HookType modelRender;
-    HookType prediction;
     HookType sound;
     HookType surface;
     HookType viewRender;

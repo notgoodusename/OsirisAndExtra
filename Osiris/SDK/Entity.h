@@ -9,6 +9,7 @@
 
 #include "AnimState.h"
 #include "ClientClass.h"
+#include "CommandContext.h"
 #include "Cvar.h"
 #include "CStudioHdr.h"
 #include "Datamap.h"
@@ -375,6 +376,11 @@ public:
     float spawnTime() noexcept
     {
         return *reinterpret_cast<float*>(reinterpret_cast<uintptr_t>(this) + 0x103C0);
+    }
+
+    CommandContext* getCommandContext() noexcept
+    {
+        return reinterpret_cast<CommandContext*>(reinterpret_cast<uintptr_t>(this) + 0x350C);
     }
 
     UtlVector<matrix3x4>& getBoneCache()

@@ -217,6 +217,7 @@ Memory::Memory() noexcept
     eyePositionAndVectors = findPattern(CLIENT_DLL, "\x8B\x55\x0C\x8B\xC8\xE8????\x83\xC4\x08\x5E\x8B\xE5");
     calcViewBob = findPattern(CLIENT_DLL, "\x55\x8B\xEC\xA1????\x83\xEC\x10\x56\x8B\xF1\xB9????");
     getClientModelRenderable = findPattern(CLIENT_DLL, "\x56\x8B\xF1\x80\xBE?????\x0F\x84????\x80\xBE");
+    physicsSimulate = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x7C\x8B?????\x53\x56");
 
     newFunctionClientDLL = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionEngineDLL = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");

@@ -1020,15 +1020,24 @@ static void __cdecl clSendMoveHook() noexcept
     }
 }
 
-static void __fastcall runCommand(void* thisPointer, void* edx, Entity* entity, UserCmd* cmd, MoveHelper* moveHelper)
+static void __fastcall physicsSimulateHook(void* thisPointer, void* edx) noexcept
 {
-    static auto original = hooks->prediction.getOriginal<void, 19, Entity*, UserCmd*, MoveHelper*>(entity, cmd, moveHelper);
+    static auto original = hooks->physicsSimulate.getOriginal<void>();
 
-    if (!entity || !localPlayer || entity != localPlayer.get())
-        return original(thisPointer, entity, cmd, moveHelper);
+    if (!localPlayer || !localPlayer->isAlive() || thisPointer != localPlayer.get())
+        return original(thisPointer);
 
-    original(thisPointer, entity, cmd, moveHelper);
+    const int simulationTick = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(thisPointer) + 0x2AC);
+    if (simulationTick == memory->globalVars->tickCount)
+        return;
 
+    CommandContext* commandContext = localPlayer->getCommandContext();
+    if (!commandContext || !commandContext->needsProcessing)
+        return;
+
+    original(thisPointer);
+
+    // save netvar data
     EnginePrediction::store();
 }
 
@@ -1283,6 +1292,7 @@ void Hooks::install() noexcept
     clSendMove.detour(memory->clSendMove, clSendMoveHook);
     calcViewBob.detour(memory->calcViewBob, calcViewBobHook);
     getClientModelRenderable.detour(memory->getClientModelRenderable, getClientModelRenderableHook);
+    physicsSimulate.detour(memory->physicsSimulate, physicsSimulateHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());
@@ -1322,9 +1332,6 @@ void Hooks::install() noexcept
 
     modelRender.init(interfaces->modelRender);
     modelRender.hookAt(21, drawModelExecute);
-
-    prediction.init(interfaces->prediction);
-    prediction.hookAt(19, runCommand);
 
     sound.init(interfaces->sound);
     sound.hookAt(5, emitSound);
@@ -1387,7 +1394,6 @@ void Hooks::uninstall() noexcept
     engine.restore();
     gameMovement.restore();
     modelRender.restore();
-    prediction.restore();
     sound.restore();
     surface.restore();
     svCheats.restore();

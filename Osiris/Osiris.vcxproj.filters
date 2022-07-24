@@ -658,5 +658,8 @@
     <ClInclude Include="Hacks\Resolver.h">
       <Filter>Hacks</Filter>
     </ClInclude>
+    <ClInclude Include="SDK\CommandContext.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

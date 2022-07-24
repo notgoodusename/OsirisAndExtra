@@ -37,6 +37,7 @@
 #include "Hacks/Resolver.h"
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
+#include "Hacks/Tickbase.h"
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
@@ -1034,6 +1035,8 @@ static void __fastcall physicsSimulateHook(void* thisPointer, void* edx) noexcep
     CommandContext* commandContext = localPlayer->getCommandContext();
     if (!commandContext || !commandContext->needsProcessing)
         return;
+
+    localPlayer->tickBase() = Tickbase::getCorrectkTickbase(commandContext->commandNumber);
 
     original(thisPointer);
 

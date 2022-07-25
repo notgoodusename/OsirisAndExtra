@@ -325,6 +325,8 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::runFreeCam(cmd, viewAngles);
     Misc::moonwalk(cmd);
 
+    Tickbase::run(cmd, sendPacket);
+
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();
     viewAnglesDelta.x = std::clamp(viewAnglesDelta.x, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);

@@ -1,7 +1,11 @@
 #pragma once
 
+struct UserCmd;
+
 namespace Tickbase
 {
+	void run(UserCmd* cmd, bool sendPacket) noexcept;
+
 	bool canRun() noexcept;
 	bool canFire(int shiftAmount) noexcept;
 

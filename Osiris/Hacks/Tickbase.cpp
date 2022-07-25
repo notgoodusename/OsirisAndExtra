@@ -13,6 +13,15 @@ int shiftCommand{ 0 };
 int shiftedTickbase{ 0 };
 int ticksAllowedForProcessing{ 0 };
 
+void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if(!sendPacket)
+        ticksAllowedForProcessing = max(ticksAllowedForProcessing - 1, 0);
+}
+
 bool Tickbase::canRun() noexcept
 {
     if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
@@ -35,6 +44,9 @@ bool Tickbase::canRun() noexcept
 bool Tickbase::canFire(int shiftAmount) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
+        return false;
+
+    if (shiftAmount > ticksAllowedForProcessing)
         return false;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();

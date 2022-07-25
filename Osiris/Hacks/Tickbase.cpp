@@ -53,6 +53,12 @@ bool Tickbase::canRun() noexcept
         return true;
     }
 
+    if (config->misc.fakeduck && config->misc.fakeduckKey.isActive())
+    {
+        realTime = memory->globalVars->realtime;
+        return true;
+    }
+
     if (ticksAllowedForProcessing < targetTickShift && memory->globalVars->realtime - realTime > 1.0f)
     {
         ticksAllowedForProcessing++;

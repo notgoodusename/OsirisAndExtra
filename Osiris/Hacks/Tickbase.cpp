@@ -26,7 +26,7 @@ void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
         if (netChannel->chokedPackets > chokedPackets)
             chokedPackets = netChannel->chokedPackets;
         if (netChannel->chokedPackets == 0)
-            ticksAllowedForProcessing = max(getMaxUserCmdProcessTicks() - chokedPackets, 0);
+            ticksAllowedForProcessing = max(ticksAllowedForProcessing - chokedPackets, 0);
     }
 }
 
@@ -43,6 +43,7 @@ void Tickbase::shift(UserCmd* cmd, int shiftAmount) noexcept
 
 bool Tickbase::canRun() noexcept
 {
+    static float spawnTime = 0.f;
     if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
         return true;
 
@@ -53,13 +54,23 @@ bool Tickbase::canRun() noexcept
         return true;
     }
 
+    if (spawnTime != localPlayer->spawnTime())
+    {
+        spawnTime = localPlayer->spawnTime();
+        ticksAllowedForProcessing = 0;
+        chokedPackets = 0;
+    }
+
+    if ((*memory->gameRules)->freezePeriod())
+        return true;
+
     if (config->misc.fakeduck && config->misc.fakeduckKey.isActive())
     {
         realTime = memory->globalVars->realtime;
         return true;
     }
 
-    if (ticksAllowedForProcessing < targetTickShift && memory->globalVars->realtime - realTime > 1.0f)
+    if (ticksAllowedForProcessing - chokedPackets < targetTickShift && memory->globalVars->realtime - realTime > 1.0f)
     {
         ticksAllowedForProcessing++;
         chokedPackets--;

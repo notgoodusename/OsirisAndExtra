@@ -1,5 +1,6 @@
 #include "EnginePrediction.h"
 #include "Fakelag.h"
+#include "Tickbase.h"
 
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
@@ -33,6 +34,8 @@ void Fakelag::run(bool& sendPacket) noexcept
             break;
         }
     }
+
+    chokedPackets = std::clamp(chokedPackets, 0, getMaxUserCmdProcessTicks() - Tickbase::getTargetTickShift());
 
     sendPacket = netChannel->chokedPackets >= chokedPackets;
 }

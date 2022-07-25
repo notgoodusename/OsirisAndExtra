@@ -7,6 +7,7 @@
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
 
+int targetTickShift{ 0 };
 int tickShift{ 0 };
 int shiftCommand{ 0 };
 int shiftedTickbase{ 0 };
@@ -21,6 +22,13 @@ int Tickbase::getCorrectTickbase(int commandNumber) noexcept
 		return tickBase + shiftedTickbase;
 
 	return tickBase;
+}
+
+//If you have dt enabled, you need to shift 13 ticks, so it will return 13 ticks
+//If you have hs enabled, you need to shift 7 ticks, so it will return 7 ticks
+int Tickbase::getTargetTickShift() noexcept
+{
+	return targetTickShift;
 }
 
 int Tickbase::getTickshift() noexcept

@@ -35,7 +35,7 @@ void Fakelag::run(bool& sendPacket) noexcept
         }
     }
 
-    chokedPackets = std::clamp(chokedPackets, 0, getMaxUserCmdProcessTicks() - Tickbase::getTargetTickShift());
+    chokedPackets = std::clamp(chokedPackets, 0, maxUserCmdProcessTicks - Tickbase::getTargetTickShift());
 
     sendPacket = netChannel->chokedPackets >= chokedPackets;
 }

@@ -21,13 +21,8 @@ void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    if (const auto netChannel = interfaces->engine->getNetworkChannel(); netChannel)
-    {
-        if (netChannel->chokedPackets > chokedPackets)
-            chokedPackets = netChannel->chokedPackets;
-        if (netChannel->chokedPackets == 0)
-            ticksAllowedForProcessing = max(ticksAllowedForProcessing - chokedPackets, 0);
-    }
+    if (const auto netChannel = interfaces->engine->getNetworkChannel(); netChannel && netChannel->chokedPackets > chokedPackets)
+        chokedPackets = netChannel->chokedPackets;
 }
 
 void Tickbase::shift(UserCmd* cmd, int shiftAmount) noexcept

@@ -1296,6 +1296,7 @@ void resetAll(int resetType) noexcept
     Glow::clearCustomObjects();
     Visuals::reset(resetType);
     Misc::reset(resetType);
+    Tickbase::reset();
 }
 
 static void __fastcall levelShutDown(void* thisPointer) noexcept
@@ -1305,7 +1306,6 @@ static void __fastcall levelShutDown(void* thisPointer) noexcept
     original(thisPointer);
     resetAll(0);
 }
-
 
 Hooks::Hooks(HMODULE moduleHandle) noexcept
 {

@@ -15,6 +15,20 @@ int ticksAllowedForProcessing{ 0 };
 
 bool Tickbase::canRun() noexcept
 {
+    if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+        return true;
+
+    if (!localPlayer || !localPlayer->isAlive() || !targetTickShift)
+    {
+        ticksAllowedForProcessing = 0;
+        return true;
+    }
+
+    if (ticksAllowedForProcessing < targetTickShift)
+    {
+        ticksAllowedForProcessing++;
+        return false;
+    }
     return true;
 }
 
@@ -66,5 +80,14 @@ int Tickbase::getTickshift() noexcept
 void Tickbase::resetTickshift() noexcept
 {
 	shiftedTickbase = tickShift;
+    ticksAllowedForProcessing = max(ticksAllowedForProcessing - tickShift, 0);
 	tickShift = 0;
+}
+
+void Tickbase::reset() noexcept
+{
+    tickShift = 0;
+    shiftCommand = 0;
+    shiftedTickbase = 0;
+    ticksAllowedForProcessing = 0;
 }

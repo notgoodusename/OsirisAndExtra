@@ -6,20 +6,27 @@
 
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
+#include "../SDK/NetworkChannel.h"
 
 int targetTickShift{ 0 };
 int tickShift{ 0 };
 int shiftCommand{ 0 };
 int shiftedTickbase{ 0 };
 int ticksAllowedForProcessing{ 0 };
+int chokedPackets{ 0 };
 
 void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    if(!sendPacket)
-        ticksAllowedForProcessing = max(ticksAllowedForProcessing - 1, 0);
+    if (const auto netChannel = interfaces->engine->getNetworkChannel(); netChannel)
+    {
+        if (netChannel->chokedPackets > chokedPackets)
+            chokedPackets = netChannel->chokedPackets;
+        if (netChannel->chokedPackets == 0)
+            ticksAllowedForProcessing = max(getMaxUserCmdProcessTicks() - chokedPackets, 0);
+    }
 }
 
 bool Tickbase::canRun() noexcept
@@ -30,12 +37,14 @@ bool Tickbase::canRun() noexcept
     if (!localPlayer || !localPlayer->isAlive() || !targetTickShift)
     {
         ticksAllowedForProcessing = 0;
+        chokedPackets = 0;
         return true;
     }
 
     if (ticksAllowedForProcessing < targetTickShift)
     {
         ticksAllowedForProcessing++;
+        chokedPackets--;
         return false;
     }
     return true;
@@ -98,6 +107,7 @@ void Tickbase::resetTickshift() noexcept
 
 void Tickbase::reset() noexcept
 {
+    chokedPackets = 0;
     tickShift = 0;
     shiftCommand = 0;
     shiftedTickbase = 0;

@@ -14,6 +14,7 @@ int shiftCommand{ 0 };
 int shiftedTickbase{ 0 };
 int ticksAllowedForProcessing{ 0 };
 int chokedPackets{ 0 };
+float realTime{ 0.0f };
 
 void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
 {
@@ -29,6 +30,17 @@ void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
     }
 }
 
+void Tickbase::shift(UserCmd* cmd, int shiftAmount) noexcept
+{
+    if (!canFire(shiftAmount))
+        return;
+
+    realTime = memory->globalVars->realtime;
+    shiftedTickbase = shiftAmount;
+    shiftCommand = cmd->commandNumber;
+    tickShift = shiftAmount;
+}
+
 bool Tickbase::canRun() noexcept
 {
     if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
@@ -41,7 +53,7 @@ bool Tickbase::canRun() noexcept
         return true;
     }
 
-    if (ticksAllowedForProcessing < targetTickShift)
+    if (ticksAllowedForProcessing < targetTickShift && memory->globalVars->realtime - realTime > 1.0f)
     {
         ticksAllowedForProcessing++;
         chokedPackets--;
@@ -112,4 +124,5 @@ void Tickbase::reset() noexcept
     shiftCommand = 0;
     shiftedTickbase = 0;
     ticksAllowedForProcessing = 0;
+    realTime = 0.0f;
 }

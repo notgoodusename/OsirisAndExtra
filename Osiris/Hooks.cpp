@@ -1096,7 +1096,8 @@ static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, i
     UserCmd fromCmd = *cmd;
 
     toCmd.commandNumber++;
-    toCmd.tickCount += 200;
+    if (!config->tickbase.teleport)
+        toCmd.tickCount += 200;
 
     for (int i = 0; i < extraCommands; i++)
     {

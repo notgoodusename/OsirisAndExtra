@@ -337,6 +337,13 @@ static void from_json(const json& j, Config::Fakelag& f)
     read(j, "Limit", f.limit);
 }
 
+static void from_json(const json& j, Config::Tickbase& t)
+{
+    read(j, "Doubletap", t.doubletap);
+    read(j, "Hideshots", t.hideshots);
+    read(j, "Teleport", t.teleport);
+}
+
 static void from_json(const json& j, Config::Backtrack& b)
 {
     read(j, "Enabled", b.enabled);
@@ -729,6 +736,7 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read(j, "Disable in freezetime", disableInFreezetime);
     read<value_t::object>(j, "Fake angle", fakeAngle);
     read<value_t::object>(j, "Fakelag", fakelag);
+    read<value_t::object>(j, "Tickbase", tickbase);
     read<value_t::object>(j, "Backtrack", backtrack);
 
     read(j["Glow"], "Items", glow);
@@ -1049,6 +1057,13 @@ static void to_json(json& j, const Config::Fakelag& o, const Config::Fakelag& du
     WRITE("Enabled", enabled);
     WRITE("Mode", mode);
     WRITE("Limit", limit);
+}
+
+static void to_json(json& j, const Config::Tickbase& o, const Config::Tickbase& dummy = {})
+{
+    WRITE("Doubletap", doubletap);
+    WRITE("Hideshots", hideshots);
+    WRITE("Teleport", teleport);
 }
 
 static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack& dummy = {})
@@ -1423,6 +1438,7 @@ void Config::save(size_t id) const noexcept
         j["Disable in freezetime"] = disableInFreezetime;
         j["Fake angle"] = fakeAngle;
         j["Fakelag"] = fakelag;
+        j["Tickbase"] = tickbase;
         j["Backtrack"] = backtrack;
 
         j["Glow"]["Items"] = glow;
@@ -1473,6 +1489,7 @@ void Config::reset() noexcept
     disableInFreezetime = true;
     fakeAngle = { };
     fakelag = { };
+    tickbase = { };
     backtrack = { };
     triggerbot = { };
     Glow::resetConfig();

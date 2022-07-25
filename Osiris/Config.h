@@ -89,6 +89,12 @@ public:
         int lbyMode = 0; // Normal, Opposite, sway, 
     } fakeAngle;
 
+    struct Tickbase {
+        KeyBind doubletap{ std::string("doubletap"), KeyMode::Off };
+        KeyBind hideshots{ std::string("hideshots"), KeyMode::Off };
+        bool teleport{ false };
+    } tickbase;
+
     struct LegitAntiAimConfig {
         bool enabled = false;
         bool extend = false;

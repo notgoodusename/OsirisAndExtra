@@ -478,6 +478,15 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::PopID();
     ImGui::SliderInt("Min damage override", &config->ragebot[currentWeapon].minDamageOverride, 0, 101, "%d");
     config->ragebot[currentWeapon].minDamageOverride = std::clamp(config->ragebot[currentWeapon].minDamageOverride, 0, 250);
+
+    ImGui::PushID("Doubletap");
+    ImGui::hotkey2("Doubletap", config->tickbase.doubletap);
+    ImGui::PopID();
+    ImGui::PushID("Hideshots");
+    ImGui::hotkey2("Hideshots", config->tickbase.hideshots);
+    ImGui::PopID();
+    //ImGui::Checkbox("Teleport on shift", &config->tickbase.teleport);
+
     ImGui::Columns(1);
 }
 

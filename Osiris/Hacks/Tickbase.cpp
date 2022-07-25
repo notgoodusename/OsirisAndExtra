@@ -23,6 +23,20 @@ void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
 
     if (const auto netChannel = interfaces->engine->getNetworkChannel(); netChannel && netChannel->chokedPackets > chokedPackets)
         chokedPackets = netChannel->chokedPackets;
+
+    if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
+    {
+        targetTickShift = 0;
+        return;
+    }
+
+    if (config->tickbase.doubletap.isActive())
+        targetTickShift = 13;
+    else if (config->tickbase.hideshots.isActive())
+        targetTickShift = 9;
+
+    if (cmd->buttons & UserCmd::IN_ATTACK)
+        shift(cmd, targetTickShift);
 }
 
 void Tickbase::shift(UserCmd* cmd, int shiftAmount) noexcept
@@ -125,7 +139,9 @@ int Tickbase::getTickshift() noexcept
 void Tickbase::resetTickshift() noexcept
 {
 	shiftedTickbase = tickShift;
-    ticksAllowedForProcessing = max(ticksAllowedForProcessing - tickShift, 0);
+    //Without teleport we only need to recharge after fakelagging
+    if (config->tickbase.teleport)
+        ticksAllowedForProcessing = max(ticksAllowedForProcessing - tickShift, 0);
 	tickShift = 0;
 }
 

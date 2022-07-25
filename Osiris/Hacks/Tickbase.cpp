@@ -11,6 +11,12 @@ int targetTickShift{ 0 };
 int tickShift{ 0 };
 int shiftCommand{ 0 };
 int shiftedTickbase{ 0 };
+int ticksAllowedForProcessing{ 0 };
+
+bool Tickbase::canRun() noexcept
+{
+    return true;
+}
 
 bool Tickbase::canFire(int shiftAmount) noexcept
 {

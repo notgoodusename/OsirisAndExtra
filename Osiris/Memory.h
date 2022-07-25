@@ -181,6 +181,7 @@ public:
     std::uintptr_t clSendMove;
     void(__thiscall* clMsgMoveSetData)(void*, unsigned char*, std::size_t);
     void(__thiscall* clMsgMoveDescontructor)(void*);
+    std::uintptr_t clMove;
     std::uintptr_t chokeLimit;
     std::string* relayCluster;
     std::uintptr_t unlockInventory;

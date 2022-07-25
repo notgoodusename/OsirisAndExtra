@@ -203,6 +203,7 @@ Memory::Memory() noexcept
     clSendMove = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x8B\x4D\x04\x81\xEC????");
     clMsgMoveSetData = relativeToAbsolute<decltype(clMsgMoveSetData)>(findPattern(ENGINE_DLL, "\xE8????\x8D\x7E\x18") + 1);
     clMsgMoveDescontructor = relativeToAbsolute<decltype(clMsgMoveDescontructor)>(findPattern(ENGINE_DLL, "\xE8????\x5F\x5E\x5B\x8B\xE5\x5D\xC3\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\xCC\x55\x8B\xEC\x81\xEC????") + 1);
+    clMove = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x81\xEC????\x53\x56\x8A\xF9");
     chokeLimit = findPattern(ENGINE_DLL, "\xB8????\x3B\xF0\x0F\x4F\xF0\x89\x5D\xFC") + 1;
     relayCluster = *reinterpret_cast<std::string**>(findPattern(STEAMNETWORKINGSOCKETS_DLL, "\xB8????\xB9????\x0F\x43") + 1);
     unlockInventory = findPattern(CLIENT_DLL, "\x84\xC0\x75\x05\xB0\x01\x5F");

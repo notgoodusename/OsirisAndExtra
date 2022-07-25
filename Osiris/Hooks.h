@@ -54,6 +54,7 @@ public:
     MinHook postDataUpdate;
 
     MinHook clSendMove;
+    MinHook clMove;
 
     MinHook getColorModulation;
     MinHook isUsingStaticPropDebugModes;

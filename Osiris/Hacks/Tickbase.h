@@ -2,6 +2,7 @@
 
 namespace Tickbase
 {
+	bool canRun() noexcept;
 	bool canFire(int shiftAmount) noexcept;
 
 	int getCorrectTickbase(int commandNumber) noexcept;

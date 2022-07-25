@@ -1109,6 +1109,17 @@ static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, i
     return true;
 }
 
+void __cdecl clMoveHook(float frametime, bool isFinalTick) noexcept
+{
+    using clMoveFn = void(__cdecl*)(float, bool);
+    static auto original = (clMoveFn)hooks->clMove.getDetour();
+
+    if (!Tickbase::canRun())
+        return;
+
+    original(frametime, isFinalTick);
+}
+
 static void __fastcall getColorModulationHook(void* thisPointer, void* edx, float* r, float* g, float* b) noexcept
 {
     static auto original = hooks->getColorModulation.getOriginal<void>(r, g, b);
@@ -1358,6 +1369,7 @@ void Hooks::install() noexcept
     isDepthOfFieldEnabled.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
     eyeAngles.detour(memory->eyeAngles, eyeAnglesHook);
     clSendMove.detour(memory->clSendMove, clSendMoveHook);
+    clMove.detour(memory->clMove, clMoveHook);
     calcViewBob.detour(memory->calcViewBob, calcViewBobHook);
     getClientModelRenderable.detour(memory->getClientModelRenderable, getClientModelRenderableHook);
     physicsSimulate.detour(memory->physicsSimulate, physicsSimulateHook);

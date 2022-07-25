@@ -137,6 +137,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         Glow::updateInput();
         Ragebot::updateInput();
         AntiAim::updateInput();
+        Tickbase::updateInput();
         Misc::drawPlayerList();
         gui->handleToggle();
 

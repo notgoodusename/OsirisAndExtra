@@ -152,6 +152,12 @@ void Tickbase::resetTickshift() noexcept
 	tickShift = 0;
 }
 
+void Tickbase::updateInput() noexcept
+{
+    config->tickbase.doubletap.handleToggle();
+    config->tickbase.hideshots.handleToggle();
+}
+
 void Tickbase::reset() noexcept
 {
     chokedPackets = 0;

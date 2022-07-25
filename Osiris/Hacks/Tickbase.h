@@ -18,5 +18,7 @@ namespace Tickbase
 	int getTickshift() noexcept;
 
 	void resetTickshift() noexcept;
+
+	void updateInput() noexcept;
 	void reset() noexcept;
 }

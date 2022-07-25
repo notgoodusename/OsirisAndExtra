@@ -274,7 +274,9 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     auto angOldViewPoint{ cmd->viewangles };
 
     Resolver::processMissedShots();
-    
+
+    Tickbase::start();
+
     memory->globalVars->serverTime(cmd);
     Misc::antiAfkKick(cmd);
     Misc::fastStop(cmd);
@@ -303,14 +305,14 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Backtrack::run(cmd);
     Triggerbot::run(cmd);
     Ragebot::run(cmd);
+    Knifebot::run(cmd);
+    Tickbase::end(cmd);
 
     Misc::autoPeek(cmd, currentViewAngles);
 
     Misc::edgejump(cmd);
     Misc::blockBot(cmd);
     Misc::fastPlant(cmd);
-
-    Knifebot::run(cmd);
 
     if (AntiAim::canRun(cmd))
     {
@@ -324,8 +326,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::edgeBug(cmd, angOldViewPoint);
     Misc::runFreeCam(cmd, viewAngles);
     Misc::moonwalk(cmd);
-
-    Tickbase::run(cmd, sendPacket);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();

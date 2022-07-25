@@ -4,12 +4,13 @@ struct UserCmd;
 
 namespace Tickbase
 {
-	void run(UserCmd* cmd, bool sendPacket) noexcept;
+	void start() noexcept;
+	void end(UserCmd* cmd) noexcept;
 
-	void shift(UserCmd* cmd, int shiftAmount) noexcept;
+	bool shift(UserCmd* cmd, int shiftAmount) noexcept;
 
 	bool canRun() noexcept;
-	bool canFire(int shiftAmount) noexcept;
+	bool canShift(int shiftAmount) noexcept;
 
 	int getCorrectTickbase(int commandNumber) noexcept;
 	

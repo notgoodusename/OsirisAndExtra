@@ -16,7 +16,7 @@ int ticksAllowedForProcessing{ 0 };
 int chokedPackets{ 0 };
 float realTime{ 0.0f };
 
-void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
+void Tickbase::start() noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
@@ -34,20 +34,27 @@ void Tickbase::run(UserCmd* cmd, bool sendPacket) noexcept
         targetTickShift = 13;
     else if (config->tickbase.hideshots.isActive())
         targetTickShift = 9;
-
-    if (cmd->buttons & UserCmd::IN_ATTACK)
-        shift(cmd, targetTickShift);
 }
 
-void Tickbase::shift(UserCmd* cmd, int shiftAmount) noexcept
+void Tickbase::end(UserCmd* cmd) noexcept
 {
-    if (!canFire(shiftAmount))
+    if (!localPlayer || !localPlayer->isAlive())
         return;
+
+    if (cmd->buttons & UserCmd::IN_ATTACK)
+       shift(cmd, targetTickShift);
+}
+
+bool Tickbase::shift(UserCmd* cmd, int shiftAmount) noexcept
+{
+    if (!canShift(shiftAmount))
+        return false;
 
     realTime = memory->globalVars->realtime;
     shiftedTickbase = shiftAmount;
     shiftCommand = cmd->commandNumber;
     tickShift = shiftAmount;
+    return true;
 }
 
 bool Tickbase::canRun() noexcept
@@ -88,7 +95,7 @@ bool Tickbase::canRun() noexcept
     return true;
 }
 
-bool Tickbase::canFire(int shiftAmount) noexcept
+bool Tickbase::canShift(int shiftAmount) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return false;

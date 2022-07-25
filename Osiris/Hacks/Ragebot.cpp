@@ -143,6 +143,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
     {
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
+        if (!Backtrack::valid(player.simulationTime))
+            continue;
+
         const int minDamage = std::clamp(std::clamp(config->minDamageOverrideKey.isActive() ? cfg[weaponIndex].minDamageOverride : cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
         damageDiff = FLT_MAX;
 

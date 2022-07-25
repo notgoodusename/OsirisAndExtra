@@ -2,6 +2,8 @@
 
 namespace Tickbase
 {
+	bool canFire(int shiftAmount) noexcept;
+
 	int getCorrectTickbase(int commandNumber) noexcept;
 	
 	int getTargetTickShift() noexcept;

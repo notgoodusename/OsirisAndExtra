@@ -1027,7 +1027,8 @@ static void __fastcall physicsSimulateHook(void* thisPointer, void* edx) noexcep
 {
     static auto original = hooks->physicsSimulate.getOriginal<void>();
 
-    if (!localPlayer || !localPlayer->isAlive() || thisPointer != localPlayer.get())
+    const auto entity = reinterpret_cast<Entity*>(thisPointer);
+    if (!localPlayer || !localPlayer->isAlive() || entity != localPlayer.get())
         return original(thisPointer);
 
     const int simulationTick = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(thisPointer) + 0x2AC);

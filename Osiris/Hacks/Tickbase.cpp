@@ -84,7 +84,7 @@ bool Tickbase::canFire(int shiftAmount) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return false;
 
-    if (shiftAmount > ticksAllowedForProcessing)
+    if (shiftAmount > ticksAllowedForProcessing || memory->globalVars->realtime - realTime <= 0.5f)
         return false;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();

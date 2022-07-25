@@ -671,12 +671,12 @@ void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
     if (!localPlayer || !localPlayer->isAlive() || !(localPlayer->flags() & 1))
         return;
 
-    auto netChannel = interfaces->engine->getNetworkChannel();
+    const auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;
 
     cmd->buttons |= UserCmd::IN_BULLRUSH;
-    bool crouch = netChannel->chokedPackets >= (maxUserCmdProcessTicks / 2);
+    const bool crouch = netChannel->chokedPackets >= (maxUserCmdProcessTicks / 2);
     if (crouch)
         cmd->buttons |= UserCmd::IN_DUCK;
     else

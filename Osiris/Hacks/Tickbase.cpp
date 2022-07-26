@@ -4,6 +4,7 @@
 
 #include "Tickbase.h"
 
+#include "../SDK/ClientState.h"
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
 #include "../SDK/NetworkChannel.h"
@@ -20,7 +21,7 @@ int shiftCommand{ 0 };
 int shiftedTickbase{ 0 };
 int ticksAllowedForProcessing{ 0 };
 int chokedPackets{ 0 };
-int pausedTicks{ 0 };
+int pauseTicks{ 0 };
 float realTime{ 0.0f };
 bool shifting{ false };
 bool finalTick{ false };
@@ -77,7 +78,7 @@ bool Tickbase::canRun() noexcept
     {
         ticksAllowedForProcessing = 0;
         chokedPackets = 0;
-        pausedTicks = 0;
+        pauseTicks = 0;
         return true;
     }
 
@@ -92,7 +93,7 @@ bool Tickbase::canRun() noexcept
         spawnTime = localPlayer->spawnTime();
         ticksAllowedForProcessing = 0;
         chokedPackets = 0;
-        pausedTicks = 0;
+        pauseTicks = 0;
     }
 
     if ((*memory->gameRules)->freezePeriod())
@@ -108,7 +109,7 @@ bool Tickbase::canRun() noexcept
     {
         ticksAllowedForProcessing = min(ticksAllowedForProcessing++, maxUserCmdProcessTicks);
         chokedPackets = max(chokedPackets--, 0);
-        pausedTicks++;
+        pauseTicks++;
         return false;
     }
     return true;
@@ -143,7 +144,7 @@ bool Tickbase::canShift(int shiftAmount) noexcept
 
 int Tickbase::getCorrectTickbase(int commandNumber) noexcept
 {
-	const int tickBase = localPlayer->tickBase();
+    const int tickBase = localPlayer->tickBase();
 
     if (commandNumber == shiftCommand)
         return tickBase - shiftedTickbase;
@@ -153,9 +154,14 @@ int Tickbase::getCorrectTickbase(int commandNumber) noexcept
             return tickBase + shiftedTickbase;
         return tickBase;
     }
-    const int extraTicks = pausedTicks;
-    pausedTicks = 0;
-	return tickBase + extraTicks;
+    if (pauseTicks)
+        return tickBase + pauseTicks;
+	return tickBase;
+}
+
+int& Tickbase::pausedTicks() noexcept
+{
+    return pauseTicks;
 }
 
 //If you have dt enabled, you need to shift 13 ticks, so it will return 13 ticks
@@ -197,7 +203,7 @@ void Tickbase::updateInput() noexcept
 
 void Tickbase::reset() noexcept
 {
-    pausedTicks = 0;
+    pauseTicks = 0;
     chokedPackets = 0;
     tickShift = 0;
     shiftCommand = 0;

@@ -13,6 +13,8 @@ namespace Tickbase
 	bool canShift(int shiftAmount) noexcept;
 
 	int getCorrectTickbase(int commandNumber) noexcept;
+
+	int& pausedTicks() noexcept;
 	
 	int getTargetTickShift() noexcept;
 	int getTickshift() noexcept;

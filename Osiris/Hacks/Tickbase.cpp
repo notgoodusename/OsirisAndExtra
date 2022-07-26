@@ -104,7 +104,7 @@ bool Tickbase::canRun() noexcept
         return true;
     }
 
-    if (ticksAllowedForProcessing < targetTickShift || chokedPackets > maxUserCmdProcessTicks - targetTickShift && memory->globalVars->realtime - realTime > 1.0f)
+    if ((ticksAllowedForProcessing < targetTickShift || chokedPackets > maxUserCmdProcessTicks - targetTickShift) && memory->globalVars->realtime - realTime > 1.0f)
     {
         ticksAllowedForProcessing = min(ticksAllowedForProcessing++, maxUserCmdProcessTicks);
         chokedPackets = max(chokedPackets--, 0);

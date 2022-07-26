@@ -45,6 +45,10 @@ void Backtrack::run(UserCmd* cmd) noexcept
     if (!config->backtrack.ignoreFlash && localPlayer->isFlashed())
         return;
 
+    const auto activeWeapon = localPlayer->getActiveWeapon();
+    if (!activeWeapon || !activeWeapon->clip())
+        return;
+
     auto localPlayerEyePosition = localPlayer->getEyePosition();
 
     auto bestFov{ 255.f };
@@ -53,7 +57,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     Vector bestTargetPosition{ };
     int bestRecord{ };
 
-    const auto aimPunch = localPlayer->getActiveWeapon()->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+    const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
 
     for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
         auto entity = interfaces->entityList->getEntity(i);

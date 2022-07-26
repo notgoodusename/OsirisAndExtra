@@ -461,9 +461,6 @@ public:
 
     auto requiresRecoilControl() noexcept
     {
-        if (isGrenade() || isBomb() || isKnife())
-            return false;
-
         const auto weaponData = getWeaponData();
         if (weaponData)
             return weaponData->recoilMagnitude < 35.0f && weaponData->recoveryTimeStand > weaponData->cycletime;

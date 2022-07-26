@@ -343,6 +343,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::runReportbot();
     Misc::bunnyHop(cmd);
     Misc::removeCrouchCooldown(cmd);
+    Misc::quickReload(cmd);
     Misc::autoPistol(cmd);
     Misc::autoReload(cmd);
     Misc::updateClanTag();
@@ -1094,7 +1095,7 @@ static void __fastcall physicsSimulateHook(void* thisPointer, void* edx) noexcep
     CommandContext* commandContext = localPlayer->getCommandContext();
     if (!commandContext || !commandContext->needsProcessing)
         return;
-
+    
     static int lastCommandNumber = -1;
     static bool once = false;
 

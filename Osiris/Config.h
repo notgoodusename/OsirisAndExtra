@@ -328,6 +328,7 @@ public:
         int slowwalkAmnt{ 0 };
         bool fakeduck{ false };
         ColorToggle autoPeek{ 1.0f, 1.0f, 1.0f, 1.0f };
+        bool quickReload{ false };
         bool autoPistol{ false };
         bool autoReload{ false };
         bool autoAccept{ false };

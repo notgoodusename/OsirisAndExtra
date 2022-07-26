@@ -47,6 +47,7 @@ namespace Misc
     void fixMovement(UserCmd* cmd, float yaw) noexcept;
     void antiAfkKick(UserCmd* cmd) noexcept;
     void fixAnimationLOD(FrameStage stage) noexcept;
+    void quickReload(UserCmd*) noexcept;
     void autoPistol(UserCmd* cmd) noexcept;
     void autoReload(UserCmd* cmd) noexcept;
     void revealRanks(UserCmd* cmd) noexcept;

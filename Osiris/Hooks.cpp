@@ -278,6 +278,54 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     {
         sendPacket = Tickbase::isFinalTick();
         cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
+
+        //Set all movement to its max value
+        if (cmd->sidemove > 5.0f)
+            cmd->sidemove = 450.0f;
+        else if (cmd->sidemove < -5.0f)
+            cmd->sidemove = -450.0f;
+
+        if (cmd->forwardmove > 5.0f)
+            cmd->forwardmove = 450.0f;
+        else if (cmd->forwardmove < -5.0f)
+            cmd->forwardmove = -450.0f;
+
+        //Run all movement related stuff
+        Misc::bunnyHop(cmd);
+        Misc::removeCrouchCooldown(cmd);
+        Misc::slowwalk(cmd);
+
+        EnginePrediction::update();
+        EnginePrediction::run(cmd);
+
+        Misc::autoPeek(cmd, currentViewAngles);
+        Misc::edgejump(cmd);
+        Misc::autoStrafe(cmd, currentViewAngles);
+        Misc::jumpBug(cmd);
+
+        //Clamp angles and fix movement
+        auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
+        viewAnglesDelta.normalize();
+        viewAnglesDelta.x = std::clamp(viewAnglesDelta.x, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
+        viewAnglesDelta.y = std::clamp(viewAnglesDelta.y, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
+
+        cmd->viewangles = previousViewAngles + viewAnglesDelta;
+
+        cmd->viewangles.normalize();
+
+        if ((currentViewAngles != cmd->viewangles
+            || cmd->forwardmove != currentCmd.forwardmove
+            || cmd->sidemove != currentCmd.sidemove) && (cmd->sidemove != 0 || cmd->forwardmove != 0))
+        {
+            Misc::fixMovement(cmd, currentViewAngles.y);
+        }
+
+        cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
+        cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
+        cmd->viewangles.z = 0.0f;
+        cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
+        cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
+        cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
         return false;
     }
 

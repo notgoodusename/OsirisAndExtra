@@ -146,10 +146,14 @@ int Tickbase::getCorrectTickbase(int commandNumber) noexcept
 {
 	const int tickBase = localPlayer->tickBase();
 
-	if (commandNumber == shiftCommand)
-		return tickBase - shiftedTickbase;
-	else if (commandNumber == shiftCommand + 1 && !config->tickbase.teleport)
-		return tickBase + shiftedTickbase;
+    if (commandNumber == shiftCommand)
+        return tickBase - shiftedTickbase;
+    else if (commandNumber == shiftCommand + 1)
+    {
+        if (!config->tickbase.teleport)
+            return tickBase + shiftedTickbase;
+        return tickBase;
+    }
     const int extraTicks = pausedTicks;
     pausedTicks = 0;
 	return tickBase + extraTicks;

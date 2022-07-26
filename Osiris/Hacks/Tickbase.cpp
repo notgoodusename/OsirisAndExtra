@@ -119,6 +119,9 @@ bool Tickbase::canShift(int shiftAmount) noexcept
     if (localPlayer->nextAttack() > shiftTime)
         return false;
 
+    if (localPlayer->shotsFired() > 0 && !activeWeapon->isFullAuto())
+        return false;
+
 	return activeWeapon->nextPrimaryAttack() <= shiftTime;
 }
 

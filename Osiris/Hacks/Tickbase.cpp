@@ -64,7 +64,11 @@ bool Tickbase::canRun() noexcept
 {
     static float spawnTime = 0.f;
     if (!interfaces->engine->isInGame() || !interfaces->engine->isConnected())
+    {
+        ticksAllowedForProcessing = 0;
+        chokedPackets = 0;
         return true;
+    }
 
     if (!localPlayer || !localPlayer->isAlive() || !targetTickShift)
     {

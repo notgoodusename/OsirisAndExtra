@@ -274,6 +274,13 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     const auto currentCmd{ *cmd };
     auto angOldViewPoint{ cmd->viewangles };
 
+    if (Tickbase::isShifting())
+    {
+        sendPacket = Tickbase::isFinalTick();
+        cmd->buttons &= ~(UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2);
+        return false;
+    }
+
     Resolver::processMissedShots();
 
     Tickbase::start();
@@ -1065,7 +1072,7 @@ static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, i
 {
     static auto original = hooks->client.getOriginal<bool, 24, int, bfWrite*, int, int, bool>(slot, buffer, from, to, newCmd);
 
-    if (Tickbase::getTickshift() <= 0)
+    if (Tickbase::getTickshift() <= 0 || config->tickbase.teleport)
         return original(thisPointer, slot, buffer, from, to, newCmd);
 
     const int extraCommands = Tickbase::getTickshift();
@@ -1114,7 +1121,7 @@ static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, i
     return true;
 }
 
-void __cdecl clMoveHook(float frametime, bool isFinalTick) noexcept
+void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
 {
     using clMoveFn = void(__cdecl*)(float, bool);
     static auto original = (clMoveFn)hooks->clMove.getDetour();
@@ -1122,7 +1129,24 @@ void __cdecl clMoveHook(float frametime, bool isFinalTick) noexcept
     if (!Tickbase::canRun())
         return;
 
-    original(frametime, isFinalTick);
+    original(frameTime, isFinalTick);
+
+    if (!Tickbase::getTickshift() || !config->tickbase.teleport)
+        return;
+
+    int remainToShift = 0;
+    int tickShift = Tickbase::getTickshift();
+
+    Tickbase::isShifting() = true;
+
+    for (int shiftAmount = 0; shiftAmount < tickShift; shiftAmount++)
+    {
+        Tickbase::isFinalTick() = (tickShift - shiftAmount) == 1;
+        original(frameTime, isFinalTick);
+    }
+    Tickbase::isShifting() = false;
+
+    Tickbase::resetTickshift();
 }
 
 static void __fastcall getColorModulationHook(void* thisPointer, void* edx, float* r, float* g, float* b) noexcept

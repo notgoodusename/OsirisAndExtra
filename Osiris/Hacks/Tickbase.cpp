@@ -8,6 +8,12 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/NetworkChannel.h"
 
+/*
+For those confused as to why i hooked clMove and writeUserCmdDelta, its simple
+For teleport you run all the ticks you send, so you need to create commands for each cmd sent, basically run clMove multiple times
+And without teleport you dont need to run commands, since the commands sent wont be ran (because it will only mess with tickbase)
+*/
+
 int targetTickShift{ 0 };
 int tickShift{ 0 };
 int shiftCommand{ 0 };
@@ -16,6 +22,8 @@ int ticksAllowedForProcessing{ 0 };
 int chokedPackets{ 0 };
 int pausedTicks{ 0 };
 float realTime{ 0.0f };
+bool shifting{ false };
+bool finalTick{ false };
 
 void Tickbase::start() noexcept
 {
@@ -140,7 +148,7 @@ int Tickbase::getCorrectTickbase(int commandNumber) noexcept
 
 	if (commandNumber == shiftCommand)
 		return tickBase - shiftedTickbase;
-	else if (commandNumber == shiftCommand + 1)
+	else if (commandNumber == shiftCommand + 1 && !config->tickbase.teleport)
 		return tickBase + shiftedTickbase;
     const int extraTicks = pausedTicks;
     pausedTicks = 0;
@@ -166,6 +174,16 @@ void Tickbase::resetTickshift() noexcept
     if (config->tickbase.teleport)
         ticksAllowedForProcessing = max(ticksAllowedForProcessing - tickShift, 0);
 	tickShift = 0;
+}
+
+bool& Tickbase::isFinalTick() noexcept
+{
+    return finalTick;
+}
+
+bool& Tickbase::isShifting() noexcept
+{
+    return shifting;
 }
 
 void Tickbase::updateInput() noexcept

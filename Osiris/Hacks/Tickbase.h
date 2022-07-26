@@ -19,6 +19,9 @@ namespace Tickbase
 
 	void resetTickshift() noexcept;
 
+	bool& isFinalTick() noexcept;
+	bool& isShifting() noexcept;
+
 	void updateInput() noexcept;
 	void reset() noexcept;
 }

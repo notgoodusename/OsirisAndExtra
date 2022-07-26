@@ -14,6 +14,7 @@ int shiftCommand{ 0 };
 int shiftedTickbase{ 0 };
 int ticksAllowedForProcessing{ 0 };
 int chokedPackets{ 0 };
+int pausedTicks{ 0 };
 float realTime{ 0.0f };
 
 void Tickbase::start() noexcept
@@ -67,6 +68,7 @@ bool Tickbase::canRun() noexcept
     {
         ticksAllowedForProcessing = 0;
         chokedPackets = 0;
+        pausedTicks = 0;
         return true;
     }
 
@@ -74,6 +76,7 @@ bool Tickbase::canRun() noexcept
     {
         ticksAllowedForProcessing = 0;
         chokedPackets = 0;
+        pausedTicks = 0;
         return true;
     }
 
@@ -82,6 +85,7 @@ bool Tickbase::canRun() noexcept
         spawnTime = localPlayer->spawnTime();
         ticksAllowedForProcessing = 0;
         chokedPackets = 0;
+        pausedTicks = 0;
     }
 
     if ((*memory->gameRules)->freezePeriod())
@@ -97,6 +101,7 @@ bool Tickbase::canRun() noexcept
     {
         ticksAllowedForProcessing = min(ticksAllowedForProcessing++, maxUserCmdProcessTicks);
         chokedPackets = max(chokedPackets--, 0);
+        pausedTicks++;
         return false;
     }
     return true;
@@ -137,8 +142,9 @@ int Tickbase::getCorrectTickbase(int commandNumber) noexcept
 		return tickBase - shiftedTickbase;
 	else if (commandNumber == shiftCommand + 1)
 		return tickBase + shiftedTickbase;
-
-	return tickBase;
+    const int extraTicks = pausedTicks;
+    pausedTicks = 0;
+	return tickBase + extraTicks;
 }
 
 //If you have dt enabled, you need to shift 13 ticks, so it will return 13 ticks
@@ -170,6 +176,7 @@ void Tickbase::updateInput() noexcept
 
 void Tickbase::reset() noexcept
 {
+    pausedTicks = 0;
     chokedPackets = 0;
     tickShift = 0;
     shiftCommand = 0;

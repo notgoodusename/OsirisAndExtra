@@ -27,7 +27,7 @@ void Glow::render() noexcept
 
     Glow::clearCustomObjects();
 
-    if (config->glowKey != KeyBind::NONE && !config->glowKey.isActive())
+    if (!config->glowKey.isActive())
         return;
 
     const auto highestEntityIndex = interfaces->entityList->getHighestEntityIndex();

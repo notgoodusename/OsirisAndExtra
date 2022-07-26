@@ -119,7 +119,7 @@ void Chams::updateInput() noexcept
 
 bool Chams::render(void* ctx, void* state, const ModelRenderInfo& info, matrix3x4* customBoneToWorld) noexcept
 {
-    if (config->chamsKey != KeyBind::NONE && !config->chamsKey.isActive())
+    if (!config->chamsKey.isActive())
         return false;
 
     static bool materialsInitialized = false;

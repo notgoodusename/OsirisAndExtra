@@ -528,7 +528,7 @@ static void renderProjectileEsp(const ProjectileData& projectileData, const Proj
 
 void StreamProofESP::render() noexcept
 {
-    if (config->streamProofESP.key != KeyBind::NONE && !config->streamProofESP.key.isActive())
+    if (!config->streamProofESP.key.isActive())
         return;
 
     drawList = ImGui::GetBackgroundDrawList();

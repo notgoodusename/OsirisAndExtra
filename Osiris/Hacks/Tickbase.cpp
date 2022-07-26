@@ -33,6 +33,7 @@ void Tickbase::start() noexcept
     if (const auto netChannel = interfaces->engine->getNetworkChannel(); netChannel)
         if (netChannel->chokedPackets > chokedPackets)
             chokedPackets = netChannel->chokedPackets;
+
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
     {
         targetTickShift = 0;
@@ -83,8 +84,6 @@ bool Tickbase::canRun() noexcept
     if (!localPlayer || !localPlayer->isAlive() || !targetTickShift)
     {
         ticksAllowedForProcessing = 0;
-        chokedPackets = 0;
-        pausedTicks = 0;
         return true;
     }
 
@@ -105,7 +104,7 @@ bool Tickbase::canRun() noexcept
         return true;
     }
 
-    if (ticksAllowedForProcessing - chokedPackets < targetTickShift && memory->globalVars->realtime - realTime > 1.0f)
+    if (ticksAllowedForProcessing < targetTickShift || chokedPackets > maxUserCmdProcessTicks - targetTickShift && memory->globalVars->realtime - realTime > 1.0f)
     {
         ticksAllowedForProcessing = min(ticksAllowedForProcessing++, maxUserCmdProcessTicks);
         chokedPackets = max(chokedPackets--, 0);
@@ -120,7 +119,7 @@ bool Tickbase::canShift(int shiftAmount) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return false;
 
-    if (!shiftAmount || shiftAmount > ticksAllowedForProcessing - chokedPackets || memory->globalVars->realtime - realTime <= 0.5f)
+    if (!shiftAmount || shiftAmount > ticksAllowedForProcessing || memory->globalVars->realtime - realTime <= 0.5f)
         return false;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();

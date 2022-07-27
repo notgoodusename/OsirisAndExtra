@@ -331,7 +331,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
             memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
         Animations::update(cmd, sendPacket);
         Animations::fake();
-
         return false;
     }
 

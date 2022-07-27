@@ -1157,3 +1157,59 @@ int AnimState::getTicksFromCycle(float playbackRate, float cycle, float previous
 
     return ticks;
 }
+
+float AnimState::calculatePlaybackRate(Vector velocity) noexcept
+{
+    const auto entity = reinterpret_cast<Entity*>(player);
+
+    const float lastUpdateIncrement = memory->globalVars->intervalPerTick;
+
+    const Vector vecVelocity = Helpers::approach(velocity, this->vecVelocity, lastUpdateIncrement * 2000.f);
+    const float velocityLengthXY = std::fminf(vecVelocity.length(), CS_PLAYER_SPEED_RUN);
+
+    float walkToRunTransition = this->walkToRunTransition;
+    float walkToRunTransitionState = this->walkToRunTransitionState;
+
+    if (walkToRunTransition > 0.f && walkToRunTransition < 1.f)
+    {
+        if (walkToRunTransitionState == ANIM_TRANSITION_WALK_TO_RUN)
+        {
+            walkToRunTransition += lastUpdateIncrement * CSGO_ANIM_WALK_TO_RUN_TRANSITION_SPEED;
+        }
+        else
+        {
+            walkToRunTransition -= lastUpdateIncrement * CSGO_ANIM_WALK_TO_RUN_TRANSITION_SPEED;
+        }
+        walkToRunTransition = std::clamp(walkToRunTransition, 0.f, 1.f);
+    }
+
+    if (velocityLengthXY > (CS_PLAYER_SPEED_RUN * CS_PLAYER_SPEED_WALK_MODIFIER) && walkToRunTransitionState == ANIM_TRANSITION_RUN_TO_WALK)
+    {
+        walkToRunTransitionState = ANIM_TRANSITION_WALK_TO_RUN;
+        walkToRunTransition = std::fmaxf(0.01f, walkToRunTransition);
+    }
+    else if (velocityLengthXY < (CS_PLAYER_SPEED_RUN * CS_PLAYER_SPEED_WALK_MODIFIER) && walkToRunTransitionState == ANIM_TRANSITION_WALK_TO_RUN)
+    {
+        walkToRunTransitionState = ANIM_TRANSITION_RUN_TO_WALK;
+        walkToRunTransition = std::fmaxf(0.99f, walkToRunTransition);
+    }
+
+    char weaponMoveSequenceString[MAX_ANIMSTATE_ANIMNAME_CHARS];
+    sprintf(weaponMoveSequenceString, "move_%s", memory->getWeaponPrefix(this));
+
+    int weaponMoveSeq = entity->lookupSequence(weaponMoveSequenceString);
+    if (weaponMoveSeq == -1)
+        weaponMoveSeq = entity->lookupSequence("move");
+
+    float moveCycleRate = 0.f;
+    if (velocityLengthXY > 0.f)
+    {
+        moveCycleRate = entity->getSequenceCycleRate(weaponMoveSeq);
+        float sequenceGroundSpeed = std::fmaxf(entity->getSequenceMoveDist(entity->getModelPtr(), weaponMoveSeq) / (1.0f / moveCycleRate), 0.001f);
+        moveCycleRate *= velocityLengthXY / sequenceGroundSpeed;
+
+        moveCycleRate *= Helpers::lerp(walkToRunTransition, 1.0f, CSGO_ANIM_RUN_ANIM_PLAYBACK_MULTIPLIER);
+    }
+
+    return moveCycleRate * lastUpdateIncrement;
+}

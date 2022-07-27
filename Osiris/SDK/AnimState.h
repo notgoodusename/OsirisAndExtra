@@ -237,6 +237,7 @@ struct AnimState //This is the client one
 	int getLayerSequence(size_t layer) noexcept;
 
 	int getTicksFromCycle(float playbackRate, float cycle, float previousCycle) noexcept;
+	float calculatePlaybackRate(Vector velocity) noexcept;
 };
 
 enum animEvent

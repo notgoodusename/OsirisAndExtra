@@ -88,16 +88,18 @@ bool Tickbase::canRun() noexcept
         return true;
     }
 
+    if ((*memory->gameRules)->freezePeriod())
+    {
+        realTime = memory->globalVars->realtime;
+        return true;
+    }
+
     if (spawnTime != localPlayer->spawnTime())
     {
         spawnTime = localPlayer->spawnTime();
         ticksAllowedForProcessing = 0;
-        chokedPackets = 0;
         pauseTicks = 0;
     }
-
-    if ((*memory->gameRules)->freezePeriod())
-        return true;
 
     if (config->misc.fakeduck && config->misc.fakeduckKey.isActive())
     {

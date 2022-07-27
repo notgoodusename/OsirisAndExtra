@@ -45,6 +45,9 @@ void Tickbase::start() noexcept
         targetTickShift = 13;
     else if (config->tickbase.hideshots.isActive())
         targetTickShift = 9;
+
+    //We do -1 to leave 1 tick to fakelag
+    targetTickShift = std::clamp(targetTickShift, 0, maxUserCmdProcessTicks - 1);
 }
 
 void Tickbase::end(UserCmd* cmd) noexcept

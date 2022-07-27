@@ -442,7 +442,7 @@ void Visuals::modifyMolotov(FrameStage stage) noexcept
 
 void Visuals::thirdperson() noexcept
 {
-    if (!config->visuals.thirdperson && !config->visuals.freeCam)
+    if (!config->visuals.thirdperson && !config->visuals.freeCam && !memory->input->isCameraInThirdPerson)
         return;
 
     const bool freeCamming = config->visuals.freeCam && config->visuals.freeCamKey.isActive() && localPlayer && localPlayer->isAlive();

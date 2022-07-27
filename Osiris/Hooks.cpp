@@ -326,6 +326,12 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
         cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
         cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
+
+        if (localPlayer && localPlayer->isAlive())
+            memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+        Animations::update(cmd, sendPacket);
+        Animations::fake();
+
         return false;
     }
 
@@ -913,6 +919,8 @@ static void __vectorcall updateStateHook(void* thisPointer, void* unknown, float
     
     if (!localPlayer || entity != localPlayer.get())
         return original(thisPointer, unknown, z, y, x, unknown1);
+
+    animState->lastUpdateTime = memory->globalVars->currenttime - memory->globalVars->intervalPerTick;
 
     return original(thisPointer, unknown, z, y, x, unknown1);
 }

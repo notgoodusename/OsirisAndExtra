@@ -408,6 +408,8 @@ void Misc::runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept
     static Vector currentViewAngles = Vector{ };
     static Vector realViewAngles = Vector{ };
     static bool wasCrouching = false;
+    static bool wasHoldingAttack = false;
+    static bool wasHoldingUse = false;
     static bool hasSetAngles = false;
 
     buttons = cmd->buttons;
@@ -419,7 +421,13 @@ void Misc::runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept
             cmd->viewangles = currentViewAngles;
             if (wasCrouching)
                 cmd->buttons |= UserCmd::IN_DUCK;
+            if (wasHoldingAttack)
+                cmd->buttons |= UserCmd::IN_ATTACK;
+            if (wasHoldingUse)
+                cmd->buttons |= UserCmd::IN_USE;
             wasCrouching = false;
+            wasHoldingAttack = false;
+            wasHoldingUse = false;
             hasSetAngles = false;
         }
         currentViewAngles = Vector{};
@@ -438,10 +446,13 @@ void Misc::runFreeCam(UserCmd* cmd, Vector viewAngles) noexcept
 
     cmd->forwardmove = 0;
     cmd->sidemove = 0;
+    cmd->buttons = 0;
     if (wasCrouching)
-        cmd->buttons = UserCmd::IN_DUCK;
-    else
-        cmd->buttons = 0;
+        cmd->buttons |= UserCmd::IN_DUCK;
+    if (wasHoldingAttack)
+        cmd->buttons |= UserCmd::IN_ATTACK;
+    if (wasHoldingUse)
+        cmd->buttons |= UserCmd::IN_USE;
     cmd->viewangles = currentViewAngles;
     hasSetAngles = true;
 }

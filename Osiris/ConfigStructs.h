@@ -313,6 +313,7 @@ static void read(const json& j, const char* key, KeyBind& o) noexcept
         val.get_to(o.keyMode);
 
     o.activeName = backupName;
+    o.setToggleTo(false);
 }
 
 static void read(const json& j, const char* key, char* o, std::size_t size) noexcept

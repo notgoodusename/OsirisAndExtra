@@ -77,6 +77,7 @@
     <ClCompile Include="imgui\imgui_widgets.cpp" />
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="SDK\AnimState.cpp" />
+    <ClCompile Include="SDK\BitBuffer.cpp" />
     <ClCompile Include="SDK\checksum_crc.cpp" />
     <ClCompile Include="SDK\EngineTrace.cpp" />
     <ClCompile Include="SDK\Entity.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="Resources\skillgroups.h" />
     <ClInclude Include="SDK\Angle.h" />
     <ClInclude Include="SDK\AnimState.h" />
+    <ClInclude Include="SDK\BitBuffer.h" />
     <ClInclude Include="SDK\checksum_crc.h" />
     <ClInclude Include="SDK\Client.h" />
     <ClInclude Include="SDK\ClientMode.h" />

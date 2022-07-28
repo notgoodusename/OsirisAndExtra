@@ -4,6 +4,7 @@
 
 #include "VirtualMethod.h"
 #include "Pad.h"
+#include "BitBuffer.h"
 #include "MemAlloc.h"
 
 enum ECstrike15UserMessages
@@ -89,52 +90,6 @@ public:
     int chokedPackets;
 };
 
-inline int bitByte(int bits) 
-{
-	return (bits + 7) >> 3;
-}
-
-struct bfWrite {
-	void startWriting(void* data, int bytes, int startBit = 0, int bits = -1) {
-
-		bytes &= ~3;
-
-		this->data = (unsigned char*)data;
-		dataBytes = bytes;
-
-		if (bits == -1)
-			dataBits = bytes << 3;
-		else
-			dataBits = bits;
-
-		curBit = startBit;
-		overflow = false;
-
-	}
-
-	inline unsigned char* getData() {
-
-		return data;
-
-	}
-
-	inline int getNumBytesWritten() const {
-
-		return bitByte(curBit);
-
-	}
-
-	unsigned char* data;
-	int dataBytes;
-	int dataBits;
-	int curBit;
-
-private:
-	bool overflow;
-	bool assertOnOverflow;
-	const char* debugName;
-};
-
 struct clMsgMove
 {
 	clMsgMove() {
@@ -199,5 +154,5 @@ struct clMsgMove
 	PAD(15); // 69 37
 	int unknown5; // 0x24 84 52
 	int unknown; // 0x20 88 56
-	bfWrite dataOut;
+	bufferWrite dataOut;
 };

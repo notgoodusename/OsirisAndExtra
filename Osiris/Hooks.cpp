@@ -1126,7 +1126,7 @@ static void __fastcall physicsSimulateHook(void* thisPointer, void* edx) noexcep
     EnginePrediction::store();
 }
 
-static void writeUsercmd(bfWrite* buffer, UserCmd* toCmd, UserCmd* fromCmd) noexcept
+static void writeUsercmd(bufferWrite* buffer, UserCmd* toCmd, UserCmd* fromCmd) noexcept
 {
     const auto writeCmd = memory->writeUsercmd;
     __asm
@@ -1139,9 +1139,9 @@ static void writeUsercmd(bfWrite* buffer, UserCmd* toCmd, UserCmd* fromCmd) noex
     }
 }
 
-static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, int slot, bfWrite* buffer, int from, int to, bool newCmd) noexcept
+static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, int slot, bufferWrite* buffer, int from, int to, bool newCmd) noexcept
 {
-    static auto original = hooks->client.getOriginal<bool, 24, int, bfWrite*, int, int, bool>(slot, buffer, from, to, newCmd);
+    static auto original = hooks->client.getOriginal<bool, 24, int, bufferWrite*, int, int, bool>(slot, buffer, from, to, newCmd);
 
     if (Tickbase::getTickshift() <= 0 || config->tickbase.teleport)
         return original(thisPointer, slot, buffer, from, to, newCmd);

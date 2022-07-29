@@ -704,7 +704,7 @@ static bool __stdcall isPlayingDemo() noexcept
 
 static bool __fastcall isHltv() noexcept
 {
-    if (_ReturnAddress() == memory->setupVelocityAddress || _ReturnAddress() == memory->accumulateLayersAddress || std::uintptr_t(_ReturnAddress()) == memory->reevauluateAnimLODAddress)
+    if (_ReturnAddress() == memory->setupVelocityAddress || _ReturnAddress() == memory->accumulateLayersAddress)// || _ReturnAddress() == memory->reevauluateAnimLODAddress)
         return true;
     return hooks->engine.callOriginal<bool, 93>();
 }

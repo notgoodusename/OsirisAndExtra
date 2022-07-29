@@ -198,7 +198,7 @@ public:
     std::uintptr_t getClientModelRenderable;
     std::uintptr_t physicsSimulate;
     std::uintptr_t writeUsercmd;
-    std::uintptr_t reevauluateAnimLODAddress;
+    void* reevauluateAnimLODAddress;
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;

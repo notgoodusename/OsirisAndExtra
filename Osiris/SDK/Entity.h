@@ -610,8 +610,12 @@ public:
     NETVAR(eyeAngles, "CCSPlayer", "m_angEyeAngles", Vector)
     NETVAR(isScoped, "CCSPlayer", "m_bIsScoped", bool)
     NETVAR(isDefusing, "CCSPlayer", "m_bIsDefusing", bool)
-    NETVAR_OFFSET(flashDuration, "CCSPlayer", "m_flFlashMaxAlpha", -8, float)
     NETVAR(flashMaxAlpha, "CCSPlayer", "m_flFlashMaxAlpha", float)
+    NETVAR_OFFSET(flashDuration, "CCSPlayer", "m_flFlashMaxAlpha", 4, float)
+    NETVAR_OFFSET(flashBuildUp, "CCSPlayer", "m_flFlashMaxAlpha", -4, bool)
+    NETVAR_OFFSET(flashOverlayAlpha, "CCSPlayer", "m_flFlashMaxAlpha", -8, float)
+    NETVAR_OFFSET(flashScreenshotAlpha, "CCSPlayer", "m_flFlashMaxAlpha", -12, float)
+    NETVAR_OFFSET(flashBangTime, "CCSPlayer", "m_flFlashMaxAlpha", -16, float)
     NETVAR(gunGameImmunity, "CCSPlayer", "m_bGunGameImmunity", bool)
     NETVAR(account, "CCSPlayer", "m_iAccount", int)
     NETVAR(inBombZone, "CCSPlayer", "m_bInBombZone", bool)
@@ -678,10 +682,19 @@ public:
     NETVAR(fireZDelta, "CInferno", "m_fireZDelta", int[100])
     NETVAR(fireIsBurning, "CInferno", "m_bFireIsBurning", bool[100])
     NETVAR(fireCount, "CInferno", "m_fireCount", int)
-        
+       
+    float getFlashStartTime() noexcept 
+    {
+        return (flashBangTime() - flashDuration()); 
+    }
+    float getFlashTimeElapsed() noexcept
+    { 
+        return max(memory->globalVars->currenttime - getFlashStartTime(), 0.0f); 
+    }
+
     bool isFlashed() noexcept
     {
-        return flashDuration() > 75.0f;
+        return flashOverlayAlpha() > 75.0f;
     }
 };
 

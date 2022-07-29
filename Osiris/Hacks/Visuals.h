@@ -35,7 +35,6 @@ namespace Visuals
     void hitMarker(GameEvent* event, ImDrawList* drawList = nullptr) noexcept;
     void motionBlur(ViewSetup* setup) noexcept;
     void disablePostProcessing(FrameStage stage) noexcept;
-    void reduceFlashEffect() noexcept;
     bool removeHands(const char* modelName) noexcept;
     bool removeSleeves(const char* modelName) noexcept;
     bool removeWeapons(const char* modelName) noexcept;

@@ -852,12 +852,6 @@ void Visuals::disablePostProcessing(FrameStage stage) noexcept
     *memory->disablePostProcessing = stage == FrameStage::RENDER_START && config->visuals.disablePostProcessing;
 }
 
-void Visuals::reduceFlashEffect() noexcept
-{
-    if (localPlayer)
-        localPlayer->flashMaxAlpha() = 255.0f - config->visuals.flashReduction * 2.55f;
-}
-
 bool Visuals::removeHands(const char* modelName) noexcept
 {
     return config->visuals.noHands && std::strstr(modelName, "arms") && !std::strstr(modelName, "sleeve");

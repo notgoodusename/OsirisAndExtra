@@ -467,7 +467,6 @@ static void __stdcall doPostScreenEffects(void* param) noexcept
     if (interfaces->engine->isInGame()) {
         Visuals::thirdperson();
         Misc::inverseRagdollGravity();
-        Visuals::reduceFlashEffect();
         Visuals::remove3dSky();
         Glow::render();
     }
@@ -1257,6 +1256,66 @@ static void __fastcall getColorModulationHook(void* thisPointer, void* edx, floa
     isProp ? *b *= 0.5f : *b *= 0.23f;
 }
 
+static void __fastcall updateFlashBangEffectHook(void* thisPointer, void* edx) noexcept
+{
+    const auto entity = reinterpret_cast<Entity*>(thisPointer);
+    const float flashMaxAlpha = 255.0f - config->visuals.flashReduction * 2.55f;
+    if ((entity->flashBangTime() < memory->globalVars->currenttime) || (flashMaxAlpha <= 0.0f))
+    {
+        // FlashBang is inactive
+        entity->flashScreenshotAlpha() = 0.0f;
+        entity->flashOverlayAlpha() = 0.0f;
+        return;
+    }
+
+    static const float FLASH_BUILD_UP_PER_FRAME = 45.0f;
+    static const float FLASH_BUILD_UP_DURATION = (255.0f / FLASH_BUILD_UP_PER_FRAME) * (1.0f / 60.0f);
+
+    float flFlashTimeElapsed = entity->getFlashTimeElapsed();
+
+    if (entity->flashBuildUp())
+    {
+        // build up
+        entity->flashScreenshotAlpha() = std::clamp((flFlashTimeElapsed / FLASH_BUILD_UP_DURATION) * flashMaxAlpha, 0.0f, flashMaxAlpha);
+        entity->flashOverlayAlpha() = entity->flashScreenshotAlpha();
+
+        if (flFlashTimeElapsed >= FLASH_BUILD_UP_DURATION)
+        {
+            entity->flashBuildUp() = false;
+        }
+    }
+    else
+    {
+        // cool down
+        float flashTimeLeft = entity->flashBangTime() - memory->globalVars->currenttime;
+        entity->flashScreenshotAlpha() = (flashMaxAlpha * flashTimeLeft) / entity->flashDuration();
+        entity->flashScreenshotAlpha() = std::clamp(entity->flashScreenshotAlpha(), 0.0f, flashMaxAlpha);
+
+        float alphaPercentage = 1.0f;
+        const float certainBlindnessTimeThresh = 3.0f; // yes this is a magic number, necessary to match CS/CZ flashbang effectiveness cause the rendering system is completely different.
+
+        if (flashTimeLeft > certainBlindnessTimeThresh)
+        {
+            // if we still have enough time of blindness left, make sure the player can't see anything yet.
+            alphaPercentage = 1.0f;
+        }
+        else
+        {
+            // blindness effects shorter than 'certainBlindness`TimeThresh' will start off at less than 255 alpha.
+            alphaPercentage = flashTimeLeft / certainBlindnessTimeThresh;
+
+            // reduce alpha level quicker with dx 8 support and higher to compensate
+            // for having the burn-in effect.
+            alphaPercentage *= alphaPercentage;
+        }
+
+        entity->flashOverlayAlpha() = alphaPercentage *= flashMaxAlpha; // scale a [0..1) value to a [0..MaxAlpha] value for the alpha.
+
+        // make sure the alpha is in the range of [0..MaxAlpha]
+        entity->flashOverlayAlpha() = std::clamp(entity->flashOverlayAlpha(), 0.0f, flashMaxAlpha);
+    }
+}
+
 static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void* edx, Entity* player, unsigned int traceParams) noexcept
 {
     static auto original = hooks->traceFilterForHeadCollision.getOriginal<bool>(player, traceParams);
@@ -1473,6 +1532,7 @@ void Hooks::install() noexcept
     calcViewBob.detour(memory->calcViewBob, calcViewBobHook);
     getClientModelRenderable.detour(memory->getClientModelRenderable, getClientModelRenderableHook);
     physicsSimulate.detour(memory->physicsSimulate, physicsSimulateHook);
+    updateFlashBangEffect.detour(memory->updateFlashBangEffect, updateFlashBangEffectHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());

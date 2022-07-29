@@ -197,6 +197,7 @@ public:
     std::uintptr_t calcViewBob;
     std::uintptr_t getClientModelRenderable;
     std::uintptr_t physicsSimulate;
+    std::uintptr_t updateFlashBangEffect;
     std::uintptr_t writeUsercmd;
     void* reevauluateAnimLODAddress;
 

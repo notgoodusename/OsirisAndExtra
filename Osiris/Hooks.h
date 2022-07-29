@@ -64,6 +64,7 @@ public:
     MinHook isDepthOfFieldEnabled;
     MinHook getClientModelRenderable;
     MinHook physicsSimulate;
+    MinHook updateFlashBangEffect;
 
     MinHook newFunctionClientDLL;
     MinHook newFunctionEngineDLL;

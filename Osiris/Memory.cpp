@@ -219,6 +219,7 @@ Memory::Memory() noexcept
     calcViewBob = findPattern(CLIENT_DLL, "\x55\x8B\xEC\xA1????\x83\xEC\x10\x56\x8B\xF1\xB9????");
     getClientModelRenderable = findPattern(CLIENT_DLL, "\x56\x8B\xF1\x80\xBE?????\x0F\x84????\x80\xBE");
     physicsSimulate = findPattern(CLIENT_DLL, "\x56\x8B\xF1\x8B?????\x83\xF9\xFF\x74\x23");
+    updateFlashBangEffect = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x55\x04\x56\x8B\xF1\x57\x8D\x8E????");
     writeUsercmd = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x51\x53\x56\x8B\xD9\x8B\x0D");
     reevauluateAnimLODAddress = relativeToAbsolute<decltype(reevauluateAnimLODAddress)>(findPattern(CLIENT_DLL, "\xE8????\x8B\xCE\xE8????\x8B\x8F????") + 0x2B);
 

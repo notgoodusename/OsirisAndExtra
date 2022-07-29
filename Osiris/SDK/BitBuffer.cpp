@@ -135,7 +135,7 @@ bool bufferWrite::writeBits(const void* inData, int bits) noexcept
 		unsigned long bitMaskLeft = bitWriteMasks[bitsRight][32];
 		unsigned long bitMaskRight = bitWriteMasks[0][bitsRight];
 
-		unsigned long* data = &data[curBit >> 5];
+		unsigned long* data = &this->data[curBit >> 5];
 
 		// Read dwords.
 		while (bitsLeft >= 32)

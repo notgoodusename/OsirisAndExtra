@@ -1380,7 +1380,7 @@ void Misc::antiAfkKick(UserCmd* cmd) noexcept
 
 void Misc::fixAnimationLOD(FrameStage stage) noexcept
 {
-    if (stage != FrameStage::NET_UPDATE_END)
+    if (stage != FrameStage::RENDER_START)
         return;
 
     if (!localPlayer)

@@ -18,6 +18,12 @@ struct ConVar {
     ConVar* parent;
     const char* defaultValue;
     char* string;
-    std::byte pad1[28];
+    int stringLength;
+    float floatValue;
+    int intValue;
+    int hasMin;
+    float minValue;
+    int hasMax;
+    float maxValue;
     UtlVector<void(__cdecl*)()> onChangeCallbacks;
 };

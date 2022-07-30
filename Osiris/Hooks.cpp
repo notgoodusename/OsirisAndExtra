@@ -1271,23 +1271,21 @@ static void __fastcall updateFlashBangEffectHook(void* thisPointer, void* edx) n
     static const float FLASH_BUILD_UP_PER_FRAME = 45.0f;
     static const float FLASH_BUILD_UP_DURATION = (255.0f / FLASH_BUILD_UP_PER_FRAME) * (1.0f / 60.0f);
 
-    float flFlashTimeElapsed = entity->getFlashTimeElapsed();
+    const float flashTimeElapsed = entity->getFlashTimeElapsed();
 
     if (entity->flashBuildUp())
     {
         // build up
-        entity->flashScreenshotAlpha() = std::clamp((flFlashTimeElapsed / FLASH_BUILD_UP_DURATION) * flashMaxAlpha, 0.0f, flashMaxAlpha);
+        entity->flashScreenshotAlpha() = std::clamp((flashTimeElapsed / FLASH_BUILD_UP_DURATION) * flashMaxAlpha, 0.0f, flashMaxAlpha);
         entity->flashOverlayAlpha() = entity->flashScreenshotAlpha();
 
-        if (flFlashTimeElapsed >= FLASH_BUILD_UP_DURATION)
-        {
+        if (flashTimeElapsed >= FLASH_BUILD_UP_DURATION)
             entity->flashBuildUp() = false;
-        }
     }
     else
     {
         // cool down
-        float flashTimeLeft = entity->flashBangTime() - memory->globalVars->currenttime;
+        const float flashTimeLeft = entity->flashBangTime() - memory->globalVars->currenttime;
         entity->flashScreenshotAlpha() = (flashMaxAlpha * flashTimeLeft) / entity->flashDuration();
         entity->flashScreenshotAlpha() = std::clamp(entity->flashScreenshotAlpha(), 0.0f, flashMaxAlpha);
 

@@ -57,7 +57,7 @@ public:
     };
     std::array<Ragebot, 40> ragebot;
     KeyBind ragebotKey{ std::string("ragebot") };
-    KeyBind minDamageOverrideKey{ std::string("min damage override") };
+    KeyBind minDamageOverrideKey{ std::string("min damage override"), KeyMode::Off };
 
     struct Fakelag {
         bool enabled = false;

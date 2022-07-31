@@ -1432,14 +1432,6 @@ void Misc::autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept
     if (speed < 5.0f)
         return;
 
-    //If we are on ground, noclip or in a ladder return
-    if (EnginePrediction::getFlags() & 1 || localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER)
-        return;
-
-    //If we arent pressing jump return
-    if (!(cmd->buttons & UserCmd::IN_JUMP))
-        return;
-
     static float angle = 0.f;
 
     const bool back = cmd->buttons & UserCmd::IN_BACK;
@@ -1471,6 +1463,10 @@ void Misc::autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept
     else {
         angle = 0.f;
     }
+
+    //If we are on ground, noclip or in a ladder return
+    if ((EnginePrediction::getFlags() & 1) || localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER)
+        return;
 
     currentViewAngles.y += angle;
 

@@ -12,8 +12,6 @@ static const float epsilon = 0.03125f;
 
 namespace EnginePrediction
 {
-	bool inPrediction{ false };
-
 	void reset() noexcept;
 
 	void update() noexcept;
@@ -22,8 +20,9 @@ namespace EnginePrediction
 	void store() noexcept;
     void apply(FrameStage) noexcept;
     
-    int getFlags() noexcept;
-    Vector getVelocity() noexcept;
+	int getFlags() noexcept;
+	Vector getVelocity() noexcept;
+	bool isInPrediction() noexcept;
 
 	struct NetvarData
 	{

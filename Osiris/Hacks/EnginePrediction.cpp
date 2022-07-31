@@ -16,6 +16,7 @@
 
 static int localPlayerFlags;
 static Vector localPlayerVelocity;
+static bool inPrediction{ false };
 static std::array<EnginePrediction::NetvarData, 150> netvarData;
 
 void EnginePrediction::reset() noexcept
@@ -23,6 +24,7 @@ void EnginePrediction::reset() noexcept
     localPlayerFlags = {};
     localPlayerVelocity = Vector{};
     netvarData = {};
+    inPrediction = false;
 }
 
 void EnginePrediction::update() noexcept
@@ -143,4 +145,9 @@ int EnginePrediction::getFlags() noexcept
 Vector EnginePrediction::getVelocity() noexcept
 {
     return localPlayerVelocity;
+}
+
+bool EnginePrediction::isInPrediction() noexcept
+{
+    return inPrediction;
 }

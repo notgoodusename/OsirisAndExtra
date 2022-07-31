@@ -18,7 +18,7 @@ PredictionCopy::PredictionCopy(int type, byte* dest, bool dest_packed, const byt
 	fieldCompareFunc = func;
 }
 
-int PredictionCopy::TransferData(const char* operation, int entindex, datamap* dmap) noexcept
+int PredictionCopy::transferData(const char* operation, int entindex, datamap* dmap) noexcept
 {
 	return memory->transferData(this, operation, entindex, dmap);
 }

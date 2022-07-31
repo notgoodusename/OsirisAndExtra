@@ -1035,14 +1035,10 @@ void Misc::watermark() noexcept
 
 void Misc::prepareRevolver(UserCmd* cmd) noexcept
 {
-    constexpr auto timeToTicks = [](float time) {  return static_cast<int>(0.5f + time / memory->globalVars->intervalPerTick); };
     constexpr float revolverPrepareTime{ 0.234375f };
 
     static float readyTime;
-    if (!config->misc.prepareRevolver)
-        return;
-
-    if (!config->misc.prepareRevolverKey.isActive())
+    if (!config->misc.prepareRevolver || !config->misc.prepareRevolverKey.isActive())
         return;
 
     if (!localPlayer)
@@ -1050,8 +1046,9 @@ void Misc::prepareRevolver(UserCmd* cmd) noexcept
 
     const auto activeWeapon = localPlayer->getActiveWeapon();
     if (activeWeapon && activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver) {
-        if (!readyTime) readyTime = memory->globalVars->serverTime() + revolverPrepareTime;
-        auto ticksToReady = timeToTicks(readyTime - memory->globalVars->serverTime() - interfaces->engine->getNetworkChannel()->getLatency(0));
+        if (!readyTime) 
+            readyTime = memory->globalVars->serverTime() + revolverPrepareTime;
+        const auto ticksToReady = timeToTicks(readyTime - memory->globalVars->serverTime() - interfaces->engine->getNetworkChannel()->getLatency(0));
         if (ticksToReady > 0 && ticksToReady <= timeToTicks(revolverPrepareTime))
             cmd->buttons |= UserCmd::IN_ATTACK;
         else
@@ -1435,6 +1432,14 @@ void Misc::autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept
     if (speed < 5.0f)
         return;
 
+    //If we are on ground, noclip or in a ladder return
+    if (EnginePrediction::getFlags() & 1 || localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER)
+        return;
+
+    //If we arent pressing jump return
+    if (!(cmd->buttons & UserCmd::IN_JUMP))
+        return;
+
     static float angle = 0.f;
 
     const bool back = cmd->buttons & UserCmd::IN_BACK;
@@ -1466,12 +1471,6 @@ void Misc::autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept
     else {
         angle = 0.f;
     }
-
-    if ((EnginePrediction::getFlags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP)) || localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER)
-        return;
-
-    if (EnginePrediction::getFlags() & 1)
-        return;
 
     currentViewAngles.y += angle;
 
@@ -1547,48 +1546,48 @@ void Misc::killSound(GameEvent& event) noexcept
 
 void Misc::autoBuy(GameEvent* event) noexcept
 {
-    std::array<std::string, 17> primary = {
+    static const std::array<std::string, 17> primary = {
     "",
-    "buy mac10;buy mp9;",
-    "buy mp7;",
-    "buy ump45;",
-    "buy p90;",
-    "buy bizon;",
-    "buy galilar;buy famas;",
-    "buy ak47;buy m4a1;",
-    "buy ssg08;",
-    "buy sg556;buy aug;",
-    "buy awp;",
-    "buy g3sg1; buy scar20;",
-    "buy nova;",
-    "buy xm1014;",
-    "buy sawedoff;buy mag7;",
-    "buy m249;",
-    "buy negev;"
+    "mac10;buy mp9;",
+    "mp7;",
+    "ump45;",
+    "p90;",
+    "bizon;",
+    "galilar;buy famas;",
+    "ak47;buy m4a1;",
+    "ssg08;",
+    "sg556;buy aug;",
+    "awp;",
+    "g3sg1; buy scar20;",
+    "nova;",
+    "xm1014;",
+    "sawedoff;buy mag7;",
+    "m249; ",
+    "negev;"
     };
-    std::array<std::string, 6> secondary = {
+    static const std::array<std::string, 6> secondary = {
         "",
-        "buy glock;buy hkp2000",
-        "buy elite;",
-        "buy p250;",
-        "buy tec9;buy fiveseven;",
-        "buy deagle;buy revolver;"
+        "glock;buy hkp2000;",
+        "elite;",
+        "p250;",
+        "tec9;buy fiveseven;",
+        "deagle;buy revolver;"
     };
-    std::array<std::string, 3> armor = {
+    static const std::array<std::string, 3> armor = {
         "",
-        "buy vest;",
-        "buy vesthelm;",
+        "vest;",
+        "vesthelm;",
     };
-    std::array<std::string, 2> utility = {
-        "buy defuser;",
-        "buy taser;"
+    static const std::array<std::string, 2> utility = {
+        "defuser;",
+        "taser;"
     };
-    std::array<std::string, 5> nades = {
-        "buy hegrenade;",
-        "buy smokegrenade;",
-        "buy molotov;buy incgrenade;",
-        "buy flashbang;buy flashbang;",
-        "buy decoy;"
+    static const std::array<std::string, 5> nades = {
+        "hegrenade;",
+        "smokegrenade;",
+        "molotov;buy incgrenade;",
+        "flashbang;buy flashbang;",
+        "decoy;"
     };
 
     if (!config->misc.autoBuy.enabled)
@@ -1598,20 +1597,23 @@ void Misc::autoBuy(GameEvent* event) noexcept
 
     if (event) 
     {
-        cmd += primary[config->misc.autoBuy.primaryWeapon];
-        cmd += secondary[config->misc.autoBuy.secondaryWeapon];
-        cmd += armor[config->misc.autoBuy.armor];
+        if (config->misc.autoBuy.primaryWeapon)
+            cmd += "buy " + primary[config->misc.autoBuy.primaryWeapon];
+        if (config->misc.autoBuy.secondaryWeapon)
+            cmd += "buy " + secondary[config->misc.autoBuy.secondaryWeapon];
+        if (config->misc.autoBuy.armor)
+            cmd += "buy " + armor[config->misc.autoBuy.armor];
 
         for (size_t i = 0; i < utility.size(); i++)
         {
             if ((config->misc.autoBuy.utility & 1 << i) == 1 << i)
-                cmd += utility[i];
+                cmd += "buy " + utility[i];
         }
 
         for (size_t i = 0; i < nades.size(); i++)
         {
             if ((config->misc.autoBuy.grenades & 1 << i) == 1 << i)
-                cmd += nades[i];
+                cmd += "buy " + nades[i];
         }
 
         interfaces->engine->clientCmdUnrestricted(cmd.c_str());

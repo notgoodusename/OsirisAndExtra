@@ -1408,16 +1408,7 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
     bool showthis = cl_showerror->getInt() >= 2;
 
     if (cl_showerror->getInt() < 0)
-    {
-        if (entity->index() == -cl_showerror->getInt())
-        {
-            showthis = true;
-        }
-        else
-        {
-            showthis = false;
-        }
-    }
+        showthis = entity->index() == -cl_showerror->getInt();
 
     byte* predictedStateData = (byte*)entity->getPredictedFrame(commandsAcknowledged - 1);
     const byte* originalStateData = (const byte*)entity->getOriginalNetworkDataObject();
@@ -1429,7 +1420,7 @@ static bool __fastcall postNetworkDataReceivedHook(void* thisPointer, void* edx,
         PredictionCopy::TRANSFERDATA_ERRORCHECK_SPEW :
         PredictionCopy::TRANSFERDATA_ERRORCHECK_NOSPEW);
 
-    haderrors = errorCheckHelper.TransferData("", entity->index(), entity->getPredDescMap()) > 0 ? true : false;
+    haderrors = errorCheckHelper.transferData("", entity->index(), entity->getPredDescMap()) > 0 ? true : false;
 
     return haderrors;
 }

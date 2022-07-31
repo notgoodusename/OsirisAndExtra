@@ -17,14 +17,12 @@
 static int localPlayerFlags;
 static Vector localPlayerVelocity;
 static std::array<EnginePrediction::NetvarData, 150> netvarData;
-static void* storedData = nullptr;
 
 void EnginePrediction::reset() noexcept
 {
     localPlayerFlags = {};
     localPlayerVelocity = Vector{};
     netvarData = {};
-    storedData = nullptr;
 }
 
 void EnginePrediction::update() noexcept
@@ -77,42 +75,12 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
     activeWeapon->updateAccuracyPenalty();
 }
 
-void EnginePrediction::save() noexcept
-{
-    if (!localPlayer || !localPlayer->isAlive())
-        return;
-
-    if (!storedData)
-    {
-        const auto allocSize = localPlayer->getIntermidateDataSize();
-        storedData = new byte[allocSize];
-    }
-
-    if (!storedData)
-        return;
-
-    PredictionCopy helper(PC_EVERYTHING, (byte*)storedData, true, (byte*)localPlayer.get(), false, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
-    helper.TransferData("EnginePrediction::save", localPlayer->index(), localPlayer->getPredDescMap());
-}
-
-void EnginePrediction::restore() noexcept
-{
-    if (!localPlayer || !localPlayer->isAlive())
-        return;
-
-    if (!storedData)
-        return;
-
-    PredictionCopy helper(PC_EVERYTHING, (byte*)localPlayer.get(), false, (byte*)storedData, true, PredictionCopy::TRANSFERDATA_COPYONLY, NULL);
-    helper.TransferData("EnginePrediction::restore", localPlayer->index(), localPlayer->getPredDescMap());
-}
-
 void EnginePrediction::store() noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    int tickbase = localPlayer->tickBase();
+    const int tickbase = localPlayer->tickBase();
 
     NetvarData netvars{ };
 
@@ -120,6 +88,13 @@ void EnginePrediction::store() noexcept
 
     netvars.aimPunchAngle = localPlayer->aimPunchAngle();
     netvars.aimPunchAngleVelocity = localPlayer->aimPunchAngleVelocity();
+    netvars.baseVelocity = localPlayer->baseVelocity();
+    netvars.duckAmount = localPlayer->duckAmount();
+    netvars.duckSpeed = localPlayer->duckSpeed();
+    netvars.fallVelocity = localPlayer->fallVelocity();
+    netvars.thirdPersonRecoil = localPlayer->thirdPersonRecoil();
+    netvars.velocity = localPlayer->velocity();
+    netvars.velocityModifier = localPlayer->velocityModifier();
     netvars.viewPunchAngle = localPlayer->viewPunchAngle();
     netvars.viewOffset = localPlayer->viewOffset();
 
@@ -137,9 +112,9 @@ void EnginePrediction::apply(FrameStage stage) noexcept
     if (netvarData.empty())
         return;
 
-    int tickbase = localPlayer->tickBase();
+    const int tickbase = localPlayer->tickBase();
 
-    auto netvars = netvarData.at(tickbase % 150);
+    const auto netvars = netvarData.at(tickbase % 150);
 
     if (!&netvars)
         return;
@@ -149,6 +124,13 @@ void EnginePrediction::apply(FrameStage stage) noexcept
 
     localPlayer->aimPunchAngle() = NetvarData::checkDifference(localPlayer->aimPunchAngle(), netvars.aimPunchAngle);
     localPlayer->aimPunchAngleVelocity() = NetvarData::checkDifference(localPlayer->aimPunchAngleVelocity(), netvars.aimPunchAngleVelocity);
+    localPlayer->baseVelocity() = NetvarData::checkDifference(localPlayer->baseVelocity(), netvars.baseVelocity);
+    localPlayer->duckAmount() = std::clamp(NetvarData::checkDifference(localPlayer->duckAmount(), netvars.duckAmount), 0.0f, 1.0f);
+    localPlayer->duckSpeed() = NetvarData::checkDifference(localPlayer->duckSpeed(), netvars.duckSpeed);
+    localPlayer->fallVelocity() = NetvarData::checkDifference(localPlayer->fallVelocity(), netvars.fallVelocity);
+    localPlayer->thirdPersonRecoil() = NetvarData::checkDifference(localPlayer->thirdPersonRecoil(), netvars.thirdPersonRecoil);
+    localPlayer->velocity() = NetvarData::checkDifference(localPlayer->velocity(), netvars.velocity);
+    localPlayer->velocityModifier() = NetvarData::checkDifference(localPlayer->velocityModifier(), netvars.velocityModifier);
     localPlayer->viewPunchAngle() = NetvarData::checkDifference(localPlayer->viewPunchAngle(), netvars.viewPunchAngle);
     localPlayer->viewOffset() = NetvarData::checkDifference(localPlayer->viewOffset(), netvars.viewOffset);
 }

@@ -597,6 +597,7 @@ public:
     NETVAR(tickBase, "CBasePlayer", "m_nTickBase", int)
     NETVAR(aimPunchAngle, "CBasePlayer", "m_aimPunchAngle", Vector)
     NETVAR(aimPunchAngleVelocity, "CBasePlayer", "m_aimPunchAngleVel", Vector)
+    NETVAR(baseVelocity, "CBasePlayer", "m_vecBaseVelocity", Vector)
     NETVAR(viewPunchAngle, "CBasePlayer", "m_viewPunchAngle", Vector)
     NETVAR(viewOffset, "CBasePlayer", "m_vecViewOffset[0]", Vector)
     NETVAR(velocity, "CBasePlayer", "m_vecVelocity[0]", Vector)
@@ -604,6 +605,7 @@ public:
     NETVAR(getLadderNormal, "CBasePlayer", "m_vecLadderNormal", Vector)
     NETVAR(duckAmount, "CBasePlayer", "m_flDuckAmount", float)
     NETVAR(duckSpeed, "CBasePlayer", "m_flDuckSpeed", float)
+    NETVAR(fallVelocity, "CBasePlayer", "m_flFallVelocity", float)
 
     NETVAR(armor, "CCSPlayer", "m_ArmorValue", int)
     NETVAR(hasHeavyArmor, "CCSPlayer", "m_bHasHeavyArmor", bool)
@@ -630,6 +632,7 @@ public:
     NETVAR(moveState, "CCSPlayer", "m_iMoveState", int)
     NETVAR(duckOverride, "CCSPlayer", "m_bDuckOverride", bool)
     NETVAR(stamina, "CCSPlayer", "m_flStamina", float)
+    NETVAR(thirdPersonRecoil, "CCSPlayer", "m_flThirdpersonRecoil", float)
     NETVAR(velocityModifier, "CCSPlayer", "m_flVelocityModifier", float)
 
     NETVAR(viewModelIndex, "CBaseCombatWeapon", "m_iViewModelIndex", int)

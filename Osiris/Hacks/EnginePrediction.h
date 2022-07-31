@@ -12,15 +12,12 @@ static const float epsilon = 0.03125f;
 
 namespace EnginePrediction
 {
-	inline bool inPrediction{ false };
+	bool inPrediction{ false };
 
 	void reset() noexcept;
 
 	void update() noexcept;
 	void run(UserCmd* cmd) noexcept;
-
-	void save() noexcept;
-	void restore() noexcept;
 
 	void store() noexcept;
     void apply(FrameStage) noexcept;
@@ -32,16 +29,23 @@ namespace EnginePrediction
 	{
 		int tickbase = -1;
 
-		Vector aimPunchAngle{};
-		Vector aimPunchAngleVelocity{};
-		Vector viewPunchAngle{};
-		Vector viewOffset{};
+		Vector aimPunchAngle{ };
+		Vector aimPunchAngleVelocity{ };
+		Vector baseVelocity{ };
+		float duckAmount{ 0.0f };
+		float duckSpeed{ 0.0f };
+		float fallVelocity{ 0.0f };
+		float thirdPersonRecoil{ 0.0f };
+		Vector velocity{ };
+		float velocityModifier{ 0.0f };
+		Vector viewPunchAngle{ };
+		Vector viewOffset{ };
 
 		static float checkDifference(float predicted, float original) noexcept
 		{
 			float delta = predicted - original;
 
-			if (fabsf(delta) < epsilon)
+			if (fabsf(delta) <= epsilon)
 				return original;
 			return predicted;
 		}
@@ -50,9 +54,9 @@ namespace EnginePrediction
 		{
 			Vector delta = predicted - original;
 
-			if (fabsf(delta.x) < epsilon
-				&& fabsf(delta.y) < epsilon
-				&& fabsf(delta.z) < epsilon)
+			if (fabsf(delta.x) <= epsilon
+				&& fabsf(delta.y) <= epsilon
+				&& fabsf(delta.z) <= epsilon)
 			{
 				return original;
 			}

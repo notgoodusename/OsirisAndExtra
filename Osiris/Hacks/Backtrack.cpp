@@ -3,6 +3,7 @@
 #include "AimbotFunctions.h"
 #include "Animations.h"
 #include "Backtrack.h"
+#include "Tickbase.h"
 
 #include "../SDK/ConVar.h"
 #include "../SDK/Entity.h"
@@ -156,12 +157,13 @@ bool Backtrack::valid(float simtime) noexcept
     if (!network)
         return false;
 
-    auto deadTime = static_cast<int>(memory->globalVars->serverTime() - cvars.maxUnlag->getFloat());
+    const auto deadTime = static_cast<int>(memory->globalVars->serverTime() - cvars.maxUnlag->getFloat());
     if (simtime < deadTime)
         return false;
 
-    auto delta = std::clamp(network->getLatency(0) + network->getLatency(1) + getLerp(), 0.f, cvars.maxUnlag->getFloat()) - (memory->globalVars->serverTime() - simtime);
-    return std::abs(delta) <= 0.2f;
+    const auto extraTickbaseDelta = (Tickbase::getTargetTickShift() >= timeToTicks(0.2f) && Tickbase::canShift(Tickbase::getTargetTickShift())) ? ticksToTime(Tickbase::getTargetTickShift()) : 0.0f;
+    const auto delta = std::clamp(network->getLatency(0) + network->getLatency(1) + getLerp(), 0.f, cvars.maxUnlag->getFloat()) - (memory->globalVars->serverTime() - simtime) + extraTickbaseDelta;
+    return std::abs(delta) <= 0.2f + extraTickbaseDelta;
 }
 
 void Backtrack::init() noexcept

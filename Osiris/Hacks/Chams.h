@@ -15,6 +15,7 @@ public:
     static void updateInput() noexcept;
 private:
     void renderPlayer(Entity* player) noexcept;
+    void renderFakeLag(int health) noexcept;
     void renderDesync(int health) noexcept;
     void renderWeapons() noexcept;
     void renderHands() noexcept;

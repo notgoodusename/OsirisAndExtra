@@ -330,6 +330,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         if (localPlayer && localPlayer->isAlive())
             memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
         Animations::update(cmd, sendPacket);
+        Animations::lag();
         Animations::fake();
         return false;
     }
@@ -418,6 +419,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     if (localPlayer && localPlayer->isAlive())
         memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
     Animations::update(cmd, sendPacket);
+    Animations::lag();
     Animations::fake();
     return false;
 }

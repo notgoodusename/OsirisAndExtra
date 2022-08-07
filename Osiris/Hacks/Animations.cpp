@@ -19,6 +19,7 @@
 static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
 static std::array<matrix3x4, MAXSTUDIOBONES> realmatrix{};
+static std::array<matrix3x4, MAXSTUDIOBONES> lagmatrix{};
 static Vector localAngle{};
 static bool updatingLocal{ true };
 static bool updatingEntity{ false };
@@ -26,6 +27,7 @@ static bool updatingFake{ false };
 static bool sendPacket{ true };
 static bool gotMatrix{ false };
 static bool gotMatrixReal{ false };
+static bool gotMatrixLag{ false };
 static Vector viewangles{};
 static std::array<AnimationLayer, 13> staticLayers{};
 static std::array<AnimationLayer, 13> layers{};
@@ -215,6 +217,45 @@ void Animations::fake() noexcept
         memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
 
         updatingFake = false;
+    }
+}
+
+void Animations::lag() noexcept
+{
+    static AnimState* lagAnimState = nullptr;
+    static bool updateLagAnim = true;
+    static bool initLagAnim = true;
+    static float spawnTime = 0.f;
+
+    if (!localPlayer || !localPlayer->isAlive() || !localPlayer->getAnimstate())
+        return;
+
+    if (interfaces->engine->isHLTV())
+        return;
+
+    if (spawnTime != localPlayer->spawnTime() || updateLagAnim)
+    {
+        spawnTime = localPlayer->spawnTime();
+        initLagAnim = false;
+        updateLagAnim = false;
+    }
+
+    if (!initLagAnim)
+    {
+        lagAnimState = static_cast<AnimState*>(memory->memalloc->Alloc(sizeof(AnimState)));
+
+        if (lagAnimState != nullptr)
+            localPlayer->createState(lagAnimState);
+
+        initLagAnim = true;
+    }
+
+    if (!lagAnimState)
+        return;
+
+    if (sendPacket)
+    {
+        gotMatrixLag = localPlayer->setupBones(lagmatrix.data(), localPlayer->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
     }
 }
 
@@ -684,6 +725,16 @@ bool Animations::gotRealMatrix() noexcept
 std::array<matrix3x4, MAXSTUDIOBONES> Animations::getRealMatrix() noexcept
 {
     return realmatrix;
+}
+
+bool Animations::gotLagMatrix() noexcept
+{
+    return gotMatrixLag;
+}
+
+std::array<matrix3x4, MAXSTUDIOBONES> Animations::getLagMatrix() noexcept
+{
+    return lagmatrix;
 }
 
 float Animations::getFootYaw() noexcept

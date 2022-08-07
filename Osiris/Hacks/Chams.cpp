@@ -5,6 +5,7 @@
 #include "../Helpers.h"
 #include "../Hooks.h"
 #include "../Interfaces.h"
+#include "../Memory.h"
 
 #include "Animations.h"
 #include "Backtrack.h"
@@ -13,6 +14,7 @@
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
 #include "../SDK/GlobalVars.h"
+#include "../SDK/Input.h"
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/Material.h"
 #include "../SDK/MaterialSystem.h"
@@ -173,6 +175,7 @@ void Chams::renderPlayer(Entity* player) noexcept
     } else if (player == localPlayer.get()) {
         applyChams(config->chams["Local player"].materials, health);
         renderDesync(health);
+        renderFakeLag(health);
     } else if (localPlayer->isOtherEnemy(player)) {
         applyChams(config->chams["Enemies"].materials, health);
 
@@ -205,6 +208,28 @@ void Chams::renderPlayer(Entity* player) noexcept
         applyChams(config->chams["Allies"].materials, health);
     }
 }
+
+void Chams::renderFakeLag(int health) noexcept {
+
+    if (!localPlayer || !localPlayer->isAlive()) return;
+
+    if (!Animations::gotLagMatrix) return;
+
+    auto lagMatrix = Animations::getLagMatrix();
+
+    if (localPlayer->velocity().length2D() < 30.f || !memory->input->isCameraInThirdPerson) return;
+
+    const auto networkChannel = interfaces->engine->getNetworkChannel();
+
+    if (!networkChannel->chokedPackets) return;
+
+    if (!appliedChams)
+        hooks->modelRender.callOriginal<void, 21>(ctx, state, info, customBoneToWorld);
+    applyChams(config->chams["Fake-Lag"].materials, health, lagMatrix.data());
+    interfaces->studioRender->forcedMaterialOverride(nullptr);
+
+}
+
 void Chams::renderDesync(int health) noexcept
 {
     if (Animations::gotFakeMatrix()) 

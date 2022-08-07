@@ -22,6 +22,7 @@ namespace Animations
 	void renderStart(FrameStage) noexcept;
 	void updateBacktrack() noexcept;
 	void fake() noexcept;
+	void lag() noexcept;
 
 	void packetStart() noexcept;
 	void postDataUpdate() noexcept;
@@ -39,6 +40,9 @@ namespace Animations
 
 	bool gotRealMatrix() noexcept;
 	std::array<matrix3x4, MAXSTUDIOBONES> getRealMatrix() noexcept;
+
+	bool gotLagMatrix() noexcept;
+	std::array<matrix3x4, MAXSTUDIOBONES> getLagMatrix() noexcept;
 
 	float getFootYaw() noexcept;
 	std::array<float, 24> getPoseParameters() noexcept;

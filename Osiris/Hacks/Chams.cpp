@@ -211,7 +211,7 @@ void Chams::renderPlayer(Entity* player) noexcept
 
 void Chams::renderFakeLag(int health) noexcept {
 
-    if (!localPlayer || !localPlayer->isAlive()) return;
+    if (!localPlayer->isAlive()) return;
 
     if (!Animations::gotLagMatrix) return;
 
@@ -220,6 +220,8 @@ void Chams::renderFakeLag(int health) noexcept {
     if (localPlayer->velocity().length2D() < 30.f || !memory->input->isCameraInThirdPerson) return;
 
     const auto networkChannel = interfaces->engine->getNetworkChannel();
+
+    if (!networkChannel) return;
 
     if (!networkChannel->chokedPackets) return;
 

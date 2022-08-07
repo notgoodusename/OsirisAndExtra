@@ -173,6 +173,7 @@ void Chams::renderPlayer(Entity* player) noexcept
     } else if (player == localPlayer.get()) {
         applyChams(config->chams["Local player"].materials, health);
         renderDesync(health);
+        renderFakelag(health);
     } else if (localPlayer->isOtherEnemy(player)) {
         applyChams(config->chams["Enemies"].materials, health);
 
@@ -205,6 +206,28 @@ void Chams::renderPlayer(Entity* player) noexcept
         applyChams(config->chams["Allies"].materials, health);
     }
 }
+
+void Chams::renderFakelag(int health) noexcept
+{
+    if (!config->fakeAngle.enabled && !config->fakelag.enabled)
+        return;
+
+    if (!localPlayer->isAlive())
+        return;
+
+    if (localPlayer->velocity().length2D() < 1.0f)
+        return;
+
+    if (Animations::gotFakelagMatrix())
+    {
+        auto fakelagMatrix = Animations::getFakelagMatrix();
+        if (!appliedChams)
+            hooks->modelRender.callOriginal<void, 21>(ctx, state, info, customBoneToWorld);
+        applyChams(config->chams["Fake lag"].materials, health, fakelagMatrix.data());
+        interfaces->studioRender->forcedMaterialOverride(nullptr);
+    }
+}
+
 void Chams::renderDesync(int health) noexcept
 {
     if (Animations::gotFakeMatrix()) 

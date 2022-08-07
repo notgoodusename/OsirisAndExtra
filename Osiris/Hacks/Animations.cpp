@@ -18,6 +18,7 @@
 
 static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
+static std::array<matrix3x4, MAXSTUDIOBONES> fakelagmatrix{};
 static std::array<matrix3x4, MAXSTUDIOBONES> realmatrix{};
 static Vector localAngle{};
 static bool updatingLocal{ true };
@@ -25,6 +26,7 @@ static bool updatingEntity{ false };
 static bool updatingFake{ false };
 static bool sendPacket{ true };
 static bool gotMatrix{ false };
+static bool gotMatrixFakelag{ false };
 static bool gotMatrixReal{ false };
 static Vector viewangles{};
 static std::array<AnimationLayer, 13> staticLayers{};
@@ -49,11 +51,13 @@ void Animations::reset() noexcept
     for (auto& record : players)
         record.reset();
     fakematrix = {};
+    fakelagmatrix = {};
     localAngle = Vector{};
     updatingLocal = true;
     updatingEntity = false;
     sendPacket = true;
     gotMatrix = false;
+    gotMatrixFakelag = false;
     gotMatrixReal = false;
     viewangles = Vector{};
     staticLayers = {};
@@ -189,6 +193,12 @@ void Animations::fake() noexcept
             gotMatrix = false;
             updatingFake = false;
 
+            memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, 0 });
+            std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
+            localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
+
+            gotMatrixFakelag = localPlayer->setupBones(fakelagmatrix.data(), localPlayer->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
+
             std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
             localPlayer->poseParameters() = backupPoses;
             memory->setAbsAngle(localPlayer.get(), Vector{ 0,backupAbs.y,0 });
@@ -199,9 +209,11 @@ void Animations::fake() noexcept
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
         
         gotMatrix = localPlayer->setupBones(fakematrix.data(), localPlayer->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
-        const auto origin = localPlayer->getRenderOrigin();
+        gotMatrixFakelag = gotMatrix;
         if (gotMatrix)
         {
+            std::copy(fakematrix.begin(), fakematrix.end(), fakelagmatrix.data());
+            const auto origin = localPlayer->getRenderOrigin();
             for (auto& i : fakematrix)
             {
                 i[0][3] -= origin.x;
@@ -674,6 +686,16 @@ bool Animations::gotFakeMatrix() noexcept
 std::array<matrix3x4, MAXSTUDIOBONES> Animations::getFakeMatrix() noexcept
 {
     return fakematrix;
+}
+
+bool Animations::gotFakelagMatrix() noexcept
+{
+    return gotMatrixFakelag;
+}
+
+std::array<matrix3x4, MAXSTUDIOBONES> Animations::getFakelagMatrix() noexcept
+{
+    return fakelagmatrix;
 }
 
 bool Animations::gotRealMatrix() noexcept

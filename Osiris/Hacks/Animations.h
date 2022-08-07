@@ -20,7 +20,7 @@ namespace Animations
 	void update(UserCmd*, bool& sendPacket) noexcept;
 
 	void renderStart(FrameStage) noexcept;
-	void updateBacktrack() noexcept;
+
 	void fake() noexcept;
 
 	void packetStart() noexcept;
@@ -36,6 +36,9 @@ namespace Animations
 
 	bool gotFakeMatrix() noexcept;
 	std::array<matrix3x4, MAXSTUDIOBONES> getFakeMatrix() noexcept;
+
+	bool gotFakelagMatrix() noexcept;
+	std::array<matrix3x4, MAXSTUDIOBONES> getFakelagMatrix() noexcept;
 
 	bool gotRealMatrix() noexcept;
 	std::array<matrix3x4, MAXSTUDIOBONES> getRealMatrix() noexcept;

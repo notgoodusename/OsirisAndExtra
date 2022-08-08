@@ -134,8 +134,8 @@ bool Chams::render(void* ctx, void* state, const ModelRenderInfo& info, matrix3x
     this->info = &info;
     this->customBoneToWorld = customBoneToWorld;
 
-    if (std::string_view{ info.model->name }.starts_with("models/weapons/v_")) {
-        // info.model->name + 17 -> small optimization, skip "models/weapons/v_"
+    if (std::string_view{ info.model->name }.starts_with("models/weapons/w_"))
+    {
         if (std::strstr(info.model->name + 17, "sleeve"))
             renderSleeves();
         else if (std::strstr(info.model->name + 17, "arms"))
@@ -144,7 +144,20 @@ bool Chams::render(void* ctx, void* state, const ModelRenderInfo& info, matrix3x
             && !std::strstr(info.model->name + 17, "parachute")
             && !std::strstr(info.model->name + 17, "fists"))
             renderWeapons();
-    } else {
+    }
+    else if (std::string_view{ info.model->name }.starts_with("models/weapons/v_"))
+    {
+        if (std::strstr(info.model->name + 17, "sleeve"))
+            renderSleeves();
+        else if (std::strstr(info.model->name + 17, "arms"))
+            renderHands();
+        else if (!std::strstr(info.model->name + 17, "tablet")
+            && !std::strstr(info.model->name + 17, "parachute")
+            && !std::strstr(info.model->name + 17, "fists"))
+            renderWeapons();
+    }
+    else
+    {
         const auto entity = interfaces->entityList->getEntity(info.entityIndex);
         if (entity && !entity->isDormant())
         {

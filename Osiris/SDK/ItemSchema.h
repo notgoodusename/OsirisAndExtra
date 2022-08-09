@@ -155,17 +155,30 @@ struct AlternateIconData {
     PAD(28)
 };
 
+struct EconMusicDefinition
+{
+    int id;
+    const char* name;
+    const char* nameLocalized;
+    PAD(8)
+    const char* inventoryImage;
+};
+
 class ItemSchema {
 public:
     PAD(0x88)
     UtlMap<int, EconItemQualityDefinition> qualities;
     PAD(0x48)
     UtlMap<int, EconItemDefinition*> itemsSorted;
-    PAD(0x104)
+    PAD(0x60)
+    UtlMap<int, const char*> revolvingLootLists;
+    PAD(0x80)
     UtlMap<std::uint64_t, AlternateIconData> alternateIcons;
     PAD(0x48)
     UtlMap<int, PaintKit*> paintKits;
     UtlMap<int, StickerKit*> stickerKits;
+    PAD(0x11C)
+    UtlMap<int, EconMusicDefinition*> musicKits;
 
     VIRTUAL_METHOD(EconItemDefinition*, getItemDefinitionInterface, 4, (WeaponId id), (this, id))
     VIRTUAL_METHOD(const char*, getRarityName, 19, (uint8_t rarity), (this, rarity))

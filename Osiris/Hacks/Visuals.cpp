@@ -39,7 +39,7 @@ void Visuals::shadowChanger() noexcept
     static auto cl_csm_max_shadow_dist = interfaces->cvar->findVar("cl_csm_max_shadow_dist");
     static auto cl_csm_rot_x = interfaces->cvar->findVar("cl_csm_rot_x");
     static auto cl_csm_rot_y = interfaces->cvar->findVar("cl_csm_rot_y");
-
+    
     if (config->visuals.noShadows || !config->visuals.shadowsChanger.enabled)
     {
         cl_csm_rot_override->setValue(0);
@@ -218,6 +218,9 @@ void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
 void Visuals::drawAimbotFov(ImDrawList* drawList) noexcept
 {
     if (!config->legitbotFov.enabled || !config->legitbotKey.isActive())
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
         return;
 
     GameData::Lock lock;

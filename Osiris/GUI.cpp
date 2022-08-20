@@ -1846,7 +1846,17 @@ void GUI::renderMiscWindow() noexcept
     */
     ImGui::Checkbox("Grenade Prediction", &config->misc.nadePredict);
     ImGui::SameLine();
-    ImGuiCustom::colorPicker("Damage", config->misc.nadeDamagePredict);
+    ImGui::PushID("Grenade Prediction");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGuiCustom::colorPicker("Damage", config->misc.nadeDamagePredict);
+        ImGuiCustom::colorPicker("Trail", config->misc.nadeTrailPredict);
+        ImGuiCustom::colorPicker("Circle", config->misc.nadeCirclePredict);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
 
     ImGui::Checkbox("Fix tablet signal", &config->misc.fixTabletSignal);
     ImGui::SetNextItemWidth(120.0f);

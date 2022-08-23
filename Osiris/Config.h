@@ -361,6 +361,8 @@ public:
         ColorToggleThickness noscopeCrosshair;
         ColorToggleThickness recoilCrosshair;
         ColorToggleThickness nadeDamagePredict;
+        Color4 nadeTrailPredict;
+        Color4 nadeCirclePredict{ 0.f, 0.5f, 1.f, 1.f };
 
         struct SpectatorList {
             bool enabled = false;

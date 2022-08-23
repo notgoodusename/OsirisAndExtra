@@ -482,18 +482,17 @@ void GrenadePrediction::draw() noexcept
 	if (savedPoints.empty())
 		return;
 
-	static const auto redColor = ImGui::GetColorU32(ImVec4(1.f, 0.f, 0.f, 1.f));
-	static const auto whiteColor = ImGui::GetColorU32(ImVec4(1.f, 1.f, 1.f, 1.f));
-	auto blueColor = ImGui::GetColorU32(ImVec4(0.f, 0.5f, 1.f, 1.f));
+	const auto trailColor = Helpers::calculateColor(config->misc.nadeTrailPredict);
+	const auto circleColor = Helpers::calculateColor(config->misc.nadeCirclePredict);
 
 	auto drawList = ImGui::GetBackgroundDrawList();
 	// draw end nade path
 	for (auto& point : endPoints)
-		drawList->AddLine(ImVec2(point.first.x, point.first.y), ImVec2(point.second.x, point.second.y), blueColor, 2.f);
+		drawList->AddLine(ImVec2(point.first.x, point.first.y), ImVec2(point.second.x, point.second.y), circleColor, 2.f);
 
 	//	draw nade path
 	for (auto& point : savedPoints)
-		drawList->AddLine(ImVec2(point.first.x, point.first.y), ImVec2(point.second.x, point.second.y), whiteColor, 1.5f);
+		drawList->AddLine(ImVec2(point.first.x, point.first.y), ImVec2(point.second.x, point.second.y), trailColor, 1.5f);
 
 	// draw nade damage
 	if (config->misc.nadeDamagePredict.enabled)

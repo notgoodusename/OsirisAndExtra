@@ -273,6 +273,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     auto currentViewAngles{ cmd->viewangles };
     const auto currentCmd{ *cmd };
     auto angOldViewPoint{ cmd->viewangles };
+    const auto currentPredictedTick{ interfaces->prediction->split->commandsPredicted };
 
     if (Tickbase::isShifting())
     {
@@ -416,7 +417,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Visuals::updateShots(cmd);
 
     if (localPlayer && localPlayer->isAlive())
-        memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+        memory->restoreEntityToPredictedFrame(0, currentPredictedTick - 1);
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;
@@ -1190,7 +1191,7 @@ static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, i
     return true;
 }
 
-void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
+static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
 {
     using clMoveFn = void(__cdecl*)(float, bool);
     static auto original = (clMoveFn)hooks->clMove.getDetour();

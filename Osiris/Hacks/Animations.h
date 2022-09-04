@@ -55,8 +55,8 @@ namespace Animations
 		}
 
 		struct Record {
+			std::deque<Vector> positions;
 			Vector origin;
-			Vector head;
 			Vector absAngle;
 			Vector mins;
 			Vector maxs;

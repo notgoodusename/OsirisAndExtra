@@ -555,7 +555,9 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             record.mins = player.mins;
             record.maxs = player.maxs;
             std::copy(player.matrix.begin(), player.matrix.end(), record.matrix);
-            record.head = record.matrix[8].origin();
+            for (auto bone : { 8, 4, 3, 7, 6, 5 }) {
+                record.positions.push_back(record.matrix[bone].origin());
+            }
 
             player.backtrackRecords.push_front(record);
 

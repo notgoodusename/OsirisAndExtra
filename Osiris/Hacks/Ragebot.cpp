@@ -268,7 +268,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 if (!Backtrack::valid(player.simulationTime))
                     continue;
                 record.absAngle = player.absAngle;
-                record.head = Vector{ };
                 std::copy(player.matrix.begin(), player.matrix.end(), record.matrix);
                 record.maxs = player.maxs;
                 record.mins = player.mins;

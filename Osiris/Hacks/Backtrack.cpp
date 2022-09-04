@@ -53,9 +53,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
     auto localPlayerEyePosition = localPlayer->getEyePosition();
 
     auto bestFov{ 255.f };
-    Entity * bestTarget{ };
     int bestTargetIndex{ };
-    Vector bestTargetPosition{ };
     int bestRecord{ };
 
     const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
@@ -66,15 +64,27 @@ void Backtrack::run(UserCmd* cmd) noexcept
             || !entity->isOtherEnemy(localPlayer.get()))
             continue;
 
-        const auto& origin = entity->getAbsOrigin();
+        const auto player = Animations::getPlayer(i);
+        if (!player.gotMatrix)
+            continue;
 
-        auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, origin, cmd->viewangles + aimPunch);
-        auto fov = std::hypotf(angle.x, angle.y);
-        if (fov < bestFov) {
-            bestFov = fov;
-            bestTarget = entity;
-            bestTargetIndex = i;
-            bestTargetPosition = origin;
+        if (player.backtrackRecords.empty() || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), entity->getAbsOrigin(), 1)))
+            continue;
+
+        for (int j = static_cast<int>(player.backtrackRecords.size() - 1); j >= 0; j--)
+        {
+            if (Backtrack::valid(player.backtrackRecords.at(j).simulationTime))
+            {
+                for (auto position : player.backtrackRecords.at(j).positions) {
+                    auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, position, cmd->viewangles + aimPunch);
+                    auto fov = std::hypotf(angle.x, angle.y);
+                    if (fov < bestFov) {
+                        bestFov = fov;
+                        bestRecord = j;
+                        bestTargetIndex = i;
+                    }
+                }
+            }
         }
     }
 
@@ -82,26 +92,6 @@ void Backtrack::run(UserCmd* cmd) noexcept
     if (!player.gotMatrix)
         return;
 
-    if (bestTarget) {
-
-        if (player.backtrackRecords.empty() || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), bestTargetPosition, 1)))
-            return;
-
-        bestFov = 255.f;
-
-        for (size_t i = 0; i < player.backtrackRecords.size(); i++) {
-            const auto& record = player.backtrackRecords[i];
-            if (!valid(record.simulationTime))
-                continue;
-
-            auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, record.head, cmd->viewangles + aimPunch);
-            auto fov = std::hypotf(angle.x, angle.y);
-            if (fov < bestFov) {
-                bestFov = fov;
-                bestRecord = i;
-            }
-        }
-    }
 
     if (bestRecord) {
         const auto& record = player.backtrackRecords[bestRecord];

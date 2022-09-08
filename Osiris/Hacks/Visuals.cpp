@@ -144,6 +144,9 @@ void Visuals::molotovExtinguishEvent(GameEvent* event) noexcept {
     if (!event)
         return;
 
+    if (molotovs.empty())
+        return;
+
     molotovs.erase(molotovs.begin());
 }
 

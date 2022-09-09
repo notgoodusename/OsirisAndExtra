@@ -32,37 +32,17 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
 
     damageDiff = FLT_MAX;
 
-    const auto backupBoneCache = entity->getBoneCache().memory;
-    const auto backupMins = entity->getCollideable()->obbMins();
-    const auto backupMaxs = entity->getCollideable()->obbMaxs();
-    const auto backupOrigin = entity->getAbsOrigin();
-    const auto backupAbsAngle = entity->getAbsAngle();
-
-    memcpy(entity->getBoneCache().memory, record.matrix, std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
-    memory->setAbsOrigin(entity, record.origin);
-    memory->setAbsAngle(entity, Vector{ 0.f, record.absAngle.y, 0.f });
-    entity->getCollideable()->setCollisionBounds(record.mins, record.maxs);
-
     const Model* model = entity->getModel();
     if (!model)
-    {
-        resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
         return;
-    }
 
     StudioHdr* hdr = interfaces->modelInfo->getStudioModel(model);
     if (!hdr)
-    {
-        resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
         return;
-    }
 
     StudioHitboxSet* set = hdr->getHitboxSet(0);
     if (!set)
-    {
-        resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
         return;
-    }
 
     for (size_t i = 0; i < hitbox.size(); i++)
     {
@@ -95,10 +75,7 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
                 cmd->buttons |= UserCmd::IN_ZOOM;
 
             if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
-            {
-                resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);;
                 return;
-            }
 
             if (cfg[weaponIndex].autoStop && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
             {
@@ -137,8 +114,6 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
             damageDiff = FLT_MAX;
         }
     }
-
-    resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
 }
 
 void Ragebot::run(UserCmd* cmd) noexcept
@@ -259,7 +234,13 @@ void Ragebot::run(UserCmd* cmd) noexcept
         const auto entity{ interfaces->entityList->getEntity(target.id) };
         const auto player = Animations::getPlayer(target.id);
         const int minDamage = std::clamp(std::clamp(config->minDamageOverrideKey.isActive() ? cfg[weaponIndex].minDamageOverride : cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
-        
+
+        const auto backupBoneCache = entity->getBoneCache().memory;
+        const auto backupMins = entity->getCollideable()->obbMins();
+        const auto backupMaxs = entity->getCollideable()->obbMaxs();
+        const auto backupOrigin = entity->getAbsOrigin();
+        const auto backupAbsAngle = entity->getAbsAngle();
+
         for (int cycle = 0; cycle < 2; cycle++)
         {
             Animations::Players::Record record;
@@ -303,7 +284,13 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 record = records->at(lastTick);
             }
 
+            memcpy(entity->getBoneCache().memory, record.matrix, std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
+            memory->setAbsOrigin(entity, record.origin);
+            memory->setAbsAngle(entity, Vector{ 0.f, record.absAngle.y, 0.f });
+            entity->getCollideable()->setCollisionBounds(record.mins, record.maxs);
+
             runRagebot(cmd, entity, record, target, hitbox, activeWeapon, weaponIndex, localPlayerEyePosition, aimPunch, multiPoint, minDamage, damageDiff, bestAngle, bestTarget, bestIndex, bestSimulationTime);
+            resetMatrix(entity, backupBoneCache, backupOrigin, backupAbsAngle, backupMins, backupMaxs);
             if (bestTarget.notNull())
                 break;
         }

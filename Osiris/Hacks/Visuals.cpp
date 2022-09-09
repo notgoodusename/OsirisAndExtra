@@ -889,12 +889,14 @@ void Visuals::skybox(FrameStage stage) noexcept
 }
 struct shotRecords
 {
-    shotRecords(Vector eyePosition) noexcept
+    shotRecords(Vector eyePosition, float time) noexcept
     {
         this->eyePosition = eyePosition;
+        this->time = time;
     }
     Vector eyePosition;
     bool gotImpact{ false };
+    float time{ 0.0f };
 };
 
 std::deque<shotRecords> shotRecord;
@@ -932,7 +934,10 @@ void Visuals::updateShots(UserCmd* cmd) noexcept
     if (localPlayer->flags() & (1 << 6)) //Frozen
         return;
 
-    shotRecord.push_back(shotRecords(localPlayer->getEyePosition()));
+    shotRecord.push_back(shotRecords(localPlayer->getEyePosition(), memory->globalVars->serverTime()));
+
+    while (!shotRecord.empty() && fabsf(shotRecord.front().time - memory->globalVars->serverTime()) > 1.0f)
+        shotRecord.pop_front();
 }
 
 void Visuals::bulletTracer(GameEvent& event) noexcept

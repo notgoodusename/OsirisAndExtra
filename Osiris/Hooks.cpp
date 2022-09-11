@@ -1430,10 +1430,17 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     static auto original = hooks->eyeAngles.getOriginal<Vector*>();
     
     const auto entity = reinterpret_cast<Entity*>(thisPointer);
-    if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors || !localPlayer || entity != localPlayer.get())
+    if (!localPlayer || entity != localPlayer.get())
         return original(thisPointer);
 
-    return Animations::getLocalAngle();
+    if (std::uintptr_t(_ReturnAddress()) == memory->eyeAnglesYaw
+        || std::uintptr_t(_ReturnAddress()) == memory->eyeAnglesPitch)
+        return Animations::getViewAngles();
+    
+    if (std::uintptr_t(_ReturnAddress()) == memory->eyePositionAndVectors)
+        return Animations::getLocalAngle();
+
+    return original(thisPointer);
 }
 
 void resetAll(int resetType) noexcept

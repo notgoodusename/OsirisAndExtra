@@ -29,6 +29,8 @@ static bool gotMatrix{ false };
 static bool gotMatrixFakelag{ false };
 static bool gotMatrixReal{ false };
 static Vector viewangles{};
+static Vector correctAngle{};
+static int buildTransformsIndex = -1;
 static std::array<AnimationLayer, 13> staticLayers{};
 static std::array<AnimationLayer, 13> layers{};
 static float primaryCycle{ 0.0f };
@@ -60,6 +62,8 @@ void Animations::reset() noexcept
     gotMatrixFakelag = false;
     gotMatrixReal = false;
     viewangles = Vector{};
+    correctAngle = Vector{};
+    buildTransformsIndex = -1;
     staticLayers = {};
     layers = {};
     primaryCycle = 0.0f;
@@ -658,6 +662,22 @@ void Animations::postDataUpdate() noexcept
 
     localPlayer->getAnimstate()->primaryCycle = primaryCycle;
     localPlayer->getAnimstate()->moveWeight = moveWeight;
+}
+
+void Animations::saveCorrectAngle(int entityIndex, Vector correctAng) noexcept
+{
+    buildTransformsIndex = entityIndex;
+    correctAngle = correctAng;
+}
+
+int& Animations::buildTransformationsIndex() noexcept
+{
+    return buildTransformsIndex;
+}
+
+Vector* Animations::getCorrectAngle() noexcept
+{
+    return &correctAngle;
 }
 
 Vector* Animations::getViewAngles() noexcept

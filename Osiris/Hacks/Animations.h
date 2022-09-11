@@ -26,6 +26,11 @@ namespace Animations
 	void packetStart() noexcept;
 	void postDataUpdate() noexcept;
 
+	void saveCorrectAngle(int entityIndex, Vector correctAngle) noexcept;
+
+	int& buildTransformationsIndex() noexcept;
+
+	Vector* getCorrectAngle() noexcept;
 	Vector* getViewAngles() noexcept;
 	Vector* getLocalAngle() noexcept;
 

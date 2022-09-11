@@ -781,8 +781,12 @@ static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CS
 {
     static auto original = hooks->buildTransformations.getOriginal<void>(hdr, pos, q, cameraTransform, boneMask, boneComputed);
 
-    const UtlVector<int> backupFlags = hdr->boneFlags;
+    const auto entity = reinterpret_cast<Entity*>(thisPointer);
+    if (entity && entity->isAlive() && localPlayer && localPlayer.get() == entity && entity->getAnimstate())
+        Animations::saveCorrectAngle(entity->index(), Vector{ entity->getAnimstate()->eyePitch, entity->getAnimstate()->eyeYaw, Animations::getLocalAngle()->z });
 
+    const UtlVector<int> backupFlags = hdr->boneFlags;
+    
     for (int i = 0; i < hdr->boneFlags.size; i++)
     {
         if(config->visuals.disableJiggleBones)
@@ -1432,15 +1436,16 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     const auto entity = reinterpret_cast<Entity*>(thisPointer);
     if (!localPlayer || entity != localPlayer.get())
         return original(thisPointer);
-
-    if (std::uintptr_t(_ReturnAddress()) == memory->eyeAnglesYaw
-        || std::uintptr_t(_ReturnAddress()) == memory->eyeAnglesPitch)
-        return Animations::getViewAngles();
     
-    if (std::uintptr_t(_ReturnAddress()) == memory->eyePositionAndVectors)
-        return Animations::getLocalAngle();
+    if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors)
+        return original(thisPointer);
 
-    return original(thisPointer);
+    if (Animations::buildTransformationsIndex() == -1 || Animations::buildTransformationsIndex() != entity->index())
+        return original(thisPointer);
+
+    Animations::buildTransformationsIndex() = -1;
+
+    return Animations::getCorrectAngle();
 }
 
 void resetAll(int resetType) noexcept

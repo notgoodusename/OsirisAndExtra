@@ -1356,32 +1356,17 @@ void Misc::killMessage(GameEvent& event) noexcept
     interfaces->engine->clientCmdUnrestricted(cmd.c_str());
 }
 
-void Misc::fixMovement(UserCmd* cmd, Vector currentViewangles) noexcept
+void Misc::fixMovement(UserCmd* cmd, float yaw) noexcept
 {
-    Vector forward, right, currentForward, currentRight;
-    Vector::fromAngleAll(currentViewangles, &forward, &right, nullptr);
-    Vector::fromAngleAll(cmd->viewangles, &currentForward, &currentRight, nullptr);
+    float oldYaw = yaw + (yaw < 0.0f ? 360.0f : 0.0f);
+    float newYaw = cmd->viewangles.y + (cmd->viewangles.y < 0.0f ? 360.0f : 0.0f);
+    float yawDelta = newYaw < oldYaw ? fabsf(newYaw - oldYaw) : 360.0f - fabsf(newYaw - oldYaw);
+    yawDelta = 360.0f - yawDelta;
 
-    forward.z = right.z = currentForward.z = currentRight.z = 0.f;
-    forward.normalized();
-    right.normalized();
-    currentForward.normalized();
-    currentRight.normalized();
-
-    Vector wishDirection;
-    for (auto i = 0u; i < 2; i++)
-        wishDirection[i] = forward[i] * cmd->forwardmove + right[i] * cmd->sidemove;
-    wishDirection.z = 0.f;
-
-    Vector currentWishDirection;
-    for (auto i = 0u; i < 2; i++)
-        currentWishDirection[i] = currentForward[i] * cmd->forwardmove + currentRight[i] * cmd->sidemove;
-    currentWishDirection.z = 0.f;
-
-    if (wishDirection != currentWishDirection) {
-        cmd->forwardmove = ((wishDirection.y * currentRight.x - currentRight.y * wishDirection.x) / (currentRight.x * currentForward.y - currentRight.y * currentForward.x)) / 57.29852295f;// 57.29852295 ~= 360 / (PI * 2), I have no idea how to get this value correctly, It varies between 56.9 and 57.2 
-        cmd->sidemove = (wishDirection.y * currentForward.x - currentForward.y * wishDirection.x) / (currentRight.y * currentForward.x - currentRight.x * currentForward.y);
-    }
+    const float forwardmove = cmd->forwardmove;
+    const float sidemove = cmd->sidemove;
+    cmd->forwardmove = std::cos(Helpers::deg2rad(yawDelta)) * forwardmove + std::cos(Helpers::deg2rad(yawDelta + 90.0f)) * sidemove;
+    cmd->sidemove = std::sin(Helpers::deg2rad(yawDelta)) * forwardmove + std::sin(Helpers::deg2rad(yawDelta + 90.0f)) * sidemove;
 }
 
 void Misc::antiAfkKick(UserCmd* cmd) noexcept

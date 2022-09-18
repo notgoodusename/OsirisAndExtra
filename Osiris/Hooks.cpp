@@ -318,7 +318,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
             || cmd->forwardmove != currentCmd.forwardmove
             || cmd->sidemove != currentCmd.sidemove) && (cmd->sidemove != 0 || cmd->forwardmove != 0))
         {
-            Misc::fixMovement(cmd, currentViewAngles);
+            Misc::fixMovement(cmd, currentViewAngles.y);
         }
 
         cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
@@ -402,7 +402,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         || cmd->forwardmove != currentCmd.forwardmove
         || cmd->sidemove != currentCmd.sidemove) && (cmd->sidemove != 0 || cmd->forwardmove != 0))
     {
-        Misc::fixMovement(cmd, currentViewAngles);
+        Misc::fixMovement(cmd, currentViewAngles.y);
     }
 
     cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);

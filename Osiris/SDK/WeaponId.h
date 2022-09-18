@@ -51,6 +51,7 @@ enum class WeaponId : short {
     Cz75a = 63,
     Revolver,
     TaGrenade = 68,
+    Fists,
     Axe = 75,
     Hammer,
     Spanner = 78,

@@ -487,8 +487,24 @@ const std::vector<SkinChanger::Item>& SkinChanger::getKnifeTypes() noexcept
 
         for (const auto& node : memory->itemSystem()->getItemSchema()->itemsSorted) {
             const auto item = node.value;
-            if (std::strcmp(item->getItemTypeName(), "#CSGO_Type_Knife") == 0 && item->getRarity() == 6)
+            if (std::strcmp(item->getItemTypeName(), "#CSGO_Type_Knife") == 0
+                && item->getWeaponId() != WeaponId::GoldenKnife
+                && item->getWeaponId() != WeaponId::Fists)
+            {
+                if (item->getWeaponId() == WeaponId::Knife)
+                {
+                    std::string name = std::string(interfaces->localize->findAsUTF8(item->getItemBaseName())) + " CT";
+                    knifeTypes.emplace_back(item->getWeaponId(), name.c_str());
+                    continue;
+                }
+                else if (item->getWeaponId() == WeaponId::KnifeT)
+                {   
+                    std::string name = std::string(interfaces->localize->findAsUTF8(item->getItemBaseName())) + " T";
+                    knifeTypes.emplace_back(item->getWeaponId(), name.c_str());
+                    continue;
+                }
                 knifeTypes.emplace_back(item->getWeaponId(), interfaces->localize->findAsUTF8(item->getItemBaseName()));
+            }
         }
     }
 

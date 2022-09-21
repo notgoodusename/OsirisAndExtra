@@ -329,7 +329,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
         if (localPlayer && localPlayer->isAlive())
-            memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+            memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
         Animations::update(cmd, sendPacket);
         Animations::fake();
         return false;
@@ -417,7 +417,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Visuals::updateShots(cmd);
 
     if (localPlayer && localPlayer->isAlive())
-        memory->restoreEntityToPredictedFrame(0, currentPredictedTick - 1);
+        memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
     Animations::update(cmd, sendPacket);
     Animations::fake();
     return false;

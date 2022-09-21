@@ -273,7 +273,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     auto currentViewAngles{ cmd->viewangles };
     const auto currentCmd{ *cmd };
     auto angOldViewPoint{ cmd->viewangles };
-    const auto currentPredictedTick{ interfaces->prediction->split->commandsPredicted };
+    const auto currentPredictedTick{ interfaces->prediction->split->commandsPredicted - 1 };
 
     if (Tickbase::isShifting())
     {

@@ -679,6 +679,10 @@ void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
     if (!config->misc.fakeduck || !config->misc.fakeduckKey.isActive())
         return;
 
+    if (const auto gameRules = (*memory->gameRules); gameRules)
+        if (getGameMode() != GameMode::Competitive && gameRules->isValveDS())
+            return;
+
     if (!localPlayer || !localPlayer->isAlive() || !(localPlayer->flags() & 1))
         return;
 
@@ -1482,6 +1486,10 @@ void Misc::autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept
 
 void Misc::removeCrouchCooldown(UserCmd* cmd) noexcept
 {
+    if (const auto gameRules = (*memory->gameRules); gameRules)
+        if (getGameMode() != GameMode::Competitive && gameRules->isValveDS())
+            return;
+
     if (config->misc.fastDuck)
         cmd->buttons |= UserCmd::IN_BULLRUSH;
 }

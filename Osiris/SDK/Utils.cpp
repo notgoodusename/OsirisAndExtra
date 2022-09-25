@@ -31,3 +31,62 @@ int getMaxUserCmdProcessTicks() noexcept
         return (gameRules->isValveDS()) ? 8 : 16;
     return 16;
 }
+
+GameMode getGameMode() noexcept
+{
+    static auto gameType{ interfaces->cvar->findVar("game_type") };
+    static auto gameMode{ interfaces->cvar->findVar("game_mode") };
+    switch (gameType->getInt())
+    {
+    case 0:
+        switch (gameMode->getInt())
+        {
+        case 0:
+            return Casual;
+        case 1:
+            return Competitive;
+        case 2:
+            return Wingman;
+        case 3:
+            return WeaponsExpert;
+        default:
+            break;
+        }
+        break;
+    case 1:
+        switch (gameMode->getInt())
+        {
+        case 0:
+            return ArmsRace;
+        case 1:
+            return Demolition;
+        case 2:
+            return Deathmatch;
+        default:
+            break;
+        }
+        break;
+    case 2:
+        return Training;
+    case 3:
+        return Custom;
+    case 4:
+        switch (gameMode->getInt())
+        {
+        case 0:
+            return Guardian;
+        case 1:
+            return CoopStrike;
+        default:
+            break;
+        }
+        break;
+    case 5:
+        return WarGames;
+    case 6:
+        return DangerZone;
+    default:
+        break;
+    }
+    return None;
+}

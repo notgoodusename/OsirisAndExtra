@@ -18,4 +18,25 @@ void resetMatrix(Entity* entity, matrix3x4* boneCacheData, Vector origin, Vector
 
 int getMaxUserCmdProcessTicks() noexcept;
 
+enum GameMode
+{
+	None,
+	Casual,
+	Competitive,
+	Wingman,
+	WeaponsExpert,
+	ArmsRace,
+	Demolition,
+	Deathmatch,
+	Training,
+	Custom,
+	Guardian,
+	CoopStrike,
+	WarGames,
+	DangerZone
+};
+
+
+GameMode getGameMode() noexcept;
+
 #define maxUserCmdProcessTicks getMaxUserCmdProcessTicks()

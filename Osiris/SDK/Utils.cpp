@@ -42,13 +42,13 @@ GameMode getGameMode() noexcept
         switch (gameMode->getInt())
         {
         case 0:
-            return Casual;
+            return GameMode::Casual;
         case 1:
-            return Competitive;
+            return GameMode::Competitive;
         case 2:
-            return Wingman;
+            return GameMode::Wingman;
         case 3:
-            return WeaponsExpert;
+            return GameMode::WeaponsExpert;
         default:
             break;
         }
@@ -57,36 +57,36 @@ GameMode getGameMode() noexcept
         switch (gameMode->getInt())
         {
         case 0:
-            return ArmsRace;
+            return GameMode::ArmsRace;
         case 1:
-            return Demolition;
+            return GameMode::Demolition;
         case 2:
-            return Deathmatch;
+            return GameMode::Deathmatch;
         default:
             break;
         }
         break;
     case 2:
-        return Training;
+        return GameMode::Training;
     case 3:
-        return Custom;
+        return GameMode::Custom;
     case 4:
         switch (gameMode->getInt())
         {
         case 0:
-            return Guardian;
+            return GameMode::Guardian;
         case 1:
-            return CoopStrike;
+            return GameMode::CoopStrike;
         default:
             break;
         }
         break;
     case 5:
-        return WarGames;
+        return GameMode::WarGames;
     case 6:
-        return DangerZone;
+        return GameMode::DangerZone;
     default:
         break;
     }
-    return None;
+    return GameMode::None;
 }

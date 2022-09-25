@@ -18,7 +18,7 @@ void resetMatrix(Entity* entity, matrix3x4* boneCacheData, Vector origin, Vector
 
 int getMaxUserCmdProcessTicks() noexcept;
 
-enum GameMode
+enum class GameMode
 {
 	None,
 	Casual,

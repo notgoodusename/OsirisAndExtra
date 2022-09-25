@@ -331,7 +331,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     
     updateLby(true); //Update lby timer
 
-    if (config->disableInFreezetime && !*memory->gameRules || (*memory->gameRules)->freezePeriod())
+    if (config->disableInFreezetime && (!*memory->gameRules || (*memory->gameRules)->freezePeriod()))
         return false;
 
     if (localPlayer->flags() & (1 << 6))

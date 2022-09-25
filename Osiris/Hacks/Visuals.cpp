@@ -684,7 +684,7 @@ void Visuals::hitMarker(GameEvent* event, ImDrawList* drawList) noexcept
     switch (config->visuals.hitMarker) {
     case 1:
         const auto& mid = ImGui::GetIO().DisplaySize / 2.0f;
-        constexpr auto color = IM_COL32(255, 255, 255, 255);
+        auto color = IM_COL32(255, 255, 255, static_cast<int>(Helpers::lerp(fabsf(lastHitTime + config->visuals.hitMarkerTime - memory->globalVars->realtime) / config->visuals.hitMarkerTime + FLT_EPSILON, 0.0f, 255.0f)));
         drawList->AddLine({ mid.x - 10, mid.y - 10 }, { mid.x - 4, mid.y - 4 }, color);
         drawList->AddLine({ mid.x + 10.5f, mid.y - 10.5f }, { mid.x + 4.5f, mid.y - 4.5f }, color);
         drawList->AddLine({ mid.x + 10.5f, mid.y + 10.5f }, { mid.x + 4.5f, mid.y + 4.5f }, color);

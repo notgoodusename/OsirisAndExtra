@@ -259,13 +259,20 @@ void Misc::jumpStats(UserCmd* cmd) noexcept
         return;
     }
 
-    if ((!*memory->gameRules || (*memory->gameRules)->freezePeriod()))
+    static bool once = true;
+    if ((!*memory->gameRules || (*memory->gameRules)->freezePeriod()) || localPlayer->flags() & (1 << 6))
+    {
+        if (once)
+        {
+            jumpStatsCalculations = { };
+            once = false;
+        }
         return;
-
-    if (localPlayer->flags() & (1 << 6))
-        return;
+    }
 
     jumpStatsCalculations.run(cmd);
+
+    once = true;
 }
 
 bool shouldEdgebug = false;

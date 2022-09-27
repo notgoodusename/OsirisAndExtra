@@ -82,6 +82,8 @@ bool Misc::JumpStatsCalculations::show() noexcept
 
     const bool fail = fabsf(startPosition.z - landingPosition.z) >= (jumps > 0 ? (jumps > 1 ? 46.0f : 2.0f) : 46.0f);
 
+    bool simplifyNames = false;
+
     std::string jump = "";
 
     //Values taken from
@@ -91,11 +93,11 @@ bool Misc::JumpStatsCalculations::show() noexcept
     {
     case -1:
         units -= 32.0f;
-        jump = "Ladder jump";
+        jump = simplifyNames ? "LAJ" : "Ladder jump";
         if (units < 80.0f || fail)
             color = white;
         else if (units >= 80.0f && units < 90.0f)
-            color = blue;
+            color = violet;
         else if (units >= 90.0f && units < 105.0f)
             color = green;
         else if (units >= 105.0f && units < 109.0f)
@@ -104,11 +106,11 @@ bool Misc::JumpStatsCalculations::show() noexcept
             color = golden;
         break;
     case 1:
-        jump = "Long jump";
+        jump = simplifyNames ? "LJ" : "Long jump";
         if (units < 230.0f || fail)
             color = white;
         else if (units >= 235.0f && units < 240.0f)
-            color = blue;
+            color = violet;
         else if (units >= 240.0f && units < 245.0f)
             color = green;
         else if (units >= 245.0f && units < 248.0f)
@@ -117,11 +119,11 @@ bool Misc::JumpStatsCalculations::show() noexcept
             color = golden;
         break;
     case 2:
-        jump = "Bhop";
+        jump = simplifyNames ? "BH" : "Bunnyhop";
         if (units < 230.0f || fail)
             color = white;
         else if (units >= 230.0f && units < 233.0f)
-            color = blue;
+            color = violet;
         else if (units >= 233.0f && units < 235.0f)
             color = green;
         else if (units >= 235.0f && units < 240.0f)
@@ -132,7 +134,7 @@ bool Misc::JumpStatsCalculations::show() noexcept
     default:
         if (jumps >= 3)
         {
-            jump = "Multi-Bhop";
+            jump = simplifyNames ? "MBH" : "Multi Bunnyhop";
             if (units < 230.0f || fail)
                 color = white;
             else if (units >= 235.0f && units < 240.0f)

@@ -19,7 +19,7 @@ namespace Misc
     {
     private:
         static const auto white = '\x01';
-        static const auto blue = '\x0C';
+        static const auto violet = '\x03';
         static const auto green = '\x04';
         static const auto red = '\x07';
         static const auto golden = '\x09';

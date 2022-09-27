@@ -138,7 +138,7 @@ bool Misc::JumpStatsCalculations::show() noexcept
             if (units < 230.0f || fail)
                 color = white;
             else if (units >= 235.0f && units < 240.0f)
-                color = blue;
+                color = violet;
             else if (units >= 240.0f && units < 245.0f)
                 color = green;
             else if (units >= 245.0f && units < 248.0f)

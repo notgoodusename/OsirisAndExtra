@@ -76,7 +76,7 @@ public:
         if (!onGround || jumping)
             return false;
 
-        if (!didNotJumpSinceLastTime)
+        if (!shouldShow)
             return false;
 
         //TODO: Add ladder jumps and detect jumpbugs
@@ -87,6 +87,10 @@ public:
         std::string jump = "";
         switch (jumps)
         {
+        case -1:
+            units -= 32.0f;
+            jump = "Ladder jump";
+            break;
         case 1:
             jump = "Long jump";
             break;
@@ -99,7 +103,7 @@ public:
             break;
         }
 
-        const bool fail = fabsf(startPosition.z - landingPosition.z) >= (jumps > 1 ? 46.0f : 2.0f);
+        const bool fail = fabsf(startPosition.z - landingPosition.z) >= (jumps > 0 ? (jumps > 1 ? 46.0f : 2.0f) : 46.0f);
         if (fail)
             jump += " Failed";
 
@@ -117,13 +121,19 @@ public:
         
         if (units >= 186.0f)
         {
-            memory->clientMode->getHudChat()->printf(0,
-                " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.0f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
-                color, jump.c_str(),
+            if(jumps > 2)
+                memory->clientMode->getHudChat()->printf(0,
+                    " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
+                    color, jump.c_str(),
                 jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.jumps, jumpStatsCalculations.sync);
+            else
+                memory->clientMode->getHudChat()->printf(0,
+                    " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%.0f\x01 Sync]",
+                    color, jump.c_str(),
+                    jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.sync);
         }
 
-        didNotJumpSinceLastTime = false;
+        shouldShow = false;
         jumps = 0;
         return true;
     }
@@ -136,8 +146,9 @@ public:
         onLadder = localPlayer->moveType() == MoveType::LADDER;
         jumping = cmd->buttons & UserCmd::IN_JUMP && !(lastButtons & UserCmd::IN_JUMP) && onGround;
 
+        //We jumped so we should show this jump
         if (jumping)
-            didNotJumpSinceLastTime = true;
+            shouldShow = true;
 
         if (onGround)
         {
@@ -154,7 +165,7 @@ public:
                 {
                     landingPosition = origin;
                     //We reset our jumps after logging them, and incase we do log our jumps and need to reset anyways we do this
-                    if (!didNotJumpSinceLastTime)
+                    if (!shouldShow)
                         jumps = 0;
                 }
             }
@@ -195,7 +206,7 @@ public:
             }
 
             //Get max height and max velocity
-            maxHeight = max(startPosition.z - origin.z, maxHeight);
+            maxHeight = max(fabsf(startPosition.z - origin.z), maxHeight);
             maxVelocity = max(velocity, maxVelocity);
 
             ticksInAir++; //We are in air
@@ -223,9 +234,9 @@ public:
     bool onLadder{ false };
     bool onGround{ false };
     bool jumping{ false };
-    bool didNotJumpSinceLastTime{ false };
+    bool shouldShow{ false };
     int jumps{ 0 };
-    Vector origin{ 0.0f };
+    Vector origin{ };
     Vector landingPosition{ };
     int ticksInAir{ 0 };
     int ticksSynced{ 0 };

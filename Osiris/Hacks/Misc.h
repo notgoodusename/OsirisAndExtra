@@ -10,6 +10,7 @@ struct ViewSetup;
 namespace Misc
 {
     bool isInChat() noexcept;
+    void jumpStats(UserCmd* cmd) noexcept;
     void edgeBug(UserCmd* cmd, Vector& angView) noexcept;
     void prePrediction(UserCmd* cmd) noexcept;
     void drawPlayerList() noexcept;

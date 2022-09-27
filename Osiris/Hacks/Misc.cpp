@@ -54,6 +54,209 @@ bool Misc::isInChat() noexcept
     return isInChat;
 }
 
+class JumpStatsCalculations
+{
+public:
+    void resetStats() noexcept
+    {
+        units = 0.0f;
+        strafes = 0;
+        pre = 0.0f;
+        maxVelocity = 0.0f;
+        maxHeight = 0.0f;
+        jumps = 0;
+        bhops = 0;
+        sync = 0.0f;
+        startPosition = Vector{ };
+        landingPosition = Vector{ };
+    }
+
+    bool show() noexcept
+    {
+        if (!onGround || jumping)
+            return false;
+
+        if (!didNotJumpSinceLastTime)
+            return false;
+
+        //TODO: Add ladder jumps and detect jumpbugs
+        //Maybe? weirdjumps LowpreBhop LowpreWeirdJump
+
+        units = (startPosition - landingPosition).length2D() + 32.0f;
+
+        std::string jump = "";
+        switch (jumps)
+        {
+        case 1:
+            jump = "Long jump";
+            break;
+        case 2:
+            jump = "Bhop";
+            break;
+        default:
+            if(jumps >= 3)
+                jump = "Multi-Bhop";
+            break;
+        }
+
+        const bool fail = fabsf(startPosition.z - landingPosition.z) >= (jumps > 1 ? 46.0f : 2.0f);
+        if (fail)
+            jump += " Failed";
+
+        auto color = '\x01';
+        if (units <= 230.0f || fail)
+            color = '\x01';
+        else if (units >= 230.0f && units < 235.0f)
+            color = '\x0C';
+        else if (units >= 235.0f && units < 240.0f)
+            color = '\x04';
+        else if (units >= 240.0f && units < 245.0f)
+            color = '\x07';
+        else if (units >= 245.0f)
+            color = '\x09';
+        
+        if (units >= 186.0f)
+        {
+            memory->clientMode->getHudChat()->printf(0,
+                " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.0f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
+                color, jump.c_str(),
+                jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.jumps, jumpStatsCalculations.sync);
+        }
+
+        didNotJumpSinceLastTime = false;
+        jumps = 0;
+        return true;
+    }
+
+    void run(UserCmd* cmd) noexcept
+    {
+        velocity = localPlayer->velocity().length2D();
+        origin = localPlayer->getAbsOrigin();
+        onGround = localPlayer->flags() & 1;
+        onLadder = localPlayer->moveType() == MoveType::LADDER;
+        jumping = cmd->buttons & UserCmd::IN_JUMP && !(lastButtons & UserCmd::IN_JUMP) && onGround;
+
+        if (jumping)
+            didNotJumpSinceLastTime = true;
+
+        if (onGround)
+        {
+            if (!onLadder)
+            {
+                if (jumping)
+                {
+                    //We save pre velocity and the starting position
+                    startPosition = origin;
+                    pre = velocity;
+                    jumps++;
+                }
+                else
+                {
+                    landingPosition = origin;
+                    //We reset our jumps after logging them, and incase we do log our jumps and need to reset anyways we do this
+                    if (!didNotJumpSinceLastTime)
+                        jumps = 0;
+                }
+            }
+
+            //Calculate sync
+            if (ticksInAir > 0 && !jumping)
+                sync = (static_cast<float>(ticksSynced) / static_cast<float>(ticksInAir)) * 100.0f;
+
+            //Reset both counters used for calculating sync
+            ticksInAir = 0;
+            ticksSynced = 0;
+        }
+        else if (!onGround && !onLadder)
+        {
+            //Check for strafes
+            if (cmd->mousedx != 0 && cmd->sidemove != 0.0f)
+            {
+                if (cmd->mousedx > 0 && lastMousedx <= 0.0f && cmd->sidemove > 0.0f)
+                {
+                    strafes++;
+                }
+                if (cmd->mousedx < 0 && lastMousedx >= 0.0f && cmd->sidemove < 0.0f)
+                {
+                    strafes++;
+                }
+            }
+
+            //If we gain velocity, we gain more sync
+            if (oldVelocity != 0.0f)
+            {
+                float deltaSpeed = velocity - oldVelocity;
+                bool gained = deltaSpeed > 0.000001f;
+                bool lost = deltaSpeed < -0.000001f;
+                if (gained)
+                {
+                    ticksSynced++;
+                }
+            }
+
+            //Get max height and max velocity
+            maxHeight = max(startPosition.z - origin.z, maxHeight);
+            maxVelocity = max(velocity, maxVelocity);
+
+            ticksInAir++; //We are in air
+            sync = 0; //We dont calculate sync yet
+        }
+
+        lastMousedx = cmd->mousedx;
+        lastOnGround = onGround;
+        lastButtons = cmd->buttons;
+        oldVelocity = velocity;
+
+        if (show())
+            resetStats();
+    }
+
+    //Last values
+    short lastMousedx{ 0 };
+    bool lastOnGround{ false };
+    int lastButtons{ 0 };
+    float oldVelocity{ 0.0f };
+    Vector startPosition{ };
+
+    //Current values
+    float velocity{ 0.0f };
+    bool onLadder{ false };
+    bool onGround{ false };
+    bool jumping{ false };
+    bool didNotJumpSinceLastTime{ false };
+    int jumps{ 0 };
+    Vector origin{ 0.0f };
+    Vector landingPosition{ };
+    int ticksInAir{ 0 };
+    int ticksSynced{ 0 };
+
+    //Final values
+    float units{ 0.0f };
+    int strafes{ 0 };
+    float pre{ 0.0f };
+    float maxVelocity{ 0.0f };
+    float maxHeight{ 0.0f };
+    int bhops{ 0 };
+    float sync{ 0.0f };
+} jumpStatsCalculations;
+
+void Misc::jumpStats(UserCmd* cmd) noexcept
+{
+    if (!localPlayer || !localPlayer->isAlive())
+    {
+        jumpStatsCalculations = { };
+        return;
+    }
+
+    if ((!*memory->gameRules || (*memory->gameRules)->freezePeriod()))
+        return;
+
+    if (localPlayer->flags() & (1 << 6))
+        return;
+
+    jumpStatsCalculations.run(cmd);
+}
+
 bool shouldEdgebug = false;
 float zVelBackup = 0.0f;
 float bugSpeed = 0.0f;
@@ -2040,4 +2243,5 @@ void Misc::reset(int resetType) noexcept
         ragdollGravity->setValue(600);
         blur->setValue(0);
     }
+    jumpStatsCalculations = JumpStatsCalculations{ };
 }

@@ -737,6 +737,15 @@ static void __stdcall onJump(float stamina) noexcept
 {
     hooks->gameMovement.callOriginal<void, 32>(stamina);
 
+    static int counter = 0;
+    counter++;
+    //We have jumpped
+    if (counter % 2 == 0 && counter != 0)
+    {
+        counter = 0;
+        Misc::jumpStatsCalculations.hasJumped = true;
+    }
+
     if (localPlayer && localPlayer->isAlive() && localPlayer->getAnimstate())
         localPlayer->getAnimstate()->doAnimationEvent(PLAYERANIMEVENT_JUMP);
 }

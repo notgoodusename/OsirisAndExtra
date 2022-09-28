@@ -70,57 +70,58 @@ void Misc::JumpStatsCalculations::resetStats() noexcept
 
 bool Misc::JumpStatsCalculations::show() noexcept
 {
-    if (!onGround || jumping)
+    if (!onGround || jumping || jumpbugged)
         return false;
 
     if (!shouldShow)
         return false;
 
-    //TODO: Add ladder jumps and detect jumpbugs
+    units = (startPosition - landingPosition).length2D() + (isLadderJump ? 0.0f : 32.0f);
 
-    units = (startPosition - landingPosition).length2D() + 32.0f;
+    const float z = fabsf(startPosition.z - landingPosition.z) - (isJumpbug ? 9.0f : 0.0f);
+    const bool fail = z >= (isLadderJump ? 32.0f : (jumps > 0 ? (jumps > 1 ? 46.0f : 2.0f) : 46.0f));
+    const bool simplifyNames = true;
 
-    const bool fail = fabsf(startPosition.z - landingPosition.z) >= (jumps > 0 ? (jumps > 1 ? 46.0f : 2.0f) : 46.0f);
-
-    bool simplifyNames = false;
-
-    std::string jump = "";
+    std::string jump = "null";
 
     //Values taken from
     //https://github.com/KZGlobalTeam/gokz/blob/33a3a49bc7a0e336e71c7f59c14d26de4db62957/cfg/sourcemod/gokz/gokz-jumpstats-tiers.cfg
     auto color = white;
     switch (jumps)
     {
-    case -1:
-        units -= 32.0f;
-        jump = simplifyNames ? "LAJ" : "Ladder jump";
-        if (units < 80.0f || fail)
-            color = white;
-        else if (units >= 80.0f && units < 90.0f)
-            color = violet;
-        else if (units >= 90.0f && units < 105.0f)
-            color = green;
-        else if (units >= 105.0f && units < 109.0f)
-            color = red;
-        else if (units >= 109.0f)
-            color = golden;
-        break;
     case 1:
-        jump = simplifyNames ? "LJ" : "Long jump";
-        if (units < 230.0f || fail)
-            color = white;
-        else if (units >= 235.0f && units < 240.0f)
-            color = violet;
-        else if (units >= 240.0f && units < 245.0f)
-            color = green;
-        else if (units >= 245.0f && units < 248.0f)
-            color = red;
-        else if (units >= 248.0f)
-            color = golden;
+        if (!isJumpbug)
+        {
+            jump = simplifyNames ? "LJ" : "Long jump";
+            if (units < 230.0f)
+                color = white;
+            else if (units >= 235.0f && units < 240.0f)
+                color = violet;
+            else if (units >= 240.0f && units < 245.0f)
+                color = green;
+            else if (units >= 245.0f && units < 248.0f)
+                color = red;
+            else if (units >= 248.0f)
+                color = golden;
+        }
+        else
+        {
+            jump = simplifyNames ? "JB" : "Jump bug";
+            if (units < 260.0f)
+                color = white;
+            else if (units >= 260.0f && units < 265.0f)
+                color = violet;
+            else if (units >= 265.0f && units < 270.0f)
+                color = green;
+            else if (units >= 270.0f && units < 273.0f)
+                color = red;
+            else if (units >= 273.0f)
+                color = golden;
+        }
         break;
     case 2:
         jump = simplifyNames ? "BH" : "Bunnyhop";
-        if (units < 230.0f || fail)
+        if (units < 230.0f)
             color = white;
         else if (units >= 230.0f && units < 233.0f)
             color = violet;
@@ -135,26 +136,45 @@ bool Misc::JumpStatsCalculations::show() noexcept
         if (jumps >= 3)
         {
             jump = simplifyNames ? "MBH" : "Multi Bunnyhop";
-            if (units < 230.0f || fail)
+            if (units < 230.0f)
                 color = white;
-            else if (units >= 235.0f && units < 240.0f)
+            else if (units >= 230.0f && units < 233.0f)
                 color = violet;
-            else if (units >= 240.0f && units < 245.0f)
+            else if (units >= 233.0f && units < 235.0f)
                 color = green;
-            else if (units >= 245.0f && units < 248.0f)
+            else if (units >= 235.0f && units < 240.0f)
                 color = red;
-            else if (units >= 248.0f)
+            else if (units >= 240.0f)
                 color = golden;
         }
         break;
     }
 
-    if (fail)
-        jump += " Failed";
-
-
-    if (units >= 186.0f)
+    if (isLadderJump)
     {
+        jump = simplifyNames ? "LAJ" : "Ladder jump";
+        if (units < 80.0f)
+            color = white;
+        else if (units >= 80.0f && units < 90.0f)
+            color = violet;
+        else if (units >= 90.0f && units < 105.0f)
+            color = green;
+        else if (units >= 105.0f && units < 109.0f)
+            color = red;
+        else if (units >= 109.0f)
+            color = golden;
+    }
+
+    if (true && fail)
+        color = white;
+
+    if (fail)
+        jump += simplifyNames ? "-F" : " Failed";
+
+    const bool show = isLadderJump ? units >= 50.0f : units >= 186.0f;
+    if (show)
+    {
+        //Certain characters are censured on printf
         if (jumps > 2)
             memory->clientMode->getHudChat()->printf(0,
                 " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
@@ -168,7 +188,6 @@ bool Misc::JumpStatsCalculations::show() noexcept
     }
 
     shouldShow = false;
-    jumps = 0;
     return true;
 }
 
@@ -179,10 +198,18 @@ void Misc::JumpStatsCalculations::run(UserCmd* cmd) noexcept
     onGround = localPlayer->flags() & 1;
     onLadder = localPlayer->moveType() == MoveType::LADDER;
     jumping = cmd->buttons & UserCmd::IN_JUMP && !(lastButtons & UserCmd::IN_JUMP) && onGround;
+    jumpbugged = !jumpped && hasJumped;
 
     //We jumped so we should show this jump
-    if (jumping)
+    if (jumping || jumpbugged)
         shouldShow = true;
+
+    if (onLadder)
+    {
+        startPosition = origin;
+        pre = velocity;
+        startedOnLadder = true;
+    }
 
     if (onGround)
     {
@@ -194,6 +221,8 @@ void Misc::JumpStatsCalculations::run(UserCmd* cmd) noexcept
                 startPosition = origin;
                 pre = velocity;
                 jumps++;
+                startedOnLadder = false;
+                isLadderJump = false;
             }
             else
             {
@@ -201,6 +230,13 @@ void Misc::JumpStatsCalculations::run(UserCmd* cmd) noexcept
                 //We reset our jumps after logging them, and incase we do log our jumps and need to reset anyways we do this
                 if (!shouldShow)
                     jumps = 0;
+
+                if (startedOnLadder)
+                {
+                    isLadderJump = true;
+                    shouldShow = true;
+                }
+                startedOnLadder = false;
             }
         }
 
@@ -214,6 +250,15 @@ void Misc::JumpStatsCalculations::run(UserCmd* cmd) noexcept
     }
     else if (!onGround && !onLadder)
     {
+        if (jumpbugged)
+        {
+            if (oldOrigin.notNull())
+                startPosition = oldOrigin;
+            pre = oldVelocity;
+            jumps = 1;
+            isJumpbug = true;
+            jumpbugged = false;
+        }
         //Check for strafes
         if (cmd->mousedx != 0 && cmd->sidemove != 0.0f)
         {
@@ -251,9 +296,18 @@ void Misc::JumpStatsCalculations::run(UserCmd* cmd) noexcept
     lastOnGround = onGround;
     lastButtons = cmd->buttons;
     oldVelocity = velocity;
+    oldOrigin = origin;
+    jumpped = jumping;
+    hasJumped = false;
 
     if (show())
         resetStats();
+
+    if (onGround && !onLadder)
+    {
+        isJumpbug = false;
+    }
+    isLadderJump = false;
 }
 
 void Misc::jumpStats(UserCmd* cmd) noexcept

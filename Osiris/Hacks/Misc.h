@@ -33,6 +33,8 @@ namespace Misc
         bool lastOnGround{ false };
         int lastButtons{ 0 };
         float oldVelocity{ 0.0f };
+        bool jumpped{ false };
+        Vector oldOrigin{ };
         Vector startPosition{ };
 
         //Current values
@@ -40,6 +42,11 @@ namespace Misc
         bool onLadder{ false };
         bool onGround{ false };
         bool jumping{ false };
+        bool jumpbugged{ false };
+        bool isJumpbug{ false };
+        bool hasJumped{ false };
+        bool startedOnLadder{ false };
+        bool isLadderJump{ false };
         bool shouldShow{ false };
         int jumps{ 0 };
         Vector origin{ };

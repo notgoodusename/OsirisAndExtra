@@ -1329,6 +1329,12 @@ static void __fastcall updateFlashBangEffectHook(void* thisPointer, void* edx) n
     }
 }
 
+static void __fastcall processMovement(void* thisPointer, void* edx, Entity* player, MoveData* moveData) noexcept
+{
+    moveData->gameCodeMovedPlayer = false;
+    return hooks->gameMovement.callOriginal<void, 1>(thisPointer, player, moveData);
+}
+
 static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void* edx, Entity* player, unsigned int traceParams) noexcept
 {
     static auto original = hooks->traceFilterForHeadCollision.getOriginal<bool>(player, traceParams);
@@ -1580,6 +1586,7 @@ void Hooks::install() noexcept
     fileSystem.hookAt(128, canLoadThirdPartyFiles);
 
     gameMovement.init(interfaces->gameMovement);
+    gameMovement.hookAt(1, processMovement);
     gameMovement.hookAt(32, onJump);
     //gameMovement.hookAt(61, canUnduck);
 

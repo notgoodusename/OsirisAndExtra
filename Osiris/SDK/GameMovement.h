@@ -3,7 +3,35 @@
 #include "VirtualMethod.h"
 
 class Entity;
-class MoveData;
+class MoveData
+{
+public:
+    bool firstRunOfFunctions;
+    bool gameCodeMovedPlayer;
+    int playerHandle;
+    int impulseCommand;
+    Vector viewAngles;
+    Vector absViewAngles;
+    int buttons;
+    int oldButtons;
+    float forwardMove;
+    float sideMove;
+    float upMove;
+    float maxSpeed;
+    float clientMaxSpeed;
+    Vector velocity;
+    Vector angles;
+    Vector oldAngles;
+    float outStepHeight;
+    Vector outWishVel;
+    Vector outJumpVel;
+    Vector constraintCenter;
+    float constraintRadius;
+    float constraintWidth;
+    float constraintSpeedFactor;
+    PAD(20)
+    Vector absOrigin;
+};
 
 class GameMovement {
 public:

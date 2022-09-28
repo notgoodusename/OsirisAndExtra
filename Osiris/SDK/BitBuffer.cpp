@@ -871,7 +871,7 @@ int32 bufferRead::readSignedVarInt32() noexcept
 
 int64 bufferRead::readSignedVarInt64() noexcept
 {
-	uint32 value = readVarInt64();
+	uint64 value = readVarInt64();
 	return zigZagDecode64(value);
 }
 

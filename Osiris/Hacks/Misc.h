@@ -14,56 +14,7 @@ struct ViewSetup;
 namespace Misc
 {
     bool isInChat() noexcept;
-
-    class JumpStatsCalculations
-    {
-    private:
-        static const auto white = '\x01';
-        static const auto violet = '\x03';
-        static const auto green = '\x04';
-        static const auto red = '\x07';
-        static const auto golden = '\x09';
-    public:
-        void resetStats() noexcept;
-        bool show() noexcept;
-        void run(UserCmd* cmd) noexcept;
-        
-        //Last values
-        short lastMousedx{ 0 };
-        bool lastOnGround{ false };
-        int lastButtons{ 0 };
-        float oldVelocity{ 0.0f };
-        bool jumpped{ false };
-        Vector oldOrigin{ };
-        Vector startPosition{ };
-
-        //Current values
-        float velocity{ 0.0f };
-        bool onLadder{ false };
-        bool onGround{ false };
-        bool jumping{ false };
-        bool jumpbugged{ false };
-        bool isJumpbug{ false };
-        bool hasJumped{ false };
-        bool startedOnLadder{ false };
-        bool isLadderJump{ false };
-        bool shouldShow{ false };
-        int jumps{ 0 };
-        Vector origin{ };
-        Vector landingPosition{ };
-        int ticksInAir{ 0 };
-        int ticksSynced{ 0 };
-
-        //Final values
-        float units{ 0.0f };
-        int strafes{ 0 };
-        float pre{ 0.0f };
-        float maxVelocity{ 0.0f };
-        float maxHeight{ 0.0f };
-        int bhops{ 0 };
-        float sync{ 0.0f };
-    } jumpStatsCalculations;
-
+    void gotJump() noexcept;
     void jumpStats(UserCmd* cmd) noexcept;
     void edgeBug(UserCmd* cmd, Vector& angView) noexcept;
     void prePrediction(UserCmd* cmd) noexcept;

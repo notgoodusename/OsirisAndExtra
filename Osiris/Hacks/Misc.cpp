@@ -53,89 +53,82 @@ bool Misc::isInChat() noexcept
 
     return isInChat;
 }
-
-void Misc::JumpStatsCalculations::resetStats() noexcept
+class JumpStatsCalculations
 {
-    units = 0.0f;
-    strafes = 0;
-    pre = 0.0f;
-    maxVelocity = 0.0f;
-    maxHeight = 0.0f;
-    jumps = 0;
-    bhops = 0;
-    sync = 0.0f;
-    startPosition = Vector{ };
-    landingPosition = Vector{ };
-}
-
-bool Misc::JumpStatsCalculations::show() noexcept
-{
-    if (!onGround || jumping || jumpbugged)
-        return false;
-
-    if (!shouldShow)
-        return false;
-
-    units = (startPosition - landingPosition).length2D() + (isLadderJump ? 0.0f : 32.0f);
-
-    const float z = fabsf(startPosition.z - landingPosition.z) - (isJumpbug ? 9.0f : 0.0f);
-    const bool fail = z >= (isLadderJump ? 32.0f : (jumps > 0 ? (jumps > 1 ? 46.0f : 2.0f) : 46.0f));
-    const bool simplifyNames = config->misc.jumpStats.simplifyNaming;
-
-    std::string jump = "null";
-
-    //Values taken from
-    //https://github.com/KZGlobalTeam/gokz/blob/33a3a49bc7a0e336e71c7f59c14d26de4db62957/cfg/sourcemod/gokz/gokz-jumpstats-tiers.cfg
-    auto color = white;
-    switch (jumps)
+private:
+    static const auto white = '\x01';
+    static const auto violet = '\x03';
+    static const auto green = '\x04';
+    static const auto red = '\x07';
+    static const auto golden = '\x09';
+public:
+    void resetStats() noexcept
     {
-    case 1:
-        if (!isJumpbug)
+        units = 0.0f;
+        strafes = 0;
+        pre = 0.0f;
+        maxVelocity = 0.0f;
+        maxHeight = 0.0f;
+        jumps = 0;
+        bhops = 0;
+        sync = 0.0f;
+        startPosition = Vector{ };
+        landingPosition = Vector{ };
+    }
+
+    bool show() noexcept
+    {
+        if (!onGround || jumping || jumpbugged)
+            return false;
+
+        if (!shouldShow)
+            return false;
+
+        units = (startPosition - landingPosition).length2D() + (isLadderJump ? 0.0f : 32.0f);
+
+        const float z = fabsf(startPosition.z - landingPosition.z) - (isJumpbug ? 9.0f : 0.0f);
+        const bool fail = z >= (isLadderJump ? 32.0f : (jumps > 0 ? (jumps > 1 ? 46.0f : 2.0f) : 46.0f));
+        const bool simplifyNames = config->misc.jumpStats.simplifyNaming;
+
+        std::string jump = "null";
+
+        //Values taken from
+        //https://github.com/KZGlobalTeam/gokz/blob/33a3a49bc7a0e336e71c7f59c14d26de4db62957/cfg/sourcemod/gokz/gokz-jumpstats-tiers.cfg
+        auto color = white;
+        switch (jumps)
         {
-            jump = simplifyNames ? "LJ" : "Long jump";
-            if (units < 230.0f)
-                color = white;
-            else if (units >= 235.0f && units < 240.0f)
-                color = violet;
-            else if (units >= 240.0f && units < 245.0f)
-                color = green;
-            else if (units >= 245.0f && units < 248.0f)
-                color = red;
-            else if (units >= 248.0f)
-                color = golden;
-        }
-        else
-        {
-            jump = simplifyNames ? "JB" : "Jump bug";
-            if (units < 260.0f)
-                color = white;
-            else if (units >= 260.0f && units < 265.0f)
-                color = violet;
-            else if (units >= 265.0f && units < 270.0f)
-                color = green;
-            else if (units >= 270.0f && units < 273.0f)
-                color = red;
-            else if (units >= 273.0f)
-                color = golden;
-        }
-        break;
-    case 2:
-        jump = simplifyNames ? "BH" : "Bunnyhop";
-        if (units < 230.0f)
-            color = white;
-        else if (units >= 230.0f && units < 233.0f)
-            color = violet;
-        else if (units >= 233.0f && units < 235.0f)
-            color = green;
-        else if (units >= 235.0f && units < 240.0f)
-            color = red;
-        else if (units >= 240.0f)
-            color = golden;
-        break;
-    default:
-        if (jumps >= 3)
-        {
-            jump = simplifyNames ? "MBH" : "Multi Bunnyhop";
+        case 1:
+            if (!isJumpbug)
+            {
+                jump = simplifyNames ? "LJ" : "Long jump";
+                if (units < 230.0f)
+                    color = white;
+                else if (units >= 235.0f && units < 240.0f)
+                    color = violet;
+                else if (units >= 240.0f && units < 245.0f)
+                    color = green;
+                else if (units >= 245.0f && units < 248.0f)
+                    color = red;
+                else if (units >= 248.0f)
+                    color = golden;
+            }
+            else
+            {
+                jump = simplifyNames ? "JB" : "Jump bug";
+                if (units < 260.0f)
+                    color = white;
+                else if (units >= 260.0f && units < 265.0f)
+                    color = violet;
+                else if (units >= 265.0f && units < 270.0f)
+                    color = green;
+                else if (units >= 270.0f && units < 273.0f)
+                    color = red;
+                else if (units >= 273.0f)
+                    color = golden;
+            }
+            break;
+        case 2:
+            jump = simplifyNames ? "BH" : "Bunnyhop";
             if (units < 230.0f)
                 color = white;
             else if (units >= 230.0f && units < 233.0f)
@@ -146,168 +139,224 @@ bool Misc::JumpStatsCalculations::show() noexcept
                 color = red;
             else if (units >= 240.0f)
                 color = golden;
+            break;
+        default:
+            if (jumps >= 3)
+            {
+                jump = simplifyNames ? "MBH" : "Multi Bunnyhop";
+                if (units < 230.0f)
+                    color = white;
+                else if (units >= 230.0f && units < 233.0f)
+                    color = violet;
+                else if (units >= 233.0f && units < 235.0f)
+                    color = green;
+                else if (units >= 235.0f && units < 240.0f)
+                    color = red;
+                else if (units >= 240.0f)
+                    color = golden;
+            }
+            break;
         }
-        break;
-    }
 
-    if (isLadderJump)
-    {
-        jump = simplifyNames ? "LAJ" : "Ladder jump";
-        if (units < 80.0f)
+        if (isLadderJump)
+        {
+            jump = simplifyNames ? "LAJ" : "Ladder jump";
+            if (units < 80.0f)
+                color = white;
+            else if (units >= 80.0f && units < 90.0f)
+                color = violet;
+            else if (units >= 90.0f && units < 105.0f)
+                color = green;
+            else if (units >= 105.0f && units < 109.0f)
+                color = red;
+            else if (units >= 109.0f)
+                color = golden;
+        }
+
+        if (!config->misc.jumpStats.showColorOnFail && fail)
             color = white;
-        else if (units >= 80.0f && units < 90.0f)
-            color = violet;
-        else if (units >= 90.0f && units < 105.0f)
-            color = green;
-        else if (units >= 105.0f && units < 109.0f)
-            color = red;
-        else if (units >= 109.0f)
-            color = golden;
-    }
 
-    if (!config->misc.jumpStats.showColorOnFail && fail)
-        color = white;
+        if (fail)
+            jump += simplifyNames ? "-F" : " Failed";
 
-    if (fail)
-        jump += simplifyNames ? "-F" : " Failed";
-
-    const bool show = (isLadderJump ? units >= 50.0f : units >= 186.0f) && (!(!config->misc.jumpStats.showFails && fail) || (config->misc.jumpStats.showFails));
-    if (show && config->misc.jumpStats.enabled)
-    {
-        //Certain characters are censured on printf
-        if (jumps > 2)
-            memory->clientMode->getHudChat()->printf(0,
-                " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
-                color, jump.c_str(),
-                jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.jumps, jumpStatsCalculations.sync);
-        else
-            memory->clientMode->getHudChat()->printf(0,
-                " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%.0f\x01 Sync]",
-                color, jump.c_str(),
-                jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.sync);
-    }
-
-    shouldShow = false;
-    return true;
-}
-
-void Misc::JumpStatsCalculations::run(UserCmd* cmd) noexcept
-{
-    velocity = localPlayer->velocity().length2D();
-    origin = localPlayer->getAbsOrigin();
-    onGround = localPlayer->flags() & 1;
-    onLadder = localPlayer->moveType() == MoveType::LADDER;
-    jumping = cmd->buttons & UserCmd::IN_JUMP && !(lastButtons & UserCmd::IN_JUMP) && onGround;
-    jumpbugged = !jumpped && hasJumped;
-
-    //We jumped so we should show this jump
-    if (jumping || jumpbugged)
-        shouldShow = true;
-
-    if (onLadder)
-    {
-        startPosition = origin;
-        pre = velocity;
-        startedOnLadder = true;
-    }
-
-    if (onGround)
-    {
-        if (!onLadder)
+        const bool show = (isLadderJump ? units >= 50.0f : units >= 186.0f) && (!(!config->misc.jumpStats.showFails && fail) || (config->misc.jumpStats.showFails));
+        if (show && config->misc.jumpStats.enabled)
         {
-            if (jumping)
-            {
-                //We save pre velocity and the starting position
-                startPosition = origin;
-                pre = velocity;
-                jumps++;
-                startedOnLadder = false;
-                isLadderJump = false;
-            }
+            //Certain characters are censured on printf
+            if (jumps > 2)
+                memory->clientMode->getHudChat()->printf(0,
+                    " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
+                    color, jump.c_str(),
+                    jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.jumps, jumpStatsCalculations.sync);
             else
-            {
-                landingPosition = origin;
-                //We reset our jumps after logging them, and incase we do log our jumps and need to reset anyways we do this
-                if (!shouldShow)
-                    jumps = 0;
+                memory->clientMode->getHudChat()->printf(0,
+                    " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%.0f\x01 Sync]",
+                    color, jump.c_str(),
+                    jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.sync);
+        }
 
-                if (startedOnLadder)
+        shouldShow = false;
+        return true;
+    }
+
+    void run(UserCmd* cmd) noexcept
+    {
+        velocity = localPlayer->velocity().length2D();
+        origin = localPlayer->getAbsOrigin();
+        onGround = localPlayer->flags() & 1;
+        onLadder = localPlayer->moveType() == MoveType::LADDER;
+        jumping = cmd->buttons & UserCmd::IN_JUMP && !(lastButtons & UserCmd::IN_JUMP) && onGround;
+        jumpbugged = !jumpped && hasJumped;
+
+        //We jumped so we should show this jump
+        if (jumping || jumpbugged)
+            shouldShow = true;
+
+        if (onLadder)
+        {
+            startPosition = origin;
+            pre = velocity;
+            startedOnLadder = true;
+        }
+
+        if (onGround)
+        {
+            if (!onLadder)
+            {
+                if (jumping)
                 {
-                    isLadderJump = true;
-                    shouldShow = true;
+                    //We save pre velocity and the starting position
+                    startPosition = origin;
+                    pre = velocity;
+                    jumps++;
+                    startedOnLadder = false;
+                    isLadderJump = false;
                 }
-                startedOnLadder = false;
+                else
+                {
+                    landingPosition = origin;
+                    //We reset our jumps after logging them, and incase we do log our jumps and need to reset anyways we do this
+                    if (!shouldShow)
+                        jumps = 0;
+
+                    if (startedOnLadder)
+                    {
+                        isLadderJump = true;
+                        shouldShow = true;
+                    }
+                    startedOnLadder = false;
+                }
             }
+
+            //Calculate sync
+            if (ticksInAir > 0 && !jumping)
+                sync = (static_cast<float>(ticksSynced) / static_cast<float>(ticksInAir)) * 100.0f;
+
+            //Reset both counters used for calculating sync
+            ticksInAir = 0;
+            ticksSynced = 0;
         }
-
-        //Calculate sync
-        if (ticksInAir > 0 && !jumping)
-            sync = (static_cast<float>(ticksSynced) / static_cast<float>(ticksInAir)) * 100.0f;
-
-        //Reset both counters used for calculating sync
-        ticksInAir = 0;
-        ticksSynced = 0;
-    }
-    else if (!onGround && !onLadder)
-    {
-        if (jumpbugged)
+        else if (!onGround && !onLadder)
         {
-            if (oldOrigin.notNull())
-                startPosition = oldOrigin;
-            pre = oldVelocity;
-            jumps = 1;
-            isJumpbug = true;
-            jumpbugged = false;
+            if (jumpbugged)
+            {
+                if (oldOrigin.notNull())
+                    startPosition = oldOrigin;
+                pre = oldVelocity;
+                jumps = 1;
+                isJumpbug = true;
+                jumpbugged = false;
+            }
+            //Check for strafes
+            if (cmd->mousedx != 0 && cmd->sidemove != 0.0f)
+            {
+                if (cmd->mousedx > 0 && lastMousedx <= 0.0f && cmd->sidemove > 0.0f)
+                {
+                    strafes++;
+                }
+                if (cmd->mousedx < 0 && lastMousedx >= 0.0f && cmd->sidemove < 0.0f)
+                {
+                    strafes++;
+                }
+            }
+
+            //If we gain velocity, we gain more sync
+            if (oldVelocity != 0.0f)
+            {
+                float deltaSpeed = velocity - oldVelocity;
+                bool gained = deltaSpeed > 0.000001f;
+                bool lost = deltaSpeed < -0.000001f;
+                if (gained)
+                {
+                    ticksSynced++;
+                }
+            }
+
+            //Get max height and max velocity
+            maxHeight = max(fabsf(startPosition.z - origin.z), maxHeight);
+            maxVelocity = max(velocity, maxVelocity);
+
+            ticksInAir++; //We are in air
+            sync = 0; //We dont calculate sync yet
         }
-        //Check for strafes
-        if (cmd->mousedx != 0 && cmd->sidemove != 0.0f)
+
+        lastMousedx = cmd->mousedx;
+        lastOnGround = onGround;
+        lastButtons = cmd->buttons;
+        oldVelocity = velocity;
+        oldOrigin = origin;
+        jumpped = jumping;
+        hasJumped = false;
+
+        if (show())
+            resetStats();
+
+        if (onGround && !onLadder)
         {
-            if (cmd->mousedx > 0 && lastMousedx <= 0.0f && cmd->sidemove > 0.0f)
-            {
-                strafes++;
-            }
-            if (cmd->mousedx < 0 && lastMousedx >= 0.0f && cmd->sidemove < 0.0f)
-            {
-                strafes++;
-            }
+            isJumpbug = false;
         }
-
-        //If we gain velocity, we gain more sync
-        if (oldVelocity != 0.0f)
-        {
-            float deltaSpeed = velocity - oldVelocity;
-            bool gained = deltaSpeed > 0.000001f;
-            bool lost = deltaSpeed < -0.000001f;
-            if (gained)
-            {
-                ticksSynced++;
-            }
-        }
-
-        //Get max height and max velocity
-        maxHeight = max(fabsf(startPosition.z - origin.z), maxHeight);
-        maxVelocity = max(velocity, maxVelocity);
-
-        ticksInAir++; //We are in air
-        sync = 0; //We dont calculate sync yet
+        isLadderJump = false;
     }
 
-    lastMousedx = cmd->mousedx;
-    lastOnGround = onGround;
-    lastButtons = cmd->buttons;
-    oldVelocity = velocity;
-    oldOrigin = origin;
-    jumpped = jumping;
-    hasJumped = false;
+    //Last values
+    short lastMousedx{ 0 };
+    bool lastOnGround{ false };
+    int lastButtons{ 0 };
+    float oldVelocity{ 0.0f };
+    bool jumpped{ false };
+    Vector oldOrigin{ };
+    Vector startPosition{ };
 
-    if (show())
-        resetStats();
+    //Current values
+    float velocity{ 0.0f };
+    bool onLadder{ false };
+    bool onGround{ false };
+    bool jumping{ false };
+    bool jumpbugged{ false };
+    bool isJumpbug{ false };
+    bool hasJumped{ false };
+    bool startedOnLadder{ false };
+    bool isLadderJump{ false };
+    bool shouldShow{ false };
+    int jumps{ 0 };
+    Vector origin{ };
+    Vector landingPosition{ };
+    int ticksInAir{ 0 };
+    int ticksSynced{ 0 };
 
-    if (onGround && !onLadder)
-    {
-        isJumpbug = false;
-    }
-    isLadderJump = false;
+    //Final values
+    float units{ 0.0f };
+    int strafes{ 0 };
+    float pre{ 0.0f };
+    float maxVelocity{ 0.0f };
+    float maxHeight{ 0.0f };
+    int bhops{ 0 };
+    float sync{ 0.0f };
+} jumpStatsCalculations;
+
+void Misc::gotJump() noexcept
+{
+    jumpStatsCalculations.hasJumped = true;
 }
 
 void Misc::jumpStats(UserCmd* cmd) noexcept

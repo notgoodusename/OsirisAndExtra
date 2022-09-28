@@ -743,7 +743,7 @@ static void __stdcall onJump(float stamina) noexcept
     if (counter % 2 == 0 && counter != 0)
     {
         counter = 0;
-        Misc::jumpStatsCalculations.hasJumped = true;
+        Misc::gotJump();
     }
 
     if (localPlayer && localPlayer->isAlive() && localPlayer->getAnimstate())

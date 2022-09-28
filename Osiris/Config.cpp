@@ -529,6 +529,14 @@ static void from_json(const json& j, Config::Misc::PlayerList& o)
     read<value_t::object>(j, "Pos", o.pos);
 }
 
+static void from_json(const json& j, Config::Misc::JumpStats& js)
+{
+    read(j, "Enabled", js.enabled);
+    read(j, "Show fails", js.showFails);
+    read(j, "Show color on fail", js.showColorOnFail);
+    read(j, "Simplify naming", js.simplifyNaming);
+}
+
 static void from_json(const json& j, Config::Misc::Watermark& o)
 {
     read(j, "Enabled", o.enabled);
@@ -649,6 +657,7 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Spectator list", m.spectatorList);
     read<value_t::object>(j, "Keybind list", m.keybindList);
     read<value_t::object>(j, "Player list", m.playerList);
+    read<value_t::object>(j, "Jump stats", m.jumpStats);
     read<value_t::object>(j, "Watermark", m.watermark);
     read<value_t::object>(j, "Offscreen Enemies", m.offscreenEnemies);
     read(j, "Disable model occlusion", m.disableModelOcclusion);
@@ -1125,6 +1134,14 @@ static void to_json(json& j, const Config::Misc::PlayerList& o, const Config::Mi
     }
 }
 
+static void to_json(json& j, const Config::Misc::JumpStats& o, const Config::Misc::JumpStats& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Show fails", showFails);
+    WRITE("Show color on fail", showColorOnFail);
+    WRITE("Simplify naming", simplifyNaming);
+}
+
 static void to_json(json& j, const Config::Misc::Watermark& o, const Config::Misc::Watermark& dummy = {})
 {
     WRITE("Enabled", enabled);
@@ -1253,6 +1270,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Spectator list", spectatorList);
     WRITE("Keybind list", keybindList);
     WRITE("Player list", playerList);
+    WRITE("Jump stats", jumpStats);
     WRITE("Watermark", watermark);
     WRITE("Offscreen Enemies", offscreenEnemies);
     WRITE("Disable model occlusion", disableModelOcclusion);

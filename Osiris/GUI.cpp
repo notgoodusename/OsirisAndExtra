@@ -1766,6 +1766,21 @@ void GUI::renderMiscWindow() noexcept
     }
     ImGui::PopID();
 
+    ImGui::PushID("Jump stats");
+    ImGui::Checkbox("Jump stats", &config->misc.jumpStats.enabled);
+    ImGui::SameLine();
+
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::Checkbox("Show fails", &config->misc.jumpStats.showFails);
+        ImGui::Checkbox("Show color on fails", &config->misc.jumpStats.showColorOnFail);
+        ImGui::Checkbox("Simplify naming", &config->misc.jumpStats.simplifyNaming);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     ImGui::Checkbox("Watermark", &config->misc.watermark.enabled);
     ImGuiCustom::colorPicker("Offscreen Enemies", config->misc.offscreenEnemies, &config->misc.offscreenEnemies.enabled);
     ImGui::SameLine();

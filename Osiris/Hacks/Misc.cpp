@@ -80,7 +80,7 @@ bool Misc::JumpStatsCalculations::show() noexcept
 
     const float z = fabsf(startPosition.z - landingPosition.z) - (isJumpbug ? 9.0f : 0.0f);
     const bool fail = z >= (isLadderJump ? 32.0f : (jumps > 0 ? (jumps > 1 ? 46.0f : 2.0f) : 46.0f));
-    const bool simplifyNames = true;
+    const bool simplifyNames = config->misc.jumpStats.simplifyNaming;
 
     std::string jump = "null";
 
@@ -165,14 +165,14 @@ bool Misc::JumpStatsCalculations::show() noexcept
             color = golden;
     }
 
-    if (true && fail)
+    if (!config->misc.jumpStats.showColorOnFail && fail)
         color = white;
 
     if (fail)
         jump += simplifyNames ? "-F" : " Failed";
 
-    const bool show = isLadderJump ? units >= 50.0f : units >= 186.0f;
-    if (show)
+    const bool show = (isLadderJump ? units >= 50.0f : units >= 186.0f) && (!(!config->misc.jumpStats.showFails && fail) || (config->misc.jumpStats.showFails));
+    if (show && config->misc.jumpStats.enabled)
     {
         //Certain characters are censured on printf
         if (jumps > 2)

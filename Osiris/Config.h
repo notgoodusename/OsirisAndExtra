@@ -434,6 +434,13 @@ public:
         PlayerList playerList;
         OffscreenEnemies offscreenEnemies;
         AutoBuy autoBuy;
+
+        struct JumpStats {
+            bool enabled = false;
+            bool showFails = true;
+            bool showColorOnFail = false;
+            bool simplifyNaming = false;
+        } jumpStats;
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

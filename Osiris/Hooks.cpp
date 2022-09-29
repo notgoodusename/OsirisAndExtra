@@ -1331,8 +1331,9 @@ static void __fastcall updateFlashBangEffectHook(void* thisPointer, void* edx) n
 
 static void __fastcall processMovement(void* thisPointer, void* edx, Entity* player, MoveData* moveData) noexcept
 {
+    static auto original = hooks->gameMovement.getOriginal<void, 1>(player, moveData);
     moveData->gameCodeMovedPlayer = false;
-    return hooks->gameMovement.callOriginal<void, 1>(thisPointer, player, moveData);
+    return original(thisPointer, player, moveData);
 }
 
 static bool __fastcall traceFilterForHeadCollisionHook(void* thisPointer, void* edx, Entity* player, unsigned int traceParams) noexcept

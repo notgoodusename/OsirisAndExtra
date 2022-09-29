@@ -141,13 +141,20 @@ public:
         VIRTUAL_METHOD(Team, getTeamNumber, 88, (), (this))
         VIRTUAL_METHOD(int, health, 122, (), (this))
         VIRTUAL_METHOD(int, maxHealth, 123, (), (this))
+        VIRTUAL_METHOD(void, think, 138, (), (this))
         VIRTUAL_METHOD(bool, isAlive, 156, (), (this))
         VIRTUAL_METHOD(bool, isPlayer, 158, (), (this))
         VIRTUAL_METHOD(bool, isWeapon, 166, (), (this))
+        VIRTUAL_METHOD(void, setSequence, 219, (int sequence), (this, sequence))
+        VIRTUAL_METHOD(void, studioFrameAdvance, 220, (), (this))
+        VIRTUAL_METHOD(float, getLayerSequenceCycleRate, 223, (AnimationLayer* layer, int sequence), (this, layer, sequence))
+        VIRTUAL_METHOD(void, updateClientSideAnimation, 224, (), (this))
         VIRTUAL_METHOD(Entity*, getActiveWeapon, 268, (), (this))
         VIRTUAL_METHOD(int, getWeaponSubType, 282, (), (this))
         VIRTUAL_METHOD(ObsMode, getObserverMode, 294, (), (this))
         VIRTUAL_METHOD(Entity*, getObserverTarget, 295, (), (this))
+        VIRTUAL_METHOD(void, preThink, 318, (), (this))
+        VIRTUAL_METHOD(void, updateCollisionBounds, 340, (), (this))
         VIRTUAL_METHOD(float, getMaxSpeed, 442, (), (this))
         VIRTUAL_METHOD(WeaponType, getWeaponType, 455, (), (this))
         VIRTUAL_METHOD(WeaponInfo*, getWeaponData, 461, (), (this))
@@ -156,8 +163,6 @@ public:
         VIRTUAL_METHOD(float, getInaccuracy, 483, (), (this))
         VIRTUAL_METHOD(float, getSpread, 453, (), (this))
         VIRTUAL_METHOD(void, updateAccuracyPenalty, 484, (), (this))
-        VIRTUAL_METHOD(float, getLayerSequenceCycleRate, 223, (AnimationLayer* layer, int sequence), (this, layer, sequence))
-        VIRTUAL_METHOD(void, updateClientSideAnimation, 224, (), (this))
 
     float sequenceDuration(int sequence) noexcept
     {
@@ -570,15 +575,106 @@ public:
     bool canSee(Entity* other, const Vector& pos) noexcept;
     bool visibleTo(Entity* other) noexcept;
 
-    NETVAR(didSmokeEffect, "CSmokeGrenadeProjectile", "m_bDidSmokeEffect", bool)
+    int& getButtons() noexcept
+    {
+        static auto buttons = DataMap::findInDataMap(getPredDescMap(), "m_nButtons");
+        return *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + buttons);
+    }
 
-    NETVAR(clientSideAnimation, "CBaseAnimating", "m_bClientSideAnimation", bool)
+    int& getButtonLast() noexcept
+    {
+        static auto buttonLast = DataMap::findInDataMap(getPredDescMap(), "m_afButtonLast");
+        return *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + buttonLast);
+    }
+
+    int& getButtonPressed() noexcept
+    {
+        static auto buttonPressed = DataMap::findInDataMap(getPredDescMap(), "m_afButtonPressed");
+        return *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + buttonPressed);
+    }
+
+    int& getButtonReleased() noexcept
+    {
+        static auto buttonReleased = DataMap::findInDataMap(getPredDescMap(), "m_afButtonReleased");
+        return *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + buttonReleased);
+    }
+
+    bool physicsRunThink(int thinkMethod = 0) noexcept
+    {
+        return memory->physicsRunThink(this, thinkMethod);
+    }
+
+    void updateButtonState(int userCmdButtonMask) noexcept
+    {
+        getButtonLast() = getButtons();
+
+        getButtons() = userCmdButtonMask;
+        const int buttonsChanged = getButtonLast() ^ getButtons();
+
+        getButtonPressed() = buttonsChanged & getButtons();
+        getButtonReleased() = buttonsChanged & (~getButtons());
+
+    }
+
+    void checkHasThinkFunction(bool isThinking = false) noexcept
+    {
+        return memory->checkHasThinkFunction(this, isThinking);
+    }
+
+    void runPreThink() noexcept
+    {
+        if (physicsRunThink())
+            preThink();
+    }
+
+    void runThink() noexcept
+    {
+        const auto nextThinkTick = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(this) + 0xFC);
+        if (nextThinkTick != -1 &&
+            nextThinkTick > 0 &&
+            nextThinkTick <= tickBase())
+        {
+            *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(this) + 0xFC) = 1; //m_nNextThinkTick = 1
+
+            checkHasThinkFunction();
+            think();
+        }
+
+    }
+
+    void runPostThink() noexcept
+    {
+        //We have to rebuild postThink because we dont want to mess with weapons
+        interfaces->mdlCache->beginLock();
+
+        if (isAlive())
+        {
+            updateCollisionBounds();
+
+            if (flags() & 1)
+                fallVelocity() = 0.0f;
+
+            if (sequence() == -1)
+                setSequence(0);
+
+            studioFrameAdvance();
+            memory->postThinkVPhysics(this);
+        }
+
+        memory->simulatePlayerSimulatedEntities(this);
+
+        interfaces->mdlCache->endLock();
+    }
+
+    NETVAR(didSmokeEffect, "CSmokeGrenadeProjectile", "m_bDidSmokeEffect", bool)
 
     NETVAR(pinPulled, "CBaseCSGrenade", "m_bPinPulled", bool);
     NETVAR(throwTime, "CBaseCSGrenade", "m_fThrowTime", float_t);
 
     NETVAR(body, "CBaseAnimating", "m_nBody", int)
+    NETVAR(clientSideAnimation, "CBaseAnimating", "m_bClientSideAnimation", bool)
     NETVAR(hitboxSet, "CBaseAnimating", "m_nHitboxSet", int)
+    NETVAR(sequence, "CBaseAnimating", "m_nSequence", int)
 
     NETVAR(modelIndex, "CBaseEntity", "m_nModelIndex", unsigned)
     NETVAR(origin, "CBaseEntity", "m_vecOrigin", Vector)

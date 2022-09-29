@@ -222,6 +222,12 @@ Memory::Memory() noexcept
     updateFlashBangEffect = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x55\x04\x56\x8B\xF1\x57\x8D\x8E????");
     writeUsercmd = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x51\x53\x56\x8B\xD9\x8B\x0D");
     reevauluateAnimLODAddress = relativeToAbsolute<decltype(reevauluateAnimLODAddress)>(findPattern(CLIENT_DLL, "\xE8????\x8B\xCE\xE8????\x8B\x8F????") + 0x2B);
+    physicsRunThink = reinterpret_cast<decltype(physicsRunThink)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\x8B\xF9\x8B\x87"));
+    checkHasThinkFunction = reinterpret_cast<decltype(checkHasThinkFunction)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x57\x8B\xF9\x8B\xB7????\x8B\xC6\xC1\xE8"));
+    postThinkVPhysics = reinterpret_cast<decltype(postThinkVPhysics)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x53\x8B\xD9\x56\x57\x83\xBB?????\x0F\x84"));
+    simulatePlayerSimulatedEntities = reinterpret_cast<decltype(simulatePlayerSimulatedEntities)>(findPattern(CLIENT_DLL, "\x56\x8B\xF1\x57\x8B\xBE????\x83\xEF\x01\x78\x74"));
+
+    predictionPlayer = *reinterpret_cast<int**>(findPattern(CLIENT_DLL, "\x89\x35????\xF3\x0F\x10\x48") + 0x2);
 
     newFunctionClientDLL = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");
     newFunctionEngineDLL = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x56\x8B\xF1\x33\xC0\x57\x8B\x7D\x08");

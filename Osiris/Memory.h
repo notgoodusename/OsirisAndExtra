@@ -200,6 +200,11 @@ public:
     std::uintptr_t updateFlashBangEffect;
     std::uintptr_t writeUsercmd;
     void* reevauluateAnimLODAddress;
+    bool(__thiscall* physicsRunThink)(void*, int);
+    void(__thiscall* checkHasThinkFunction)(void*, bool);
+    bool(__thiscall* postThinkVPhysics)(void*);
+    void(__thiscall* simulatePlayerSimulatedEntities)(void*);
+    int* predictionPlayer;
 
     std::uintptr_t newFunctionClientDLL;
     std::uintptr_t newFunctionEngineDLL;

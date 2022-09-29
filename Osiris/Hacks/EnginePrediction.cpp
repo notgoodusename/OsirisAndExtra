@@ -49,26 +49,55 @@ void EnginePrediction::run(UserCmd* cmd) noexcept
     localPlayerVelocity = localPlayer->velocity();
 
     *memory->predictionRandomSeed = 0;
+    *memory->predictionPlayer = reinterpret_cast<int>(localPlayer.get());
 
     const auto oldCurrenttime = memory->globalVars->currenttime;
     const auto oldFrametime = memory->globalVars->frametime;
+    const auto oldIsFirstTimePredicted = interfaces->prediction->isFirstTimePredicted;
+    const auto oldInPrediction = interfaces->prediction->inPrediction;
 
     memory->globalVars->currenttime = memory->globalVars->serverTime();
-    memory->globalVars->frametime = memory->globalVars->intervalPerTick;
+    memory->globalVars->frametime = interfaces->prediction->enginePaused ? 0 : memory->globalVars->intervalPerTick;
+    interfaces->prediction->isFirstTimePredicted = false;
+    interfaces->prediction->inPrediction = true;
+
+    if (cmd->impulse)
+        *reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(localPlayer.get()) + 0x320C) = cmd->impulse;
+
+    cmd->buttons |= *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(localPlayer.get()) + 0x3344);
+    cmd->buttons &= ~(*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(localPlayer.get()) + 0x3340));
+
+    localPlayer->updateButtonState(cmd->buttons);
+
+    interfaces->gameMovement->startTrackPredictionErrors(localPlayer.get());
+
+    interfaces->prediction->checkMovingGround(localPlayer.get(), memory->globalVars->frametime);
+
+    localPlayer->runPreThink();
+    localPlayer->runThink();
 
     memory->moveHelper->setHost(localPlayer.get());
     interfaces->prediction->setupMove(localPlayer.get(), cmd, memory->moveHelper, memory->moveData);
     interfaces->gameMovement->processMovement(localPlayer.get(), memory->moveData);
     interfaces->prediction->finishMove(localPlayer.get(), cmd, memory->moveData);
+    memory->moveHelper->processImpacts();
 
-    inPrediction = false;
+    localPlayer->runPostThink();
 
+    interfaces->gameMovement->finishTrackPredictionErrors(localPlayer.get());
     memory->moveHelper->setHost(nullptr);
+    interfaces->gameMovement->reset();
 
     *memory->predictionRandomSeed = -1;
+    *memory->predictionPlayer = 0;
 
     memory->globalVars->currenttime = oldCurrenttime;
     memory->globalVars->frametime = oldFrametime;
+
+    interfaces->prediction->isFirstTimePredicted = oldIsFirstTimePredicted;
+    interfaces->prediction->inPrediction = oldInPrediction;
+
+    inPrediction = false;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();
     if (!activeWeapon || activeWeapon->isGrenade() || activeWeapon->isKnife())

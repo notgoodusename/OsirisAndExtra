@@ -155,7 +155,11 @@ void Misc::drawVelocity(ImDrawList* drawList) noexcept
     if (!config->misc.velocity.enabled)
         return;
 
-    if (!localPlayer || !localPlayer->isAlive())
+    if (!localPlayer)
+        return;
+
+    const auto entity = localPlayer->isAlive() ? localPlayer.get() : localPlayer->getObserverTarget();
+    if (!entity)
         return;
 
     int screenSizeX, screenSizeY;
@@ -166,11 +170,11 @@ void Misc::drawVelocity(ImDrawList* drawList) noexcept
     static float takeOffTime = 0.f;
 
     static auto lastVelocity = 0;
-    const auto velocity = static_cast<int>(round(localPlayer->velocity().length2D()));
+    const auto velocity = static_cast<int>(round(entity->velocity().length2D()));
 
     static auto takeOffVelocity = 0;
     static bool lastOnGround = true;
-    const bool onGround = localPlayer->flags() & 1;
+    const bool onGround = entity->flags() & 1;
     if (lastOnGround && !onGround)
     {
         takeOffVelocity = velocity;

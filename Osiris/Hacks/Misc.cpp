@@ -103,27 +103,27 @@ public:
                 jump = simplifyNames ? "LJ" : "Long jump";
                 if (units < 230.0f)
                     color = white;
-                else if (units >= 235.0f && units < 240.0f)
+                else if (units >= 230.0f && units < 235.0f)
                     color = violet;
-                else if (units >= 240.0f && units < 245.0f)
+                else if (units >= 235.0f && units < 238.0f)
                     color = green;
-                else if (units >= 245.0f && units < 248.0f)
+                else if (units >= 238.0f && units < 240.0f)
                     color = red;
-                else if (units >= 248.0f)
+                else if (units >= 240.0f)
                     color = golden;
             }
             else
             {
                 jump = simplifyNames ? "JB" : "Jump bug";
-                if (units < 260.0f)
+                if (units < 250.0f)
                     color = white;
-                else if (units >= 260.0f && units < 265.0f)
+                else if (units >= 250.0f && units < 260.0f)
                     color = violet;
-                else if (units >= 265.0f && units < 270.0f)
+                else if (units >= 260.0f && units < 265.0f)
                     color = green;
-                else if (units >= 270.0f && units < 273.0f)
+                else if (units >= 265.0f && units < 270.0f)
                     color = red;
-                else if (units >= 273.0f)
+                else if (units >= 270.0f)
                     color = golden;
             }
             break;
@@ -201,6 +201,13 @@ public:
 
     void run(UserCmd* cmd) noexcept
     {
+        if (localPlayer->moveType() == MoveType::NOCLIP)
+        {
+            resetStats();
+            shouldShow = false;
+            return;
+        }
+
         velocity = localPlayer->velocity().length2D();
         origin = localPlayer->getAbsOrigin();
         onGround = localPlayer->flags() & 1;

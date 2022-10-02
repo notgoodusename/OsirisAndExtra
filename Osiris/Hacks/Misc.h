@@ -14,6 +14,10 @@ struct ViewSetup;
 namespace Misc
 {
     bool isInChat() noexcept;
+    void gatherDataOnTick(UserCmd* cmd) noexcept;
+    void handleKeyEvent(int keynum, const char* currentBinding) noexcept;
+    void drawKeyDisplay(ImDrawList* drawList) noexcept;
+    void drawVelocity(ImDrawList* drawList) noexcept;
     void gotJump() noexcept;
     void jumpStats(UserCmd* cmd) noexcept;
     void edgeBug(UserCmd* cmd, Vector& angView) noexcept;

@@ -76,6 +76,10 @@ GUI::GUI() noexcept
         if (!fonts.tahoma34)
             io.Fonts->AddFontDefault(&cfg);
 
+        fonts.tahoma28 = io.Fonts->AddFontFromFileTTF((path / "tahomabd.ttf").string().c_str(), 28.0f, &cfg, Helpers::getFontGlyphRanges());
+        if (!fonts.tahoma28)
+            io.Fonts->AddFontDefault(&cfg);
+
         cfg.MergeMode = true;
         static constexpr ImWchar symbol[]{
             0x2605, 0x2605, // ★
@@ -86,6 +90,8 @@ GUI::GUI() noexcept
     }
 
     if (!fonts.normal15px)
+        io.Fonts->AddFontDefault(&cfg);
+    if (!fonts.tahoma28)
         io.Fonts->AddFontDefault(&cfg);
     if (!fonts.tahoma34)
         io.Fonts->AddFontDefault(&cfg);
@@ -124,6 +130,11 @@ static void hotkey3(const char* label, KeyBind& key, float samelineOffset = 0.0f
     }
 
     ImGui::PopID();
+}
+
+ImFont* GUI::getTahoma28Font() const noexcept
+{
+    return fonts.tahoma28;
 }
 
 ImFont* GUI::getUnicodeFont() const noexcept
@@ -1693,6 +1704,37 @@ void GUI::renderMiscWindow() noexcept
     ImGui::PushID("Jump Bug Key");
     ImGui::hotkey2("", config->misc.jumpBugKey);
     ImGui::PopID();
+
+    ImGui::Checkbox("Draw velocity", &config->misc.velocity.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Draw velocity");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::SliderFloat("Position", &config->misc.velocity.position, 0.0f, 1.0f);
+        ImGui::SliderFloat("Alpha", &config->misc.velocity.alpha, 0.0f, 1.0f);
+        ImGuiCustom::colorPicker("Force color", config->misc.velocity.color.color.data(), nullptr, &config->misc.velocity.color.rainbow, &config->misc.velocity.color.rainbowSpeed, &config->misc.velocity.color.enabled);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
+    ImGui::Checkbox("Keyboard display", &config->misc.keyBoardDisplay.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Keyboard display");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::SliderFloat("Position", &config->misc.keyBoardDisplay.position, 0.0f, 1.0f);
+        ImGui::Checkbox("Show key tiles", &config->misc.keyBoardDisplay.showKeyTiles);
+        ImGuiCustom::colorPicker("Color", config->misc.keyBoardDisplay.color);
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     ImGui::Checkbox("Slowwalk", &config->misc.slowwalk);
     ImGui::SameLine();
     ImGui::PushID("Slowwalk Key");

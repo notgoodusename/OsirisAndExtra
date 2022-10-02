@@ -9,6 +9,7 @@ class GUI {
 public:
     GUI() noexcept;
     void render() noexcept;
+    ImFont* getTahoma28Font() const noexcept;
     ImFont* getUnicodeFont() const noexcept;
     void handleToggle() noexcept;
     bool isOpen() noexcept { return open; }
@@ -34,6 +35,7 @@ private:
 
     struct {
         ImFont* normal15px = nullptr;
+        ImFont* tahoma28 = nullptr;
         ImFont* tahoma34 = nullptr;
         ImFont* unicodeFont = nullptr;
     } fonts;

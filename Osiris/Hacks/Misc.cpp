@@ -53,6 +53,162 @@ bool Misc::isInChat() noexcept
 
     return isInChat;
 }
+
+std::string currentForwardKey = "";
+std::string currentBackKey = "";
+std::string currentRightKey = "";
+std::string currentLeftKey = "";
+int currentButtons = 0;
+
+void Misc::gatherDataOnTick(UserCmd* cmd) noexcept
+{
+    currentButtons = cmd->buttons;
+}
+
+void Misc::handleKeyEvent(int keynum, const char* currentBinding) noexcept
+{
+    if (!currentBinding || keynum <= 0 || keynum >= ARRAYSIZE(ButtonCodes))
+        return;
+
+    const auto buttonName = ButtonCodes[keynum];
+
+    switch (fnv::hash(currentBinding))
+    {
+    case fnv::hash("+forward"):
+        currentForwardKey = std::string(buttonName);
+        break;
+    case fnv::hash("+back"):
+        currentBackKey = std::string(buttonName);
+        break;
+    case fnv::hash("+moveright"):
+        currentRightKey = std::string(buttonName);
+        break;
+    case fnv::hash("+moveleft"):
+        currentLeftKey = std::string(buttonName);
+        break;
+    default:
+        break;
+    }
+}
+
+void Misc::drawKeyDisplay(ImDrawList* drawList) noexcept
+{
+    if (!config->misc.keyBoardDisplay.enabled)
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    int screenSizeX, screenSizeY;
+    interfaces->engine->getScreenSize(screenSizeX, screenSizeY);
+    const float Ypos = static_cast<float>(screenSizeY) * config->misc.keyBoardDisplay.position;
+
+    std::string keys[3][2];
+    if (config->misc.keyBoardDisplay.showKeyTiles)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                keys[i][j] = "_";
+            }
+        }
+    }
+
+    if (currentButtons & UserCmd::IN_DUCK)
+        keys[0][0] = "C";
+    if (currentButtons & UserCmd::IN_FORWARD)
+        keys[1][0] = currentForwardKey;
+    if (currentButtons & UserCmd::IN_JUMP)
+        keys[2][0] = "J";
+    if (currentButtons & UserCmd::IN_MOVELEFT)
+        keys[0][1] = currentLeftKey;
+    if (currentButtons & UserCmd::IN_BACK)
+        keys[1][1] = currentBackKey;
+    if (currentButtons & UserCmd::IN_MOVERIGHT)
+        keys[2][1] = currentRightKey;
+
+    const float positions[3] =
+    {
+       -35.0f, 0.0f, 35.0f
+    };
+
+    ImGui::PushFont(gui->getTahoma28Font());
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            if (keys[i][j] == "")
+                continue;
+
+            const auto size = ImGui::CalcTextSize(keys[i][j].c_str());
+            drawList->AddText(ImVec2{ (static_cast<float>(screenSizeX) / 2 - size.x / 2 + positions[i]) + 1, (Ypos + (j * 25)) + 1 }, Helpers::calculateColor(Color4{ 0.0f, 0.0f, 0.0f, config->misc.keyBoardDisplay.color.color[3] }), keys[i][j].c_str());
+            drawList->AddText(ImVec2{ static_cast<float>(screenSizeX) / 2 - size.x / 2 + positions[i], Ypos + (j * 25) }, Helpers::calculateColor(config->misc.keyBoardDisplay.color), keys[i][j].c_str());
+        }
+    }
+
+    ImGui::PopFont();
+}
+
+void Misc::drawVelocity(ImDrawList* drawList) noexcept
+{
+    if (!config->misc.velocity.enabled)
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    int screenSizeX, screenSizeY;
+    interfaces->engine->getScreenSize(screenSizeX, screenSizeY);
+    const float Ypos = static_cast<float>(screenSizeY) * config->misc.velocity.position;
+
+    static float colorTime = 0.f;
+    static float takeOffTime = 0.f;
+
+    static auto lastVelocity = 0;
+    const auto velocity = static_cast<int>(round(localPlayer->velocity().length2D()));
+
+    static auto takeOffVelocity = 0;
+    static bool lastOnGround = true;
+    const bool onGround = localPlayer->flags() & 1;
+    if (lastOnGround && !onGround)
+    {
+        takeOffVelocity = velocity;
+        takeOffTime = memory->globalVars->realtime + 2.f;
+    }
+
+    const bool shouldDrawTakeOff = !onGround || (takeOffTime > memory->globalVars->realtime);
+    const std::string finalText = std::to_string(velocity);
+
+    const Color4 trueColor = config->misc.velocity.color.enabled ? Color4{ config->misc.velocity.color.color[0], config->misc.velocity.color.color[1], config->misc.velocity.color.color[2], config->misc.velocity.alpha, config->misc.velocity.color.rainbowSpeed, config->misc.velocity.color.rainbow }
+        : (velocity == lastVelocity ? Color4{ 1.0f, 0.78f, 0.34f, config->misc.velocity.alpha } : velocity < lastVelocity ? Color4{ 1.0f, 0.46f, 0.46f, config->misc.velocity.alpha } : Color4{ 0.11f, 1.0f, 0.42f, config->misc.velocity.alpha });
+
+    ImGui::PushFont(gui->getTahoma28Font());
+
+    const auto size = ImGui::CalcTextSize(finalText.c_str());
+    drawList->AddText(ImVec2{ (static_cast<float>(screenSizeX) / 2 - size.x / 2) + 1, Ypos + 1.0f }, Helpers::calculateColor(Color4{ 0.0f, 0.0f, 0.0f, config->misc.velocity.alpha }), finalText.c_str());
+    drawList->AddText(ImVec2{ static_cast<float>(screenSizeX) / 2 - size.x / 2, Ypos }, Helpers::calculateColor(trueColor), finalText.c_str());
+
+    if (shouldDrawTakeOff)
+    {
+        const std::string bottomText = "(" + std::to_string(takeOffVelocity) + ")";
+        const Color4 bottomTrueColor = config->misc.velocity.color.enabled ? Color4{ config->misc.velocity.color.color[0], config->misc.velocity.color.color[1], config->misc.velocity.color.color[2], config->misc.velocity.alpha, config->misc.velocity.color.rainbowSpeed, config->misc.velocity.color.rainbow }
+            : (takeOffVelocity <= 250.0f ? Color4{ 0.75f, 0.75f, 0.75f, config->misc.velocity.alpha } : Color4{ 0.11f, 1.0f, 0.42f, config->misc.velocity.alpha });
+        const auto bottomSize = ImGui::CalcTextSize(bottomText.c_str());
+        drawList->AddText(ImVec2{ (static_cast<float>(screenSizeX) / 2 - bottomSize.x / 2) + 1, Ypos + 20.0f + 1 }, Helpers::calculateColor(Color4{ 0.0f, 0.0f, 0.0f, config->misc.velocity.alpha }), bottomText.c_str());
+        drawList->AddText(ImVec2{ static_cast<float>(screenSizeX) / 2 - bottomSize.x / 2, Ypos + 20.0f }, Helpers::calculateColor(bottomTrueColor), bottomText.c_str());
+    }
+
+    ImGui::PopFont();
+
+    if (colorTime <= memory->globalVars->realtime)
+    {
+        colorTime = memory->globalVars->realtime + 0.1f;
+        lastVelocity = velocity;
+    }
+    lastOnGround = onGround;
+}
+
 class JumpStatsCalculations
 {
 private:

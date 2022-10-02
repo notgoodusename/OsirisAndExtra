@@ -441,6 +441,20 @@ public:
             bool showColorOnFail = false;
             bool simplifyNaming = false;
         } jumpStats;
+
+        struct Velocity {
+            bool enabled = false;
+            float position{ 0.9f };
+            float alpha{ 1.0f };
+            ColorToggle color{ 1.0f, 1.0f, 1.0f, 1.0f };
+        } velocity;
+
+        struct KeyBoardDisplay {
+            bool enabled = false;
+            float position{ 0.8f };
+            bool showKeyTiles = false;
+            Color4 color{ 1.0f, 1.0f, 1.0f, 1.0f };
+        } keyBoardDisplay;
     } misc;
 
     void scheduleFontLoad(const std::string& name) noexcept;

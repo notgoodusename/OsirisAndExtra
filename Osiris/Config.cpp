@@ -537,6 +537,22 @@ static void from_json(const json& j, Config::Misc::JumpStats& js)
     read(j, "Simplify naming", js.simplifyNaming);
 }
 
+static void from_json(const json& j, Config::Misc::Velocity& v)
+{
+    read(j, "Enabled", v.enabled);
+    read(j, "Position", v.position);
+    read(j, "Alpha", v.alpha);
+    read<value_t::object>(j, "Color", v.color);
+}
+
+static void from_json(const json& j, Config::Misc::KeyBoardDisplay& kbd)
+{
+    read(j, "Enabled", kbd.enabled);
+    read(j, "Position", kbd.position);
+    read(j, "Show key Tiles", kbd.showKeyTiles);
+    read<value_t::object>(j, "Color", kbd.color);
+}
+
 static void from_json(const json& j, Config::Misc::Watermark& o)
 {
     read(j, "Enabled", o.enabled);
@@ -637,6 +653,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Pred Amnt", m.edgebugPredAmnt);
     read(j, "Jump Bug", m.jumpBug);
     read(j, "Jump Bug Key", m.jumpBugKey);
+    read<value_t::object>(j, "Velocity", m.velocity);
+    read<value_t::object>(j, "Keyboard display", m.keyBoardDisplay);
     read(j, "Slowwalk", m.slowwalk);
     read(j, "Slowwalk key", m.slowwalkKey);
     read(j, "Slowwalk Amnt", m.slowwalkAmnt);
@@ -1142,6 +1160,22 @@ static void to_json(json& j, const Config::Misc::JumpStats& o, const Config::Mis
     WRITE("Simplify naming", simplifyNaming);
 }
 
+static void to_json(json& j, const Config::Misc::Velocity& o, const Config::Misc::Velocity& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Position", position);
+    WRITE("Alpha", alpha);
+    WRITE("Color", color);
+}
+
+static void to_json(json& j, const Config::Misc::KeyBoardDisplay& o, const Config::Misc::KeyBoardDisplay& dummy = {})
+{
+    WRITE("Enabled", enabled);
+    WRITE("Position", position);
+    WRITE("Show key Tiles", showKeyTiles);
+    WRITE("Color", color);
+}
+
 static void to_json(json& j, const Config::Misc::Watermark& o, const Config::Misc::Watermark& dummy = {})
 {
     WRITE("Enabled", enabled);
@@ -1250,6 +1284,8 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Pred Amnt", edgebugPredAmnt);
     WRITE("Jump Bug", jumpBug);
     WRITE("Jump Bug Key", jumpBugKey);
+    WRITE("Velocity", velocity);
+    WRITE("Keyboard display", keyBoardDisplay);
     WRITE("Slowwalk", slowwalk);
     WRITE("Slowwalk key", slowwalkKey);
     WRITE("Slowwalk Amnt", slowwalkAmnt);
@@ -1311,7 +1347,6 @@ static void to_json(json& j, const Config::Misc& o)
 
     if (o.clanTag[0])
         j["Name"] = o.name;
-
 }
 
 static void to_json(json& j, const Config::Visuals& o)

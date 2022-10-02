@@ -127,6 +127,8 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         Misc::watermark();
         Misc::drawAutoPeek(ImGui::GetBackgroundDrawList());
         Logger::process(ImGui::GetBackgroundDrawList());
+        Misc::drawKeyDisplay(ImGui::GetBackgroundDrawList());
+        Misc::drawVelocity(ImGui::GetBackgroundDrawList());
 
         Legitbot::updateInput();
         Visuals::updateInput();
@@ -330,6 +332,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
 
         if (localPlayer && localPlayer->isAlive())
             memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
+        Misc::gatherDataOnTick(cmd);
         Misc::jumpStats(cmd);
         Animations::update(cmd, sendPacket);
         Animations::fake();
@@ -419,6 +422,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
 
     if (localPlayer && localPlayer->isAlive())
         memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
+    Misc::gatherDataOnTick(cmd);
     Misc::jumpStats(cmd);
     Animations::update(cmd, sendPacket);
     Animations::fake();
@@ -1466,6 +1470,12 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     return Animations::getCorrectAngle();
 }
 
+static int __fastcall keyEvent(void* thisPointer, void* edx, int down, int keynum, const char* currentBinding) noexcept
+{
+    Misc::handleKeyEvent(keynum, currentBinding);
+    return hooks->clientMode.callOriginal<int, 20>(down, keynum, currentBinding);
+}
+
 void resetAll(int resetType) noexcept
 {
     Animations::reset();
@@ -1566,6 +1576,7 @@ void Hooks::install() noexcept
     clientMode.init(memory->clientMode);
     clientMode.hookAt(17, shouldDrawFog);
     clientMode.hookAt(18, overrideView);
+    clientMode.hookAt(20, keyEvent);
     clientMode.hookAt(27, shouldDrawViewModel);
     clientMode.hookAt(35, getViewModelFov);
     clientMode.hookAt(44, doPostScreenEffects);

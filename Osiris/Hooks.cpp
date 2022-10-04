@@ -798,7 +798,10 @@ static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CS
 
     const auto entity = reinterpret_cast<Entity*>(thisPointer);
     if (entity && entity->isAlive() && localPlayer && localPlayer.get() == entity && entity->getAnimstate())
+    {
         Animations::saveCorrectAngle(entity->index(), Vector{ entity->getAnimstate()->eyePitch, entity->getAnimstate()->eyeYaw, Animations::getLocalAngle()->z });
+        entity->collisionChangeTime() = 0.0f;
+    }
 
     const UtlVector<int> backupFlags = hdr->boneFlags;
     

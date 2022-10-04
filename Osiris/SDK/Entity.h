@@ -666,6 +666,8 @@ public:
         interfaces->mdlCache->endLock();
     }
 
+    NETVAR_OFFSET(collisionChangeTime, "CCSPlayer", "m_bIsScoped", -0x50, float)
+
     NETVAR(didSmokeEffect, "CSmokeGrenadeProjectile", "m_bDidSmokeEffect", bool)
 
     NETVAR(pinPulled, "CBaseCSGrenade", "m_bPinPulled", bool);

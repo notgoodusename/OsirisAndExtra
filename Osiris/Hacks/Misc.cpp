@@ -550,6 +550,84 @@ void Misc::jumpStats(UserCmd* cmd) noexcept
     once = true;
 }
 
+void Misc::miniJump(UserCmd* cmd) noexcept
+{
+    static int lockedTicks = 0;
+    if (!config->misc.miniJump || (!config->misc.miniJumpKey.isActive() && config->misc.miniJumpCrouchLock <= 0))
+    {
+        lockedTicks = 0;
+        return;
+    }
+
+    if (!localPlayer || !localPlayer->isAlive())
+    {
+        lockedTicks = 0;
+        return;
+    }
+    
+    if (localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER)
+    {
+        lockedTicks = 0;
+        return;
+    }
+
+    if (lockedTicks >= 1)
+    {
+        cmd->buttons |= UserCmd::IN_DUCK;
+        lockedTicks--;
+    }
+    
+    if ((EnginePrediction::getFlags() & 1) && !(localPlayer->flags() & 1))
+    {
+        cmd->buttons |= UserCmd::IN_JUMP;
+        cmd->buttons |= UserCmd::IN_DUCK;
+        lockedTicks = config->misc.miniJumpCrouchLock;
+    }
+}
+
+void Misc::autoPixelSurf(UserCmd* cmd) noexcept
+{
+    if (!config->misc.autoPixelSurf || !config->misc.autoPixelSurfKey.isActive())
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (EnginePrediction::getFlags() & 1)
+        return;
+    
+    if (localPlayer->moveType() == MoveType::NOCLIP || localPlayer->moveType() == MoveType::LADDER)
+        return;
+
+    //Restore before prediction
+    memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+
+    bool detectedPixelSurf = false;
+
+    for (int i = 0; i < 2; i++)
+    {
+        auto backupButtons = cmd->buttons;
+        cmd->buttons |= UserCmd::IN_DUCK;
+
+        EnginePrediction::run(cmd);
+
+        cmd->buttons = backupButtons;
+
+        detectedPixelSurf = (localPlayer->velocity().z == -6.25f || localPlayer->velocity().z == -6.f || localPlayer->velocity().z == -3.125) && !(localPlayer->flags() & 1) && localPlayer->moveType() != MoveType::LADDER;
+
+        if (detectedPixelSurf)
+            break;
+    }
+
+    if (detectedPixelSurf)
+    {
+        cmd->buttons |= UserCmd::IN_DUCK;
+    }
+
+    memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+    EnginePrediction::run(cmd);
+}
+
 bool shouldEdgebug = false;
 float zVelBackup = 0.0f;
 float bugSpeed = 0.0f;
@@ -557,7 +635,7 @@ int edgebugButtons = 0;
 
 void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
 {
-    if (!config->misc.edgebug || !config->misc.edgebugkey.isActive())
+    if (!config->misc.edgeBug || !config->misc.edgeBugKey.isActive())
         return;
 
     if (!localPlayer || !localPlayer->isAlive())
@@ -613,7 +691,7 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
         cmd->sidemove = vecMoveLastStrafe.x;
         cmd->forwardmove = vecMoveLastStrafe.y;
 
-        for (int i = 0; i < config->misc.edgebugPredAmnt; i++)
+        for (int i = 0; i < config->misc.edgeBugPredAmnt; i++)
         {
             if (applyDuck)
                 cmd->buttons |= UserCmd::IN_DUCK;
@@ -648,6 +726,8 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
                 }
                 cmd->viewangles = angCmdViewOriginal;
                 lastType = t;
+                memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+                EnginePrediction::run(cmd);
                 return;
             }
 
@@ -660,6 +740,9 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
     cmd->buttons = buttonsOriginal;
     cmd->sidemove = vecMoveOriginal.x;
     cmd->forwardmove = vecMoveOriginal.y;
+
+    memory->restoreEntityToPredictedFrame(0, interfaces->prediction->split->commandsPredicted - 1);
+    EnginePrediction::run(cmd);
 }
 
 void Misc::prePrediction(UserCmd* cmd) noexcept
@@ -1198,7 +1281,7 @@ void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept
 
 void Misc::edgejump(UserCmd* cmd) noexcept
 {
-    if (!config->misc.edgejump || !config->misc.edgejumpkey.isActive())
+    if (!config->misc.edgeJump || !config->misc.edgeJumpKey.isActive())
         return;
 
     if (!localPlayer || !localPlayer->isAlive())
@@ -1319,9 +1402,11 @@ const bool anyActiveKeybinds() noexcept
     const bool freeCam = config->visuals.freeCam && config->visuals.freeCamKey.canShowKeybind();
 
     const bool blockbot = config->misc.blockBot && config->misc.blockBotKey.canShowKeybind();
-    const bool edgejump = config->misc.edgejump && config->misc.edgejumpkey.canShowKeybind();
-    const bool edgebug = config->misc.edgebug && config->misc.edgebugkey.canShowKeybind();
+    const bool edgejump = config->misc.edgeJump && config->misc.edgeJumpKey.canShowKeybind();
+    const bool minijump = config->misc.miniJump && config->misc.miniJumpKey.canShowKeybind();
     const bool jumpBug = config->misc.jumpBug && config->misc.jumpBugKey.canShowKeybind();
+    const bool edgebug = config->misc.edgeBug && config->misc.edgeBugKey.canShowKeybind();
+    const bool autoPixelSurf = config->misc.autoPixelSurf && config->misc.autoPixelSurfKey.canShowKeybind();
     const bool slowwalk = config->misc.slowwalk && config->misc.slowwalkKey.canShowKeybind();
     const bool fakeduck = config->misc.fakeduck && config->misc.fakeduckKey.canShowKeybind();
     const bool autoPeek = config->misc.autoPeek.enabled && config->misc.autoPeekKey.canShowKeybind();
@@ -1330,7 +1415,7 @@ const bool anyActiveKeybinds() noexcept
     return rageBot || minDamageOverride || fakeAngle || antiAimManualForward || antiAimManualBackward || antiAimManualRight  || antiAimManualLeft 
         || doubletap || hideshots
         || legitAntiAim || legitBot || triggerBot || chams || glow || esp
-        || zoom || thirdperson || freeCam || blockbot || edgejump || edgebug || jumpBug || slowwalk || fakeduck || autoPeek || prepareRevolver;
+        || zoom || thirdperson || freeCam || blockbot || edgejump || minijump || jumpBug || edgebug || autoPixelSurf || slowwalk || fakeduck || autoPeek || prepareRevolver;
 }
 
 void Misc::showKeybinds() noexcept
@@ -1393,10 +1478,16 @@ void Misc::showKeybinds() noexcept
 
     if (config->misc.blockBot)
         config->misc.blockBotKey.showKeybind();
-    if (config->misc.edgejump)
-        config->misc.edgejumpkey.showKeybind();
-    if (config->misc.edgebug)
-        config->misc.edgebugkey.showKeybind();
+    if (config->misc.edgeJump)
+        config->misc.edgeJumpKey.showKeybind();
+    if (config->misc.miniJump)
+        config->misc.miniJumpKey.showKeybind();
+    if (config->misc.jumpBug)
+        config->misc.jumpBugKey.showKeybind();
+    if (config->misc.edgeBug)
+        config->misc.edgeBugKey.showKeybind();
+    if (config->misc.autoPixelSurf)
+        config->misc.autoPixelSurfKey.showKeybind();
     if (config->misc.jumpBug)
         config->misc.jumpBugKey.showKeybind();
     if (config->misc.slowwalk)
@@ -2518,9 +2609,11 @@ void Misc::updateEventListeners(bool forceRemove) noexcept
 void Misc::updateInput() noexcept
 {
     config->misc.blockBotKey.handleToggle();
-    config->misc.edgejumpkey.handleToggle();
-    config->misc.edgebugkey.handleToggle();
+    config->misc.edgeJumpKey.handleToggle();
+    config->misc.miniJumpKey.handleToggle();
     config->misc.jumpBugKey.handleToggle();
+    config->misc.edgeBugKey.handleToggle();
+    config->misc.autoPixelSurfKey.handleToggle();
     config->misc.slowwalkKey.handleToggle();
     config->misc.fakeduckKey.handleToggle();
     config->misc.autoPeekKey.handleToggle();

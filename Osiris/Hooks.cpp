@@ -302,6 +302,8 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         EnginePrediction::run(cmd);
 
         Misc::autoPeek(cmd, currentViewAngles);
+        Misc::autoPixelSurf(cmd);
+        Misc::miniJump(cmd);
         Misc::edgejump(cmd);
         Misc::autoStrafe(cmd, currentViewAngles);
         Misc::jumpBug(cmd);
@@ -375,7 +377,8 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Tickbase::end(cmd);
 
     Misc::autoPeek(cmd, currentViewAngles);
-
+    Misc::autoPixelSurf(cmd);
+    Misc::miniJump(cmd);
     Misc::edgejump(cmd);
     Misc::blockBot(cmd);
     Misc::fastPlant(cmd);

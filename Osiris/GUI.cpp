@@ -1686,23 +1686,40 @@ void GUI::renderMiscWindow() noexcept
     ImGui::hotkey2("", config->misc.blockBotKey);
     ImGui::PopID();
 
-    ImGui::Checkbox("Edge Jump", &config->misc.edgejump);
+    ImGui::Checkbox("Edge Jump", &config->misc.edgeJump);
     ImGui::SameLine();
     ImGui::PushID("Edge Jump Key");
-    ImGui::hotkey2("", config->misc.edgejumpkey);
+    ImGui::hotkey2("", config->misc.edgeJumpKey);
     ImGui::PopID();
-    ImGui::Checkbox("Edge Bug", &config->misc.edgebug);
+
+    ImGui::Checkbox("Mini jump", &config->misc.miniJump);
     ImGui::SameLine();
-    ImGui::PushID("Edge Bug Key");
-    ImGui::hotkey2("", config->misc.edgebugkey);
+    ImGui::PushID("Mini jump Key");
+    ImGui::hotkey2("", config->misc.miniJumpKey);
     ImGui::PopID();
-    if (config->misc.edgebug) {
-        ImGui::SliderInt("Pred Amnt", &config->misc.edgebugPredAmnt, 0, 128, "%d ticks");
+    if (config->misc.miniJump) {
+        ImGui::SliderInt("Crouch lock", &config->misc.miniJumpCrouchLock, 0, 12, "%d ticks");
     }
+
     ImGui::Checkbox("Jump Bug", &config->misc.jumpBug);
     ImGui::SameLine();
     ImGui::PushID("Jump Bug Key");
     ImGui::hotkey2("", config->misc.jumpBugKey);
+    ImGui::PopID();
+
+    ImGui::Checkbox("Edge Bug", &config->misc.edgeBug);
+    ImGui::SameLine();
+    ImGui::PushID("Edge Bug Key");
+    ImGui::hotkey2("", config->misc.edgeBugKey);
+    ImGui::PopID();
+    if (config->misc.edgeBug) {
+        ImGui::SliderInt("Pred Amnt", &config->misc.edgeBugPredAmnt, 0, 128, "%d ticks");
+    }
+
+    ImGui::Checkbox("Auto pixel surf", &config->misc.autoPixelSurf);
+    ImGui::SameLine();
+    ImGui::PushID("Auto pixel surf Key");
+    ImGui::hotkey2("", config->misc.autoPixelSurfKey);
     ImGui::PopID();
 
     ImGui::Checkbox("Draw velocity", &config->misc.velocity.enabled);

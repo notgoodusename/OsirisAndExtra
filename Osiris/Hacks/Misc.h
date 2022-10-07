@@ -20,6 +20,8 @@ namespace Misc
     void drawVelocity(ImDrawList* drawList) noexcept;
     void gotJump() noexcept;
     void jumpStats(UserCmd* cmd) noexcept;
+    void miniJump(UserCmd* cmd) noexcept;
+    void autoPixelSurf(UserCmd* cmd) noexcept;
     void edgeBug(UserCmd* cmd, Vector& angView) noexcept;
     void prePrediction(UserCmd* cmd) noexcept;
     void drawPlayerList() noexcept;

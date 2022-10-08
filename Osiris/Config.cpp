@@ -657,6 +657,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Edge Bug Key", m.edgeBugKey);
     read(j, "Pred Amnt", m.edgeBugPredAmnt);
     read(j, "Auto pixel surf", m.autoPixelSurf);
+    read(j, "Auto pixel surf Pred Amnt", m.autoPixelSurfPredAmnt);
     read(j, "Auto pixel surf Key", m.autoPixelSurfKey);
     read<value_t::object>(j, "Velocity", m.velocity);
     read<value_t::object>(j, "Keyboard display", m.keyBoardDisplay);
@@ -1293,6 +1294,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Edge Bug Key", edgeBugKey);
     WRITE("Pred Amnt", edgeBugPredAmnt);
     WRITE("Auto pixel surf", autoPixelSurf);
+    WRITE("Auto pixel surf Pred Amnt", autoPixelSurfPredAmnt);
     WRITE("Auto pixel surf Key", autoPixelSurfKey);
     WRITE("Velocity", velocity);
     WRITE("Keyboard display", keyBoardDisplay);

@@ -331,6 +331,7 @@ public:
         int edgeBugPredAmnt{ 20 };
         KeyBind edgeBugKey{ std::string("edge bug") };
         bool autoPixelSurf{ false };
+        int autoPixelSurfPredAmnt{ 2 };
         KeyBind autoPixelSurfKey{ std::string("auto pixel surf") };
         bool slowwalk{ false };
         int slowwalkAmnt{ 0 };

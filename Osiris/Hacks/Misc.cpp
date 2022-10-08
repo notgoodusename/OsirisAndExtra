@@ -604,7 +604,7 @@ void Misc::autoPixelSurf(UserCmd* cmd) noexcept
 
     bool detectedPixelSurf = false;
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < config->misc.autoPixelSurfPredAmnt; i++)
     {
         auto backupButtons = cmd->buttons;
         cmd->buttons |= UserCmd::IN_DUCK;

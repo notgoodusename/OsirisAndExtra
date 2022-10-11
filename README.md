@@ -4,4 +4,4 @@
 
 No linux support
 
-Support this project at https://www.paypal.com/paypalme/notgoodusename
+!Support this project at https://www.paypal.com/paypalme/notgoodusename

@@ -1722,7 +1722,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::hotkey2("", config->misc.autoPixelSurfKey);
     ImGui::PopID();
     if (config->misc.autoPixelSurf) {
-        ImGui::SliderInt("Pred Amnt", &config->misc.autoPixelSurfPredAmnt, 2, 4, "%d ticks");
+        ImGui::SliderInt("Prediction Amnt", &config->misc.autoPixelSurfPredAmnt, 2, 4, "%d ticks");
     }
 
     ImGui::Checkbox("Draw velocity", &config->misc.velocity.enabled);

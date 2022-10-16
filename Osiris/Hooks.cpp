@@ -939,11 +939,6 @@ static void __vectorcall updateStateHook(void* thisPointer, void* unknown, float
     auto entity = reinterpret_cast<Entity*>(animState->player);
     if (!entity || !entity->getModelPtr())
         return;
-    
-    if (!localPlayer || entity != localPlayer.get() || Animations::isFakeUpdating())
-        return original(thisPointer, unknown, z, y, x, unknown1);
-
-    animState->lastUpdateTime = memory->globalVars->currenttime - memory->globalVars->intervalPerTick;
 
     return original(thisPointer, unknown, z, y, x, unknown1);
 }

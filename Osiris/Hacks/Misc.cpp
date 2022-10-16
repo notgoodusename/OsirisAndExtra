@@ -528,7 +528,10 @@ void Misc::gotJump() noexcept
 
 void Misc::jumpStats(UserCmd* cmd) noexcept
 {
-    if (!localPlayer || !localPlayer->isAlive())
+    if (!localPlayer)
+        return;
+
+    if (!localPlayer->isAlive())
     {
         jumpStatsCalculations = { };
         return;

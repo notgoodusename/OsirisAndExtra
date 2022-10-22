@@ -165,7 +165,7 @@ Memory::Memory() noexcept
 
     modifyEyePosition = relativeToAbsolute<decltype(modifyEyePosition)>(findPattern(CLIENT_DLL, "\xE8????\x8B\x06\x8B\xCE\xFF\x90????\x85\xC0\x74\x50") + 1);
 
-    lookUpBone = relativeToAbsolute<decltype(lookUpBone)>(findPattern(CLIENT_DLL, "\xE8????\x85\xC0\x78\x4E") + 1);
+    lookUpBone = reinterpret_cast<decltype(lookUpBone)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x56\x8B\xF1\x57\x83\xBE?????\x75\x14"));
     getBonePos = relativeToAbsolute<decltype(getBonePos)>(findPattern(CLIENT_DLL, "\xE8????\x8D\x14\x24") + 1);
 
     setCollisionBounds = relativeToAbsolute<decltype(setCollisionBounds)>(findPattern(CLIENT_DLL, "\xE8????\x0F\xBF\x87????") + 1);

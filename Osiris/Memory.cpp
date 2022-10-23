@@ -12,7 +12,6 @@
 #include "Interfaces.h"
 #include "Memory.h"
 
-#define getName(VariableName) # VariableName
 
 template <typename T>
 static constexpr auto relativeToAbsolute(uintptr_t address) noexcept
@@ -161,7 +160,7 @@ Memory::Memory() noexcept
 
     checkForSequenceChange = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x57\x85");
 
-    sendDatagram = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8????\xE8????\x56\x57\x8B\xF9\x89\x7C\x24\x18");
+    sendDatagram = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8????\xE8????\x56\x57\x8B\xF9\x89\x7C\x24\x14");
 
     modifyEyePosition = relativeToAbsolute<decltype(modifyEyePosition)>(findPattern(CLIENT_DLL, "\xE8????\x8B\x06\x8B\xCE\xFF\x90????\x85\xC0\x74\x50") + 1);
 
@@ -208,7 +207,7 @@ Memory::Memory() noexcept
     relayCluster = *reinterpret_cast<std::string**>(findPattern(STEAMNETWORKINGSOCKETS_DLL, "\xB8????\xB9????\x0F\x43") + 1);
     unlockInventory = findPattern(CLIENT_DLL, "\x84\xC0\x75\x05\xB0\x01\x5F");
     getColorModulation = findPattern(MATERIALSYSTEM_DLL, "\x55\x8B\xEC\x83\xEC?\x56\x8B\xF1\x8A\x46");
-    isUsingStaticPropDebugModes = findPattern(ENGINE_DLL, "\x8B\x0D????\x81\xF9????\x75?\xA1????\x35????\xEB?\x8B\x01\xFF\x50?\x83\xF8?\x0F\x85????\x8B\x0D");
+    isUsingStaticPropDebugModes = relativeToAbsolute<decltype(isUsingStaticPropDebugModes)>(findPattern(ENGINE_DLL, "\xE8????\x84\xC0\x8B\x45\x08") + 1);
     traceFilterForHeadCollision = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\x75\x0C\x57\x8B\xF9\xF7\xC6????");
     performScreenOverlay = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\xA1????\x53\x56\x8B\xD9");
     postNetworkDataReceived = relativeToAbsolute<decltype(postNetworkDataReceived)>(findPattern(CLIENT_DLL, "\xE8????\x33\xF6\x6A\x02") + 1);

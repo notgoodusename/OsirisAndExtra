@@ -1413,6 +1413,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::SliderFloat("Bullet Impacts time", &config->visuals.bulletImpactsTime, 0.1f, 5.0f, "Bullet Impacts time: %.2fs");
     ImGuiCustom::colorPicker("Molotov Hull", config->visuals.molotovHull);
     ImGuiCustom::colorPicker("Smoke Hull", config->visuals.smokeHull);
+    ImGuiCustom::colorPicker("Molotov Polygon", config->visuals.molotovPolygon);
 
     ImGui::Checkbox("Smoke Timer", &config->visuals.smokeTimer);
     ImGui::SameLine();

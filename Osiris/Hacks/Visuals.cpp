@@ -1243,8 +1243,7 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
             points.emplace_back(ImVec2(screen_pos.x, screen_pos.y));
         }
 
-        //drawList->AddConvexPolyFilled(points.data(), points.size(), color);
-        drawList->AddPolyline(points.data(), points.size(), color, ImDrawFlags_RoundCornersAll, 1.0f);
+        drawList->AddConvexPolyFilled(points.data(), points.size(), color);
     }
 }
 

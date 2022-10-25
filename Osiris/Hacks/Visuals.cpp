@@ -1238,12 +1238,13 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
 
             auto screen_pos = ImVec2();
             if (!Helpers::worldToScreen(pos, screen_pos))
-                return;
+                continue;
 
             points.emplace_back(ImVec2(screen_pos.x, screen_pos.y));
         }
 
-        drawList->AddConvexPolyFilled(points.data(), points.size(), color);
+        //drawList->AddConvexPolyFilled(points.data(), points.size(), color);
+        drawList->AddPolyline(points.data(), points.size(), color, ImDrawFlags_RoundCornersAll, 1.0f);
     }
 }
 

@@ -1202,6 +1202,7 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
         return;
 
     const auto color = Helpers::calculateColor(config->visuals.molotovPolygon);
+    constexpr float pi = std::numbers::pi_v<float>;
 
     GameData::Lock lock;
 
@@ -1210,13 +1211,13 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
     {
         std::vector<Vector> new_points;
 
-        for (auto i = 0; i < points.size(); ++i)
+        for (size_t i = 0; i < points.size(); ++i)
         {
             const auto& pos = points[i];
 
-            for (auto j = 0; j <= 3; j++)
+            for (int j = 0; j <= 3; j++)
             {
-                auto p = j * (360 / 4) * (M_PI / 200);
+                float p = j * (360.0f / 4.0f) * (pi / 200.0f);
                 new_points.emplace_back(pos + Vector(std::cos(p) * 60.f, std::sin(p) * 60.f, 0.f));
             }
         }
@@ -1232,7 +1233,7 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
         /* transforms world position to screen position. */
         std::vector<ImVec2> points;
 
-        for (auto i = 0; i < giftWrapped.size(); ++i)
+        for (size_t i = 0; i < giftWrapped.size(); ++i)
         {
             const auto& pos = giftWrapped[i];
 

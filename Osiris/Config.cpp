@@ -452,6 +452,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Bullet Impacts time", v.bulletImpactsTime);
     read<value_t::object>(j, "Molotov Hull", v.molotovHull);
     read<value_t::object>(j, "Smoke Hull", v.smokeHull);
+    read<value_t::object>(j, "Molotov Polygon", v.molotovPolygon);
     read<value_t::object>(j, "Viewmodel", v.viewModel);
     read<value_t::object>(j, "Spread circle", v.spreadCircle);
     read<value_t::object>(j, "Map color", v.mapColor);
@@ -1417,6 +1418,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Bullet Impacts time", bulletImpactsTime);
     WRITE("Molotov Hull", molotovHull);
     WRITE("Smoke Hull", smokeHull);
+    WRITE("Molotov Polygon", molotovPolygon);
     WRITE("Viewmodel", viewModel);
     WRITE("Spread circle", spreadCircle);
     WRITE("Map color", mapColor);

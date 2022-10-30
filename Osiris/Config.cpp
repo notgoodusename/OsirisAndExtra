@@ -247,15 +247,11 @@ static void from_json(const json& j, Config::Legitbot& a)
     read(j, "Min damage", a.minDamage);
     read(j, "Killshot", a.killshot);
     read(j, "Between shots", a.betweenShots);
-}
-
-static void from_json(const json& j, Config::RecoilControlSystem& r)
-{
-    read(j, "Enabled", r.enabled);
-    read(j, "Silent", r.silent);
-    read(j, "Ignore Shots", r.shotsFired);
-    read(j, "Horizontal", r.horizontal);
-    read(j, "Vertical", r.vertical);
+    read(j, "Standalone RCS", a.standaloneRCS);
+    read(j, "Standalone RCS Ignore Shots", a.shotsFired);
+    read(j, "Recoil control X", a.recoilControlX);
+    read(j, "Recoil control Y", a.recoilControlY);
+    read(j, "Standalone RCS Random factor", a.randomRCS);
 }
 
 static void from_json(const json& j, Config::Ragebot& r)
@@ -939,21 +935,17 @@ static void to_json(json& j, const Config::Legitbot& o, const Config::Legitbot& 
     WRITE("Ignore smoke", ignoreSmoke);
     WRITE("Auto scope", autoScope);
     WRITE("Hitboxes", hitboxes);
+    WRITE("Recoil control X", recoilControlX);
+    WRITE("Recoil control Y", recoilControlY);
     WRITE("Fov", fov);
     WRITE("Smooth", smooth);
     WRITE("Reaction time", reactionTime);
     WRITE("Min damage", minDamage);
     WRITE("Killshot", killshot);
     WRITE("Between shots", betweenShots);
-}
-
-static void to_json(json& j, const Config::RecoilControlSystem& o, const Config::RecoilControlSystem& dummy = {})
-{
-    WRITE("Enabled", enabled);
-    WRITE("Silent", silent);
-    WRITE("Ignore Shots", shotsFired);
-    WRITE("Horizontal", horizontal);
-    WRITE("Vertical", vertical);
+    WRITE("Standalone RCS", standaloneRCS);
+    WRITE("Standalone RCS Ignore Shots", shotsFired);
+    WRITE("Standalone RCS Random factor", randomRCS);
 }
 
 static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& dummy = {})

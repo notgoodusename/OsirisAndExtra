@@ -11,6 +11,20 @@ void Legitbot::updateInput() noexcept
     config->legitbotKey.handleToggle();
 }
 
+static void setRandomSeed(int seed) noexcept
+{
+    using randomSeedFn = void(*)(int);
+    static auto randomSeed{ reinterpret_cast<randomSeedFn>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomSeed")) };
+    randomSeed(seed);
+}
+
+static float getRandom(float min, float max) noexcept
+{
+    using randomFloatFn = float(*)(float, float);
+    static auto randomFloat{ reinterpret_cast<randomFloatFn>(GetProcAddress(GetModuleHandleA("vstdlib.dll"), "RandomFloat")) };
+    return randomFloat(min, max);
+}
+
 void Legitbot::run(UserCmd* cmd) noexcept
 {
     if (!config->legitbotKey.isActive())
@@ -38,45 +52,27 @@ void Legitbot::run(UserCmd* cmd) noexcept
 
     if (!cfg[weaponIndex].enabled)
         weaponIndex = 0;
-
-    const auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
-
-    if (config->recoilControlSystem.enabled && (config->recoilControlSystem.horizontal || config->recoilControlSystem.vertical) && aimPunch.notNull())
-    {
-        static Vector lastAimPunch{ };
-        if (localPlayer->shotsFired() > config->recoilControlSystem.shotsFired)
-        {
-            if (cmd->buttons & UserCmd::IN_ATTACK)
-            {
-                Vector currentPunch = aimPunch;
-
-                currentPunch.x *= config->recoilControlSystem.vertical;
-                currentPunch.y *= config->recoilControlSystem.horizontal;
-
-                if (!config->recoilControlSystem.silent)
-                {
-                    cmd->viewangles.y += lastAimPunch.y - currentPunch.y;
-                    cmd->viewangles.x += lastAimPunch.x - currentPunch.x;
-                    lastAimPunch.y = currentPunch.y;
-                    lastAimPunch.x = currentPunch.x;
+    
+            auto aimPunch = activeWeapon->requiresRecoilControl() ? localPlayer->getAimPunch() : Vector{ };
+        if (config->legitbot[weaponIndex].standaloneRCS && !config->legitbot[weaponIndex].silent) {
+            static Vector lastAimPunch{ };
+            if (localPlayer->getShotsFired() > config->legitbot[weaponIndex].shotsFired) {
+                setRandomSeed(*memory->predictionRandomSeed);
+                Vector currentPunch{ lastAimPunch.x - aimPunch.x, lastAimPunch.y - aimPunch.y, 0 };
+                if (config->legitbot[weaponIndex].randomRCS) {
+                    currentPunch.x *= getRandom(config->legitbot[weaponIndex].recoilControlX, 1.f);
+                    currentPunch.y *= getRandom(config->legitbot[weaponIndex].recoilControlY, 1.f);
                 }
-                else
-                {
-                    cmd->viewangles.y -= currentPunch.y;
-                    cmd->viewangles.x -= currentPunch.x;
-                    lastAimPunch = Vector{ };
+                else {
+                    currentPunch.x *= config->legitbot[weaponIndex].recoilControlX;
+                    currentPunch.y *= config->legitbot[weaponIndex].recoilControlY;
                 }
+                cmd->viewangles += currentPunch;
             }
-        }
-        else
-        {
-            lastAimPunch = Vector{ };
-        }
-
-        if (!config->recoilControlSystem.silent)
             interfaces->engine->setViewAngles(cmd->viewangles);
-    }
-
+            lastAimPunch = aimPunch;
+        }
+    
     if (!cfg[weaponIndex].betweenShots && activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime())
         return;
 

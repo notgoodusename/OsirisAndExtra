@@ -124,7 +124,7 @@ public:
         bool killshot{ false };
         bool betweenShots{ true };
         bool standaloneRCS{ false };
-        bool randomRCS{ true };
+        bool randomRCS{ false };
     };
     std::array<Legitbot, 40> legitbot;
     KeyBind legitbotKey{ std::string("legitbot") };

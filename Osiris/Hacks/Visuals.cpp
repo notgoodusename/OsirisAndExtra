@@ -220,7 +220,7 @@ void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
 
 void Visuals::drawAimbotFov(ImDrawList* drawList) noexcept
 {
-    if (!config->legitbotFov.enabled || !config->legitbotKey.isActive())
+    if (!config->legitbotFov.enabled)
         return;
 
     if (!localPlayer || !localPlayer->isAlive())
@@ -260,8 +260,6 @@ void Visuals::drawAimbotFov(ImDrawList* drawList) noexcept
             return;
 
         const auto color = Helpers::calculateColor(config->legitbotFov);
-        drawList->AddCircleFilled(localPlayer->shotsFired() > 1 ? pos : displaySize / 2.0f, radius, color);
-        if (config->legitbotFov.outline)
             drawList->AddCircle(localPlayer->shotsFired() > 1 ? pos : displaySize / 2.0f, radius, color | IM_COL32_A_MASK, 360);
     }
 }

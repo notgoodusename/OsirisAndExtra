@@ -4,6 +4,7 @@
 
 #include "Platform.h"
 #include "UtlVector.h"
+#include "Pad.h"
 #include "VirtualMethod.h"
 
 struct ConVar {

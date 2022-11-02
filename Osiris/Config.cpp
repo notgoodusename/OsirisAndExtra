@@ -668,8 +668,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Fake duck key", m.fakeduckKey);
     read<value_t::object>(j, "Auto peek", m.autoPeek);
     read(j, "Auto peek key", m.autoPeekKey);
-    read<value_t::object>(j, "Noscope crosshair", m.noscopeCrosshair);
-    read<value_t::object>(j, "Recoil crosshair", m.recoilCrosshair);
+    read(j, "Noscope crosshair", m.noscopeCrosshair);
+    read(j, "Recoil crosshair", m.recoilCrosshair);
     read(j, "Auto pistol", m.autoPistol);
     read(j, "Auto reload", m.autoReload);
     read(j, "Auto accept", m.autoAccept);

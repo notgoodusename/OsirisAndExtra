@@ -112,8 +112,6 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         Misc::purchaseList();
         Visuals::visualizeSpread(ImGui::GetBackgroundDrawList());
         Visuals::drawAimbotFov(ImGui::GetBackgroundDrawList());
-        Misc::noscopeCrosshair(ImGui::GetBackgroundDrawList());
-        Misc::recoilCrosshair(ImGui::GetBackgroundDrawList());
         Misc::drawOffscreenEnemies(ImGui::GetBackgroundDrawList());
         Misc::drawBombTimer();
         Misc::hurtIndicator();
@@ -129,6 +127,8 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
         Logger::process(ImGui::GetBackgroundDrawList());
         Misc::drawKeyDisplay(ImGui::GetBackgroundDrawList());
         Misc::drawVelocity(ImGui::GetBackgroundDrawList());
+        Misc::noscopeCrosshair();
+        Misc::recoilCrosshair();
 
         Legitbot::updateInput();
         Visuals::updateInput();

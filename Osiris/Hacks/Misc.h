@@ -41,8 +41,8 @@ namespace Misc
     void updateClanTag(bool = false) noexcept;
     void showKeybinds() noexcept;
     void spectatorList() noexcept;
-    void noscopeCrosshair(ImDrawList* drawlist) noexcept;
-    void recoilCrosshair(ImDrawList* drawList) noexcept;
+    void noscopeCrosshair() noexcept;
+    void recoilCrosshair() noexcept;
     void watermark() noexcept;
     void prepareRevolver(UserCmd*) noexcept;
     void fastPlant(UserCmd*) noexcept;

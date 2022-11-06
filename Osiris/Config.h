@@ -251,6 +251,7 @@ public:
         int farZ{ 0 };
         int flashReduction{ 0 };
         int skybox{ 0 };
+        std::string customSkybox;
         bool deagleSpinner{ false };
         struct MotionBlur
         {

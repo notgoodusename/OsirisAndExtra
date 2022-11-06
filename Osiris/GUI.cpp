@@ -1395,6 +1395,11 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::SliderInt("", &config->visuals.flashReduction, 0, 100, "Flash reduction: %d%%");
     ImGui::PopID();
     ImGui::Combo("Skybox", &config->visuals.skybox, Visuals::skyboxList.data(), Visuals::skyboxList.size());
+     if (config->visuals.skybox == 26) {
+        ImGui::InputText("Skybox filename", &config->visuals.customSkybox);
+        if (ImGui::IsItemHovered())
+            ImGui::SetTooltip("skybox files must be put in csgo/materials/skybox/ ");
+    }
     ImGuiCustom::colorPicker("Map color", config->visuals.mapColor);
     ImGui::PushID(13);
     ImGui::SliderInt("", &config->visuals.asusWalls, 0, 100, "Asus walls: %d");

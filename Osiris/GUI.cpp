@@ -1394,6 +1394,9 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::PushID(4);
     ImGui::SliderInt("", &config->visuals.flashReduction, 0, 100, "Flash reduction: %d%%");
     ImGui::PopID();
+    ImGui::PushID(5);
+    ImGui::SliderFloat("", &config->visuals.glowOutlineWidth, 0.0f, 100.0f, "Glow thickness: %.2f");
+    ImGui::PopID();
     ImGui::Combo("Skybox", &config->visuals.skybox, Visuals::skyboxList.data(), Visuals::skyboxList.size());
      if (config->visuals.skybox == 26) {
         ImGui::InputText("Skybox filename", &config->visuals.customSkybox);

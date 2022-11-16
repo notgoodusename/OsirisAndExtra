@@ -1402,6 +1402,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("FOV", fov);
     WRITE("Far Z", farZ);
     WRITE("Flash reduction", flashReduction);
+    WRITE("Glow thickness", glowOutlineWidth);
     WRITE("Skybox", skybox);
     WRITE("Custom skybox", customSkybox);
     WRITE("Deagle spinner", deagleSpinner);

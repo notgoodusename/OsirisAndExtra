@@ -436,6 +436,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "FOV", v.fov);
     read(j, "Far Z", v.farZ);
     read(j, "Flash reduction", v.flashReduction);
+    read(j, "Glow thickness", v.glowOutlineWidth);
     read(j, "Skybox", v.skybox);
     read<value_t::string>(j, "Custom skybox", v.customSkybox);
     read(j, "Deagle spinner", v.deagleSpinner);

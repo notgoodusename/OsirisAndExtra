@@ -759,6 +759,8 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read(j, "Legitbot Key", legitbotKey);
     read<value_t::object>(j, "Draw legitbot fov", legitbotFov);
 
+    read<value_t::object>(j, "Recoil control system", recoilControlSystem);
+
     read(j, "Ragebot", ragebot);
     read(j, "Ragebot Key", ragebotKey);
     read(j, "Min damage override Key", minDamageOverrideKey);
@@ -1495,6 +1497,8 @@ void Config::save(size_t id) const noexcept
         to_json(j["Legitbot Key"], legitbotKey, KeyBind::NONE);
         j["Draw legitbot fov"] = legitbotFov;
 
+        j["Recoil control system"] = recoilControlSystem;
+
         j["Ragebot"] = ragebot;
         to_json(j["Ragebot Key"], ragebotKey, KeyBind::NONE);
         to_json(j["Min damage override Key"], minDamageOverrideKey, KeyBind::NONE);
@@ -1552,6 +1556,7 @@ void Config::rename(size_t item, const char* newName) noexcept
 void Config::reset() noexcept
 {
     legitbot = { };
+    recoilControlSystem = { };
     legitAntiAim = { };
     ragebot = { };
     rageAntiAim = { };

@@ -394,6 +394,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::jumpBug(cmd);
     Misc::edgeBug(cmd, angOldViewPoint);
     Misc::runFreeCam(cmd, viewAngles);
+    Misc::gatherDataOnTick(cmd);
     Misc::moonwalk(cmd);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
@@ -425,7 +426,6 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
 
     if (localPlayer && localPlayer->isAlive())
         memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
-    Misc::gatherDataOnTick(cmd);
     Misc::jumpStats(cmd);
     Animations::update(cmd, sendPacket);
     Animations::fake();

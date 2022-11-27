@@ -38,10 +38,7 @@ void Tickbase::start(UserCmd* cmd) noexcept
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
     {
-        if (ticksAllowedForProcessing >= 15)
-        {
-            Tickbase::shift(cmd, targetTickShift);
-        }
+ 
         return;
     }
 
@@ -61,10 +58,7 @@ void Tickbase::end(UserCmd* cmd) noexcept
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
     {
-        if (ticksAllowedForProcessing >= 15)
-        {
-            Tickbase::shift(cmd, targetTickShift);
-        }
+       
         return;
     }
      
@@ -121,7 +115,10 @@ bool Tickbase::canRun() noexcept
         return true;
     }
 
-    if ((ticksAllowedForProcessing < targetTickShift || chokedPackets > maxUserCmdProcessTicks - targetTickShift) && memory->globalVars->realtime - realTime > 1.0f)
+    auto data = localPlayer.get()->getActiveWeapon();
+    float recharge_time = data && data->getWeaponType() == WeaponType::SniperRifle ? 0.3f : 0.09f;
+
+    if ((ticksAllowedForProcessing < targetTickShift || chokedPackets > maxUserCmdProcessTicks - targetTickShift) && memory->globalVars->realtime - realTime > recharge_time)
     {
         ticksAllowedForProcessing = min(ticksAllowedForProcessing++, maxUserCmdProcessTicks);
         chokedPackets = max(chokedPackets--, 0);
@@ -136,7 +133,7 @@ bool Tickbase::canShift(int shiftAmount) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return false;
 
-    if (!shiftAmount || shiftAmount > ticksAllowedForProcessing || memory->globalVars->realtime - realTime <= 0.4f)
+    if (!shiftAmount || shiftAmount > ticksAllowedForProcessing || memory->globalVars->realtime - realTime <= 0.5f)
         return false;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();

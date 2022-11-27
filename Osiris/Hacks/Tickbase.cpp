@@ -8,6 +8,7 @@
 #include "../SDK/Entity.h"
 #include "../SDK/UserCmd.h"
 #include "../SDK/NetworkChannel.h"
+#include "../Logger.h"
 
 /*
 For those confused as to why i hooked clMove and writeUserCmdDelta, its simple
@@ -26,7 +27,7 @@ float realTime{ 0.0f };
 bool shifting{ false };
 bool finalTick{ false };
 
-void Tickbase::start() noexcept
+void Tickbase::start(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
@@ -37,12 +38,15 @@ void Tickbase::start() noexcept
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
     {
-        targetTickShift = 0;
+        if (ticksAllowedForProcessing >= 15)
+        {
+            Tickbase::shift(cmd, targetTickShift);
+        }
         return;
     }
 
     if (config->tickbase.doubletap.isActive())
-        targetTickShift = 13;
+        targetTickShift = 16;
     else if (config->tickbase.hideshots.isActive())
         targetTickShift = 9;
 
@@ -56,7 +60,14 @@ void Tickbase::end(UserCmd* cmd) noexcept
         return;
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
+    {
+        if (ticksAllowedForProcessing >= 15)
+        {
+            Tickbase::shift(cmd, targetTickShift);
+        }
         return;
+    }
+     
 
     if (cmd->buttons & UserCmd::IN_ATTACK)
        shift(cmd, targetTickShift);
@@ -125,14 +136,14 @@ bool Tickbase::canShift(int shiftAmount) noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return false;
 
-    if (!shiftAmount || shiftAmount > ticksAllowedForProcessing || memory->globalVars->realtime - realTime <= 0.5f)
+    if (!shiftAmount || shiftAmount > ticksAllowedForProcessing || memory->globalVars->realtime - realTime <= 0.4f)
         return false;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();
     if (!activeWeapon || !activeWeapon->clip())
         return false;
 
-    if (activeWeapon->isKnife() || activeWeapon->isGrenade() || activeWeapon->isBomb()
+    if (activeWeapon->isGrenade() || activeWeapon->isBomb()
         || activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver
         || activeWeapon->itemDefinitionIndex2() == WeaponId::Taser)
         return false;
@@ -155,8 +166,6 @@ int Tickbase::getCorrectTickbase(int commandNumber) noexcept
         return tickBase - shiftedTickbase;
     else if (commandNumber == shiftCommand + 1)
     {
-        if (!config->tickbase.teleport)
-            return tickBase + shiftedTickbase;
         return tickBase;
     }
     if (pauseTicks)
@@ -184,9 +193,7 @@ int Tickbase::getTickshift() noexcept
 void Tickbase::resetTickshift() noexcept
 {
 	shiftedTickbase = tickShift;
-    //Without teleport we only need to recharge after fakelagging
-    if (config->tickbase.teleport)
-        ticksAllowedForProcessing = max(ticksAllowedForProcessing - tickShift, 0);
+    ticksAllowedForProcessing = max(ticksAllowedForProcessing - tickShift, 0);
 	tickShift = 0;
 }
 

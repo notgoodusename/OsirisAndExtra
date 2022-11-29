@@ -1245,15 +1245,51 @@ void Misc::jumpBug(UserCmd* cmd) noexcept
         cmd->buttons &= ~UserCmd::IN_JUMP;
 }
 
-void Misc::unlockHiddenCvars() noexcept
-{
-    auto iterator = **reinterpret_cast<conCommandBase***>(interfaces->cvar + 0x34);
+std::vector<conCommandBase*> dev;
+std::vector<conCommandBase*> hidden;
+
+void Misc::initHiddenCvars() noexcept {
+
+    conCommandBase* iterator = **reinterpret_cast<conCommandBase***>(interfaces->cvar + 0x34);
+
     for (auto c = iterator->next; c != nullptr; c = c->next)
     {
         conCommandBase* cmd = c;
-        cmd->flags &= ~(1 << 1);
-        cmd->flags &= ~(1 << 4);
+
+        if (cmd->flags & CvarFlags::DEVELOPMENTONLY)
+            dev.push_back(cmd);
+
+        if (cmd->flags & CvarFlags::HIDDEN)
+            hidden.push_back(cmd);
+
     }
+}
+
+void Misc::unlockHiddenCvars() noexcept {
+
+    static bool toggle = true;
+
+    if (config->misc.unhideConvars == toggle)
+        return;
+
+    if (config->misc.unhideConvars) {
+        for (unsigned x = 0; x < dev.size(); x++)
+            dev.at(x)->flags &= ~CvarFlags::DEVELOPMENTONLY;
+
+        for (unsigned x = 0; x < hidden.size(); x++)
+            hidden.at(x)->flags &= ~CvarFlags::HIDDEN;
+
+    }
+    if (!config->misc.unhideConvars) {
+        for (unsigned x = 0; x < dev.size(); x++)
+            dev.at(x)->flags |= CvarFlags::DEVELOPMENTONLY;
+
+        for (unsigned x = 0; x < hidden.size(); x++)
+            hidden.at(x)->flags |= CvarFlags::HIDDEN;
+    }
+
+    toggle = config->misc.unhideConvars;
+
 }
 
 void Misc::fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept

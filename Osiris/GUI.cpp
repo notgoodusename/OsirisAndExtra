@@ -1946,8 +1946,7 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Opposite Hand Knife", &config->misc.oppositeHandKnife);
     ImGui::Checkbox("Sv pure bypass", &config->misc.svPureBypass);
     ImGui::Checkbox("Unlock inventory", &config->misc.inventoryUnlocker);
-    if (ImGui::Button("Unlock hidden cvars"))
-        Misc::unlockHiddenCvars();
+    ImGui::Checkbox("Unlock hidden cvars", &config->misc.unhideConvars);
     ImGui::Checkbox("Preserve Killfeed", &config->misc.preserveKillfeed.enabled);
     ImGui::SameLine();
 

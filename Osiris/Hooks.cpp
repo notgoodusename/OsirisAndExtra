@@ -75,6 +75,7 @@ static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lP
 {
     [[maybe_unused]] static const auto once = [](HWND window) noexcept {
         Netvars::init();
+        Misc::initHiddenCvars();
         eventListener = std::make_unique<EventListener>();
 
         ImGui::CreateContext();
@@ -532,6 +533,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         GameData::update();
 
     if (stage == FrameStage::RENDER_START) {
+        Misc::unlockHiddenCvars();
         Misc::forceRelayCluster();
         Misc::preserveKillfeed();
         Misc::disablePanoramablur();

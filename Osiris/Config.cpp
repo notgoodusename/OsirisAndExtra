@@ -715,6 +715,7 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Killfeed changer", m.killfeedChanger);
     read(j, "Sv pure bypass", m.svPureBypass);
     read(j, "Inventory Unlocker", m.inventoryUnlocker);
+    read(j, "Unlock hidden cvars", m.unhideConvars);
     read<value_t::object>(j, "Autobuy", m.autoBuy);
     read<value_t::object>(j, "Logger", m.logger);
     read<value_t::object>(j, "Logger options", m.loggerOptions);
@@ -1354,6 +1355,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Killfeed changer", killfeedChanger);
     WRITE("Sv pure bypass", svPureBypass);
     WRITE("Inventory Unlocker", inventoryUnlocker);
+    WRITE("Unlock hidden cvars", unhideConvars);
     WRITE("Autobuy", autoBuy);
     WRITE("Logger", logger);
     WRITE("Logger options", loggerOptions);

@@ -26,7 +26,7 @@ float realTime{ 0.0f };
 bool shifting{ false };
 bool finalTick{ false };
 
-void Tickbase::start() noexcept
+void Tickbase::start(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
@@ -37,7 +37,8 @@ void Tickbase::start() noexcept
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
     {
-        targetTickShift = 0;
+        if (ticksAllowedForProcessing)
+            shift(cmd, ticksAllowedForProcessing);
         return;
     }
 
@@ -56,7 +57,10 @@ void Tickbase::end(UserCmd* cmd) noexcept
         return;
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
+    {
+        targetTickShift = 0;
         return;
+    }
 
     if (cmd->buttons & UserCmd::IN_ATTACK)
        shift(cmd, targetTickShift);

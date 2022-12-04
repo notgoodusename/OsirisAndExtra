@@ -344,7 +344,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
 
     Resolver::processMissedShots();
 
-    Tickbase::start();
+    Tickbase::start(cmd);
 
     memory->globalVars->serverTime(cmd);
     Misc::antiAfkKick(cmd);

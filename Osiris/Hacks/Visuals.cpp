@@ -327,7 +327,11 @@ void Visuals::playerModel(FrameStage stage) noexcept
         "models/player/custom_player/legacy/tm_jumpsuit_varianta.mdl",
         "models/player/custom_player/legacy/tm_jumpsuit_variantb.mdl",
         "models/player/custom_player/legacy/tm_jumpsuit_variantc.mdl",
-
+        "models/player/custom_player/legacy/ctm_gign.mdl",
+        "models/player/custom_player/legacy/ctm_gign_varianta.mdl",
+        "models/player/custom_player/legacy/ctm_gign_variantb.mdl",
+        "models/player/custom_player/legacy/ctm_gign_variantc.mdl",
+        "models/player/custom_player/legacy/ctm_gign_variantd.mdl",
         "models/player/custom_player/legacy/tm_phoenix_varianti.mdl",
         "models/player/custom_player/legacy/ctm_st6_variantj.mdl",
         "models/player/custom_player/legacy/ctm_st6_variantl.mdl",

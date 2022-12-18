@@ -5,9 +5,6 @@
 
 class Entity;
 
-class C_Beam;
-class Beam_t;
-
 #pragma region beams
 enum BeamEffects
 {
@@ -46,15 +43,6 @@ enum BeamTypes
     NUM_BEAM_FLAGS = 17	// KEEP THIS UPDATED!
 };
 #pragma endregion
-
-struct BeamTrail_t
-{
-    // NOTE: Don't add user defined fields except after these four fields.
-    BeamTrail_t* next;
-    float die;
-    Vector org;
-    Vector vel;
-};
 
 struct BeamInfo {
     int	type;
@@ -98,58 +86,9 @@ struct Beam {
 
 class ViewRenderBeams {
 public:
-
-    virtual void InitBeams(void) = 0;
-    virtual void ShutdownBeams(void) = 0;
-    virtual void ClearBeams(void) = 0;
-
-    virtual void UpdateTempEntBeams() = 0;
-
-    virtual void DrawBeam(C_Beam* pbeam, TraceFilter* pEntityBeamTraceFilter = NULL) = 0;
-    virtual void DrawBeam(Beam_t* pbeam) = 0;
-
-    virtual void KillDeadBeams(Entity* pEnt) = 0;
+    VIRTUAL_METHOD(void, drawBeam, 6, (Beam* beam), (this, std::ref(beam)))
 
     VIRTUAL_METHOD(Beam*, createBeamPoints, 12, (BeamInfo& beamInfo), (this, std::ref(beamInfo)))
-
-    virtual Beam_t* CreateBeamEnts(BeamInfo& beamInfo) = 0;
-    virtual Beam_t* CreateBeamEntPoint(BeamInfo& beamInfo) = 0;
-    virtual Beam_t* CreateBeamPoints(BeamInfo& beamInfo) = 0;
-    virtual Beam_t* CreateBeamRing(BeamInfo& beamInfo) = 0;
-    virtual Beam_t* CreateBeamRingPoint(BeamInfo& beamInfo) = 0;
-    virtual Beam_t* CreateBeamCirclePoints(BeamInfo& beamInfo) = 0;
-
-    virtual Beam_t* CreateBeamFollow(BeamInfo& beamInfo) = 0;
-
-    virtual void FreeBeam(Beam_t* pBeam) = 0;
-    virtual void UpdateBeamInfo(Beam_t* pBeam, BeamInfo& beamInfo) = 0;
-
-    virtual void CreateBeamEnts(int startEnt, int endEnt, int modelIndex, int haloIndex, float haloScale,
-        float life, float width, float m_nEndWidth, float m_nFadeLength, float amplitude,
-        float brightness, float speed, int startFrame,
-        float framerate, float r, float g, float b, int type = -1) = 0;
-    virtual void CreateBeamEntPoint(int nStartEntity, const Vector* pStart, int nEndEntity, const Vector* pEnd,
-        int modelIndex, int haloIndex, float haloScale,
-        float life, float width, float m_nEndWidth, float m_nFadeLength, float amplitude,
-        float brightness, float speed, int startFrame,
-        float framerate, float r, float g, float b) = 0;
-    virtual void CreateBeamPoints(Vector& start, Vector& end, int modelIndex, int haloIndex, float haloScale,
-        float life, float width, float m_nEndWidth, float m_nFadeLength, float amplitude,
-        float brightness, float speed, int startFrame,
-        float framerate, float r, float g, float b) = 0;
-    virtual void CreateBeamRing(int startEnt, int endEnt, int modelIndex, int haloIndex, float haloScale,
-        float life, float width, float m_nEndWidth, float m_nFadeLength, float amplitude,
-        float brightness, float speed, int startFrame,
-        float framerate, float r, float g, float b, int flags = 0) = 0;
-    virtual void CreateBeamRingPoint(const Vector& center, float start_radius, float end_radius, int modelIndex, int haloIndex, float haloScale,
-        float life, float width, float m_nEndWidth, float m_nFadeLength, float amplitude,
-        float brightness, float speed, int startFrame,
-        float framerate, float r, float g, float b, int flags = 0) = 0;
-    virtual void CreateBeamCirclePoints(int type, Vector& start, Vector& end,
-        int modelIndex, int haloIndex, float haloScale, float life, float width,
-        float m_nEndWidth, float m_nFadeLength, float amplitude, float brightness, float speed,
-        int startFrame, float framerate, float r, float g, float b) = 0;
-    virtual void CreateBeamFollow(int startEnt, int modelIndex, int haloIndex, float haloScale,
-        float life, float width, float m_nEndWidth, float m_nFadeLength, float r, float g, float b,
-        float brightness) = 0;
+    VIRTUAL_METHOD(Beam*, createBeamRing, 14, (BeamInfo& beamInfo), (this, std::ref(beamInfo)))
+    VIRTUAL_METHOD(Beam*, createBeamRingPoints, 16, (BeamInfo& beamInfo), (this, std::ref(beamInfo)))
 };

@@ -25,11 +25,15 @@ int pauseTicks{ 0 };
 float realTime{ 0.0f };
 bool shifting{ false };
 bool finalTick{ false };
+bool hasHadTickbaseActive{ false };
 
 void Tickbase::start(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
+    {
+        hasHadTickbaseActive = false;
         return;
+    }
 
     if (const auto netChannel = interfaces->engine->getNetworkChannel(); netChannel)
         if (netChannel->chokedPackets > chokedPackets)
@@ -37,8 +41,9 @@ void Tickbase::start(UserCmd* cmd) noexcept
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
     {
-        if (ticksAllowedForProcessing)
+        if (hasHadTickbaseActive)
             shift(cmd, ticksAllowedForProcessing, true);
+        hasHadTickbaseActive = false;
         return;
     }
 
@@ -49,6 +54,7 @@ void Tickbase::start(UserCmd* cmd) noexcept
 
     //We do -1 to leave 1 tick to fakelag
     targetTickShift = std::clamp(targetTickShift, 0, maxUserCmdProcessTicks - 1);
+    hasHadTickbaseActive = true;
 }
 
 void Tickbase::end(UserCmd* cmd) noexcept
@@ -215,6 +221,7 @@ void Tickbase::updateInput() noexcept
 
 void Tickbase::reset() noexcept
 {
+    hasHadTickbaseActive = false;
     pauseTicks = 0;
     chokedPackets = 0;
     tickShift = 0;

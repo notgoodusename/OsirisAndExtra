@@ -962,8 +962,8 @@ void Visuals::FootstepESP(GameEvent* event) noexcept
     if (entity == localPlayer.get())
         return;
 
-    //   if (entity->getAbsOrigin() == localPlayer.get()->getAbsOrigin()) // fix for weird bug
-   //        return;
+    if (entity->getAbsOrigin() == localPlayer.get()->getAbsOrigin()) // fix for weird bug
+        return;
 
     if (entity->isDormant())
         return;
@@ -971,6 +971,13 @@ void Visuals::FootstepESP(GameEvent* event) noexcept
     if (!entity->isAlive())
         return;
 
+    /*
+    @note: gr1ndy - other sprites that you can use:
+    "sprites/physbeam",
+    "sprites/purplelaser1",
+    "sprites/white.vmt", <-- draws behind the wall
+    */
+    
     auto model_index = interfaces->modelInfo->getModelIndex("sprites/purplelaser1.vmt");
 
     BeamInfo info;
@@ -1049,7 +1056,19 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         beamInfo.start = shotRecord.front().eyePosition;
         beamInfo.end = end;
 
-        beamInfo.modelName = "sprites/physbeam.vmt";
+        /*
+        @note: gr1ndy - other sprites that you can use:
+        "sprites/blueglow1",
+        "sprites/bubble",
+        "sprites/glow01",
+        "sprites/physbeam",
+        "sprites/purpleglow1",
+        "sprites/purplelaser1",
+        "sprites/radio",
+        "sprites/white",
+        */
+        
+        beamInfo.modelName = "sprites/purplelaser1.vmt";
         beamInfo.modelIndex = -1;
         beamInfo.haloName = nullptr;
         beamInfo.haloIndex = -1;
@@ -1059,22 +1078,22 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         beamInfo.blue = 255.0f * config->visuals.bulletTracers.color[2];
         beamInfo.brightness = 255.0f * config->visuals.bulletTracers.color[3];
 
-        beamInfo.type = 0;
-        beamInfo.life = 0.0f;
+        beamInfo.type = TE_BEAMPOINTS;
+        //beamInfo.life = 0.0f;
         beamInfo.amplitude = 0.0f;
         beamInfo.segments = -1;
         beamInfo.renderable = true;
-        beamInfo.speed = 0.2f;
+        beamInfo.speed = 0.0f;
         beamInfo.startFrame = 0;
         beamInfo.frameRate = 0.0f;
         beamInfo.width = 2.0f;
         beamInfo.endWidth = 2.0f;
-        beamInfo.flags = 0x40;
+        //beamInfo.flags = 0x40;
         beamInfo.fadeLength = 20.0f;
 
         if (const auto beam = memory->viewRenderBeams->createBeamPoints(beamInfo)) {
-            constexpr auto FBEAM_FOREVER = 0x4000;
-            beam->flags &= ~FBEAM_FOREVER;
+            //constexpr auto FBEAM_FOREVER = 0x4000;
+            beam->flags = FBEAM_FADEOUT | FBEAM_HALOBEAM;
             beam->die = memory->globalVars->currenttime + 2.0f;
         }
         shotRecord.front().gotImpact = true;

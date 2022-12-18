@@ -1237,6 +1237,13 @@ static void to_json(json& j, const Config::Misc::Logger& o, const Config::Misc::
     WRITE("Events", events);
 }
 
+static void from_json(const json& j, Config::Visuals::FootstepESP& ft)
+{
+    read<value_t::object>(j, "Enabled", ft.footstepBeams);
+    read(j, "Thickness", ft.footstepBeamThickness);
+    read(j, "Radius", ft.footstepBeamRadius);
+}
+
 static void to_json(json& j, const Config::Visuals::MotionBlur& o, const Config::Visuals::MotionBlur& dummy)
 {
     WRITE("Enabled", enabled);

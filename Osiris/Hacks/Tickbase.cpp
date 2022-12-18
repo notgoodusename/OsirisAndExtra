@@ -26,7 +26,7 @@ float realTime{ 0.0f };
 bool shifting{ false };
 bool finalTick{ false };
 
-void Tickbase::start() noexcept
+void Tickbase::start(UserCmd* cmd) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
@@ -37,7 +37,8 @@ void Tickbase::start() noexcept
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
     {
-        targetTickShift = 0;
+        if (ticksAllowedForProcessing)
+            shift(cmd, ticksAllowedForProcessing, true);
         return;
     }
 
@@ -56,15 +57,18 @@ void Tickbase::end(UserCmd* cmd) noexcept
         return;
 
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
+    {
+        targetTickShift = 0;
         return;
+    }
 
     if (cmd->buttons & UserCmd::IN_ATTACK)
        shift(cmd, targetTickShift);
 }
 
-bool Tickbase::shift(UserCmd* cmd, int shiftAmount) noexcept
+bool Tickbase::shift(UserCmd* cmd, int shiftAmount, bool forceShift) noexcept
 {
-    if (!canShift(shiftAmount))
+    if (!canShift(shiftAmount, forceShift))
         return false;
 
     realTime = memory->globalVars->realtime;
@@ -120,13 +124,16 @@ bool Tickbase::canRun() noexcept
     return true;
 }
 
-bool Tickbase::canShift(int shiftAmount) noexcept
+bool Tickbase::canShift(int shiftAmount, bool forceShift) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return false;
 
     if (!shiftAmount || shiftAmount > ticksAllowedForProcessing || memory->globalVars->realtime - realTime <= 0.5f)
         return false;
+
+    if (forceShift)
+        return true;
 
     const auto activeWeapon = localPlayer->getActiveWeapon();
     if (!activeWeapon || !activeWeapon->clip())

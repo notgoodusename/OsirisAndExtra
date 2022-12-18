@@ -327,7 +327,11 @@ void Visuals::playerModel(FrameStage stage) noexcept
         "models/player/custom_player/legacy/tm_jumpsuit_varianta.mdl",
         "models/player/custom_player/legacy/tm_jumpsuit_variantb.mdl",
         "models/player/custom_player/legacy/tm_jumpsuit_variantc.mdl",
-
+        "models/player/custom_player/legacy/ctm_gign.mdl",
+        "models/player/custom_player/legacy/ctm_gign_varianta.mdl",
+        "models/player/custom_player/legacy/ctm_gign_variantb.mdl",
+        "models/player/custom_player/legacy/ctm_gign_variantc.mdl",
+        "models/player/custom_player/legacy/ctm_gign_variantd.mdl",
         "models/player/custom_player/legacy/tm_phoenix_varianti.mdl",
         "models/player/custom_player/legacy/ctm_st6_variantj.mdl",
         "models/player/custom_player/legacy/ctm_st6_variantl.mdl",
@@ -880,8 +884,10 @@ void Visuals::skybox(FrameStage stage) noexcept
     if (stage != FrameStage::RENDER_START && stage != FrameStage::RENDER_END)
         return;
 
-    if (stage == FrameStage::RENDER_START && config->visuals.skybox > 0 && static_cast<std::size_t>(config->visuals.skybox) < skyboxList.size()) {
+    if (stage == FrameStage::RENDER_START && config->visuals.skybox > 0 && static_cast<std::size_t>(config->visuals.skybox) < skyboxList.size() - 1) {
         memory->loadSky(skyboxList[config->visuals.skybox]);
+    } else if (config->visuals.skybox == 26 && stage == FrameStage::RENDER_START) {
+        memory->loadSky(config->visuals.customSkybox.c_str());
     } else {
         static const auto sv_skyname = interfaces->cvar->findVar("sv_skyname");
         memory->loadSky(sv_skyname->string);
@@ -1150,6 +1156,101 @@ void Visuals::drawSmokeHull(ImDrawList* drawList) noexcept
 
         std::sort(screenPoints.begin() + 1, screenPoints.begin() + count, [&](const auto& a, const auto& b) { return orientation(screenPoints[0], a, b) > 0.0f; });
         drawList->AddConvexPolyFilled(screenPoints.data(), count, color);
+    }
+}
+
+
+// Used to sort Vectors in ccw order about a pivot.
+static float ccw(const Vector& a, const Vector& b, const Vector& c) {
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+struct ccwSorter {
+    const Vector& pivot;
+
+    ccwSorter(const Vector& inPivot) : pivot(inPivot) { }
+
+    bool operator()(const Vector& a, const Vector& b) {
+        return ccw(pivot, a, b) < 0;
+    }
+};
+
+static bool isLeftOf(const Vector& a, const Vector& b) {
+    return (a.x < b.x || (a.x == b.x && a.y < b.y));
+}
+
+static std::vector<Vector> gift_wrapping(std::vector<Vector> v) {
+    std::vector<Vector> hull;
+
+    // There must be at least 3 points
+    if (v.size() < 3)
+        return hull;
+
+    // Move the leftmost Vector to the beginning of our vector.
+    // It will be the first Vector in our convext hull.
+    std::swap(v[0], *min_element(v.begin(), v.end(), isLeftOf));
+
+    // Repeatedly find the first ccw Vector from our last hull Vector
+    // and put it at the front of our array. 
+    // Stop when we see our first Vector again.
+    do {
+        hull.push_back(v[0]);
+        std::swap(v[0], *min_element(v.begin() + 1, v.end(), ccwSorter(v[0])));
+    } while (v[0].x != hull[0].x && v[0].y != hull[0].y);
+
+    return hull;
+}
+
+
+void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
+{
+    if (!config->visuals.molotovPolygon.enabled)
+        return;
+
+    const auto color = Helpers::calculateColor(config->visuals.molotovPolygon);
+    constexpr float pi = std::numbers::pi_v<float>;
+
+    GameData::Lock lock;
+
+    /* add the inferno position with largest possible inferno width so it's showing accurate radius. */
+    auto flameCircumference = [](std::vector<Vector> points)
+    {
+        std::vector<Vector> new_points;
+
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            const auto& pos = points[i];
+
+            for (int j = 0; j <= 3; j++)
+            {
+                float p = j * (360.0f / 4.0f) * (pi / 200.0f);
+                new_points.emplace_back(pos + Vector(std::cos(p) * 60.f, std::sin(p) * 60.f, 0.f));
+            }
+        }
+
+        return new_points;
+    };
+
+    for (const auto& molotov : GameData::infernos()) 
+    {
+        /* we only wanted to draw the points on the edge, use giftwrap algorithm. */
+        std::vector<Vector> giftWrapped = gift_wrapping(flameCircumference(molotov.points));
+
+        /* transforms world position to screen position. */
+        std::vector<ImVec2> points;
+
+        for (size_t i = 0; i < giftWrapped.size(); ++i)
+        {
+            const auto& pos = giftWrapped[i];
+
+            auto screen_pos = ImVec2();
+            if (!Helpers::worldToScreen(pos, screen_pos))
+                continue;
+
+            points.emplace_back(ImVec2(screen_pos.x, screen_pos.y));
+        }
+
+        drawList->AddConvexPolyFilled(points.data(), points.size(), color);
     }
 }
 

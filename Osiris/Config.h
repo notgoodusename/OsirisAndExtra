@@ -251,6 +251,7 @@ public:
         int farZ{ 0 };
         int flashReduction{ 0 };
         int skybox{ 0 };
+        std::string customSkybox;
         bool deagleSpinner{ false };
         struct MotionBlur
         {
@@ -276,6 +277,7 @@ public:
         BulletTracers bulletTracers;
         ColorToggle molotovHull{ 1.0f, 0.27f, 0.0f, 0.3f };
         ColorToggle smokeHull{ 0.5f, 0.5f, 0.5f, 0.3f };
+        ColorToggle molotovPolygon{ 1.0f, 0.27f, 0.0f, 0.3f };
         struct Viewmodel
         {
             bool enabled { false };
@@ -360,6 +362,7 @@ public:
         bool oppositeHandKnife = false;
         bool svPureBypass{ true };
         bool inventoryUnlocker{ false };
+        bool unhideConvars{ false };
         KillfeedChanger killfeedChanger;
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];

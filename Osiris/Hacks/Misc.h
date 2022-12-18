@@ -33,6 +33,7 @@ namespace Misc
     void autoPeek(UserCmd* cmd, Vector currentViewAngles) noexcept;
     void forceRelayCluster() noexcept;
     void jumpBug(UserCmd* cmd) noexcept;
+    void initHiddenCvars() noexcept;
     void unlockHiddenCvars() noexcept;
     void fakeDuck(UserCmd* cmd, bool& sendPacket) noexcept;
     void edgejump(UserCmd* cmd) noexcept;

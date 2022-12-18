@@ -946,6 +946,64 @@ void Visuals::updateShots(UserCmd* cmd) noexcept
         shotRecord.pop_front();
 }
 
+void Visuals::FootstepESP(GameEvent* event) noexcept
+{
+    if (!config->visuals.footsteps.footstepBeams.enabled)
+        return;
+
+    auto entity = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(event->getInt("userid")));
+
+    if (!entity || !localPlayer.get())
+        return;
+
+    if (entity->getTeamNumber() == localPlayer->getTeamNumber())
+        return;
+
+    if (entity == localPlayer.get())
+        return;
+
+    //   if (entity->getAbsOrigin() == localPlayer.get()->getAbsOrigin()) // fix for weird bug
+   //        return;
+
+    if (entity->isDormant())
+        return;
+
+    if (!entity->isAlive())
+        return;
+
+    auto model_index = interfaces->modelInfo->getModelIndex("sprites/purplelaser1.vmt");
+
+    BeamInfo info;
+
+    info.type = TE_BEAMRINGPOINT;
+    info.modelName = "sprites/purplelaser1.vmt";
+    info.modelIndex = model_index;
+    info.haloIndex = -1;
+    info.haloScale = 3.0f;
+    info.life = 2.0f;
+    info.width = config->visuals.footsteps.footstepBeamThickness;
+    info.fadeLength = 0.0f;
+    info.amplitude = 0.0f;
+    info.red = config->visuals.footsteps.footstepBeams.color[0] * 255;
+    info.green = config->visuals.footsteps.footstepBeams.color[1] * 255;
+    info.blue = config->visuals.footsteps.footstepBeams.color[2] * 255;
+    info.brightness = 255;
+    info.speed = 0.0f;
+    info.startFrame = 0.0f;
+    info.frameRate = 60.0f;
+    info.segments = -1;
+    info.flags = FBEAM_FADEOUT;
+    info.ringCenter = entity->getAbsOrigin() + Vector(0.0f, 0.0f, 5.0f);
+    info.ringStartRadius = 5.0f;
+    info.ringEndRadius = config->visuals.footsteps.footstepBeamRadius;
+    info.renderable = true;
+
+    auto beam_draw = memory->viewRenderBeams->CreateBeamRingPoint(info);
+
+    if (beam_draw)
+        memory->viewRenderBeams->DrawBeam(beam_draw);
+}
+
 void Visuals::bulletTracer(GameEvent& event) noexcept
 {
     if (!config->visuals.bulletTracers.enabled)

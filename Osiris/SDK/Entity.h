@@ -32,6 +32,8 @@
 
 struct AnimState;
 
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+
 struct AnimationLayer
 {
 public:

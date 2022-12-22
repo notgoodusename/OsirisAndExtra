@@ -7,6 +7,7 @@
 #include <tuple>
 #include <vector>
 
+#include "SDK/Entity.h"
 #include "SDK/matrix3x4.h"
 #include "SDK/Vector.h"
 
@@ -160,6 +161,7 @@ struct PlayerData : BaseData {
     std::vector<std::pair<Vector, Vector>> bones;
     int skillgroup;
     bool hasBomb;
+    ObsMode observerMode;
 
     class Texture {
         ImTextureID texture = nullptr;

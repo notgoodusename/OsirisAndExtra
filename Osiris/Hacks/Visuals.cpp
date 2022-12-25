@@ -946,7 +946,7 @@ void Visuals::updateShots(UserCmd* cmd) noexcept
         shotRecord.pop_front();
 }
 
-void Visuals::FootstepESP(GameEvent* event) noexcept
+void Visuals::footstepESP(GameEvent* event) noexcept
 {
     if (!config->visuals.footsteps.footstepBeams.enabled)
         return;

@@ -100,7 +100,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         Visuals::molotovExtinguishEvent(event);
         break;
     case fnv::hash("player_footstep"):
-        Visuals::FootstepESP(event);
+        Visuals::footstepESP(event);
         break;
     }
 }

@@ -141,7 +141,7 @@ public:
         VIRTUAL_METHOD(Team, getTeamNumber, 88, (), (this))
         VIRTUAL_METHOD(int, health, 122, (), (this))
         VIRTUAL_METHOD(int, maxHealth, 123, (), (this))
-        VIRTUAL_METHOD(void, think, 138, (), (this))
+        VIRTUAL_METHOD(void, think, 139, (), (this))
         VIRTUAL_METHOD(bool, isAlive, 156, (), (this))
         VIRTUAL_METHOD(bool, isPlayer, 158, (), (this))
         VIRTUAL_METHOD(bool, isWeapon, 166, (), (this))
@@ -629,17 +629,15 @@ public:
 
     void runThink() noexcept
     {
-        const auto nextThinkTick = *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(this) + 0xFC);
+        const auto nextThinkTick = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + 0xFC);
         if (nextThinkTick != -1 &&
             nextThinkTick > 0 &&
             nextThinkTick <= tickBase())
         {
-            *reinterpret_cast<int32_t*>(reinterpret_cast<uintptr_t>(this) + 0xFC) = 1; //m_nNextThinkTick = 1
-
+            *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + 0xFC) = -1;
             checkHasThinkFunction();
             think();
         }
-
     }
 
     void runPostThink() noexcept

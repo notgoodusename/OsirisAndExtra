@@ -10,12 +10,12 @@ struct UserCmd;
 
 class Prediction {
 public:
-	PAD(4)
-	std::uintptr_t lastGround;
-	bool inPrediction;
-	bool isFirstTimePredicted;
-	bool enginePaused;
-	bool oldCLPredictValue;
+    PAD(4);
+    std::uintptr_t lastGround;
+    bool inPrediction;
+    bool oldCLPredictValue;
+    bool isFirstTimePredicted;
+    bool enginePaused;
 	int previousStartFrame;
 	int incomingPacketNumber;
 	float lastServerWorldTimeStamp;

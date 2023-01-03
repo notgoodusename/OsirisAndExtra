@@ -1207,7 +1207,10 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
     if (!config->visuals.molotovPolygon.enabled)
         return;
 
-    const auto color = Helpers::calculateColor(config->visuals.molotovPolygon);
+    ImColor enemy = Helpers::calculateColor(config->visuals.molotovPolygon.enemy);
+    ImColor team = Helpers::calculateColor(config->visuals.molotovPolygon.team);
+    ImColor self = Helpers::calculateColor(config->visuals.molotovPolygon.self);
+
     constexpr float pi = std::numbers::pi_v<float>;
 
     GameData::Lock lock;
@@ -1233,6 +1236,9 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
 
     for (const auto& molotov : GameData::infernos()) 
     {
+        const auto color = !molotov.owner || molotov.owner->isOtherEnemy(localPlayer.get()) ? enemy :
+            molotov.owner->index() != localPlayer->index() ? team : self;
+
         /* we only wanted to draw the points on the edge, use giftwrap algorithm. */
         std::vector<Vector> giftWrapped = gift_wrapping(flameCircumference(molotov.points));
 

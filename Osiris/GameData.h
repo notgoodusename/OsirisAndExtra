@@ -214,7 +214,7 @@ struct BombData {
 
 struct InfernoData {
     InfernoData(Entity* inferno) noexcept;
-
+    Entity* owner;
     std::vector<Vector> points;
 };
 

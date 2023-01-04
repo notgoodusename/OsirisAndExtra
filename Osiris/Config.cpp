@@ -630,6 +630,14 @@ static void from_json(const json& j, Config::Visuals::Viewmodel& vxyz)
     read(j, "Roll", vxyz.roll);
 }
 
+static void from_json(const json& j, Config::Visuals::MolotovPolygon& mp)
+{
+    read(j, "Enabled", mp.enabled);
+    read<value_t::object>(j, "Self", mp.self);
+    read<value_t::object>(j, "Team", mp.team);
+    read<value_t::object>(j, "Enemy", mp.enemy);
+}
+
 static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
@@ -1263,6 +1271,14 @@ static void to_json(json& j, const Config::Visuals::Viewmodel& o, const Config::
     WRITE("Y", y);
     WRITE("Z", z);
     WRITE("Roll", roll);
+}
+
+static void to_json(json& j, const Config::Visuals::MolotovPolygon& o, const Config::Visuals::MolotovPolygon& dummy)
+{
+    WRITE("Enabled", enabled);
+    WRITE("Self", self);
+    WRITE("Team", team);
+    WRITE("Enemy", enemy);
 }
 
 static void to_json(json& j, const Config::Misc& o)

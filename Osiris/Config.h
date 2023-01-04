@@ -277,7 +277,13 @@ public:
         BulletTracers bulletTracers;
         ColorToggle molotovHull{ 1.0f, 0.27f, 0.0f, 0.3f };
         ColorToggle smokeHull{ 0.5f, 0.5f, 0.5f, 0.3f };
-        ColorToggle molotovPolygon{ 1.0f, 0.27f, 0.0f, 0.3f };
+        struct MolotovPolygon
+        {
+            bool enabled{ false };
+            Color4 enemy{ 1.f, 0.27f, 0.f, 0.3f };
+            Color4 team{ 0.37f, 1.f, 0.37f, 0.3f };
+            Color4 self{ 1.f, 0.09f, 0.96f, 0.3f };
+        } molotovPolygon;
         struct Viewmodel
         {
             bool enabled { false };

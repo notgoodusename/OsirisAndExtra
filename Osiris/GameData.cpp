@@ -822,6 +822,8 @@ InfernoData::InfernoData(Entity* inferno) noexcept
 {
     const auto& origin = inferno->getAbsOrigin();
 
+    owner = interfaces->entityList->getEntityFromHandle(inferno->ownerEntity());
+
     points.reserve(inferno->fireCount());
     for (int i = 0; i < inferno->fireCount(); ++i) {
         if (inferno->fireIsBurning()[i])

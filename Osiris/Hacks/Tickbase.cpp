@@ -147,7 +147,8 @@ bool Tickbase::canShift(int shiftAmount, bool forceShift) noexcept
 
     if (activeWeapon->isKnife() || activeWeapon->isGrenade() || activeWeapon->isBomb()
         || activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver
-        || activeWeapon->itemDefinitionIndex2() == WeaponId::Taser)
+        || activeWeapon->itemDefinitionIndex2() == WeaponId::Taser
+        || activeWeapon->itemDefinitionIndex2() == WeaponId::Healthshot)
         return false;
 
     const float shiftTime = (localPlayer->tickBase() - shiftAmount) * memory->globalVars->intervalPerTick;

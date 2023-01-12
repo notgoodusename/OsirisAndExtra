@@ -34,8 +34,16 @@ void Tickbase::start(UserCmd* cmd) noexcept
         hasHadTickbaseActive = false;
         return;
     }
-
+    if (cmd->buttons & UserCmd::IN_ATTACK)
+    {
+        config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 15;
+    }
+    if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
+        config->tickbase.DisabledTickbase = true;
+    else
+        config->tickbase.DisabledTickbase = false;
     if (const auto netChannel = interfaces->engine->getNetworkChannel(); netChannel)
+
         if (netChannel->chokedPackets > chokedPackets)
             chokedPackets = netChannel->chokedPackets;
 

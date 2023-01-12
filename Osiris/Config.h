@@ -94,7 +94,8 @@ public:
         KeyBind hideshots{ std::string("hideshots"), KeyMode::Off };
         bool teleport{ false };
         bool onshotFl{ false };
-        int lastFireTick;
+        bool DisabledTickbase;
+        int lastFireShiftTick;
     } tickbase;
 
     struct LegitAntiAimConfig {

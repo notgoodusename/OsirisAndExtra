@@ -642,6 +642,7 @@ static void from_json(const json& j, Config::Visuals::MolotovPolygon& mp)
 static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
+    read(j, "Resolver", m.resolver);
     read(j, "Anti AFK kick", m.antiAfkKick);
     read(j, "Adblock", m.adBlock);
     read(j, "Force relay", m.forceRelayCluster);
@@ -1288,6 +1289,7 @@ static void to_json(json& j, const Config::Misc& o)
     const Config::Misc dummy;
 
     WRITE("Menu key", menuKey);
+    WRITE("Resolver", resolver);
     WRITE("Anti AFK kick", antiAfkKick);
     WRITE("Adblock", adBlock);
     WRITE("Force relay", forceRelayCluster);

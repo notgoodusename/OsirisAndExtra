@@ -15,7 +15,6 @@
 
 #include "SDK/GlobalVars.h"
 #include "SDK/Engine.h"
-
 static auto rainbowColor(float time, float speed, float alpha) noexcept
 {
     constexpr float pi = std::numbers::pi_v<float>;

@@ -321,19 +321,17 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         if (cfg[weaponIndex].autoShot && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped) {
             cmd->buttons |= UserCmd::IN_ATTACK;
-            memory->globalVars->lastFireTick = memory->globalVars->tickCount;
+            config->tickbase.lastFireTick = memory->globalVars->tickCount;
         }
 
         if (clamped){
             cmd->buttons &= ~UserCmd::IN_ATTACK;
-            memory->globalVars->lastFireTick = memory->globalVars->tickCount;
         }
 
         if (cmd->buttons & UserCmd::IN_ATTACK)
         {
             cmd->tickCount = timeToTicks(bestSimulationTime + Backtrack::getLerp());
             Resolver::saveRecord(bestIndex, bestSimulationTime);
-            memory->globalVars->lastFireTick = memory->globalVars->tickCount;
         }
 
         if (clamped) lastAngles = cmd->viewangles;

@@ -159,7 +159,6 @@ constexpr int getWeaponIndex(WeaponId weaponId) noexcept
 {
     switch (weaponId) {
     default: return 0;
-
     case WeaponId::Glock: return 1;
     case WeaponId::Hkp2000: return 2;
     case WeaponId::Usp_s: return 3;

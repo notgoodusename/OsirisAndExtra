@@ -309,18 +309,22 @@ void Ragebot::run(UserCmd* cmd) noexcept
         auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bestTarget, cmd->viewangles + aimPunch);
         bool clamped{ false };
 
-        if (std::abs(angle.x) > config->misc.maxAngleDelta || std::abs(angle.y) > config->misc.maxAngleDelta) {
+        if ((std::abs(angle.x) > config->misc.maxAngleDelta || std::abs(angle.y) > config->misc.maxAngleDelta)) {
             angle.x = std::clamp(angle.x, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
             angle.y = std::clamp(angle.y, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
             clamped = true;
         }
-
-        cmd->viewangles += angle;
+        if(activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime())
+            cmd->viewangles += angle;
         
         if (!cfg[weaponIndex].silent)
             interfaces->engine->setViewAngles(cmd->viewangles);
 
-        if (cfg[weaponIndex].autoShot && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped) {
+        if (cfg[weaponIndex].autoShot  && !clamped) {
+            if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != (9 || 10 || 11 || 12 || 13 || 14 || 29 || 32 || 33 || 34 || 39))
+                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 13;
+            else
+                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 15;
             cmd->buttons |= UserCmd::IN_ATTACK;
         }
 
@@ -330,7 +334,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         if (cmd->buttons & UserCmd::IN_ATTACK)
         {
-            config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 14;
             cmd->tickCount = timeToTicks(bestSimulationTime + Backtrack::getLerp());
             Resolver::saveRecord(bestIndex, bestSimulationTime);
         }

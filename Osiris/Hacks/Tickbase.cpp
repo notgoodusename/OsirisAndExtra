@@ -36,7 +36,7 @@ void Tickbase::start(UserCmd* cmd) noexcept
     }
     if (cmd->buttons & UserCmd::IN_ATTACK)
     {
-        config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 15;
+        config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 14;
     }
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
         config->tickbase.DisabledTickbase = true;

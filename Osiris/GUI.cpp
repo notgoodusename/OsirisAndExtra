@@ -68,7 +68,7 @@ GUI::GUI() noexcept
         const std::filesystem::path path{ pathToFonts };
         CoTaskMemFree(pathToFonts);
 
-        fonts.normal15px = io.Fonts->AddFontFromFileTTF((path / "dengl.ttf").string().c_str(), 15.0f, &cfg, Helpers::getFontGlyphRanges());
+        fonts.normal15px = io.Fonts->AddFontFromFileTTF((path / "deng.ttf").string().c_str(), 15.0f, &cfg, Helpers::getFontGlyphRanges());
         if (!fonts.normal15px)
             io.Fonts->AddFontDefault(&cfg);
 

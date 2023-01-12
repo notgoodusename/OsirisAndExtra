@@ -305,7 +305,7 @@ ImWchar* Helpers::getFontGlyphRanges() noexcept
         };
         builder.AddRanges(baseRanges);
         builder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesCyrillic());
-        //builder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesChineseSimplifiedCommon());
+        builder.AddRanges(ImGui::GetIO().Fonts->GetGlyphRangesChineseFull());
         builder.AddText("\u9F8D\u738B\u2122");
         builder.BuildRanges(&ranges);
     }

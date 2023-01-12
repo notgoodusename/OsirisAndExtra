@@ -8,7 +8,7 @@
 
 std::deque<Resolver::SnapShot> snapshots;
 
-bool resolver = false;
+bool resolver = true;
 
 void Resolver::reset() noexcept
 {

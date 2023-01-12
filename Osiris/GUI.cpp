@@ -68,15 +68,15 @@ GUI::GUI() noexcept
         const std::filesystem::path path{ pathToFonts };
         CoTaskMemFree(pathToFonts);
 
-        fonts.normal15px = io.Fonts->AddFontFromFileTTF((path / "tahoma.ttf").string().c_str(), 15.0f, &cfg, Helpers::getFontGlyphRanges());
+        fonts.normal15px = io.Fonts->AddFontFromFileTTF((path / "dengl.ttf").string().c_str(), 15.0f, &cfg, Helpers::getFontGlyphRanges());
         if (!fonts.normal15px)
             io.Fonts->AddFontDefault(&cfg);
 
-        fonts.tahoma34 = io.Fonts->AddFontFromFileTTF((path / "tahoma.ttf").string().c_str(), 34.0f, &cfg, Helpers::getFontGlyphRanges());
+        fonts.tahoma34 = io.Fonts->AddFontFromFileTTF((path / "deng.ttf").string().c_str(), 34.0f, &cfg, Helpers::getFontGlyphRanges());
         if (!fonts.tahoma34)
             io.Fonts->AddFontDefault(&cfg);
 
-        fonts.tahoma28 = io.Fonts->AddFontFromFileTTF((path / "tahomabd.ttf").string().c_str(), 28.0f, &cfg, Helpers::getFontGlyphRanges());
+        fonts.tahoma28 = io.Fonts->AddFontFromFileTTF((path / "dengb.ttf").string().c_str(), 28.0f, &cfg, Helpers::getFontGlyphRanges());
         if (!fonts.tahoma28)
             io.Fonts->AddFontDefault(&cfg);
 

@@ -17,6 +17,9 @@ void Fakelag::run(bool& sendPacket) noexcept
     if (!netChannel)
         return;
 
+    if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive() && config->tickbase.onshotFl && memory->globalVars->lastFireTick + 15 < memory->globalVars->tickCount)
+        return;
+
     auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 2 : 0;
     if (config->fakelag.enabled)
     {

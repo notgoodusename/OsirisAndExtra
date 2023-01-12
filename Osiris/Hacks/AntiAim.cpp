@@ -202,7 +202,8 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             if (const auto gameRules = (*memory->gameRules); gameRules)
                 if (getGameMode() != GameMode::Competitive && gameRules->isValveDS())
                     return;
-
+            if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive() && config->tickbase.onshotFl && memory->globalVars->lastFireTick + 15 < memory->globalVars->tickCount)
+                return;
             bool isInvertToggled = config->fakeAngle.invert.isActive();
             static bool invert = true;
             if (config->fakeAngle.peekMode != 3)

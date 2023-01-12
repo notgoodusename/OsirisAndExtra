@@ -497,7 +497,7 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::hotkey2("Hideshots", config->tickbase.hideshots);
     ImGui::PopID();
     ImGui::Checkbox("Teleport on shift", &config->tickbase.teleport);
-
+    ImGui::Checkbox("On shot disable choke ", &config->tickbase.onshotFl);
     ImGui::Columns(1);
 }
 

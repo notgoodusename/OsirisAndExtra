@@ -342,6 +342,7 @@ static void from_json(const json& j, Config::Tickbase& t)
     read(j, "Doubletap", t.doubletap);
     read(j, "Hideshots", t.hideshots);
     read(j, "Teleport", t.teleport);
+    read(j, "OnshotFl", t.onshotFl);
 }
 
 static void from_json(const json& j, Config::Backtrack& b)
@@ -1111,6 +1112,7 @@ static void to_json(json& j, const Config::Tickbase& o, const Config::Tickbase& 
     WRITE("Doubletap", doubletap);
     WRITE("Hideshots", hideshots);
     WRITE("Teleport", teleport);
+    WRITE("OnshotFl", onshotFl);
 }
 
 static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack& dummy = {})

@@ -93,6 +93,7 @@ public:
         KeyBind doubletap{ std::string("doubletap"), KeyMode::Off };
         KeyBind hideshots{ std::string("hideshots"), KeyMode::Off };
         bool teleport{ false };
+        bool onshotFl{ false };
     } tickbase;
 
     struct LegitAntiAimConfig {

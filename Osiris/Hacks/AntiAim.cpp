@@ -222,7 +222,6 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             switch (config->fakeAngle.peekMode)
             {
             case 0:
-                cmd->viewangles.z = config->rageAntiAim.rollAdd;
                 break;
             case 1: // Peek real
                 if(!isInvertToggled)
@@ -281,6 +280,8 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 return;
 
             cmd->viewangles.y += invert ? leftDesyncAngle : rightDesyncAngle;
+            if (config->rageAntiAim.roll)
+                cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : config->rageAntiAim.rollAdd * -1.f;
         }
     }
 }

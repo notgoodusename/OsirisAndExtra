@@ -23,6 +23,7 @@ void Fakelag::run(bool& sendPacket) noexcept
         return;
     }
     else if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount) {
+        chokedPackets = 0;
         sendPacket = true;
         return;
     }
@@ -51,9 +52,11 @@ void Fakelag::run(bool& sendPacket) noexcept
                 else
                 {
                     if ((rand() % (361)) - 180 < 160)
-                        chokedPackets = 2;
-                    else
                         chokedPackets = 1;
+                    else {
+                        chokedPackets = 0;
+                        sendPacket = true;
+                    }
                 }
             }
             i = 0;

@@ -16,11 +16,17 @@ void Fakelag::run(bool& sendPacket) noexcept
     const auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;
-
-    if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount)
-        return;
-
     auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 2 : 0;
+
+    if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick - memory->globalVars->tickCount > 12) {
+        chokedPackets = 14;
+        return;
+    }
+    else if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount) {
+        chokedPackets = 0;
+        return;
+    }
+        
     if (config->fakelag.enabled)
     {
         const float speed = EnginePrediction::getVelocity().length2D() >= 15.0f ? EnginePrediction::getVelocity().length2D() : 0.0f;
@@ -41,7 +47,7 @@ void Fakelag::run(bool& sendPacket) noexcept
             for (i = 1; i <= 30; ++i)
             {
                 if (i == 29)
-                    chokedPackets = 18;
+                    chokedPackets = 15;
                 else
                 {
                     if ((rand() % (361)) - 180 < 160)

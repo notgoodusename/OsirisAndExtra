@@ -707,7 +707,7 @@ void GUI::renderRageAntiAimWindow() noexcept
     if (config->rageAntiAim.yawBase == Yaw::spin)
     {
         ImGui::PushItemWidth(220.0f);
-        ImGui::SliderInt("Spin base", &config->rageAntiAim.spinBase, -180, 180, "%d");
+        ImGui::SliderInt("Spin tick", &config->rageAntiAim.spinBase, 0, 1280, "%d");
         ImGui::PopItemWidth();
     }
 

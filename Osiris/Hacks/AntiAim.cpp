@@ -8,7 +8,7 @@
 #include "../SDK/EntityList.h"
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
-
+int spinstopat = 0;
 bool updateLby(bool update = false) noexcept
 {
     static float timer = 0.f;
@@ -129,7 +129,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             }
 
             if (config->rageAntiAim.yawBase != Yaw::spin)
-                staticYaw = 0.f;
+                staticYaw = 1.f;
 
             switch (config->rageAntiAim.yawBase)
             {
@@ -146,8 +146,16 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw += 90.f;
                 break;
             case Yaw::spin:
-                staticYaw += static_cast<float>(config->rageAntiAim.spinBase);
-                yaw += staticYaw;
+                if (memory->globalVars->tickCount < spinstopat){
+                    staticYaw = staticYaw++ * 1.05f;
+                    yaw += staticYaw;
+                }
+                else{
+                    staticYaw = 1.f;
+                    yaw = staticYaw;
+                    spinstopat = memory->globalVars->tickCount + config->rageAntiAim.spinBase;
+                }
+                
                 break;
             default:
                 break;

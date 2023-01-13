@@ -321,7 +321,17 @@ void Ragebot::run(UserCmd* cmd) noexcept
             interfaces->engine->setViewAngles(cmd->viewangles);
 
         if (cfg[weaponIndex].autoShot  && !clamped) {
-            if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != (9 || 10 || 11 || 12 || 13 || 14 || 29 || 32 || 33 || 34 || 39))
+            if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 || 
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 || 
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 11 || 
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 12 || 
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 13 || 
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 14 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 29 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 32 || 
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 33 || 
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 34 || 
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 39)
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 14;
             else
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 15;

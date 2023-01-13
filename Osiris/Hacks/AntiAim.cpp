@@ -219,10 +219,10 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             srand(static_cast<unsigned int>(time(NULL)));
             float leftDesyncAngle = ((rand() % (config->fakeAngle.leftLimit - config->fakeAngle.leftMin)) + config->fakeAngle.leftMin) * 2.f;
             float rightDesyncAngle = ((rand() % (config->fakeAngle.rightLimit - config->fakeAngle.rightMin)) + config->fakeAngle.rightMin) * -2.f;
-
             switch (config->fakeAngle.peekMode)
             {
             case 0:
+                cmd->viewangles.z = config->rageAntiAim.rollAdd;
                 break;
             case 1: // Peek real
                 if(!isInvertToggled)

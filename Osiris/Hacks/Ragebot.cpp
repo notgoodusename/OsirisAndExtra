@@ -52,7 +52,7 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
         StudioBbox* hitbox = set->getHitbox(i);
         if (!hitbox)
             continue;
-
+        
         for (auto& bonePosition : AimbotFunction::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, multiPoint))
         {
             const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };

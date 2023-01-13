@@ -79,6 +79,8 @@ public:
         int jitterMin = 0;
         int jitterRange = 3;
         bool atTargets = false;
+        bool roll = false;
+        int rollAdd = 0;
     } rageAntiAim;
 
     struct FakeAngle {

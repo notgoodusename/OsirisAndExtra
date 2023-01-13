@@ -712,7 +712,7 @@ void GUI::renderRageAntiAimWindow() noexcept
     }
 
     ImGui::Checkbox("At targets", &config->rageAntiAim.atTargets);
-
+    
     ImGui::hotkey2("Forward", config->rageAntiAim.manualForward, 60.f);
     ImGui::hotkey2("Backward", config->rageAntiAim.manualBackward, 60.f);
     ImGui::hotkey2("Right", config->rageAntiAim.manualRight, 60.f);
@@ -741,7 +741,9 @@ void GUI::renderFakeAngleWindow() noexcept
 
     ImGui::Combo("Mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0Jitter\0");
     ImGui::Combo("Lby mode", &config->fakeAngle.lbyMode, "Normal\0Opposite\0Sway\0");
-
+    ImGui::Checkbox("Roll", &config->rageAntiAim.roll);
+    if  (config->rageAntiAim.roll)
+        ImGui::SliderInt("Roll add", &config->rageAntiAim.rollAdd, -90, 90, "%d");
     ImGui::NextColumn();
     ImGui::Columns(1);
 }

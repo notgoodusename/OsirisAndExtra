@@ -315,6 +315,7 @@ static void from_json(const json& j, Config::RageAntiAimConfig& a)
     read(j, "Manual left Key", a.manualLeft);
     read(j, "Yaw modifier", a.yawModifier);
     read(j, "Yaw add", a.yawAdd);
+    read(j, "Jitter min", a.jitterMin);
     read(j, "Jitter Range", a.jitterRange);
     read(j, "Spin base", a.spinBase);
     read(j, "At targets", a.atTargets);
@@ -324,7 +325,9 @@ static void from_json(const json& j, Config::FakeAngle& a)
 {
     read(j, "Enabled", a.enabled);
     read(j, "Invert", a.invert);
+    read(j, "Left min", a.leftMin);
     read(j, "Left limit", a.leftLimit);
+    read(j, "Right min", a.rightMin);
     read(j, "Right limit", a.rightLimit);
     read(j, "Peek mode", a.peekMode);
     read(j, "Lby mode", a.lbyMode);
@@ -1086,6 +1089,7 @@ static void to_json(json& j, const Config::RageAntiAimConfig& o, const Config::R
     to_json(j["Manual left Key"], o.manualLeft, KeyBind::NONE);
     WRITE("Yaw modifier", yawModifier);
     WRITE("Yaw add", yawAdd);
+    WRITE("Jitter min", jitterMin);
     WRITE("Jitter Range", jitterRange);
     WRITE("Spin base", spinBase);
     WRITE("At targets", atTargets);
@@ -1095,7 +1099,9 @@ static void to_json(json& j, const Config::FakeAngle& o, const Config::FakeAngle
 {
     WRITE("Enabled", enabled);
     WRITE("Invert", invert);
+    WRITE("Left min", leftMin);
     WRITE("Left limit", leftLimit);
+    WRITE("Right min", rightMin);
     WRITE("Right limit", rightLimit);
     WRITE("Peek mode", peekMode);
     WRITE("Lby mode", lbyMode);

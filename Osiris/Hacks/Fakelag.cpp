@@ -35,10 +35,26 @@ void Fakelag::run(bool& sendPacket) noexcept
             srand(static_cast<unsigned int>(time(NULL)));
             chokedPackets = rand() % config->fakelag.limit + 1;
             break;
+        case 3:
+            int i;
+            srand(static_cast<unsigned int>(time(NULL)));
+            for (i = 1; i <= 30; ++i)
+            {
+                if (i == 29)
+                    chokedPackets = 18;
+                else
+                {
+                    if ((rand() % (361)) - 180 < 160)
+                        chokedPackets = 2;
+                    else
+                        chokedPackets = 1;
+                }
+            }
+            i = 0;
+            break;
         }
     }
 
     chokedPackets = std::clamp(chokedPackets, 0, maxUserCmdProcessTicks - Tickbase::getTargetTickShift());
-
     sendPacket = netChannel->chokedPackets >= chokedPackets;
 }

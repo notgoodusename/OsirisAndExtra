@@ -13,6 +13,8 @@
 
 #include "imguiCustom.h"
 
+#include "Resources/michi.h"
+
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"
 #include "Hacks/Glow.h"
@@ -28,6 +30,8 @@
 #include "Interfaces.h"
 
 #include "SDK/InputSystem.h"
+
+#include "imgui/imgui_impl_dx9.h"
 
 constexpr auto windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
 | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
@@ -48,9 +52,12 @@ static ImFont* addFontFromVFONT(const std::string& path, float size, const ImWch
 
     return ImGui::GetIO().Fonts->AddFont(&cfg);
 }
-
+void GUI::michiget() noexcept {
+    GUI::michishio = ImGui_CreateTextureRGBA(244, 350, Resource::michi);
+}
 GUI::GUI() noexcept
 {
+    //GUI::michiget();
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
 
@@ -658,9 +665,10 @@ void GUI::renderFakelagWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->fakelag.enabled);
-    ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptative\0Random\0");
+    ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptative\0Random\0m1tZw tank\0");
     ImGui::PushItemWidth(220.0f);
-    ImGui::SliderInt("Limit", &config->fakelag.limit, 1, 16, "%d");
+    ImGui::Text("Not recommend limit > 14");
+    ImGui::SliderInt("Limit", &config->fakelag.limit, 1, 64, "%d");
     ImGui::PopItemWidth();
     ImGui::NextColumn();
     ImGui::Columns(1);
@@ -692,7 +700,9 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::PopItemWidth();
 
     if (config->rageAntiAim.yawModifier == 1) //Jitter
-        ImGui::SliderInt("Jitter yaw range", &config->rageAntiAim.jitterRange, 0, 90, "%d");
+        
+        ImGui::SliderInt("Jitter yaw limit", &config->rageAntiAim.jitterRange, 0, 90, "%d");
+        ImGui::SliderInt("Jitter yaw min", &config->rageAntiAim.jitterMin, 0, config->rageAntiAim.jitterRange, "%d");
 
     if (config->rageAntiAim.yawBase == Yaw::spin)
     {
@@ -719,12 +729,14 @@ void GUI::renderFakeAngleWindow() noexcept
     ImGui::hotkey2("Invert Key", config->fakeAngle.invert, 80.0f);
     ImGui::Checkbox("Enabled", &config->fakeAngle.enabled);
 
-    ImGui::PushItemWidth(220.0f);
+    ImGui::PushItemWidth(220.0f); 
     ImGui::SliderInt("Left limit", &config->fakeAngle.leftLimit, 0, 60, "%d");
+    ImGui::SliderInt("Left min", &config->fakeAngle.leftMin, 0, config->fakeAngle.leftLimit, "%d");
     ImGui::PopItemWidth();
 
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Right limit", &config->fakeAngle.rightLimit, 0, 60, "%d");
+    ImGui::SliderInt("Right min", &config->fakeAngle.rightMin, 0, config->fakeAngle.rightLimit, "%d");
     ImGui::PopItemWidth();
 
     ImGui::Combo("Mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0Jitter\0");
@@ -2327,8 +2339,8 @@ void GUI::renderConfigWindow() noexcept
 void Active() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_Button] = ImColor(25, 30, 34); Style->Colors[ImGuiCol_ButtonActive] = ImColor(25, 30, 34); Style->Colors[ImGuiCol_ButtonHovered] = ImColor(25, 30, 34); }
 void Hovered() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_Button] = ImColor(19, 22, 27); Style->Colors[ImGuiCol_ButtonActive] = ImColor(19, 22, 27); Style->Colors[ImGuiCol_ButtonHovered] = ImColor(19, 22, 27); }
 
-
-
+auto menuPos = ImVec2{ 0,0 };
+auto menuSize = ImVec2{ 0,0 };
 void GUI::renderGuiStyle() noexcept
 {
     ImGuiStyle* Style = &ImGui::GetStyle();
@@ -2358,6 +2370,9 @@ void GUI::renderGuiStyle() noexcept
 
     if (ImGui::Begin(Name, NULL, Flags))
     {
+
+        menuPos = ImGui::GetWindowPos();
+        menuSize = ImGui::GetWindowSize();
         Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 30, 34);
 
         ImGui::BeginChild("##Back", ImVec2{ 704, 434 }, false);
@@ -2584,5 +2599,13 @@ void GUI::renderGuiStyle() noexcept
         }
         ImGui::End();
     }
-    Style->Colors[ImGuiCol_WindowBg] = ImVec4(0.07f, 0.07f, 0.09f, 0.75f);
+    Style->Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.75f);/*
+    ImGui::Begin("moe", nullptr, ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
+    {
+        ImGui::SetWindowSize(ImVec2(244, 350));
+        ImGui::SetWindowPos(ImVec2(menuPos.x, menuPos.y + menuSize.y));
+        ImGui::Image(GUI::michishio, ImGui::GetWindowSize());
+         
+    }
+    ImGui::End();*/
 }

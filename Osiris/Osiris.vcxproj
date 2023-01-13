@@ -136,6 +136,7 @@
     <ClInclude Include="nlohmann\json.hpp" />
     <ClInclude Include="Resources\avatar_ct.h" />
     <ClInclude Include="Resources\avatar_tt.h" />
+    <ClInclude Include="Resources\michi.h" />
     <ClInclude Include="Resources\Resource.h" />
     <ClInclude Include="Resources\skillgroups.h" />
     <ClInclude Include="SDK\Angle.h" />

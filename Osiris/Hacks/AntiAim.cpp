@@ -183,11 +183,11 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             else if(forward) {
                 yaw = 0.f;
             }
-
+            srand(static_cast<unsigned int>(time(NULL)));
             switch (config->rageAntiAim.yawModifier)
             {
             case 1: //Jitter
-                yaw -= flipJitter ? config->rageAntiAim.jitterRange : -config->rageAntiAim.jitterRange;
+                yaw -= flipJitter ? ((rand() % (config->rageAntiAim.jitterRange - config->rageAntiAim.jitterMin)) + config->rageAntiAim.jitterMin) : -((rand() % (config->rageAntiAim.jitterRange - config->rageAntiAim.jitterMin)) + config->rageAntiAim.jitterMin);
                 break;
             default:
                 break;
@@ -208,8 +208,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             static bool invert = true;
             if (config->fakeAngle.peekMode != 3)
                 invert = isInvertToggled;
-            float leftDesyncAngle = config->fakeAngle.leftLimit * 2.f;
-            float rightDesyncAngle = config->fakeAngle.rightLimit * -2.f;
+            srand(static_cast<unsigned int>(time(NULL)));
+            float leftDesyncAngle = ((rand() % (config->fakeAngle.leftLimit - config->fakeAngle.leftMin)) + config->fakeAngle.leftMin) * 2.f;
+            float rightDesyncAngle = ((rand() % (config->fakeAngle.rightLimit - config->fakeAngle.rightMin)) + config->fakeAngle.rightMin) * -2.f;
 
             switch (config->fakeAngle.peekMode)
             {

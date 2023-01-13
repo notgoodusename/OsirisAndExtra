@@ -76,14 +76,17 @@ public:
         int yawModifier = 0; //Off, Jitter
         int yawAdd = 0; //-180/180
         int spinBase = 0; //-180/180
-        int jitterRange = 0;
+        int jitterMin = 0;
+        int jitterRange = 3;
         bool atTargets = false;
     } rageAntiAim;
 
     struct FakeAngle {
         bool enabled = false;
         KeyBind invert{ std::string("fake angle invert") };
+        int leftMin = 0;
         int leftLimit = 60;
+        int rightMin = 0;
         int rightLimit = 60;
         int peekMode = 0; //Off, Peek real, Peek fake
         int lbyMode = 0; // Normal, Opposite, sway, 

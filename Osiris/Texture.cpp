@@ -1,6 +1,7 @@
 #include "Texture.h"
 
 #include "imgui/imgui_impl_dx9.h"
+#include "Resources/michi.h"
 
 void Texture::init(int width, int height, const std::uint8_t* data) noexcept
 {

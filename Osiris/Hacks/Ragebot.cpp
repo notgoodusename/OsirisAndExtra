@@ -322,7 +322,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         if (cfg[weaponIndex].autoShot  && !clamped) {
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != (9 || 10 || 11 || 12 || 13 || 14 || 29 || 32 || 33 || 34 || 39))
-                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 13;
+                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 14;
             else
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 15;
             cmd->buttons |= UserCmd::IN_ATTACK;

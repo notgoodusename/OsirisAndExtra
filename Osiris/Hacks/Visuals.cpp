@@ -1207,6 +1207,8 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
     if (!config->visuals.molotovPolygon.enabled)
         return;
 
+    
+    
     ImColor enemy = Helpers::calculateColor(config->visuals.molotovPolygon.enemy);
     ImColor team = Helpers::calculateColor(config->visuals.molotovPolygon.team);
     ImColor self = Helpers::calculateColor(config->visuals.molotovPolygon.self);

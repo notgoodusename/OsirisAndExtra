@@ -221,6 +221,7 @@ bool ImGui_ImplDX9_Init(IDirect3DDevice9* device)
     g_pd3dDevice = device;
     g_pd3dDevice->AddRef();
     return true;
+
 }
 
 void ImGui_ImplDX9_Shutdown()

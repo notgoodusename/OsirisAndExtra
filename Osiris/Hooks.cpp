@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <Psapi.h>
 
+
 #include "imgui/imgui_impl_dx9.h"
 #include "imgui/imgui_impl_win32.h"
 
@@ -71,6 +72,11 @@
 #include "SDK/UserCmd.h"
 #include "SDK/ViewSetup.h"
 
+
+
+#include "Resources/michi.h"
+
+
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
     [[maybe_unused]] static const auto once = [](HWND window) noexcept {
@@ -92,13 +98,14 @@ static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lP
     ImGui_ImplWin32_WndProcHandler(window, msg, wParam, lParam);
 
     interfaces->inputSystem->enableInput(!gui->isOpen());
-
     return CallWindowProcW(hooks->originalWndProc, window, msg, wParam, lParam);
 }
-
+PDIRECT3DTEXTURE9 my_texture0;
 static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, const RECT* dest, HWND windowOverride, const RGNDATA* dirtyRegion) noexcept
 {
-    [[maybe_unused]] static bool imguiInit{ ImGui_ImplDX9_Init(device) };
+    [[maybe_unused]] static bool imguiInit{ ImGui_ImplDX9_Init(device) }; 
+
+    //D3DXCreateTextureFromFileInMemory(device, Resource::michi, sizeof(Resource::michi), &my_texture0);
 
     if (config->loadScheduledFonts())
         ImGui_ImplDX9_DestroyFontsTexture();
@@ -106,7 +113,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     ImGui_ImplDX9_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-
+    
     if (const auto& displaySize = ImGui::GetIO().DisplaySize; displaySize.x > 0.0f && displaySize.y > 0.0f) {
         StreamProofESP::render();
         GrenadePrediction::draw();

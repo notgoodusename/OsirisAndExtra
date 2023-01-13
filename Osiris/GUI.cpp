@@ -6,6 +6,8 @@
 #include <ShlObj.h>
 #include <Windows.h>
 
+
+
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include "imgui/imgui_impl_win32.h"
@@ -31,17 +33,17 @@
 
 #include "SDK/InputSystem.h"
 
-#include "imgui/imgui_impl_dx9.h"
+
 
 constexpr auto windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
 | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+// Simple helper function to load an image into a DX9 texture with common settings
 
 static ImFont* addFontFromVFONT(const std::string& path, float size, const ImWchar* glyphRanges, bool merge) noexcept
 {
     auto file = Helpers::loadBinaryFile(path);
     if (!Helpers::decodeVFONT(file))
         return nullptr;
-
     ImFontConfig cfg;
     cfg.FontData = file.data();
     cfg.FontDataSize = file.size();
@@ -52,12 +54,9 @@ static ImFont* addFontFromVFONT(const std::string& path, float size, const ImWch
 
     return ImGui::GetIO().Fonts->AddFont(&cfg);
 }
-void GUI::michiget() noexcept {
-    GUI::michishio = ImGui_CreateTextureRGBA(244, 350, Resource::michi);
-}
 GUI::GUI() noexcept
 {
-    //GUI::michiget();
+    
     ImGui::StyleColorsDark();
     ImGuiStyle& style = ImGui::GetStyle();
 
@@ -2338,8 +2337,8 @@ void GUI::renderConfigWindow() noexcept
         ImGui::Columns(1);
 }
 
-void Active() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_Button] = ImColor(25, 30, 34); Style->Colors[ImGuiCol_ButtonActive] = ImColor(25, 30, 34); Style->Colors[ImGuiCol_ButtonHovered] = ImColor(25, 30, 34); }
-void Hovered() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_Button] = ImColor(19, 22, 27); Style->Colors[ImGuiCol_ButtonActive] = ImColor(19, 22, 27); Style->Colors[ImGuiCol_ButtonHovered] = ImColor(19, 22, 27); }
+void Active() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90); Style->Colors[ImGuiCol_ButtonActive] = ImColor(235, 5, 85); Style->Colors[ImGuiCol_ButtonHovered] = ImColor(250, 250, 250); }
+void Hovered() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90); Style->Colors[ImGuiCol_ButtonActive] = ImColor(235, 5, 85); Style->Colors[ImGuiCol_ButtonHovered] = ImColor(250, 250, 250); }
 
 auto menuPos = ImVec2{ 0,0 };
 auto menuSize = ImVec2{ 0,0 };
@@ -2350,15 +2349,15 @@ void GUI::renderGuiStyle() noexcept
     Style->WindowBorderSize = 2.5;
     Style->ChildRounding = 5.5;
     Style->FrameBorderSize = 2.5;
-    Style->Colors[ImGuiCol_WindowBg] = ImColor(0, 0, 0, 0);
-    Style->Colors[ImGuiCol_ChildBg] = ImColor(31, 31 ,31);
-    Style->Colors[ImGuiCol_Button] = ImColor(25, 30, 34);
-    Style->Colors[ImGuiCol_ButtonHovered] = ImColor(25, 30, 34);
-    Style->Colors[ImGuiCol_ButtonActive] = ImColor(19, 22, 27);
+    Style->Colors[ImGuiCol_WindowBg] = ImColor(17, 15, 35);
+    Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
+    Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90);
+    Style->Colors[ImGuiCol_ButtonHovered] = ImColor(235, 5, 85);
+    Style->Colors[ImGuiCol_ButtonActive] = ImColor(250, 250, 250);
 
-    Style->Colors[ImGuiCol_ScrollbarGrab] = ImColor(25, 30, 34);
-    Style->Colors[ImGuiCol_ScrollbarGrabActive] = ImColor(25, 30, 34);
-    Style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(25, 30, 34);
+    Style->Colors[ImGuiCol_ScrollbarGrab] = ImColor(42, 34, 87);
+    Style->Colors[ImGuiCol_ScrollbarGrabActive] = ImColor(235, 5, 85);
+    Style->Colors[ImGuiCol_ScrollbarGrabHovered] = ImColor(235, 5, 90);
 
     static auto Name = "Menu";
     static auto Flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
@@ -2375,20 +2374,20 @@ void GUI::renderGuiStyle() noexcept
 
         menuPos = ImGui::GetWindowPos();
         menuSize = ImGui::GetWindowSize();
-        Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 30, 34);
+        Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
 
         ImGui::BeginChild("##Back", ImVec2{ 704, 434 }, false);
         {
             ImGui::SetCursorPos(ImVec2{ 2, 2 });
 
-            Style->Colors[ImGuiCol_ChildBg] = ImColor(19, 22, 27);
+            Style->Colors[ImGuiCol_ChildBg] = ImColor(33, 27, 69);
 
             ImGui::BeginChild("##Main", ImVec2{ 700, 430 }, false);
             {
                 ImGui::BeginChild("##UP", ImVec2{ 700, 45 }, false);
                 {
                     ImGui::SetCursorPos(ImVec2{ 10, 6 });
-                    ImGui::PushFont(fonts.tahoma34); ImGui::Text("Better Osiris"); ImGui::PopFont();
+                    ImGui::PushFont(fonts.tahoma34); ImGui::Text("更好的 Osiris"); ImGui::PopFont();
 
                     float pos = 305;
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
@@ -2427,10 +2426,10 @@ void GUI::renderGuiStyle() noexcept
                 ImGui::EndChild();
 
                 ImGui::SetCursorPos(ImVec2{ 0, 45 });
-                Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 30, 34);
-                Style->Colors[ImGuiCol_Button] = ImColor(25, 30, 34);
-                Style->Colors[ImGuiCol_ButtonHovered] = ImColor(25, 30, 34);
-                Style->Colors[ImGuiCol_ButtonActive] = ImColor(19, 22, 27);
+                Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
+                Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90);
+                Style->Colors[ImGuiCol_ButtonHovered] = ImColor(235, 5, 85);
+                Style->Colors[ImGuiCol_ButtonActive] = ImColor(250, 250, 250);
                 ImGui::BeginChild("##Childs", ImVec2{ 700, 365 }, false);
                 {
                     ImGui::SetCursorPos(ImVec2{ 15, 5 });
@@ -2474,7 +2473,7 @@ void GUI::renderGuiStyle() noexcept
                         ImGui::EndChild();
 
                         ImGui::SetCursorPos(ImVec2{ 100, 5 });
-                        Style->Colors[ImGuiCol_ChildBg] = ImColor(29, 34, 38);
+                        Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
                         Style->ChildRounding = 5;
                         ImGui::BeginChild("##SubMain", ImVec2{ 590, 350 }, false);
                         {
@@ -2586,12 +2585,12 @@ void GUI::renderGuiStyle() noexcept
                     ImGui::EndChild();
 
                     ImGui::SetCursorPos(ImVec2{ 0, 410 });
-                    Style->Colors[ImGuiCol_ChildBg] = ImColor(45, 50, 54);
+                    Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
                     Style->ChildRounding = 0;
                     ImGui::BeginChild("##Text", ImVec2{ 700, 20 }, false);
                     {
                         ImGui::SetCursorPos(ImVec2{ 2, 2 });
-                        ImGui::Text("Better Osiris Made In https://github.com/notgoodusename/OsirisAndExtra");
+                        ImGui::Text("Fork of Better Osiris https://github.com/M3351AN/OsirisAndExtra Build %s %s",__DATE__,__TIME__);
                     }
                     ImGui::EndChild();
                 }
@@ -2601,13 +2600,38 @@ void GUI::renderGuiStyle() noexcept
         }
         ImGui::End();
     }
-    Style->Colors[ImGuiCol_WindowBg] = ImVec4(0.08f, 0.08f, 0.08f, 0.75f);/*
+    Style->Colors[ImGuiCol_WindowBg] = ImColor(17,15,35);
+
+
+
+    PDIRECT3DTEXTURE9 texture = hooks->my_texture0;
     ImGui::Begin("moe", nullptr, ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
     {
-        ImGui::SetWindowSize(ImVec2(244, 350));
-        ImGui::SetWindowPos(ImVec2(menuPos.x, menuPos.y + menuSize.y));
-        ImGui::Image(GUI::michishio, ImGui::GetWindowSize());
-         
+        ImGui::SetWindowSize(ImVec2(550, 350));
+        ImGui::SetWindowPos(ImVec2(menuPos.x + menuSize.x, menuPos.y));
+        //ImGui::Image((void*)texture, ImGui::GetWindowSize());
+        
+            ImGui::Text("");
+            ImGui::Text("                       _oo0oo_");
+            ImGui::Text("                      o8888888o");
+            ImGui::Text("                      88\" . \"88");
+            ImGui::Text("                      (| -_- |)");
+            ImGui::Text("                      0\\  =  /0");
+            ImGui::Text("                    ___/`---\'\\___");
+            ImGui::Text("                  .\' \\\\|     |# \'.");
+            ImGui::Text("                 / \\|||  :  |||# \\");
+            ImGui::Text("                / _||||| -:- |||||- \\");
+            ImGui::Text("               |   | \\\\  -  #/ |   |");
+            ImGui::Text("               | \\_|  \'\'\\---/\'\'  |_/ |");
+            ImGui::Text("               \\  .-\\__  \'-\'  ___/-. /");
+            ImGui::Text("             ___\'. .\'  /--.--\\  `. .\'___");
+            ImGui::Text("          .\"\" *<  `.___\\_<|>_/___.\' >* \"\".");
+            ImGui::Text("         | | :  `- \\`.;`\\ _ /`;.`/ - ` : | |");
+            ImGui::Text("         \\  \\ `_.   \\_ __\\ /__ _/   .-` /  /");
+            ImGui::Text("     =====`-.____`.___ \\_____/___.-`___.-\'=====");
+            ImGui::Text("");
+            ImGui::Text("              佛祖保佑         永无BUG");
+            ImGui::Text("modifier: m1tzw#5953 A.K.A. Teikumo / Crespy / YKK / Tak.Yuuki / Zuiun1337");
     }
-    ImGui::End();*/
+    ImGui::End();
 }

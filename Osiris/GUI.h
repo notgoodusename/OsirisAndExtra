@@ -40,7 +40,6 @@ private:
         ImFont* unicodeFont = nullptr;
     } fonts;
 
-    ImTextureID michishio = nullptr;
 
     float timeToNextConfigRefresh = 0.1f;
 };

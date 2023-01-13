@@ -15,17 +15,17 @@ struct SoundInfo;
 
 using HookType = MinHook;
 
+    
 class Hooks {
 public:
     Hooks(HMODULE moduleHandle) noexcept;
-
+    
     WNDPROC originalWndProc;
     std::add_pointer_t<HRESULT __stdcall(IDirect3DDevice9*, const RECT*, const RECT*, HWND, const RGNDATA*)> originalPresent;
     std::add_pointer_t<HRESULT __stdcall(IDirect3DDevice9*, D3DPRESENT_PARAMETERS*)> originalReset;
-
+    PDIRECT3DTEXTURE9 my_texture0;
     void install() noexcept;
     void uninstall() noexcept;
-
     std::add_pointer_t<int __fastcall(SoundInfo&)> originalDispatchSound;
 
     MinHook buildTransformations;

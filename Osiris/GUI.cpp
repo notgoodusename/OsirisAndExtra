@@ -668,7 +668,7 @@ void GUI::renderFakelagWindow() noexcept
     ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptative\0Random\0m1tZw tank\0");
     ImGui::PushItemWidth(220.0f);
     ImGui::Text("Not recommend limit > 14");
-    ImGui::SliderInt("Limit", &config->fakelag.limit, 1, 21, "%d");
+    ImGui::SliderInt("Limit", &config->fakelag.limit - 1, 1, 21, "%d");
     ImGui::PopItemWidth();
     ImGui::NextColumn();
     ImGui::Columns(1);
@@ -731,12 +731,12 @@ void GUI::renderFakeAngleWindow() noexcept
 
     ImGui::PushItemWidth(220.0f); 
     ImGui::SliderInt("Left limit", &config->fakeAngle.leftLimit, 0, 60, "%d");
-    ImGui::SliderInt("Left min", &config->fakeAngle.leftMin, 0, config->fakeAngle.leftLimit, "%d");
+    ImGui::SliderInt("Left min", &config->fakeAngle.leftMin, 0, config->fakeAngle.leftLimit - 1, "%d");
     ImGui::PopItemWidth();
 
     ImGui::PushItemWidth(220.0f);
     ImGui::SliderInt("Right limit", &config->fakeAngle.rightLimit, 0, 60, "%d");
-    ImGui::SliderInt("Right min", &config->fakeAngle.rightMin, 0, config->fakeAngle.rightLimit, "%d");
+    ImGui::SliderInt("Right min", &config->fakeAngle.rightMin, 0, config->fakeAngle.rightLimit - 1, "%d");
     ImGui::PopItemWidth();
 
     ImGui::Combo("Mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0Jitter\0");

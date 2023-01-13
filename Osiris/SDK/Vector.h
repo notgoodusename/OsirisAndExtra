@@ -157,7 +157,7 @@ struct Vector {
     {
         x = std::isfinite(x) ? std::remainder(x, 360.0f) : 0.0f;
         y = std::isfinite(y) ? std::remainder(y, 360.0f) : 0.0f;
-        z = std::isfinite(y) ? std::remainder(y, 360.0f) : 0.0f;
+        z = std::isfinite(z) ? std::remainder(z, 360.0f) : 0.0f;
         return *this;
     }
 

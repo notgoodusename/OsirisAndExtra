@@ -55,7 +55,7 @@ void Fakelag::run(bool& sendPacket) noexcept
                         chokedPackets = 1;
                     else {
                         chokedPackets = 0;
-                        sendPacket = true;
+                        //sendPacket = true;
                     }
                 }
             }

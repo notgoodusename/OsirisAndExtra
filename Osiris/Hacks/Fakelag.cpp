@@ -18,12 +18,12 @@ void Fakelag::run(bool& sendPacket) noexcept
         return;
     auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 2 : 0;
 
-    if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick - memory->globalVars->tickCount > 12) {
+    if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick - memory->globalVars->tickCount > 13) {
         chokedPackets = 14;
         return;
     }
     else if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount) {
-        chokedPackets = 0;
+        sendPacket = true;
         return;
     }
         

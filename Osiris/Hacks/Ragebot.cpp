@@ -328,11 +328,11 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 33 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 34 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 39) {
-                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 14;
+                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount;
                 config->tickbase.readyFire = false;
             }
             else {
-                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 15;
+                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount + 1;
                 config->tickbase.readyFire = false;
             }
         }

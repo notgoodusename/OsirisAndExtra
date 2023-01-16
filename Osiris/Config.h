@@ -99,6 +99,8 @@ public:
         KeyBind hideshots{ std::string("hideshots"), KeyMode::Off };
         bool teleport{ false };
         bool onshotFl{ false };
+        int onshotFlAmount{ 1 };
+        bool onshotDesync{ false };
         bool DisabledTickbase;
         int lastFireShiftTick;
         bool readyFire;

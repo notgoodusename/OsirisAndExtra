@@ -497,6 +497,10 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::PopID();
     ImGui::Checkbox("Teleport on shift", &config->tickbase.teleport);
     ImGui::Checkbox("On shot disable choke ", &config->tickbase.onshotFl);
+    if (config->tickbase.onshotFl)
+        ImGui::SliderInt("ticks", &config->tickbase.onshotFlAmount, 1, 52, "%d");//since the largest backtrack amout is 400 ms and even on 128tick server is less than 52tick 
+    else
+    ImGui::Checkbox("On shot lby", &config->tickbase.onshotDesync);
     ImGui::Columns(1);
 }
 

@@ -271,7 +271,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                     flip = !flip;
                     return;
                 }
-                if (!sendPacket)
+                if (!sendPacket || config->tickbase.onshotDesync)
                     cmd->viewangles.y += flip ? leftDesyncAngle : rightDesyncAngle;
 
                 break;

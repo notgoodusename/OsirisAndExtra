@@ -319,7 +319,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         
         if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() ) {//delay
             cmd->viewangles += angle;
-            //config->tickbase.readyFire = true;
+            config->tickbase.readyFire = true;
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 11 ||

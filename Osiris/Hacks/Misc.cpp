@@ -1649,22 +1649,37 @@ void Misc::watermark() noexcept
     if (!config->misc.watermark.enabled)
         return;
 
+
+    /*
+    cheat::render::draw_rect_filled(15, 15, 246, 40, Color(73, 100, 170, 150));
+    cheat::render::draw_rect_filled(15, 40, 246, 44, Color(66, 87, 186, 255));
+    cheat::render::draw_rect_filled(15, 40, 246, 44, Color(66, 87, 186, 255));
+    cheat::render::draw_rect_filled(15, 44, 246, 67, Color(19, 19, 19, 255));
+    cheat::render::draw_rect_filled(15, 67, 246, 71, Color(29, 29, 27, 200));
+    cheat::render::draw_text(cheat::render::segoeui_font, 21, 20, Color(255, 255, 255, 255), 0, "aimware.net");
+    cheat::render::draw_text(cheat::render::segoeui_font, 21, 46, Color(255, 255, 255, 255), 0, "tick:");
+    cheat::render::draw_text(cheat::render::segoeui_font, 48, 46, Color(255, 255, 255, 255), 0, std::to_string(tickrate).c_str());
+    cheat::render::draw_text(cheat::render::segoeui_font, 90, 46, Color(255, 255, 255, 255), 0, "fps:");
+    cheat::render::draw_text(cheat::render::segoeui_font, 115, 46, Color(255, 255, 255, 255), 0, std::to_string(fps).c_str());
+    cheat::render::draw_text(cheat::render::segoeui_font, 160, 46, Color(255, 255, 255, 255), 0, "time:");
+    cheat::render::draw_text(cheat::render::segoeui_font, 193, 46, Color(255, 255, 255, 255), 0, time.str().c_str());*/
     if (config->misc.watermark.pos != ImVec2{}) {
         ImGui::SetNextWindowPos(config->misc.watermark.pos);
         config->misc.watermark.pos = {};
     }
 
-    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
     if (!gui->isOpen())
         windowFlags |= ImGuiWindowFlags_NoInputs;
 
-    ImGui::SetNextWindowBgAlpha(0.3f);
-    ImGui::Begin("Watermark", nullptr, windowFlags);
+    ImGui::SetNextWindowBgAlpha(0.5f);
+    ImGui::Begin("TeiKu.moE", nullptr, windowFlags);
 
     static auto frameRate = 1.0f;
     frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
-
-    ImGui::Text("Osiris | %d fps | %d ms", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0, GameData::getNetOutgoingLatency());
+    ImGui::Text("f/s: %d", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0);
+    ImGui::SameLine();
+    ImGui::Text("latency: %d ms",GameData::getNetOutgoingLatency());
     ImGui::End();
 }
 

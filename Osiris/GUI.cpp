@@ -2345,15 +2345,22 @@ auto menuSize = ImVec2{ 0,0 };
 void GUI::renderGuiStyle() noexcept
 {
     ImGuiStyle* Style = &ImGui::GetStyle();
-    Style->WindowRounding = 5.5;
+    Style->WindowRounding = 0;
     Style->WindowBorderSize = 2.5;
-    Style->ChildRounding = 5.5;
+    Style->ChildRounding = 0;
     Style->FrameBorderSize = 2.5;
+    
+    Style->Colors[ImGuiCol_Text] = ImColor(250, 250, 250);
+
     Style->Colors[ImGuiCol_WindowBg] = ImColor(17, 15, 35);
+    Style->Colors[ImGuiCol_TitleBg] = ImColor(25, 21, 52);
+    Style->Colors[ImGuiCol_TitleBgActive] = ImColor(25, 21, 52);
+    Style->Colors[ImGuiCol_TitleBgCollapsed] = ImColor(25, 21, 52);
     Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
     Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90);
     Style->Colors[ImGuiCol_ButtonHovered] = ImColor(235, 5, 85);
     Style->Colors[ImGuiCol_ButtonActive] = ImColor(250, 250, 250);
+    Style->Colors[ImGuiCol_CheckMark] = ImColor(235, 5, 90);
 
     Style->Colors[ImGuiCol_ScrollbarGrab] = ImColor(42, 34, 87);
     Style->Colors[ImGuiCol_ScrollbarGrabActive] = ImColor(235, 5, 85);
@@ -2605,32 +2612,12 @@ void GUI::renderGuiStyle() noexcept
 
 
     PDIRECT3DTEXTURE9 texture = hooks->my_texture0;
-    ImGui::Begin("moe", nullptr, ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
+    ImGui::Begin("moe", nullptr, ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
     {
-        ImGui::SetWindowSize(ImVec2(550, 350));
+        //ImGui::SetWindowSize(ImVec2(550, 350));
         ImGui::SetWindowPos(ImVec2(menuPos.x + menuSize.x, menuPos.y));
         //ImGui::Image((void*)texture, ImGui::GetWindowSize());
-        
-            ImGui::Text("");
-            ImGui::Text("                       _oo0oo_");
-            ImGui::Text("                      o8888888o");
-            ImGui::Text("                      88\" . \"88");
-            ImGui::Text("                      (| -_- |)");
-            ImGui::Text("                      0\\  =  /0");
-            ImGui::Text("                    ___/`---\'\\___");
-            ImGui::Text("                  .\' \\\\|     |# \'.");
-            ImGui::Text("                 / \\|||  :  |||# \\");
-            ImGui::Text("                / _||||| -:- |||||- \\");
-            ImGui::Text("               |   | \\\\  -  #/ |   |");
-            ImGui::Text("               | \\_|  \'\'\\---/\'\'  |_/ |");
-            ImGui::Text("               \\  .-\\__  \'-\'  ___/-. /");
-            ImGui::Text("             ___\'. .\'  /--.--\\  `. .\'___");
-            ImGui::Text("          .\"\" *<  `.___\\_<|>_/___.\' >* \"\".");
-            ImGui::Text("         | | :  `- \\`.;`\\ _ /`;.`/ - ` : | |");
-            ImGui::Text("         \\  \\ `_.   \\_ __\\ /__ _/   .-` /  /");
-            ImGui::Text("     =====`-.____`.___ \\_____/___.-`___.-\'=====");
-            ImGui::Text("");
-            ImGui::Text("              佛祖保佑         永无BUG");
+            ImGui::Text("佛祖保佑 永无BUG");
             ImGui::Text("modifier: m1tzw#5953 A.K.A. Teikumo / Crespy / YKK / Tak.Yuuki / Zuiun1337");
     }
     ImGui::End();

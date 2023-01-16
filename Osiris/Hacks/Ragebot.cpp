@@ -79,9 +79,14 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
 
             if (cfg[weaponIndex].autoStop && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
             {
+                const auto activeWeapon = localPlayer->getActiveWeapon();
+
+                const auto weaponData = activeWeapon->getWeaponData();
                 const auto velocity = EnginePrediction::getVelocity();
                 const auto speed = velocity.length2D();
-                if (speed >= 15.0f)
+                const float maxSpeed = (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) / 3;
+
+                if (speed >= maxSpeed)
                 {
                     Vector direction = velocity.toAngle();
                     direction.y = cmd->viewangles.y - direction.y;

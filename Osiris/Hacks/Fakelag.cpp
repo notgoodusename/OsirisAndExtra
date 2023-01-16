@@ -18,10 +18,7 @@ void Fakelag::run(bool& sendPacket) noexcept
         return;
     auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 1 : 0;
 
-    if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.readyFire) {
-        chokedPackets = 14;
-        return;
-    }
+
     if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount) {
         chokedPackets = 0;
         sendPacket = true;
@@ -30,6 +27,10 @@ void Fakelag::run(bool& sendPacket) noexcept
         
     if (config->fakelag.enabled)
     {
+        if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.readyFire) {
+            chokedPackets = 14;
+            return;
+        }
         const float speed = EnginePrediction::getVelocity().length2D() >= 15.0f ? EnginePrediction::getVelocity().length2D() : 0.0f;
         switch (config->fakelag.mode) {
         case 0: //Static

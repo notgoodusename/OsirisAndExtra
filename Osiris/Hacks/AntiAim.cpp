@@ -278,6 +278,8 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             }
             if (config->rageAntiAim.roll && (config->rageAntiAim.rollAdd < 5 || !config->rageAntiAim.rollAdd || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f)))
                 cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : config->rageAntiAim.rollAdd * -1.f;
+            else
+                cmd->viewangles.z = 0;
             if (sendPacket)
                 return;
 

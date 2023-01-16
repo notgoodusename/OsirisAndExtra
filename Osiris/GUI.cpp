@@ -2618,10 +2618,19 @@ void GUI::renderGuiStyle() noexcept
         ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x, menuPos.y));
         //ImGui::Image((void*)texture, ImGui::GetWindowSize());
         ImGui::PushFont(fonts.tahoma28);
-        ImGui::TextColored(ImColor(235, 5, 85 ,250),"");
-        ImGui::TextColored(ImColor(235, 5, 85, 250), "NOT FOR SELLING!!");
-        ImGui::TextColored(ImColor(235, 5, 85, 250), "modifier: m1tzw#5953");
-        ImGui::TextColored(ImColor(235, 5, 85, 250), "Build: %s %s", __DATE__, __TIME__);
+
+        ImGui::SetCursorPos(ImVec2{ 5 + config->misc.textoffset, 5 - config->misc.textoffset }); 
+        ImGui::TextColored(ImColor(70, 50, 240, 200), "NOT FOR SELLING!!");
+        ImGui::TextColored(ImColor(70, 50, 240, 200), "modifier: m1tzw#5953");
+        ImGui::TextColored(ImColor(70, 50, 240, 200), "Build: %s %s", __DATE__, __TIME__);
+        ImGui::SetCursorPos(ImVec2{ 5 - config->misc.textoffset, 5 + config->misc.textoffset }); 
+        ImGui::TextColored(ImColor(235, 5, 85, 200), "NOT FOR SELLING!!");
+        ImGui::TextColored(ImColor(235, 5, 85, 200), "modifier: m1tzw#5953");
+        ImGui::TextColored(ImColor(235, 5, 85, 200), "Build: %s %s", __DATE__, __TIME__);
+        ImGui::SetCursorPos(ImVec2{ 5, 5 }); 
+        ImGui::TextColored(ImColor(245, 245, 245, 245), "NOT FOR SELLING!!");
+        ImGui::TextColored(ImColor(245, 245, 245, 245), "modifier: m1tzw#5953");
+        ImGui::TextColored(ImColor(245, 245, 245, 245), "Build: %s %s", __DATE__, __TIME__);
         ImGui::PopFont();
     }
     ImGui::End();

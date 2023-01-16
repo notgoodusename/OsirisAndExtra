@@ -317,7 +317,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             clamped = true;
         }
         
-        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime()) {
+        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped) {
             cmd->viewangles += angle;
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||
@@ -343,12 +343,13 @@ void Ragebot::run(UserCmd* cmd) noexcept
         if (!cfg[weaponIndex].silent)
             interfaces->engine->setViewAngles(cmd->viewangles);
 
-        if (cfg[weaponIndex].autoShot  && !clamped) {
+        if (cfg[weaponIndex].autoShot)
             cmd->buttons |= UserCmd::IN_ATTACK;
-        }
 
         if (clamped){
             cmd->buttons &= ~UserCmd::IN_ATTACK;
+            if (config->rageAntiAim.pitch == 1)
+                cmd->viewangles.x = 89.f;//useless at most time
         }
 
         if (cmd->buttons & UserCmd::IN_ATTACK)

@@ -80,7 +80,7 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
                 const auto weaponData = activeWeapon->getWeaponData();
                 const auto velocity = EnginePrediction::getVelocity();
                 const auto speed = velocity.length2D();
-                const float maxSpeed = (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) / 3;
+                const float maxSpeed = (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) * 0.33f;
 
                 if (speed >= maxSpeed)
                 {
@@ -319,6 +319,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
         
         if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped) {
             cmd->viewangles += angle;
+            config->tickbase.readyFire = true;
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 11 ||

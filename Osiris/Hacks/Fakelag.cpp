@@ -23,13 +23,13 @@ void Fakelag::run(bool& sendPacket) noexcept
     if (config->fakelag.enabled)
     {
         if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.readyFire) {
-            chokedPackets = 2;
+            chokedPackets = 1;
             config->tickbase.readyFire = false;
+            sendPacket = true;
             return;
         }
         if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount) {
             chokedPackets = 0;
-            sendPacket = true;
             return;
         }
 

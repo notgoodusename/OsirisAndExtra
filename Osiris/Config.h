@@ -101,6 +101,7 @@ public:
         bool onshotFl{ false };
         bool DisabledTickbase;
         int lastFireShiftTick;
+        bool readyFire;
     } tickbase;
 
     struct LegitAntiAimConfig {

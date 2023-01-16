@@ -314,6 +314,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             angle.y = std::clamp(angle.y, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
             clamped = true;
         }
+        config->tickbase.readyFire = true;
         if(activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime())
             cmd->viewangles += angle;
         
@@ -321,20 +322,24 @@ void Ragebot::run(UserCmd* cmd) noexcept
             interfaces->engine->setViewAngles(cmd->viewangles);
 
         if (cfg[weaponIndex].autoShot  && !clamped) {
-            if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 || 
-                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 || 
-                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 11 || 
-                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 12 || 
-                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 13 || 
+            if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 11 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 12 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 13 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 14 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 29 ||
-                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 32 || 
-                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 33 || 
-                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 34 || 
-                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 39)
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 32 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 33 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 34 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 39) {
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 14;
-            else
+                config->tickbase.readyFire = true;
+            }
+            else {
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + 15;
+                config->tickbase.readyFire = true;
+            }
             cmd->buttons |= UserCmd::IN_ATTACK;
         }
 

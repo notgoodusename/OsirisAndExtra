@@ -667,7 +667,7 @@ void GUI::renderFakelagWindow() noexcept
     ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptative\0Random\0m1tZw tank\0");
     ImGui::PushItemWidth(220.0f);
     ImGui::Text("Not recommend limit > 14");
-    ImGui::SliderInt("Limit", &config->fakelag.limit - 1, 1, 21, "%d");
+    ImGui::SliderInt("Limit", &config->fakelag.limit, 1, 21, "%d");
     ImGui::PopItemWidth();
     ImGui::NextColumn();
     ImGui::Columns(1);

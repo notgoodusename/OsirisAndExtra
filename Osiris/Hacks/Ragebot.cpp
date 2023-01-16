@@ -71,9 +71,6 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
             if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
                 continue;
 
-            if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
-                cmd->buttons |= UserCmd::IN_ZOOM;
-
             if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                 return;
 
@@ -96,7 +93,8 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
                     cmd->sidemove = negatedDirection.y;
                 }
             }
-
+            if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1)
+                cmd->buttons |= UserCmd::IN_ZOOM;
             if (std::fabsf((float)target.health - damage) <= damageDiff)
             {
                 bestAngle = angle;

@@ -2619,7 +2619,7 @@ void GUI::renderGuiStyle() noexcept
     ImGui::Begin("moe", nullptr, ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
     {
         //ImGui::SetWindowSize(ImVec2(550, 350));
-        ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x + config->misc.textoffset * 2 , menuPos.y - config->misc.textoffset * 2));
+        ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x + config->misc.textoffset , menuPos.y + config->misc.textoffset ));
         //ImGui::Image((void*)texture, ImGui::GetWindowSize());
         ImGui::PushFont(fonts.tahoma28);
 

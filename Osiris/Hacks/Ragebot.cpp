@@ -65,7 +65,7 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
 
             float damage = AimbotFunction::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
             damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
-            if (damage <= 0.f)
+            if (damage <= 0.5f)
                 continue;
 
             if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))

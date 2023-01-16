@@ -25,6 +25,7 @@ void Fakelag::run(bool& sendPacket) noexcept
     }
     if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount) {
         chokedPackets = 0;
+        config->tickbase.readyFire = false;
         return;
     }
 

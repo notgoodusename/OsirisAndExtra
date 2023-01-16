@@ -317,9 +317,9 @@ void Ragebot::run(UserCmd* cmd) noexcept
             clamped = true;
         }
         
-        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped) {
+        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped ) {//delay
             cmd->viewangles += angle;
-            config->tickbase.readyFire = true;
+            //config->tickbase.readyFire = true;
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 11 ||
@@ -349,8 +349,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
         if (clamped){
             cmd->buttons &= ~UserCmd::IN_ATTACK;
-            if (config->rageAntiAim.pitch == 1)
-                cmd->viewangles.x = 89.f;//useless at most time
         }
 
         if (cmd->buttons & UserCmd::IN_ATTACK)

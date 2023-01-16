@@ -37,7 +37,7 @@ void Tickbase::start(UserCmd* cmd) noexcept
     if (cmd->buttons & UserCmd::IN_ATTACK)
     {
         config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount;
-        config->tickbase.readyFire = true;
+        //config->tickbase.readyFire = true;
 
     }/*
     if (cmd->viewangles.x < 85.f)

@@ -2393,9 +2393,9 @@ void GUI::renderGuiStyle() noexcept
                     
                     ImGui::PushFont(fonts.tahoma28); 
                     
-                    ImGui::SetCursorPos(ImVec2{ 10 - config->misc.textoffset, 5 + config->misc.textoffset});ImGui::TextColored(ImColor(70, 50, 240, 245), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c");
-                    ImGui::SetCursorPos(ImVec2{ 10 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(228, 6, 88, 245), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c");
-                    ImGui::SetCursorPos(ImVec2{ 10, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c");
+                    ImGui::SetCursorPos(ImVec2{ 10 - config->misc.textoffset, 5 + config->misc.textoffset});ImGui::TextColored(ImColor(70, 50, 240, 245), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+                    ImGui::SetCursorPos(ImVec2{ 10 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(228, 6, 88, 245), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+                    ImGui::SetCursorPos(ImVec2{ 10, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
                     
                     ImGui::PopFont();
 
@@ -2619,7 +2619,7 @@ void GUI::renderGuiStyle() noexcept
     ImGui::Begin("moe", nullptr, ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
     {
         //ImGui::SetWindowSize(ImVec2(550, 350));
-        ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x, menuPos.y));
+        ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x + config->misc.textoffset * 10 , menuPos.y - config->misc.textoffset * 10));
         //ImGui::Image((void*)texture, ImGui::GetWindowSize());
         ImGui::PushFont(fonts.tahoma28);
 

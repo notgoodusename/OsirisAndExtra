@@ -40,12 +40,12 @@ void Fakelag::run(bool& sendPacket) noexcept
             chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (speed * memory->globalVars->intervalPerTick))), 1, config->fakelag.limit);
             break;
         case 2: // Random
-            srand(static_cast<unsigned int>(time(NULL)));
+            srand(static_cast<unsigned int>(memory->globalVars->tickCount));
             chokedPackets = rand() % config->fakelag.limit + 1;
             break;
         case 3:
             int i;
-            srand(static_cast<unsigned int>(time(NULL)));
+            srand(static_cast<unsigned int>(memory->globalVars->tickCount));
             for (i = 1; i <= 30; ++i)
             {
                 if (i == 29)

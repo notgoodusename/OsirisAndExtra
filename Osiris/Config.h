@@ -424,6 +424,7 @@ public:
         ColorToggle3 bombTimer{ 1.0f, 0.55f, 0.0f };
         ColorToggle3 hurtIndicator{ 0.0f, 0.8f, 0.7f };
         KeyBind prepareRevolverKey{ std::string("prepare revolver") };
+        float textoffset{ 0 };
         int hitSound{ 0 };
         int quickHealthshotKey{ 0 };
         float maxAngleDelta{ 255.0f };

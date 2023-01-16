@@ -1646,6 +1646,10 @@ void Misc::recoilCrosshair(ImDrawList* drawList) noexcept
 
 void Misc::watermark() noexcept
 {
+    static auto frameRate = 1.0f;
+    frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
+    srand(static_cast<unsigned int>(frameRate));
+    config->misc.textoffset = (rand() % 15) * 0.1f;
     if (!config->misc.watermark.enabled)
         return;
 
@@ -1661,11 +1665,10 @@ void Misc::watermark() noexcept
 
     ImGui::SetNextWindowBgAlpha(0.65f);
     ImGui::Begin("Watermark", nullptr, windowFlags);
-    ImGui::SetCursorPos(ImVec2{ 29, 6 }); ImGui::TextColored(ImColor(70, 50, 240, 200), "TeiKu.moE");
-    ImGui::SetCursorPos(ImVec2{ 31, 4 }); ImGui::TextColored(ImColor(235, 5, 85, 200), "TeiKu.moE");
+    ImGui::SetCursorPos(ImVec2{ 30 - config->misc.textoffset, 5 + config->misc.textoffset }); ImGui::TextColored(ImColor(70, 50, 240, 200), "TeiKu.moE");
+    ImGui::SetCursorPos(ImVec2{ 30 + config->misc.textoffset, 5 - config->misc.textoffset }); ImGui::TextColored(ImColor(235, 5, 85, 200), "TeiKu.moE");
     ImGui::SetCursorPos(ImVec2{ 30, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "TeiKu.moE");
-    static auto frameRate = 1.0f;
-    frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
+
     ImGui::Text("f/s: %d", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0);
     ImGui::SameLine();
     ImGui::Text("latency: %d ms",GameData::getNetOutgoingLatency());

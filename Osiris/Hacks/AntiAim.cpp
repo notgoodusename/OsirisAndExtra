@@ -191,7 +191,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             else if(forward) {
                 yaw = 0.f;
             }
-            srand(static_cast<unsigned int>(time(NULL)));
+            srand(static_cast<unsigned int>(memory->globalVars->tickCount));
             switch (config->rageAntiAim.yawModifier)
             {
             case 1: //Jitter
@@ -216,7 +216,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             static bool invert = true;
             if (config->fakeAngle.peekMode != 3)
                 invert = isInvertToggled;
-            srand(static_cast<unsigned int>(time(NULL)));
+            srand(static_cast<unsigned int>(memory->globalVars->tickCount));
             float leftDesyncAngle = ((rand() % (config->fakeAngle.leftLimit - config->fakeAngle.leftMin)) + config->fakeAngle.leftMin) * 2.f;
             float rightDesyncAngle = ((rand() % (config->fakeAngle.rightLimit - config->fakeAngle.rightMin)) + config->fakeAngle.rightMin) * -2.f;
             switch (config->fakeAngle.peekMode)

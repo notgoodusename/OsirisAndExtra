@@ -79,7 +79,7 @@ private:
                 return foundInterface;
         }
 
-        MessageBoxA(nullptr, ("Failed to find " + std::string{ name } + " interface!").c_str(), "Osiris", MB_OK | MB_ICONERROR);
+        MessageBoxA(nullptr, ("Failed to find " + std::string{ name } + " interface!").c_str(), "Osility", MB_OK | MB_ICONERROR);
         std::exit(EXIT_FAILURE);
     }
 };

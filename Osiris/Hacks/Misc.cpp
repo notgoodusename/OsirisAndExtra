@@ -345,12 +345,12 @@ public:
             //Certain characters are censured on printf
             if (jumps > 2)
                 memory->clientMode->getHudChat()->printf(0,
-                    " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
+                    " \x0C\u2022Osility\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
                     color, jump.c_str(),
                     jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.jumps, jumpStatsCalculations.sync);
             else
                 memory->clientMode->getHudChat()->printf(0,
-                    " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%.0f\x01 Sync]",
+                    " \x0C\u2022Osility\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%.0f\x01 Sync]",
                     color, jump.c_str(),
                     jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.sync);
         }
@@ -1670,9 +1670,9 @@ void Misc::watermark() noexcept
 
     ImGui::SetNextWindowBgAlpha(0.65f);
     ImGui::Begin("Watermark", nullptr, windowFlags);
-    ImGui::SetCursorPos(ImVec2{ 5 - config->misc.textoffset, 5 + config->misc.textoffset}); ImGui::TextColored(ImColor(70, 50, 240, 200), "TeiKu.moE");
-    ImGui::SetCursorPos(ImVec2{ 5 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 85, 200), "TeiKu.moE");
-    ImGui::SetCursorPos(ImVec2{ 5, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "TeiKu.moE");
+    ImGui::SetCursorPos(ImVec2{ 5 - config->misc.textoffset, 5 + config->misc.textoffset}); ImGui::TextColored(ImColor(70, 50, 240, 200), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c");
+    ImGui::SetCursorPos(ImVec2{ 5 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 85, 200), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c");
+    ImGui::SetCursorPos(ImVec2{ 5, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "Osility \u043e\u0441\u0438\u043b\u0438\u0442\u044c");
 
     ImGui::Text("f/s: %d", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0);
     ImGui::SameLine();
@@ -2519,7 +2519,7 @@ void Misc::voteRevealer(GameEvent& event) noexcept
     const auto isLocal = localPlayer && entity == localPlayer.get();
     const char color = votedYes ? '\x06' : '\x07';
 
-    memory->clientMode->getHudChat()->printf(0, " \x0C\u2022Osiris\u2022 %c%s\x01 voted %c%s\x01", isLocal ? '\x01' : color, isLocal ? "You" : entity->getPlayerName().c_str(), color, votedYes ? "Yes" : "No");
+    memory->clientMode->getHudChat()->printf(0, " \x0C\u2022Osility\u2022 %c%s\x01 voted %c%s\x01", isLocal ? '\x01' : color, isLocal ? "You" : entity->getPlayerName().c_str(), color, votedYes ? "Yes" : "No");
 }
 
 // ImGui::ShadeVertsLinearColorGradientKeepAlpha() modified to do interpolation in HSV

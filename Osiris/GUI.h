@@ -36,7 +36,6 @@ private:
     struct {
         ImFont* normal15px = nullptr;
         ImFont* tahoma28 = nullptr;
-        ImFont* tahoma34 = nullptr;
         ImFont* unicodeFont = nullptr;
     } fonts;
 

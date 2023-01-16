@@ -74,15 +74,10 @@ GUI::GUI() noexcept
         const std::filesystem::path path{ pathToFonts };
         CoTaskMemFree(pathToFonts);
 
-        fonts.normal15px = io.Fonts->AddFontFromFileTTF((path / "deng.ttf").string().c_str(), 15.0f, &cfg, Helpers::getFontGlyphRanges());
+        fonts.normal15px = addFontFromVFONT("csgo/panorama/fonts/notosans-regular.vfont", 15.0f, Helpers::getFontGlyphRanges(), false);
         if (!fonts.normal15px)
             io.Fonts->AddFontDefault(&cfg);
-
-        fonts.tahoma34 = io.Fonts->AddFontFromFileTTF((path / "deng.ttf").string().c_str(), 34.0f, &cfg, Helpers::getFontGlyphRanges());
-        if (!fonts.tahoma34)
-            io.Fonts->AddFontDefault(&cfg);
-
-        fonts.tahoma28 = io.Fonts->AddFontFromFileTTF((path / "dengb.ttf").string().c_str(), 28.0f, &cfg, Helpers::getFontGlyphRanges());
+        fonts.tahoma28 = addFontFromVFONT("csgo/panorama/fonts/notosans-regular.vfont", 28.0f, Helpers::getFontGlyphRanges(), false);
         if (!fonts.tahoma28)
             io.Fonts->AddFontDefault(&cfg);
 
@@ -98,8 +93,6 @@ GUI::GUI() noexcept
     if (!fonts.normal15px)
         io.Fonts->AddFontDefault(&cfg);
     if (!fonts.tahoma28)
-        io.Fonts->AddFontDefault(&cfg);
-    if (!fonts.tahoma34)
         io.Fonts->AddFontDefault(&cfg);
     addFontFromVFONT("csgo/panorama/fonts/notosanskr-regular.vfont", 15.0f, io.Fonts->GetGlyphRangesKorean(), true);
     addFontFromVFONT("csgo/panorama/fonts/notosanssc-regular.vfont", 15.0f, io.Fonts->GetGlyphRangesChineseFull(), true);
@@ -2394,7 +2387,7 @@ void GUI::renderGuiStyle() noexcept
                 ImGui::BeginChild("##UP", ImVec2{ 700, 45 }, false);
                 {
                     ImGui::SetCursorPos(ImVec2{ 10, 6 });
-                    ImGui::PushFont(fonts.tahoma34); ImGui::Text("更好的 Osiris"); ImGui::PopFont();
+                    ImGui::PushFont(fonts.tahoma28); ImGui::Text("更好的 Osiris"); ImGui::PopFont();
 
                     float pos = 305;
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
@@ -2597,7 +2590,7 @@ void GUI::renderGuiStyle() noexcept
                     ImGui::BeginChild("##Text", ImVec2{ 700, 20 }, false);
                     {
                         ImGui::SetCursorPos(ImVec2{ 2, 2 });
-                        ImGui::Text("Fork of Better Osiris https://github.com/M3351AN/OsirisAndExtra Build %s %s",__DATE__,__TIME__);
+                        ImGui::Text("Fork of Better Osiris https://github.com/South-Haruna-Institute-of-Technology/OsirisAndExtra");
                     }
                     ImGui::EndChild();
                 }
@@ -2615,10 +2608,14 @@ void GUI::renderGuiStyle() noexcept
     ImGui::Begin("moe", nullptr, ImGuiWindowFlags_NoMouseInputs | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_::ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_::ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_::ImGuiWindowFlags_NoNav);
     {
         //ImGui::SetWindowSize(ImVec2(550, 350));
-        ImGui::SetWindowPos(ImVec2(menuPos.x + menuSize.x, menuPos.y));
+        ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x, menuPos.y));
         //ImGui::Image((void*)texture, ImGui::GetWindowSize());
-            ImGui::Text("佛祖保佑 永无BUG");
-            ImGui::Text("modifier: m1tzw#5953 A.K.A. Teikumo / Crespy / YKK / Tak.Yuuki / Zuiun1337");
+        ImGui::PushFont(fonts.tahoma28);
+        ImGui::TextColored(ImColor(235, 5, 85 ,255),"");
+        ImGui::TextColored(ImColor(235, 5, 85, 255), "NOT FOR SELLING!!");
+        ImGui::TextColored(ImColor(235, 5, 85, 255), "modifier: m1tzw#5953");
+        ImGui::TextColored(ImColor(235, 5, 85, 255), "Build: % s% s", __DATE__, __TIME__);
+        ImGui::PopFont();
     }
     ImGui::End();
 }

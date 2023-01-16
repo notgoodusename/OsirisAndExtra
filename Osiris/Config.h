@@ -81,6 +81,7 @@ public:
         bool atTargets = false;
         bool roll = false;
         int rollAdd = 0;
+        bool rollAlt = false;
     } rageAntiAim;
 
     struct FakeAngle {

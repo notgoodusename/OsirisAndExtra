@@ -738,8 +738,11 @@ void GUI::renderFakeAngleWindow() noexcept
     ImGui::Combo("Mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0Jitter\0");
     ImGui::Combo("Lby mode", &config->fakeAngle.lbyMode, "Normal\0Opposite\0Sway\0");
     ImGui::Checkbox("Roll", &config->rageAntiAim.roll);
-    if  (config->rageAntiAim.roll)
+    if (config->rageAntiAim.roll) {
         ImGui::SliderInt("Roll add", &config->rageAntiAim.rollAdd, -90, 90, "%d");
+        ImGui::Checkbox("Alternative roll", &config->rageAntiAim.rollAlt);
+    }
+        
     ImGui::NextColumn();
     ImGui::Columns(1);
 }
@@ -2601,7 +2604,7 @@ void GUI::renderGuiStyle() noexcept
                     ImGui::BeginChild("##Text", ImVec2{ 700, 20 }, false);
                     {
                         ImGui::SetCursorPos(ImVec2{ 2, 2 });
-                        ImGui::Text("Fork of Better Osiris https://github.com/South-Haruna-Institute-of-Technology/OsirisAndExtra");
+                        ImGui::Text("Fork of OsirisAndExtra https://github.com/South-Haruna-Institute-of-Technology/OsirisAndExtra");
                     }
                     ImGui::EndChild();
                 }

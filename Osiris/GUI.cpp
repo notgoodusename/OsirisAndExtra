@@ -2389,8 +2389,8 @@ void GUI::renderGuiStyle() noexcept
                     
                     ImGui::PushFont(fonts.tahoma28); 
                     
-                    ImGui::SetCursorPos(ImVec2{ 45 - config->misc.textoffset, 5 + config->misc.textoffset });ImGui::TextColored(ImColor(70, 50, 240, 255), "Osiris");
-                    ImGui::SetCursorPos(ImVec2{ 45 + config->misc.textoffset, 5 - config->misc.textoffset }); ImGui::TextColored(ImColor(228, 6, 88, 255), "Osiris");
+                    ImGui::SetCursorPos(ImVec2{ 45 - config->misc.textoffset * 0.1f, 5 + config->misc.textoffset * 0.1f });ImGui::TextColored(ImColor(70, 50, 240, 255), "Osiris");
+                    ImGui::SetCursorPos(ImVec2{ 45 + config->misc.textoffset * 0.1f, 5 - config->misc.textoffset * 0.1f }); ImGui::TextColored(ImColor(228, 6, 88, 255), "Osiris");
                     ImGui::SetCursorPos(ImVec2{ 10, 5 }); ImGui::Text("更好的 Osiris");
                     
                     ImGui::PopFont();

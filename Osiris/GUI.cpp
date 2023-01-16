@@ -2614,7 +2614,7 @@ void GUI::renderGuiStyle() noexcept
         ImGui::TextColored(ImColor(235, 5, 85 ,255),"");
         ImGui::TextColored(ImColor(235, 5, 85, 255), "NOT FOR SELLING!!");
         ImGui::TextColored(ImColor(235, 5, 85, 255), "modifier: m1tzw#5953");
-        ImGui::TextColored(ImColor(235, 5, 85, 255), "Build: % s% s", __DATE__, __TIME__);
+        ImGui::TextColored(ImColor(235, 5, 85, 255), "Build: %s %s", __DATE__, __TIME__);
         ImGui::PopFont();
     }
     ImGui::End();

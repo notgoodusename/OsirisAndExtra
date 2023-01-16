@@ -207,15 +207,19 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
         }
         if (config->fakeAngle.enabled) //Fakeangle
         {
+            bool isInvertToggled = config->fakeAngle.invert.isActive();
+            static bool invert = true;
+            if (config->fakeAngle.peekMode != 3)
+                invert = isInvertToggled;
+            if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f)))
+                cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : config->rageAntiAim.rollAdd * -1.f;
+            else
+                cmd->viewangles.z = 0.f;
             if (const auto gameRules = (*memory->gameRules); gameRules)
                 if (getGameMode() != GameMode::Competitive && gameRules->isValveDS())
                     return;
             if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount)
                 return;
-            bool isInvertToggled = config->fakeAngle.invert.isActive();
-            static bool invert = true;
-            if (config->fakeAngle.peekMode != 3)
-                invert = isInvertToggled;
             srand(static_cast<unsigned int>(memory->globalVars->tickCount));
             float leftDesyncAngle = ((rand() % (config->fakeAngle.leftLimit - config->fakeAngle.leftMin)) + config->fakeAngle.leftMin) * 2.f;
             float rightDesyncAngle = ((rand() % (config->fakeAngle.rightLimit - config->fakeAngle.rightMin)) + config->fakeAngle.rightMin) * -2.f;
@@ -276,10 +280,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
 
                 break;
             }
-            if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f)))
-                cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : config->rageAntiAim.rollAdd * -1.f;
-            else
-                cmd->viewangles.z = 0.f;
+
             if (sendPacket)
                 return;
 

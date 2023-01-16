@@ -37,13 +37,8 @@ void Tickbase::start(UserCmd* cmd) noexcept
     if (cmd->buttons & UserCmd::IN_ATTACK)
     {
         config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount;
-        //config->tickbase.readyFire = true;
 
-    }/*
-    if (cmd->viewangles.x < 85.f)
-        config->tickbase.readyFire = true;
-    else
-        config->tickbase.readyFire = false;*/
+    }
     if (!config->tickbase.doubletap.isActive() && !config->tickbase.hideshots.isActive())
         config->tickbase.DisabledTickbase = true;
     else

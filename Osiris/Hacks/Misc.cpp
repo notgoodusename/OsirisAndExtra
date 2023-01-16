@@ -1669,13 +1669,17 @@ void Misc::watermark() noexcept
 
     ImGui::SetNextWindowBgAlpha(0.65f);
     ImGui::Begin("Watermark", nullptr, windowFlags);
-    ImGui::SetCursorPos(ImVec2{ 30 - config->misc.textoffset, 5 + config->misc.textoffset}); ImGui::TextColored(ImColor(70, 50, 240, 200), "TeiKu.moE");
-    ImGui::SetCursorPos(ImVec2{ 30 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 85, 200), "TeiKu.moE");
-    ImGui::SetCursorPos(ImVec2{ 30, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "TeiKu.moE");
+    ImGui::SetCursorPos(ImVec2{ 5 - config->misc.textoffset, 5 + config->misc.textoffset}); ImGui::TextColored(ImColor(70, 50, 240, 200), "TeiKu.moE");
+    ImGui::SetCursorPos(ImVec2{ 5 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 85, 200), "TeiKu.moE");
+    ImGui::SetCursorPos(ImVec2{ 5, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "TeiKu.moE");
 
     ImGui::Text("f/s: %d", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0);
     ImGui::SameLine();
     ImGui::Text("latency: %d ms",GameData::getNetOutgoingLatency());
+    ImGui::SameLine();
+    const auto time = std::time(nullptr);
+    const auto localTime = std::localtime(&time);
+    ImGui::Text("% 02d:% 02d : % 02d", localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
     ImGui::End();
 }
 

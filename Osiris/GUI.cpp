@@ -74,7 +74,7 @@ GUI::GUI() noexcept
         const std::filesystem::path path{ pathToFonts };
         CoTaskMemFree(pathToFonts);
 
-        fonts.normal15px = addFontFromVFONT("csgo/panorama/fonts/notosans-regular.vfont", 15.0f, Helpers::getFontGlyphRanges(), false);
+        fonts.normal15px = addFontFromVFONT("csgo/panorama/fonts/notosanssc-regular.vfont", 15.0f, Helpers::getFontGlyphRanges(), false);
         if (!fonts.normal15px)
             io.Fonts->AddFontDefault(&cfg);
         fonts.tahoma28 = addFontFromVFONT("csgo/panorama/fonts/notosans-regular.vfont", 28.0f, Helpers::getFontGlyphRanges(), false);
@@ -2343,7 +2343,7 @@ void GUI::renderGuiStyle() noexcept
     Style->ChildRounding = 0;
     Style->FrameBorderSize = 2.5;
     
-    Style->Colors[ImGuiCol_Text] = ImColor(250, 250, 250);
+    Style->Colors[ImGuiCol_Text] = ImColor(245, 245, 245);
 
     Style->Colors[ImGuiCol_WindowBg] = ImColor(17, 15, 35);
     Style->Colors[ImGuiCol_TitleBg] = ImColor(25, 21, 52);
@@ -2386,8 +2386,15 @@ void GUI::renderGuiStyle() noexcept
             {
                 ImGui::BeginChild("##UP", ImVec2{ 700, 45 }, false);
                 {
-                    ImGui::SetCursorPos(ImVec2{ 10, 6 });
-                    ImGui::PushFont(fonts.tahoma28); ImGui::Text("更好的 Osiris"); ImGui::PopFont();
+                    
+                    ImGui::PushFont(fonts.tahoma28); 
+                    
+                    ImGui::SetCursorPos(ImVec2{ 44, 6 });ImGui::TextColored(ImColor(70, 50, 240, 255), "Osiris");
+                    ImGui::SetCursorPos(ImVec2{ 46, 4 }); ImGui::TextColored(ImColor(228, 6, 88, 255), "Osiris");
+                    ImGui::SetCursorPos(ImVec2{ 10, 5 }); ImGui::Text("更好的 Osiris");
+                    
+                    ImGui::PopFont();
+
 
                     float pos = 305;
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
@@ -2611,10 +2618,10 @@ void GUI::renderGuiStyle() noexcept
         ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x, menuPos.y));
         //ImGui::Image((void*)texture, ImGui::GetWindowSize());
         ImGui::PushFont(fonts.tahoma28);
-        ImGui::TextColored(ImColor(235, 5, 85 ,255),"");
-        ImGui::TextColored(ImColor(235, 5, 85, 255), "NOT FOR SELLING!!");
-        ImGui::TextColored(ImColor(235, 5, 85, 255), "modifier: m1tzw#5953");
-        ImGui::TextColored(ImColor(235, 5, 85, 255), "Build: %s %s", __DATE__, __TIME__);
+        ImGui::TextColored(ImColor(235, 5, 85 ,250),"");
+        ImGui::TextColored(ImColor(235, 5, 85, 250), "NOT FOR SELLING!!");
+        ImGui::TextColored(ImColor(235, 5, 85, 250), "modifier: m1tzw#5953");
+        ImGui::TextColored(ImColor(235, 5, 85, 250), "Build: %s %s", __DATE__, __TIME__);
         ImGui::PopFont();
     }
     ImGui::End();

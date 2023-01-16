@@ -2360,6 +2360,17 @@ void GUI::renderGuiStyle() noexcept
     Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90);
     Style->Colors[ImGuiCol_ButtonHovered] = ImColor(235, 5, 85);
     Style->Colors[ImGuiCol_ButtonActive] = ImColor(250, 250, 250);
+    Style->Colors[ImGuiCol_FrameBg] = ImColor(33, 27, 69);
+    Style->Colors[ImGuiCol_FrameBgHovered] = ImColor(33, 27, 69);
+    Style->Colors[ImGuiCol_FrameBgActive] = ImColor(33, 27, 69);
+    Style->Colors[ImGuiCol_Header] = ImColor(33, 27, 69);
+    Style->Colors[ImGuiCol_HeaderHovered] = ImColor(235, 5, 90);
+    Style->Colors[ImGuiCol_HeaderActive] = ImColor(235, 5, 85);
+    
+    Style->Colors[ImGuiCol_SliderGrab] = ImColor(42, 34, 87);
+    Style->Colors[ImGuiCol_SliderGrabActive] = ImColor(235, 5, 85);
+        
+    Style->Colors[ImGuiCol_TextSelectedBg] = ImColor(0, 95, 185);
     Style->Colors[ImGuiCol_CheckMark] = ImColor(235, 5, 90);
 
     Style->Colors[ImGuiCol_ScrollbarGrab] = ImColor(42, 34, 87);

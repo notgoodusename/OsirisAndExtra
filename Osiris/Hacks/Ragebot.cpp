@@ -43,7 +43,6 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
     StudioHitboxSet* set = hdr->getHitboxSet(0);
     if (!set)
         return;
-
     for (size_t i = 0; i < hitbox.size(); i++)
     {
         if (!hitbox[i])

@@ -111,6 +111,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 const auto aimPunch = localPlayer->getAimPunch();
                 float bestFov = 255.f;
                 float yawAngle = 0.f;
+                
                 for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i) {
                     const auto entity{ interfaces->entityList->getEntity(i) };
                     if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive()

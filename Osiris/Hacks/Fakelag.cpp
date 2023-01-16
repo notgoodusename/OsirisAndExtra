@@ -21,7 +21,7 @@ void Fakelag::run(bool& sendPacket) noexcept
 
     if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount) {
         chokedPackets = 0;
-        //sendPacket = true;
+        sendPacket = true;
         return;
     }
         
@@ -40,12 +40,12 @@ void Fakelag::run(bool& sendPacket) noexcept
             chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (speed * memory->globalVars->intervalPerTick))), 1, config->fakelag.limit);
             break;
         case 2: // Random
-            srand(static_cast<unsigned int>(memory->globalVars->tickCount));
+            srand(static_cast<unsigned int>(time(nullptr)));
             chokedPackets = rand() % config->fakelag.limit + 1;
             break;
         case 3:
             int i;
-            srand(static_cast<unsigned int>(memory->globalVars->tickCount));
+            srand(static_cast<unsigned int>(time(nullptr)));
             for (i = 1; i <= 30; ++i)
             {
                 if (i == 29)

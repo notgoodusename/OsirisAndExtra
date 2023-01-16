@@ -314,7 +314,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             angle.y = std::clamp(angle.y, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
             clamped = true;
         }
-        config->tickbase.readyFire = true;
+        
         if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime()) {
             cmd->viewangles += angle;
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
@@ -329,11 +329,11 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 34 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 39) {
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount;
-                config->tickbase.readyFire = false;
+                
             }
             else {
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount + 1;
-                config->tickbase.readyFire = false;
+                
             }
         }
             

@@ -16,14 +16,14 @@ void Fakelag::run(bool& sendPacket) noexcept
     const auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;
-    auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 1 : 0;
+    auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? 2 : 0;
     if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.readyFire) {
         chokedPackets = -1;
         sendPacket = true;
         config->tickbase.readyFire = false;
         return;
     }
-    if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount) {
+    if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount + chokedPackets) {
         chokedPackets = 0;
         config->tickbase.readyFire = false;
         return;

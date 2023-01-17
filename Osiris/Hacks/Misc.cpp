@@ -1670,9 +1670,9 @@ void Misc::watermark() noexcept
 
     ImGui::SetNextWindowBgAlpha(0.65f);
     ImGui::Begin("Watermark", nullptr, windowFlags);
-    ImGui::SetCursorPos(ImVec2{ 15 - config->misc.textoffset, 5 + config->misc.textoffset}); ImGui::TextColored(ImColor(70, 50, 240, 200), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
-    ImGui::SetCursorPos(ImVec2{ 15 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 85, 200), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
-    ImGui::SetCursorPos(ImVec2{ 15, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+    ImGui::SetCursorPos(ImVec2{ 10 - config->misc.textoffset, 5 + config->misc.textoffset}); ImGui::TextColored(ImColor(70, 50, 240, 200), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+    ImGui::SetCursorPos(ImVec2{ 10 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 85, 200), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+    ImGui::SetCursorPos(ImVec2{ 10, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
 
     ImGui::Text("f/s: %d", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0);
     ImGui::SameLine();

@@ -2213,129 +2213,6 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Columns(1);
 }
 
-void GUI::renderConfigWindow() noexcept
-{
-    ImGui::Columns(2, nullptr, false);
-    ImGui::SetColumnOffset(1, 170.0f);
-
-    static bool incrementalLoad = false;
-    ImGui::Checkbox("Incremental Load", &incrementalLoad);
-
-    ImGui::PushItemWidth(160.0f);
-
-    auto& configItems = config->getConfigs();
-    static int currentConfig = -1;
-
-    static std::string buffer;
-
-    timeToNextConfigRefresh -= ImGui::GetIO().DeltaTime;
-    if (timeToNextConfigRefresh <= 0.0f) {
-        config->listConfigs();
-        if (const auto it = std::find(configItems.begin(), configItems.end(), buffer); it != configItems.end())
-            currentConfig = std::distance(configItems.begin(), it);
-        timeToNextConfigRefresh = 0.1f;
-    }
-
-    if (static_cast<std::size_t>(currentConfig) >= configItems.size())
-        currentConfig = -1;
-
-    if (ImGui::ListBox("", &currentConfig, [](void* data, int idx, const char** out_text) {
-        auto& vector = *static_cast<std::vector<std::string>*>(data);
-        *out_text = vector[idx].c_str();
-        return true;
-        }, &configItems, configItems.size(), 5) && currentConfig != -1)
-            buffer = configItems[currentConfig];
-
-        ImGui::PushID(0);
-        if (ImGui::InputTextWithHint("", "config name", &buffer, ImGuiInputTextFlags_EnterReturnsTrue)) {
-            if (currentConfig != -1)
-                config->rename(currentConfig, buffer.c_str());
-        }
-        ImGui::PopID();
-        ImGui::NextColumn();
-
-        ImGui::PushItemWidth(100.0f);
-
-        if (ImGui::Button("Open config directory"))
-            config->openConfigDir();
-
-        if (ImGui::Button("Create config", { 100.0f, 25.0f }))
-            config->add(buffer.c_str());
-
-        if (ImGui::Button("Reset config", { 100.0f, 25.0f }))
-            ImGui::OpenPopup("Config to reset");
-
-        if (ImGui::BeginPopup("Config to reset")) {
-            static constexpr const char* names[]{ "Whole", "Legitbot", "Legit Anti Aim", "Ragebot", "Rage Anti aim", "Fake angle", "Fakelag", "Backtrack", "Triggerbot", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Misc" };
-            for (int i = 0; i < IM_ARRAYSIZE(names); i++) {
-                if (i == 1) ImGui::Separator();
-
-                if (ImGui::Selectable(names[i])) {
-                    switch (i) {
-                    case 0: config->reset(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
-                    case 1: config->legitbot = { }; config->legitbotKey.reset(); break;
-                    case 2: config->legitAntiAim = { }; break;
-                    case 3: config->ragebot = { }; config->ragebotKey.reset();  break;
-                    case 4: config->rageAntiAim = { };  break;
-                    case 5: config->fakeAngle = { }; break;
-                    case 6: config->fakelag = { }; break;
-                    case 7: config->backtrack = { }; break;
-                    case 8: config->triggerbot = { }; config->triggerbotKey.reset(); break;
-                    case 9: Glow::resetConfig(); break;
-                    case 10: config->chams = { }; config->chamsKey.reset(); break;
-                    case 11: config->streamProofESP = { }; break;
-                    case 12: config->visuals = { }; break;
-                    case 13: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
-                    case 14: Sound::resetConfig(); break;
-                    case 15: config->misc = { };  Misc::updateClanTag(true); break;
-                    }
-                }
-            }
-            ImGui::EndPopup();
-        }
-        if (currentConfig != -1) {
-            if (ImGui::Button("Load selected", { 100.0f, 25.0f })) {
-                config->load(currentConfig, incrementalLoad);
-                SkinChanger::scheduleHudUpdate();
-                Misc::updateClanTag(true);
-            }
-            if (ImGui::Button("Save selected", { 100.0f, 25.0f }))
-                ImGui::OpenPopup("##reallySave");
-            if (ImGui::BeginPopup("##reallySave"))
-            {
-                ImGui::TextUnformatted("Are you sure?");
-                if (ImGui::Button("No", { 45.0f, 0.0f }))
-                    ImGui::CloseCurrentPopup();
-                ImGui::SameLine();
-                if (ImGui::Button("Yes", { 45.0f, 0.0f }))
-                {
-                    config->save(currentConfig);
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
-            if (ImGui::Button("Delete selected", { 100.0f, 25.0f }))
-                ImGui::OpenPopup("##reallyDelete");
-            if (ImGui::BeginPopup("##reallyDelete"))
-            {
-                ImGui::TextUnformatted("Are you sure?");
-                if (ImGui::Button("No", { 45.0f, 0.0f }))
-                    ImGui::CloseCurrentPopup();
-                ImGui::SameLine();
-                if (ImGui::Button("Yes", { 45.0f, 0.0f }))
-                {
-                    config->remove(currentConfig);
-                    if (static_cast<std::size_t>(currentConfig) < configItems.size())
-                        buffer = configItems[currentConfig];
-                    else
-                        buffer.clear();
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
-        }
-        ImGui::Columns(1);
-}
 
 void Active() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90); Style->Colors[ImGuiCol_ButtonActive] = ImColor(235, 5, 85); Style->Colors[ImGuiCol_ButtonHovered] = ImColor(250, 250, 250); }
 void Hovered() { ImGuiStyle* Style = &ImGui::GetStyle(); Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90); Style->Colors[ImGuiCol_ButtonActive] = ImColor(235, 5, 85); Style->Colors[ImGuiCol_ButtonHovered] = ImColor(250, 250, 250); }
@@ -2413,7 +2290,6 @@ void GUI::renderGuiStyle() noexcept
                     
                     ImGui::PopFont();
 
-
                     float pos = 305;
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
                     if (activeTab == 1) Active(); else Hovered();
@@ -2444,9 +2320,9 @@ void GUI::renderGuiStyle() noexcept
                     pos += 80;
 
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
-                    if (activeTab == 5) Active(); else Hovered();
-                    if (ImGui::Button("Configs", ImVec2{ 75, 45 }))
-                        activeTab = 5;
+                    //if (activeTab == 5) Active(); else Hovered();
+                    //if (ImGui::Button("Profiles", ImVec2{ 75, 45 }))
+                        //activeTab = 5;
                 }
                 ImGui::EndChild();
 
@@ -2597,10 +2473,10 @@ void GUI::renderGuiStyle() noexcept
                                     break;
                                 }
                                 break;
-                            case 5:
+                            //case 5:
                                 //Configs
-                                renderConfigWindow();
-                                break;
+                                
+                               // break;
                             default:
                                 break;
                             }
@@ -2650,6 +2526,133 @@ void GUI::renderGuiStyle() noexcept
         ImGui::TextColored(ImColor(245, 245, 245, 245), "modifier: m1tzw#5953");
         ImGui::TextColored(ImColor(245, 245, 245, 245), "Build: %s %s", __DATE__, __TIME__);
         ImGui::PopFont();
+    }
+    ImGui::End();
+    ImGui::Begin("Profile", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+    {
+        //ImGui::SetWindowSize(ImVec2(550, 350));
+        ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x, menuPos.y + menuSize.y - ImGui::GetWindowSize().y));
+        //ImGui::Image((void*)texture, ImGui::GetWindowSize());
+        //ImGui::Columns(2, nullptr, false);
+        //ImGui::SetColumnOffset(1, 170.0f);
+
+        static bool incrementalLoad = false;
+        ImGui::Checkbox("Incremental Load", &incrementalLoad);
+
+        ImGui::PushItemWidth(160.0f);
+
+        auto& configItems = config->getConfigs();
+        static int currentConfig = -1;
+
+        static std::string buffer;
+
+        timeToNextConfigRefresh -= ImGui::GetIO().DeltaTime;
+        if (timeToNextConfigRefresh <= 0.0f) {
+            config->listConfigs();
+            if (const auto it = std::find(configItems.begin(), configItems.end(), buffer); it != configItems.end())
+                currentConfig = std::distance(configItems.begin(), it);
+            timeToNextConfigRefresh = 0.1f;
+        }
+
+        if (static_cast<std::size_t>(currentConfig) >= configItems.size())
+            currentConfig = -1;
+
+        if (ImGui::ListBox("", &currentConfig, [](void* data, int idx, const char** out_text) {
+            auto& vector = *static_cast<std::vector<std::string>*>(data);
+            *out_text = vector[idx].c_str();
+            return true;
+            }, &configItems, configItems.size(), 5) && currentConfig != -1)
+            buffer = configItems[currentConfig];
+
+            ImGui::PushID(0);
+            if (ImGui::InputTextWithHint("", "config name", &buffer, ImGuiInputTextFlags_EnterReturnsTrue)) {
+                if (currentConfig != -1)
+                    config->rename(currentConfig, buffer.c_str());
+            }
+            ImGui::PopID();
+            ImGui::NextColumn();
+
+            ImGui::PushItemWidth(100.0f);
+
+            if (ImGui::Button("Open config directory", { 160.0f, 25.0f }))
+                config->openConfigDir();
+
+            if (ImGui::Button("Create config", { 160.0f, 25.0f }))
+                config->add(buffer.c_str());
+
+            if (ImGui::Button("Reset config", { 160.0f, 25.0f }))
+                ImGui::OpenPopup("Config to reset");
+
+            if (ImGui::BeginPopup("Config to reset")) {
+                static constexpr const char* names[]{ "Whole", "Legitbot", "Legit Anti Aim", "Ragebot", "Rage Anti aim", "Fake angle", "Fakelag", "Backtrack", "Triggerbot", "Glow", "Chams", "ESP", "Visuals", "Skin changer", "Sound", "Misc" };
+                for (int i = 0; i < IM_ARRAYSIZE(names); i++) {
+                    if (i == 1) ImGui::Separator();
+
+                    if (ImGui::Selectable(names[i])) {
+                        switch (i) {
+                        case 0: config->reset(); Misc::updateClanTag(true); SkinChanger::scheduleHudUpdate(); break;
+                        case 1: config->legitbot = { }; config->legitbotKey.reset(); break;
+                        case 2: config->legitAntiAim = { }; break;
+                        case 3: config->ragebot = { }; config->ragebotKey.reset();  break;
+                        case 4: config->rageAntiAim = { };  break;
+                        case 5: config->fakeAngle = { }; break;
+                        case 6: config->fakelag = { }; break;
+                        case 7: config->backtrack = { }; break;
+                        case 8: config->triggerbot = { }; config->triggerbotKey.reset(); break;
+                        case 9: Glow::resetConfig(); break;
+                        case 10: config->chams = { }; config->chamsKey.reset(); break;
+                        case 11: config->streamProofESP = { }; break;
+                        case 12: config->visuals = { }; break;
+                        case 13: config->skinChanger = { }; SkinChanger::scheduleHudUpdate(); break;
+                        case 14: Sound::resetConfig(); break;
+                        case 15: config->misc = { };  Misc::updateClanTag(true); break;
+                        }
+                    }
+                }
+                ImGui::EndPopup();
+            }
+            if (currentConfig != -1) {
+                if (ImGui::Button("Load selected", { 160.0f, 25.0f })) {
+                    config->load(currentConfig, incrementalLoad);
+                    SkinChanger::scheduleHudUpdate();
+                    Misc::updateClanTag(true);
+                }
+                if (ImGui::Button("Save selected", { 160.0f, 25.0f }))
+                    ImGui::OpenPopup("##reallySave");
+                if (ImGui::BeginPopup("##reallySave"))
+                {
+                    ImGui::TextUnformatted("Are you sure?");
+                    if (ImGui::Button("No", { 45.0f, 0.0f }))
+                        ImGui::CloseCurrentPopup();
+                    ImGui::SameLine();
+                    if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                    {
+                        config->save(currentConfig);
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndPopup();
+                }
+                if (ImGui::Button("Delete selected", { 160.0f, 25.0f }))
+                    ImGui::OpenPopup("##reallyDelete");
+                if (ImGui::BeginPopup("##reallyDelete"))
+                {
+                    ImGui::TextUnformatted("Are you sure?");
+                    if (ImGui::Button("No", { 45.0f, 0.0f }))
+                        ImGui::CloseCurrentPopup();
+                    ImGui::SameLine();
+                    if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                    {
+                        config->remove(currentConfig);
+                        if (static_cast<std::size_t>(currentConfig) < configItems.size())
+                            buffer = configItems[currentConfig];
+                        else
+                            buffer.clear();
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndPopup();
+                }
+            }
+            //ImGui::Columns(1);
     }
     ImGui::End();
 }

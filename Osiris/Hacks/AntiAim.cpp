@@ -214,7 +214,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 invert = isInvertToggled;
             if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))){
                 cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : config->rageAntiAim.rollAdd * -1.f;
-                cmd->viewangles.x = invert ? cmd->viewangles.z + config->rageAntiAim.rollPitch : cmd->viewangles.z - config->rageAntiAim.rollPitch;
+                cmd->viewangles.x = abs(cmd->viewangles.z) + config->rageAntiAim.rollPitch;
             }
             else
                 cmd->viewangles.z = 0.f;

@@ -37,7 +37,6 @@
 
 constexpr auto windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize
 | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
-// Simple helper function to load an image into a DX9 texture with common settings
 
 static ImFont* addFontFromVFONT(const std::string& path, float size, const ImWchar* glyphRanges, bool merge) noexcept
 {
@@ -2258,11 +2257,6 @@ void GUI::renderGuiStyle() noexcept
     static auto Flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings;
 
     static int activeTab = 1;
-    static int activeSubTabLegitbot = 1;
-    static int activeSubTabRagebot = 1;
-    static int activeSubTabVisuals = 1;
-    static int activeSubTabMisc = 1;
-    static int activeSubTabConfigs = 1;
 
     if (ImGui::Begin(Name, NULL, Flags))
     {
@@ -2271,226 +2265,257 @@ void GUI::renderGuiStyle() noexcept
         menuSize = ImGui::GetWindowSize();
         Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
 
-        ImGui::BeginChild("##Back", ImVec2{ 704, 434 }, false);
+        ImGui::BeginChild("##Back", ImVec2{ 705, 445 }, false);
         {
             ImGui::SetCursorPos(ImVec2{ 2, 2 });
 
             Style->Colors[ImGuiCol_ChildBg] = ImColor(33, 27, 69);
 
-            ImGui::BeginChild("##Main", ImVec2{ 700, 430 }, false);
-            {
-                ImGui::BeginChild("##UP", ImVec2{ 700, 45 }, false);
+            ImGui::BeginChild("##Main", ImVec2{ 700, 440 }, false);
+            {   
+                ImGui::BeginChild("##UP", ImVec2{ 700, 60 }, false);
                 {
                     
                     ImGui::PushFont(fonts.tahoma28); 
                     
-                    ImGui::SetCursorPos(ImVec2{ 10 - config->misc.textoffset, 5 + config->misc.textoffset});ImGui::TextColored(ImColor(70, 50, 240, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
-                    ImGui::SetCursorPos(ImVec2{ 10 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 90, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
-                    ImGui::SetCursorPos(ImVec2{ 10, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+                    ImGui::SetCursorPos(ImVec2{ 255 - config->misc.textoffset, 2 + config->misc.textoffset});ImGui::TextColored(ImColor(70, 50, 240, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+                    ImGui::SetCursorPos(ImVec2{ 255 + config->misc.textoffset, 2 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 90, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+                    ImGui::SetCursorPos(ImVec2{ 255, 2 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
                     
                     ImGui::PopFont();
 
-                    float pos = 305;
+                    ImGui::SetCursorPos(ImVec2{ 5, 30 });
+                    if (ImGui::Button("Legit Aimbot", { 160.0f, 25.0f }))
+                        ImGui::OpenPopup("##Legittab");
+                    if (ImGui::BeginPopup("##Legittab"))
+                    {
+                        ImGui::TextColored(ImColor(235, 5, 90, 245), "Legit Aimbot");
+                        if (ImGui::Button("Legit", ImVec2{ 80, 20 })) activeTab = 1;
+                        if (ImGui::Button("Triggerbot", ImVec2{ 80, 20 })) activeTab = 2;
+                        if (ImGui::Button("Legit AntiAim", ImVec2{ 80, 20 })) activeTab = 3;
+                        ImGui::Spacing();
+                        ImGui::EndPopup();
+                    }
+                    
+
+                    ImGui::SetCursorPos(ImVec2{ 180, 30 });
+                    if (ImGui::Button("Rage Aimbot", { 160.0f, 25.0f }))
+                        ImGui::OpenPopup("##Ragetab");
+                    if (ImGui::BeginPopup("##Ragetab"))
+                    {
+                        ImGui::TextColored(ImColor(235, 5, 90, 245), "Rage Aimbot");
+                        if (ImGui::Button("Rage", ImVec2{ 80, 20 })) activeTab = 4;
+                        if (ImGui::Button("Backtrack", ImVec2{ 80, 20 })) activeTab = 5;
+                        if (ImGui::Button("Rage AntiAim", ImVec2{ 80, 20 })) activeTab = 6;
+                        if (ImGui::Button("Fake Angle", ImVec2{ 80, 20 })) activeTab = 7;
+                        if (ImGui::Button("FakeLag", ImVec2{ 80, 20 })) activeTab = 8;
+                        ImGui::Spacing();
+                        ImGui::EndPopup();
+                    }
+                    
+                    ImGui::SetCursorPos(ImVec2{ 355, 30 });
+                    if (ImGui::Button("Visuals", { 160.0f, 25.0f }))
+                        ImGui::OpenPopup("##Visualtab");
+                    if (ImGui::BeginPopup("##Visualtab"))
+                    {
+                        ImGui::TextColored(ImColor(235, 5, 90, 245), "Visuals");
+                        if (ImGui::Button("Visual", ImVec2{ 80, 20 })) activeTab = 9;
+                        if (ImGui::Button("Esp", ImVec2{ 80, 20 })) activeTab = 10;
+                        if (ImGui::Button("Chams", ImVec2{ 80, 20 })) activeTab = 11;
+                        if (ImGui::Button("Glow", ImVec2{ 80, 20 })) activeTab = 12;
+                        if (ImGui::Button("Skins", ImVec2{ 80, 20 })) activeTab = 13;
+                        ImGui::Spacing();
+                        ImGui::EndPopup();
+                    }
+
+                    ImGui::SetCursorPos(ImVec2{ 530, 30 });
+                    if (ImGui::Button("Miscellaneous", { 160.0f, 25.0f }))
+                        ImGui::OpenPopup("##Misctab");
+                    if (ImGui::BeginPopup("##Misctab"))
+                    {
+                        ImGui::TextColored(ImColor(235, 5, 90, 245), "Miscellaneous");
+                        if (ImGui::Button("Misc", ImVec2{ 80, 20 })) activeTab = 14;
+                        if (ImGui::Button("Sound", ImVec2{ 80, 20 })) activeTab = 15;
+                        ImGui::Spacing();
+                        ImGui::EndPopup();
+                    }
+                    
+                    /*
+                    ImGui::SetCursorPos(ImVec2(0.f, 50.f));
+                    float pos = 210;
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
+                    ImGui::TextColored(ImColor(235, 5, 90, 245), "Aimbot");
+
+                    pos += 45;
+
+                    ImGui::SetCursorPos(ImVec2{ pos, 0});
                     if (activeTab == 1) Active(); else Hovered();
-                    if (ImGui::Button("Legitbot", ImVec2{ 75, 45 }))
+                    if (ImGui::Button("Legit", ImVec2{ 65, 45 }))
                         activeTab = 1;
                     
                     pos += 80;
 
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
                     if (activeTab == 2) Active(); else Hovered();
-                    if (ImGui::Button("Ragebot", ImVec2{ 75, 45 }))
+                    if (ImGui::Button("Rage", ImVec2{ 65, 45 }))
                         activeTab = 2;
 
-                    pos += 80;
+                    pos += 70;
+
+                    ImGui::SetCursorPos(ImVec2{ pos, 0 });
+                    ImGui::TextColored(ImColor(235, 5, 90, 245), "Visual");
+
+                    pos += 35;
 
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
                     if (activeTab == 3) Active(); else Hovered();
-                    if (ImGui::Button("Visuals", ImVec2{ 75, 45 }))
+                    if (ImGui::Button("Visual", ImVec2{ 65, 45 }))
                         activeTab = 3;
 
-                    pos += 80;
+                    pos += 70;
+
+                    ImGui::SetCursorPos(ImVec2{ pos, 0 });
+                    ImGui::TextColored(ImColor(235, 5, 90, 245), "Miscellaneous");
+
+                    pos += 75;
 
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
                     if (activeTab == 4) Active(); else Hovered();
-                    if (ImGui::Button("Misc", ImVec2{ 75, 45 }))
+                    if (ImGui::Button("Misc", ImVec2{ 65, 45 }))
                         activeTab = 4;
 
-                    pos += 80;
+                    pos += 70;
 
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
                     //if (activeTab == 5) Active(); else Hovered();
-                    //if (ImGui::Button("Profiles", ImVec2{ 75, 45 }))
+                    //if (ImGui::Button("Profiles", ImVec2{ 65, 45 }))
                         //activeTab = 5;
+                        */
                 }
                 ImGui::EndChild();
 
-                ImGui::SetCursorPos(ImVec2{ 0, 45 });
+                ImGui::SetCursorPos(ImVec2{ 0, 60 });
                 Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
                 Style->Colors[ImGuiCol_Button] = ImColor(235, 5, 90);
                 Style->Colors[ImGuiCol_ButtonHovered] = ImColor(235, 5, 85);
                 Style->Colors[ImGuiCol_ButtonActive] = ImColor(250, 250, 250);
-                ImGui::BeginChild("##Childs", ImVec2{ 700, 365 }, false);
+                ImGui::BeginChild("##Childs", ImVec2{ 700, 370 }, false);
                 {
                     ImGui::SetCursorPos(ImVec2{ 15, 5 });
                     Style->ChildRounding = 0;
-                    ImGui::BeginChild("##Left", ImVec2{ 155, 320 }, false);
-                    {
-                        switch (activeTab)
-                        {
-                        case 1: //Legitbot
-                            ImGui::SetCursorPosY(10);
-                            if (ImGui::Button("Main                    ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 1;
-                            if (ImGui::Button("Backtrack               ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 2;
-                            if (ImGui::Button("Triggerbot              ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 3;
-                            if (ImGui::Button("AntiAim                 ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 4;
-                            break;
-                        case 2: //Ragebot
-                            ImGui::SetCursorPosY(10);
-                            if (ImGui::Button("Main                    ", ImVec2{ 80, 20 })) activeSubTabRagebot = 1;
-                            if (ImGui::Button("Backtrack               ", ImVec2{ 80, 20 })) activeSubTabRagebot = 2;
-                            if (ImGui::Button("AntiAim                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 3;
-                            if (ImGui::Button("Fake Angle              ", ImVec2{ 80, 20 })) activeSubTabRagebot = 4;
-                            if (ImGui::Button("FakeLag                 ", ImVec2{ 80, 20 })) activeSubTabRagebot = 5;
-                            break;
-                        case 3: //Visuals
-                            ImGui::SetCursorPosY(10);
-                            if (ImGui::Button("Main                    ", ImVec2{ 80, 20 })) activeSubTabVisuals = 1;
-                            if (ImGui::Button("Esp                     ", ImVec2{ 80, 20 })) activeSubTabVisuals = 2;
-                            if (ImGui::Button("Chams                   ", ImVec2{ 80, 20 })) activeSubTabVisuals = 3;
-                            if (ImGui::Button("Glow                    ", ImVec2{ 80, 20 })) activeSubTabVisuals = 4;
-                            if (ImGui::Button("Skins                   ", ImVec2{ 80, 20 })) activeSubTabVisuals = 5;
-                            break;
-                        case 4: //Misc
-                            ImGui::SetCursorPosY(10);
-                            if (ImGui::Button("Main                    ", ImVec2{ 80, 20 })) activeSubTabMisc = 1;
-                            if (ImGui::Button("Sound                   ", ImVec2{ 80, 20 })) activeSubTabMisc = 2;
-                            break;
-                        default:
-                            break;
-                        }
-
+                    
+                    ImGui::BeginChild("##Left", ImVec2{ 155, 350 }, false);
+                    {       ImGui::SetCursorPosY(10);
+                            /*
+                            //Legitbot
+                            ImGui::TextColored(ImColor(235, 5, 90, 245), "Aimbot");
+                            if (ImGui::Button("Legit                    ", ImVec2{ 80, 20 })) activeTab = 1;
+                            //if (ImGui::Button("Backtrack               ", ImVec2{ 80, 20 })) activeSubTabLegitbot = 2;
+                            if (ImGui::Button("Triggerbot              ", ImVec2{ 80, 20 })) activeTab = 2;
+                            if (ImGui::Button("Legit AntiAim           ", ImVec2{ 80, 20 })) activeTab = 3;
+                            //Ragebot
+                            ImGui::Spacing();
+                            ImGui::Spacing();
+                            ImGui::Spacing();
+                            if (ImGui::Button("Rage                    ", ImVec2{ 80, 20 })) activeTab = 4;
+                            if (ImGui::Button("Backtrack               ", ImVec2{ 80, 20 })) activeTab = 5;
+                            if (ImGui::Button("Rage AntiAim            ", ImVec2{ 80, 20 })) activeTab = 6;
+                            if (ImGui::Button("Fake Angle              ", ImVec2{ 80, 20 })) activeTab = 7;
+                            if (ImGui::Button("FakeLag                 ", ImVec2{ 80, 20 })) activeTab = 8;
+                            //Visuals
+                            ImGui::Spacing();
+                            ImGui::TextColored(ImColor(235, 5, 90, 245), "Visuals");
+                            if (ImGui::Button("Visual                  ", ImVec2{ 80, 20 })) activeTab = 9;
+                            if (ImGui::Button("Esp                     ", ImVec2{ 80, 20 })) activeTab = 10;
+                            if (ImGui::Button("Chams                   ", ImVec2{ 80, 20 })) activeTab = 11;
+                            if (ImGui::Button("Glow                    ", ImVec2{ 80, 20 })) activeTab = 12;
+                            if (ImGui::Button("Skins                   ", ImVec2{ 80, 20 })) activeTab = 13;
+                            //Misc
+                            ImGui::Spacing();
+                            ImGui::TextColored(ImColor(235, 5, 90, 245), "Miscellaneous");
+                            if (ImGui::Button("Misc                    ", ImVec2{ 80, 20 })) activeTab = 14;
+                            if (ImGui::Button("Sound                   ", ImVec2{ 80, 20 })) activeTab = 15;
+                            */
                         ImGui::EndChild();
-
-                        ImGui::SetCursorPos(ImVec2{ 100, 5 });
+                        
+                        ImGui::SetCursorPos(ImVec2{ 5, 5 });
+                        
                         Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
-                        Style->ChildRounding = 5;
-                        ImGui::BeginChild("##SubMain", ImVec2{ 590, 350 }, false);
+                        Style->ChildRounding = 0;
+                        ImGui::BeginChild("##SubMain", ImVec2{ 690, 350 }, false);
                         {
                             ImGui::SetCursorPos(ImVec2{ 10, 10 });
                             switch (activeTab)
                             {
                             case 1: //Legitbot
-                                switch (activeSubTabLegitbot)
-                                {
-                                case 1:
-                                    //Main
-                                    renderLegitbotWindow();
+                                renderLegitbotWindow();
                                     break;
-                                case 2:
-                                    //Backtrack
-                                    renderBacktrackWindow();
-                                    break;
-                                case 3:
-                                    //Triggerbot
-                                    renderTriggerbotWindow();
-                                    break;
-                                case 4:
-                                    //AntiAim
-                                    renderLegitAntiAimWindow();
-                                    break;
-                                default:
-                                    break;
-                                }
+                            case 2:
+                                renderTriggerbotWindow();
                                 break;
-                            case 2: //Ragebot
-                                switch (activeSubTabRagebot)
-                                {
-                                case 1:
+                            case 3:
+                                renderLegitAntiAimWindow();
+                                break;
+                                case 4:
                                     //Main
                                     renderRagebotWindow();
                                     break;
-                                case 2:
+                                case 5:
                                     //Backtrack
                                     renderBacktrackWindow();
                                     break;
-                                case 3:
+                                case 6:
                                     //Anti aim
                                     renderRageAntiAimWindow();
                                     break;
-                                case 4:
+                                case 7:
                                     //Fake Angle
                                     renderFakeAngleWindow();
                                     break;
-                                case 5:
+                                case 8:
                                     //FakeLag
                                     renderFakelagWindow();
                                     break;
-                                default:
-                                    break;
-                                }
-                                break;
-                            case 3: // Visuals
-                                switch (activeSubTabVisuals)
-                                {
-                                case 1:
-                                    //Main
+                            case 9: // Visuals
                                     renderVisualsWindow();
                                     break;
-                                case 2:
+                                case 10:
                                     //Esp
                                     renderStreamProofESPWindow();
                                     break;
-                                case 3:
+                                case 11:
                                     //Chams
                                     renderChamsWindow();
                                     break;
-                                case 4:
+                                case 12:
                                     //Glow
                                     renderGlowWindow();
                                     break;
-                                case 5:
+                                case 13:
                                     //Skins
                                     renderSkinChangerWindow();
                                     break;
-                                default:
-                                    break;
-                                }
-                                break;
-                            case 4:
-                                switch (activeSubTabMisc)
-                                {
-                                case 1:
-                                    //Main
+                            case 14:
                                     renderMiscWindow();
                                     break;
-                                case 2:
+                                case 15:
                                     //Sound
                                     Sound::drawGUI();
                                     break;
                                 default:
                                     break;
-                                }
-                                break;
-                            //case 5:
-                                //Configs
-                                
-                               // break;
-                            default:
-                                break;
                             }
                         }
                         ImGui::EndChild();
                     }
                     ImGui::EndChild();
-
-                    ImGui::SetCursorPos(ImVec2{ 0, 410 });
-                    Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 21, 52);
-                    Style->ChildRounding = 0;
+                    
+                    ImGui::SetCursorPos(ImVec2{ 0, 420 });
+                    Style->Colors[ImGuiCol_ChildBg] = ImColor(17, 15, 35);
+                    Style->ChildRounding = 5;
                     ImGui::BeginChild("##Text", ImVec2{ 700, 20 }, false);
                     {
-                        ImGui::SetCursorPos(ImVec2{ 2, 2 });
+                        ImGui::SetCursorPos(ImVec2{ 5, 2 });
                         ImGui::Text("Fork of OsirisAndExtra https://github.com/South-Haruna-Institute-of-Technology/OsirisAndExtra");
                     }
                     ImGui::EndChild();
@@ -2530,11 +2555,7 @@ void GUI::renderGuiStyle() noexcept
     ImGui::End();
     ImGui::Begin("Profile", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
     {
-        //ImGui::SetWindowSize(ImVec2(550, 350));
         ImGui::SetWindowPos(ImVec2(menuPos.x - ImGui::GetWindowSize().x, menuPos.y + menuSize.y - ImGui::GetWindowSize().y));
-        //ImGui::Image((void*)texture, ImGui::GetWindowSize());
-        //ImGui::Columns(2, nullptr, false);
-        //ImGui::SetColumnOffset(1, 170.0f);
 
         static bool incrementalLoad = false;
         ImGui::Checkbox("Incremental Load", &incrementalLoad);
@@ -2622,10 +2643,10 @@ void GUI::renderGuiStyle() noexcept
                 if (ImGui::BeginPopup("##reallySave"))
                 {
                     ImGui::TextUnformatted("Are you sure?");
-                    if (ImGui::Button("No", { 45.0f, 0.0f }))
+                    if (ImGui::Button("Ni", { 45.0f, 0.0f }))
                         ImGui::CloseCurrentPopup();
                     ImGui::SameLine();
-                    if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                    if (ImGui::Button("Tak", { 45.0f, 0.0f }))
                     {
                         config->save(currentConfig);
                         ImGui::CloseCurrentPopup();
@@ -2637,10 +2658,10 @@ void GUI::renderGuiStyle() noexcept
                 if (ImGui::BeginPopup("##reallyDelete"))
                 {
                     ImGui::TextUnformatted("Are you sure?");
-                    if (ImGui::Button("No", { 45.0f, 0.0f }))
+                    if (ImGui::Button("Ni", { 45.0f, 0.0f }))
                         ImGui::CloseCurrentPopup();
                     ImGui::SameLine();
-                    if (ImGui::Button("Yes", { 45.0f, 0.0f }))
+                    if (ImGui::Button("Tak", { 45.0f, 0.0f }))
                     {
                         config->remove(currentConfig);
                         if (static_cast<std::size_t>(currentConfig) < configItems.size())

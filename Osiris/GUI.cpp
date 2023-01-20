@@ -15,7 +15,6 @@
 
 #include "imguiCustom.h"
 
-#include "Resources/michi.h"
 
 #include "Hacks/AntiAim.h"
 #include "Hacks/Backtrack.h"

@@ -212,8 +212,10 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             static bool invert = true;
             if (config->fakeAngle.peekMode != 3)
                 invert = isInvertToggled;
-            if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f)))
+            if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))){
                 cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : config->rageAntiAim.rollAdd * -1.f;
+                cmd->viewangles.x = cmd->viewangles.z + config->rageAntiAim.rollPitch;
+            }
             else
                 cmd->viewangles.z = 0.f;
             if (const auto gameRules = (*memory->gameRules); gameRules)
@@ -283,7 +285,8 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             }
             if (sendPacket)
                 return;
-            cmd->viewangles.x -= 44.f;//idk if it is useful or useless
+            if (config->rageAntiAim.pitch == 1)
+                cmd->viewangles.x -= 44.9f;//idk if it is useful or useless
             cmd->viewangles.y += invert ? leftDesyncAngle : rightDesyncAngle;
 
         }

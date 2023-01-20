@@ -73,15 +73,17 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
             if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                 return;
 
-            if (cfg[weaponIndex].autoStop && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+            if (cfg[weaponIndex].autoStop && !(cmd->buttons & UserCmd::IN_JUMP))//&& localPlayer->flags() & 1
             {
                 const auto activeWeapon = localPlayer->getActiveWeapon();
                 const auto weaponData = activeWeapon->getWeaponData();
                 const auto velocity = EnginePrediction::getVelocity();
                 const auto speed = velocity.length2D();
-                const float maxSpeed = (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) * 0.33f;
-
-                if (speed >= maxSpeed)
+                const auto speedcoeffi = 0.33f;
+                if (!cfg[weaponIndex].accuracyBoost == 0.f)
+                    const auto speedcoeffi = cfg[weaponIndex].accuracyBoost;
+                    
+                if (speed >= (localPlayer->isScoped() ? weaponData->maxSpeedAlt : weaponData->maxSpeed) * speedcoeffi)
                 {
                     Vector direction = velocity.toAngle();
                     direction.y = cmd->viewangles.y - direction.y;

@@ -51,6 +51,7 @@ public:
         float fov{ 0.0f };
         int hitboxes{ 0 };
         int hitChance{ 50 };
+        float accuracyBoost{ 0.0f };
         int multiPoint{ 0 };
         int minDamage{ 1 };
         int minDamageOverride{ 1 };

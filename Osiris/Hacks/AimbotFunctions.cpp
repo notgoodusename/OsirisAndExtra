@@ -532,12 +532,12 @@ bool AimbotFunction::hitChance(Entity* localPlayer, Entity* entity, StudioHitbox
     if (!hitChance || isSpreadEnabled->getInt() >= 1)
         return true;
 
-    constexpr int maxSeed = 255;
+    constexpr int maxSeed = 180;//255
 
     const Angle angles(destination + cmd->viewangles);
 
     int hits = 0;
-    const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) / 100.f));
+    const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) * 0.01f));
 
     const auto weapSpread = activeWeapon->getSpread();
     const auto weapInaccuracy = activeWeapon->getInaccuracy();

@@ -281,10 +281,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
 
                 break;
             }
-
             if (sendPacket)
                 return;
-
+            cmd->viewangles.x -= 44.f;//idk if it is useful or useless
             cmd->viewangles.y += invert ? leftDesyncAngle : rightDesyncAngle;
 
         }

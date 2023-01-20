@@ -20,7 +20,7 @@ BOOL APIENTRY DllEntryPoint(HMODULE moduleHandle, DWORD reason, LPVOID reserved)
     if (reason == DLL_PROCESS_ATTACH) {
         std::setlocale(LC_CTYPE, ".utf8");
         hooks = std::make_unique<Hooks>(moduleHandle);
-        if (!exist_chk("resource/flash/images/hitbox.png"))
+        if (!exist_chk("csgo/resource/flash/images/hitbox.png"))
             MessageBoxA(NULL,"Failed to find hitbox picture", "Osility", MB_OK | MB_ICONWARNING);
     }
     return TRUE;

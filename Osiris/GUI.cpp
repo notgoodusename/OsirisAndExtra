@@ -455,6 +455,12 @@ void GUI::renderRagebotWindow() noexcept
             ImGui::Selectable(hitboxes[i], &hitbox[i], ImGuiSelectableFlags_::ImGuiSelectableFlags_DontClosePopups);
         }
         ImGui::EndCombo();
+        /*
+        if (const auto pic = SkinChanger::getPNGTexture("hitbox")) {
+            ImGui::Image(pic, { 125.0f, 220.0f });
+        }
+        ImGui::EndCombo();*/
+        
     }
     for (size_t i = 0; i < ARRAYSIZE(hitboxes); i++)
     {

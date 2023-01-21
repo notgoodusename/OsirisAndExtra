@@ -245,11 +245,12 @@ void Chams::renderDesync(int health) noexcept
 {
     if (Animations::gotFakeMatrix()) 
     {
+        auto lietoclient = 1.f;
         auto fakeMatrix = Animations::getFakeMatrix();
         for (auto& i : fakeMatrix)
         {
-            i[0][3] += info->origin.x;
-            i[1][3] += info->origin.y;
+            i[0][3] += (info->origin.x + lietoclient);
+            i[1][3] += (info->origin.y + lietoclient);
             i[2][3] += info->origin.z;
         }
         if (!appliedChams)
@@ -258,8 +259,8 @@ void Chams::renderDesync(int health) noexcept
         interfaces->studioRender->forcedMaterialOverride(nullptr);
         for (auto& i : fakeMatrix)
         {
-            i[0][3] -= info->origin.x;
-            i[1][3] -= info->origin.y;
+            i[0][3] -= (info->origin.x + lietoclient);
+            i[1][3] -= (info->origin.y + lietoclient);
             i[2][3] -= info->origin.z;
         }
     }

@@ -550,6 +550,7 @@ bool AimbotFunction::hitChance(Entity* localPlayer, Entity* entity, StudioHitbox
         const float spreadX = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         const float spreadY = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         auto inaccuracy = weapInaccuracy * memory->randomFloat(0.f, 1.f);
+        	if (inaccuracy == 0) inaccuracy = 0.0000001;
         auto spread = weapSpread * memory->randomFloat(0.f, 1.f);
 
         Vector spreadView{ (cosf(spreadX) * inaccuracy) + (cosf(spreadY) * spread),

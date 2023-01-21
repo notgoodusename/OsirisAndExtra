@@ -319,7 +319,6 @@ void Ragebot::run(UserCmd* cmd) noexcept
         }
         
         if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() ) {//delay
-            cmd->viewangles += angle;
             config->tickbase.readyFire = true;
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||
@@ -337,8 +336,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
             }
             else {
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount + 1;
-                
             }
+            cmd->viewangles += angle;
         }
             
         

@@ -1,0 +1,5 @@
+// 提示文件帮助 Visual Studio IDE 解释 Visual C++ 标识符,
+// 如函数和宏的名称。
+// 有关详细信息，请参见 https://go.microsoft.com/fwlink/?linkid=865984
+#define AVX2_BITOP_USING_SSE2(fn) static NCNN_FORCEINLINE __m256i _mm256_comp_##fn(__m256i x, int a) { __m128i x1, x2; __m256i ret; COPY_IMM_TO_XMM(x, x1, x2); x1 = _mm_##fn(x1, a); x2 = _mm_##fn(x2, a); COPY_XMM_TO_IMM(x1, x2, ret); return (ret); }
+#define AVX2_BITOP_USING_SSE2(fn) static NCNN_FORCEINLINE __m256i _mm256_comp_##fn(__m256i x, int a) { return _mm256_##fn(x, a); }

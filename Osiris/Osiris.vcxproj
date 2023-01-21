@@ -227,6 +227,9 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Threading.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{81D9D7BB-A927-4EB6-9743-F73E6A1DEE48}</ProjectGuid>

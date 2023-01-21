@@ -206,6 +206,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw += static_cast<float>(config->rageAntiAim.yawAdd);
             cmd->viewangles.y += yaw;
         }
+
         if (config->fakeAngle.enabled) //Fakeangle
         {
             bool isInvertToggled = config->fakeAngle.invert.isActive();
@@ -402,3 +403,40 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
 
     return true;
 }
+/*
+static bool
+extend_antiaim(
+    struct usercmd_t const* const latest_cmd,
+    struct movement_backup_t const* const movement_backup,
+    i32_t const max_commands,
+    i32_t* const command,
+    i32_t* const cur,
+    struct angle_t const* const target_extended_angle
+) {
+    i32_t const insertion_counter = MIN(max_commands + 5, 61);
+    struct usercmd_t* cmd;
+
+    if ((*cur) < insertion_counter)
+    {
+    begin:
+        cmd = input_get_cmd_pointer(input, ++(*command));
+
+        ++(*cur);
+
+        //copy the latest command.
+        memcpy(cmd, latest_cmd, sizeof(struct usercmd_t));
+
+        cmd->m_command_number = *command;
+
+        //only set the viewangle in the last command.
+        if (*cur >= insertion_counter)
+        {
+            memcpy(&cmd->m_pitch, target_extended_angle, sizeof(float) * 3);
+            cmd_set_move(cmd, movement_backup);
+            return true;
+        }
+        else goto begin;
+    }
+
+    return false;
+}*/

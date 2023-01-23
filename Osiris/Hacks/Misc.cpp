@@ -1753,7 +1753,7 @@ void Misc::fastStop(UserCmd* cmd) noexcept
     
     const auto velocity = localPlayer->velocity();
     const auto speed = velocity.length2D();
-    if (speed < 15.0f)
+    if (speed <= 15.0f)
         return;
     
     Vector direction = velocity.toAngle();

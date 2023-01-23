@@ -192,11 +192,11 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             else if(forward) {
                 yaw = 0.f;
             }
-            srand(static_cast<unsigned int>(memory->globalVars->tickCount));
+            memory->randomSeed(memory->globalVars->tickCount);
             switch (config->rageAntiAim.yawModifier)
             {
             case 1: //Jitter
-                yaw -= flipJitter ? ((rand() % (config->rageAntiAim.jitterRange - config->rageAntiAim.jitterMin)) + config->rageAntiAim.jitterMin) : -((rand() % (config->rageAntiAim.jitterRange - config->rageAntiAim.jitterMin)) + config->rageAntiAim.jitterMin);
+                yaw -= flipJitter ? (memory->randomFloat(config->rageAntiAim.jitterMin, config->rageAntiAim.jitterRange)) : -(memory->randomFloat(config->rageAntiAim.jitterMin, config->rageAntiAim.jitterRange));
                 break;
             default:
                 break;
@@ -215,7 +215,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 invert = isInvertToggled;
             if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))){
                 cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : config->rageAntiAim.rollAdd * -1.f;
-                cmd->viewangles.x = invert ? config->rageAntiAim.rollPitch + cmd->viewangles.z :cmd->viewangles.z * -1.f + config->rageAntiAim.rollPitch;
+                cmd->viewangles.x = invert ? config->rageAntiAim.rollPitch + cmd->viewangles.z : cmd->viewangles.z * -1.f + config->rageAntiAim.rollPitch;
+                //extend_antiaim(cmd);
+                //shit hill
             }
             else
                 cmd->viewangles.z = 0.f;
@@ -224,9 +226,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                     return;
             if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount)
                 return;
-            srand(static_cast<unsigned int>(memory->globalVars->tickCount));
-            float leftDesyncAngle = ((rand() % (config->fakeAngle.leftLimit - config->fakeAngle.leftMin)) + config->fakeAngle.leftMin) * 2.f;
-            float rightDesyncAngle = ((rand() % (config->fakeAngle.rightLimit - config->fakeAngle.rightMin)) + config->fakeAngle.rightMin) * -2.f;
+            memory->randomSeed(memory->globalVars->tickCount);
+            float leftDesyncAngle = memory->randomFloat(config->fakeAngle.leftMin, config->fakeAngle.leftLimit)* 2.f;
+            float rightDesyncAngle = memory->randomFloat(config->fakeAngle.rightMin, config->fakeAngle.rightLimit)* -2.f;
             switch (config->fakeAngle.peekMode)
             {
             case 0:
@@ -401,42 +403,38 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
     if (!weaponIndex)
         return true;
 
+
     return true;
 }
-/*
-static bool
-extend_antiaim(
-    struct usercmd_t const* const latest_cmd,
-    struct movement_backup_t const* const movement_backup,
-    i32_t const max_commands,
-    i32_t* const command,
-    i32_t* const cur,
-    struct angle_t const* const target_extended_angle
-) {
-    i32_t const insertion_counter = MIN(max_commands + 5, 61);
-    struct usercmd_t* cmd;
+int* cur;
+bool AntiAim::extend_antiaim(UserCmd* cmd){
+    int const insertion_counter = min(14 + 5, 61);
+    static UserCmd* lastCmd;
+    int* command = &cmd->commandNumber;
+    static int lastCommand{ };
 
-    if ((*cur) < insertion_counter)
+    if (lastCommand == cmd->commandNumber - 1)
     {
     begin:
-        cmd = input_get_cmd_pointer(input, ++(*command));
+        //cmd = (UserCmd*)(cmd->commandNumber, ++(*command));
 
         ++(*cur);
 
         //copy the latest command.
-        memcpy(cmd, latest_cmd, sizeof(struct usercmd_t));
+        //memcpy(cmd, lastCmd, sizeof(struct UserCmd));
 
-        cmd->m_command_number = *command;
+        //cmd->commandNumber = *command;//idk if it made a shit hill
 
         //only set the viewangle in the last command.
         if (*cur >= insertion_counter)
         {
-            memcpy(&cmd->m_pitch, target_extended_angle, sizeof(float) * 3);
-            cmd_set_move(cmd, movement_backup);
+            memcpy(&cmd->viewangles.x, (void*)(config->rageAntiAim.rollPitch), sizeof(float) * 3);
+            //cmd_set_move(cmd, movement_backup);
             return true;
         }
-        else goto begin;
+        else 
+            goto begin;
     }
-
+    lastCommand = cmd->commandNumber;
     return false;
-}*/
+}

@@ -439,6 +439,9 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::Checkbox("Auto stop", &config->ragebot[currentWeapon].autoStop);
     ImGui::SameLine();
     ImGui::Checkbox("Between shots", &config->ragebot[currentWeapon].betweenShots);
+    ImGui::Checkbox("Full stop", &config->ragebot[currentWeapon].fullStop);
+    ImGui::SameLine();
+    ImGui::Checkbox("Duck", &config->ragebot[currentWeapon].duckStop);
     ImGui::Checkbox("Disable multipoint if low fps", &config->ragebot[currentWeapon].disableMultipointIfLowFPS);
     ImGui::Checkbox("Disable backtrack if low fps", &config->ragebot[currentWeapon].disableBacktrackIfLowFPS);
     ImGui::Combo("Priority", &config->ragebot[currentWeapon].priority, "Health\0Distance\0Fov\0");
@@ -483,10 +486,14 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::NextColumn();
     ImGui::PushItemWidth(240.0f);
     ImGui::SliderFloat("Fov", &config->ragebot[currentWeapon].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-    ImGui::SliderInt("Hitchance", &config->ragebot[currentWeapon].hitChance, 0, 100, "%d");
+    ImGui::Checkbox("Using relative hitchance", &config->ragebot[currentWeapon].relativeHitchanceOn);
+    if(config->ragebot[currentWeapon].relativeHitchanceOn)
+        ImGui::SliderFloat("Relative hitchance", &config->ragebot[currentWeapon].relativeHitchance, 0, 1.0f, "%.2f");
+    else
+        ImGui::SliderInt("Absolute hitchance", &config->ragebot[currentWeapon].hitChance, 0, 100, "%d");
     ImGui::SliderFloat("Accuracy boost", &config->ragebot[currentWeapon].accuracyBoost, 0, 1.0f, "%.2f");
     ImGui::SliderInt("Multipoint", &config->ragebot[currentWeapon].multiPoint, 0, 100, "%d");
-    ImGui::SliderInt("Min damage", &config->ragebot[currentWeapon].minDamage, 0, 101, "%d");
+    ImGui::SliderInt("Min damage", &config->ragebot[currentWeapon].minDamage, 0, 105, "%d");
     config->ragebot[currentWeapon].minDamage = std::clamp(config->ragebot[currentWeapon].minDamage, 0, 250);
     ImGui::PushID("Min damage override Key");
     ImGui::hotkey2("Min damage override Key", config->minDamageOverrideKey);

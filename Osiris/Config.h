@@ -47,10 +47,14 @@ public:
         bool disableMultipointIfLowFPS{ false };
         bool disableBacktrackIfLowFPS{ false };
         bool betweenShots{ false };
+        bool fullStop{ false };
+        bool duckStop{ false };
         int priority{ 0 };
         float fov{ 0.0f };
         int hitboxes{ 0 };
+        bool relativeHitchanceOn{ false };
         int hitChance{ 50 };
+        float relativeHitchance{ 0.85f };
         float accuracyBoost{ 0.0f };
         int multiPoint{ 0 };
         int minDamage{ 1 };

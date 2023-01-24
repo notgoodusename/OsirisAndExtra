@@ -708,9 +708,10 @@ void GUI::renderRageAntiAimWindow() noexcept
     ImGui::PopItemWidth();
 
     if (config->rageAntiAim.yawModifier == 1) //Jitter
-        
+    { 
         ImGui::SliderInt("Jitter yaw limit", &config->rageAntiAim.jitterRange, 0, 90, "%d");
         ImGui::SliderInt("Jitter yaw min", &config->rageAntiAim.jitterMin, 0, config->rageAntiAim.jitterRange, "%d");
+    }
 
     if (config->rageAntiAim.yawBase == Yaw::spin)
     {
@@ -752,8 +753,8 @@ void GUI::renderFakeAngleWindow() noexcept
     ImGui::Checkbox("Roll", &config->rageAntiAim.roll);
     if (config->rageAntiAim.roll) {
         ImGui::SliderInt("Roll add", &config->rageAntiAim.rollAdd, -90, 90, "%d");
-        ImGui::SliderInt("Roll offset", &config->rageAntiAim.rollOffset, -60, 60, "%d");
-        ImGui::SliderInt("Roll pitch", &config->rageAntiAim.rollPitch, -270, 270, "%d");
+        ImGui::SliderInt("Roll offset", &config->rageAntiAim.rollOffset, -90, 90, "%d");
+        ImGui::SliderInt("Roll pitch", &config->rageAntiAim.rollPitch, -180, 180, "%d");
         ImGui::Checkbox("Alternative roll", &config->rageAntiAim.rollAlt);
     }
         

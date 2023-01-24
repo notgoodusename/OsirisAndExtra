@@ -1681,6 +1681,7 @@ void Misc::watermark() noexcept
     const auto time = std::time(nullptr);
     const auto localTime = std::localtime(&time);
     ImGui::Text("time: % 02d:% 02d : % 02d", localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
+    
     ImGui::End();
 }
 

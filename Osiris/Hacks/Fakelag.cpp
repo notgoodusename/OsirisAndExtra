@@ -52,9 +52,9 @@ void Fakelag::run(bool& sendPacket) noexcept
             static auto frameRate = 1.0f;
             frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
             srand(static_cast<unsigned int>(frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0));
-            for (i = 1; i <= 30; ++i)
+            for (i = 0; i <= 30; ++i)
             {
-                if (i == 29)
+                if (i == 29 && (memory->globalVars->tickCount % 16 == 0))
                     chokedPackets = maxUserCmdProcessTicks;
                 else
                 {

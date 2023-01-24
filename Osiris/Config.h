@@ -86,6 +86,7 @@ public:
         bool atTargets = false;
         bool roll = false;
         int rollAdd = 0;
+        int rollOffset = 0;
         int rollPitch = 0;
         bool rollAlt = false;
     } rageAntiAim;

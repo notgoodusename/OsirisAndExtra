@@ -199,9 +199,10 @@ void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
 
     if (!local.exists || !local.alive || local.inaccuracy.null())
         return;
-
+    /*
     if (memory->input->isCameraInThirdPerson)
         return;
+        buggy but i need*/
 
     if (ImVec2 edge; Helpers::worldToScreen(local.inaccuracy, edge))
     {

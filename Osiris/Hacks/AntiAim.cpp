@@ -213,9 +213,10 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             static bool invert = true;
             if (config->fakeAngle.peekMode != 3)
                 invert = isInvertToggled;
+            float rollOffsetAngle = config->rageAntiAim.rollOffset * 2.f;
             if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))){
-                cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : config->rageAntiAim.rollAdd * -1.f;
-                cmd->viewangles.x = invert ? config->rageAntiAim.rollPitch + cmd->viewangles.z : cmd->viewangles.z * -1.f + config->rageAntiAim.rollPitch;
+                cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd + config->rageAntiAim.rollPitch : (config->rageAntiAim.rollAdd + config->rageAntiAim.rollPitch)* -1.f;
+                cmd->viewangles.x = config->rageAntiAim.rollPitch;
                 //extend_antiaim(cmd);
                 //shit hill
             }
@@ -288,10 +289,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             }
             if (sendPacket)
                 return;
-            if (config->rageAntiAim.pitch == 1)
-                cmd->viewangles.x -= 44.9f;//idk if it is useful or useless
             cmd->viewangles.y += invert ? leftDesyncAngle : rightDesyncAngle;
-
+            if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f)))
+                cmd->viewangles.z += invert ? rollOffsetAngle : rollOffsetAngle * -1.f;
         }
     }
 }

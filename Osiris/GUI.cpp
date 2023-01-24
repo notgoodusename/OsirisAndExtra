@@ -752,7 +752,8 @@ void GUI::renderFakeAngleWindow() noexcept
     ImGui::Checkbox("Roll", &config->rageAntiAim.roll);
     if (config->rageAntiAim.roll) {
         ImGui::SliderInt("Roll add", &config->rageAntiAim.rollAdd, -90, 90, "%d");
-        ImGui::SliderInt("Roll pitch", &config->rageAntiAim.rollPitch, -180, 180, "%d");
+        ImGui::SliderInt("Roll offset", &config->rageAntiAim.rollOffset, -60, 60, "%d");
+        ImGui::SliderInt("Roll pitch", &config->rageAntiAim.rollPitch, -270, 270, "%d");
         ImGui::Checkbox("Alternative roll", &config->rageAntiAim.rollAlt);
     }
         

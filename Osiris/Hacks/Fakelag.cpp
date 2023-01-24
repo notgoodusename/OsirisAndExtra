@@ -17,10 +17,10 @@ void Fakelag::run(bool& sendPacket) noexcept
     if (!netChannel)
         return;
     srand(static_cast<unsigned int>(time(nullptr)));
-    auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? (rand() % 2 + 1) : 0;
+    auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? (rand() % 2 + 2) : 0;
     if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.readyFire) {
         chokedPackets = -1;
-        //sendPacket = true;
+        sendPacket = true;
         config->tickbase.readyFire = false;
         return;
     }

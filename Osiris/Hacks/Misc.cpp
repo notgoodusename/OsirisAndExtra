@@ -2143,11 +2143,18 @@ void Misc::removeCrouchCooldown(UserCmd* cmd) noexcept
         cmd->buttons |= UserCmd::IN_BULLRUSH;
 }
 
-void Misc::moonwalk(UserCmd* cmd) noexcept
+void Misc::moonwalk(UserCmd* cmd,bool& sendPacket) noexcept
 {
+    const auto netChannel = interfaces->engine->getNetworkChannel();
+    if (!netChannel)
+        return;
     if (config->misc.moonwalk && localPlayer && localPlayer->moveType() != MoveType::LADDER)
-        if (!config->misc.legbreak || (cmd->tickCount % 2 == 0))
-        cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
+        if (!config->misc.legbreak || !sendPacket)
+            cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
+        else if (abs(cmd->forwardmove) > 3.f)
+            cmd->buttons |= UserCmd::IN_BACK;
+        else
+            return;
 }
 
 void Misc::playHitSound(GameEvent& event) noexcept

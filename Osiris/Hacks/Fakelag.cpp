@@ -55,7 +55,7 @@ void Fakelag::run(bool& sendPacket) noexcept
             for (i = 1; i <= 30; ++i)
             {
                 if (i == 29)
-                    chokedPackets = 15;
+                    chokedPackets = maxUserCmdProcessTicks;
                 else
                 {
                     if ((rand() % (360)) - 180 < 160)

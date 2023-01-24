@@ -1720,6 +1720,8 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Checkbox("Bunny hop", &config->misc.bunnyHop);
     ImGui::Checkbox("Fast duck", &config->misc.fastDuck);
     ImGui::Checkbox("Moonwalk", &config->misc.moonwalk);
+    ImGui::SameLine();
+    ImGui::Checkbox("Break", &config->misc.legbreak);
     ImGui::Checkbox("Knifebot", &config->misc.knifeBot);
     ImGui::SameLine();
     ImGui::Combo("Mode", &config->misc.knifeBotMode, "Trigger\0Rage\0");

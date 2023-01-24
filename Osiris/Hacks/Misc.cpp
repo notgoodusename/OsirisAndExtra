@@ -2146,6 +2146,7 @@ void Misc::removeCrouchCooldown(UserCmd* cmd) noexcept
 void Misc::moonwalk(UserCmd* cmd) noexcept
 {
     if (config->misc.moonwalk && localPlayer && localPlayer->moveType() != MoveType::LADDER)
+        if (!config->misc.legbreak || (cmd->tickCount % 2 == 0))
         cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
 }
 

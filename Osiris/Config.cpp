@@ -669,7 +669,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Animated clan tag", m.animatedClanTag);
     read(j, "Fast duck", m.fastDuck);
     read(j, "Moonwalk", m.moonwalk);
-    read(j, "Knifebot", m.knifeBot);
+    read(j, "Legbreak", m.legbreak);
+    read(j, "Knifebot", m.knifeBot); 
     read(j, "Knifebot mode", m.knifeBotMode);
     read(j, "Block bot", m.blockBot);
     read(j, "Block bot Key", m.blockBotKey);
@@ -1333,6 +1334,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Animated clan tag", animatedClanTag);
     WRITE("Fast duck", fastDuck);
     WRITE("Moonwalk", moonwalk);
+    WRITE("Legbreak", legbreak);
     WRITE("Knifebot", knifeBot);
     WRITE("Knifebot mode", knifeBotMode);
     WRITE("Block bot", blockBot);

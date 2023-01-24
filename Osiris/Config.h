@@ -345,6 +345,7 @@ public:
         bool knifeBot{ false };
         int knifeBotMode{ 0 };
         bool moonwalk{ false };
+        bool legbreak{ false };
         bool blockBot{ false };
         KeyBind blockBotKey{ std::string("block bot") };
         bool edgeJump{ false };

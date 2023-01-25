@@ -211,7 +211,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
         {
             bool isInvertToggled = config->fakeAngle.invert.isActive();
             static bool invert = true;
-            if (config->fakeAngle.peekMode != 3 || config->fakeAngle.peekMode != 4)
+            if (config->fakeAngle.peekMode != 3 && config->fakeAngle.peekMode != 4)
                 invert = isInvertToggled;
             float rollOffsetAngle = config->rageAntiAim.rollOffset;
             if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) + std::abs(config->rageAntiAim.rollOffset) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))) {
@@ -257,7 +257,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                     invert = !invert;
                 break;
             case 4: // Switch
-                if (cmd->commandNumber % 2 == 1 && localPlayer->velocity().length2D() > 5.0f) {
+                if (sendPacket && localPlayer->velocity().length2D() > 5.0f) {
                     invert = !invert;
                 }
                 break;

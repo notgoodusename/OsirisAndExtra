@@ -214,10 +214,14 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             if (config->fakeAngle.peekMode != 3)
                 invert = isInvertToggled;
             float rollOffsetAngle = config->rageAntiAim.rollOffset;
-            if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd)+ std::abs(config->rageAntiAim.rollOffset) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))){
-                cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd + config->rageAntiAim.rollPitch : (config->rageAntiAim.rollAdd + config->rageAntiAim.rollPitch)* -1.f;
-                cmd->viewangles.x = config->rageAntiAim.rollPitch;
-                if (cmd->commandNumber % 2 == 0 || cmd->commandNumber % 3 == 0)
+            if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) + std::abs(config->rageAntiAim.rollOffset) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))) {
+                cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : (config->rageAntiAim.rollAdd) * -1.f;
+                if (sendPacket) {
+                    cmd->viewangles.z += invert ? config->rageAntiAim.rollPitch : config->rageAntiAim.rollPitch * -1.f;
+                    cmd->viewangles.x = config->rageAntiAim.rollPitch + 41225040 * 129600;
+                }
+                
+                if (cmd->commandNumber % 2 == 0 || memory->globalVars->tickCount % 3 == 0)
                     cmd->viewangles.z += invert ? rollOffsetAngle : rollOffsetAngle * -1.f;
                 //extend_antiaim(cmd);
                 //shit hill

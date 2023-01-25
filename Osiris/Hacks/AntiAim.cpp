@@ -257,7 +257,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                     invert = !invert;
                 break;
             case 4: // Switch
-                if (cmd->commandNumber % 2 && fabsf(cmd->sidemove) > 5.0f) {
+                if (cmd->commandNumber % 2 == 1 && localPlayer->velocity().length2D() > 5.0f) {
                     invert = !invert;
                 }
                 break;

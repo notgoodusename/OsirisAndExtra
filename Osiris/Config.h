@@ -293,6 +293,11 @@ public:
             float z { 0.0f };
             float roll { 0.0f };
         } viewModel;
+        struct OnHitHitbox
+        {
+            ColorToggle color{ 1.f, 1.f, 1.f, 1.f };
+            float duration = 2.f;
+        } onHitHitbox;
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
         ColorToggle3 mapColor;
         int asusWalls = 100;

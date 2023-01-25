@@ -1068,6 +1068,53 @@ void Visuals::bulletImpact(GameEvent& event) noexcept
     positions.push_front(endPos);
 }
 
+void Visuals::drawHitboxMatrix(GameEvent* event) noexcept {
+
+    if (!config->visuals.onHitHitbox.color.enabled) return;
+
+    if (config->visuals.onHitHitbox.duration <= 0.f) return;
+
+    if (!event) return;
+
+    if (!localPlayer) return;
+
+    const auto userID = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(event->getInt("userid")));
+    const auto attacker = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(event->getInt("attacker")));
+
+    if (!userID) return;
+
+    if (!attacker) return;
+
+    if (localPlayer->getUserId() != attacker->getUserId() && localPlayer->getUserId() != userID->getUserId()) return;
+
+    matrix3x4 matrix[128];
+
+    if (!userID->setupBones(matrix, 128, 0x00000100, memory->globalVars->currenttime))
+        return;
+
+    StudioHdr* hdr = interfaces->modelInfo->getStudioModel(userID->getModel());
+    StudioHitboxSet* set = hdr->getHitboxSet(0);
+
+    const int r = static_cast<int>(config->visuals.onHitHitbox.color.color[0] * 255.f);
+    const int g = static_cast<int>(config->visuals.onHitHitbox.color.color[1] * 255.f);
+    const int b = static_cast<int>(config->visuals.onHitHitbox.color.color[2] * 255.f);
+    const int a = static_cast<int>(config->visuals.onHitHitbox.color.color[3] * 255.f);
+    const float d = config->visuals.onHitHitbox.duration;
+
+    for (int i = 0; i < set->numHitboxes; i++) {
+        StudioBbox* hitbox = set->getHitbox(i);
+
+        if (!hitbox)
+            continue;
+
+        Vector vMin = hitbox->bbMin.transform(matrix[hitbox->bone]);
+        Vector vMax = hitbox->bbMax.transform(matrix[hitbox->bone]);
+        float size = hitbox->capsuleRadius;
+
+        interfaces->debugOverlay->capsuleOverlay(vMin, vMax, size <= 0 ? 3.f : hitbox->capsuleRadius, r, g, b, a, d, 0, 1);
+    }
+}
+
 void Visuals::drawMolotovHull(ImDrawList* drawList) noexcept
 {
     if (!config->visuals.molotovHull.enabled)

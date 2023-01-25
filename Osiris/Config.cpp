@@ -450,6 +450,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Disable jiggle bones", v.disableJiggleBones);
     read<value_t::object>(j, "Bullet Tracers", v.bulletTracers);
     read<value_t::object>(j, "Bullet Impacts", v.bulletImpacts);
+    read<value_t::object>(j, "Hitbox on Hit", v.onHitHitbox);
     read(j, "Bullet Impacts time", v.bulletImpactsTime);
     read<value_t::object>(j, "Molotov Hull", v.molotovHull);
     read<value_t::object>(j, "Smoke Hull", v.smokeHull);
@@ -636,6 +637,12 @@ static void from_json(const json& j, Config::Visuals::MolotovPolygon& mp)
     read<value_t::object>(j, "Self", mp.self);
     read<value_t::object>(j, "Team", mp.team);
     read<value_t::object>(j, "Enemy", mp.enemy);
+}
+
+static void from_json(const json& j, Config::Visuals::OnHitHitbox& h)
+{
+    read<value_t::object>(j, "Color", h.color);
+    read(j, "Duration", h.duration);
 }
 
 static void from_json(const json& j, Config::Misc& m)
@@ -1281,6 +1288,12 @@ static void to_json(json& j, const Config::Visuals::MolotovPolygon& o, const Con
     WRITE("Enemy", enemy);
 }
 
+static void to_json(json& j, const Config::Visuals::OnHitHitbox& o, const Config::Visuals::OnHitHitbox& dummy)
+{
+    WRITE("Color", color);
+    WRITE("Duration", duration);
+}
+
 static void to_json(json& j, const Config::Misc& o)
 {
     const Config::Misc dummy;
@@ -1437,6 +1450,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Disable jiggle bones", disableJiggleBones);
     WRITE("Bullet Tracers", bulletTracers);
     WRITE("Bullet Impacts", bulletImpacts);
+    WRITE("Hitbox on Hit", onHitHitbox);
     WRITE("Bullet Impacts time", bulletImpactsTime);
     WRITE("Molotov Hull", molotovHull);
     WRITE("Smoke Hull", smokeHull);

@@ -23,7 +23,7 @@ bool updateLby(bool update = false) noexcept
         return false;
     }
 
-    if (localPlayer->velocity().length2D() > 0.1f || fabsf(localPlayer->velocity().z) > 100.f)
+    if (localPlayer->velocity().length2D() > 0.3f || fabsf(localPlayer->velocity().z) > 100.f)
         timer = memory->globalVars->serverTime() + 0.22f;
 
     if (timer < memory->globalVars->serverTime())
@@ -211,7 +211,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
         {
             bool isInvertToggled = config->fakeAngle.invert.isActive();
             static bool invert = true;
-            if (config->fakeAngle.peekMode != 3)
+            if (config->fakeAngle.peekMode != 3 || config->fakeAngle.peekMode != 4)
                 invert = isInvertToggled;
             float rollOffsetAngle = config->rageAntiAim.rollOffset;
             if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) + std::abs(config->rageAntiAim.rollOffset) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))) {
@@ -256,6 +256,11 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 if (sendPacket)
                     invert = !invert;
                 break;
+            case 4: // Switch
+                if (cmd->commandNumber % 2 && fabsf(cmd->sidemove) > 5.0f) {
+                    invert = !invert;
+                }
+                break;
             default:
                 break;
             }
@@ -263,7 +268,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             switch (config->fakeAngle.lbyMode)
             {
             case 0: // Normal(sidemove)
-                if (fabsf(cmd->sidemove) < 5.0f)
+                if (fabsf(cmd->sidemove) < 5.5f)
                 {
                     if (cmd->buttons & UserCmd::IN_DUCK)
                         cmd->sidemove = cmd->tickCount & 1 ? 3.25f : -3.25f;

@@ -267,12 +267,13 @@ void resolver::run_post_update(Animations::Players& player, Entity* entity) noex
 {
     if (!config->misc.resolver)
         return;
-    entity->eyeAngles().x = 89.f;
     if (!localPlayer)
         return;
     if (!entity || !entity->isAlive())
         return;
-
+    //entity->eyeAngles().z = config->misc.forceRollAmount;
+    if (config->misc.forcePitch.isActive())
+        entity->eyeAngles().x = config->misc.forcePitchAmount;
     if (player.chokedPackets <= 0)
         return;
     if (!localPlayer || !localPlayer->isAlive())

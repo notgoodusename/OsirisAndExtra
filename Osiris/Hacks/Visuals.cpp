@@ -1092,25 +1092,28 @@ void Visuals::drawHitboxMatrix(GameEvent* event) noexcept {
     StudioHdr* hdr = interfaces->modelInfo->getStudioModel(userID->getModel());
     StudioHitboxSet* set = hdr->getHitboxSet(0);
 
-    const auto records = Animations::getBacktrackRecords(userID->index());
-    if (!records || records->empty())
-        return;
+    auto records = Animations::getBacktrackRecords(userID->index());
+    const matrix3x4* matrix = userID->getBoneCache().memory;
+    auto bestFov{ 255.f };
 
-    int lastTick = -1;
-
-    for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
-    {
-        if (Backtrack::valid(records->at(i).simulationTime))
+    if (records && !records->empty()) {
+        for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
         {
-            lastTick = i;
-            break;
+            if (Backtrack::valid(records->at(i).simulationTime))
+            {
+                for (auto position : records->at(i).positions) {
+                    auto angle = AimbotFunction::calculateRelativeAngle(localPlayer->getEyePosition(), position, interfaces->engine->getViewAngles());
+                    auto fov = std::hypotf(angle.x, angle.y);
+                    if (fov < bestFov) {
+                        bestFov = fov;
+                        matrix = records->at(i).matrix;
+                    }
+                }
+            }
         }
+
     }
 
-    if (lastTick <= -1)
-        return;
-
-    const auto record = records->at(lastTick);
     const int r = static_cast<int>(config->visuals.onHitHitbox.color.color[0] * 255.f);
     const int g = static_cast<int>(config->visuals.onHitHitbox.color.color[1] * 255.f);
     const int b = static_cast<int>(config->visuals.onHitHitbox.color.color[2] * 255.f);
@@ -1123,8 +1126,8 @@ void Visuals::drawHitboxMatrix(GameEvent* event) noexcept {
         if (!hitbox)
             continue;
 
-        Vector vMin = hitbox->bbMin.transform(record.matrix[hitbox->bone]);
-        Vector vMax = hitbox->bbMax.transform(record.matrix[hitbox->bone]);
+        Vector vMin = hitbox->bbMin.transform(matrix[hitbox->bone]);
+        Vector vMax = hitbox->bbMax.transform(matrix[hitbox->bone]);
         float size = hitbox->capsuleRadius;
 
         interfaces->debugOverlay->capsuleOverlay(vMin, vMax, size <= 0 ? 3.f : hitbox->capsuleRadius, r, g, b, a, d, 0, 1);

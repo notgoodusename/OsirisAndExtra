@@ -516,11 +516,11 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::hotkey2("Force pitch", config->misc.forcePitch);
     ImGui::SliderInt("Pitch angle", &config->misc.forcePitchAmount, -180, 180, "%d");
     ImGui::PopID();
-    /*
+    
     ImGui::PushID("Force roll");
     ImGui::hotkey2("Force roll", config->misc.forceRoll);
     ImGui::SliderInt("Roll angle", &config->misc.forceRollAmount, -90, 90, "%d");
-    ImGui::PopID();*/
+    ImGui::PopID();
     //else
     //ImGui::Checkbox("On shot lby", &config->tickbase.onshotDesync);
     ImGui::Columns(1);

@@ -328,6 +328,8 @@ static void from_json(const json& j, Config::RageAntiAimConfig& a)
     read(j, "Roll add", a.rollAdd); 
     read(j, "Roll offset", a.rollOffset);
     read(j, "Roll pitch", a.rollPitch);
+    read(j, "usingExpPitch", a.usingExpPitch);
+    read(j, "exploitPitch", a.exploitPitch);
     read(j, "Roll alt", a.rollAlt);
 }
 
@@ -1116,6 +1118,8 @@ static void to_json(json& j, const Config::RageAntiAimConfig& o, const Config::R
     WRITE("Roll add", rollAdd);
     WRITE("Roll offset", rollOffset);
     WRITE("Roll pitch", rollPitch);
+    WRITE("usingExpPitch", usingExpPitch);
+    WRITE("exploitPitch", exploitPitch);
     WRITE("Roll alt", rollAlt);
 }
 

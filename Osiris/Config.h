@@ -88,6 +88,8 @@ public:
         int rollAdd = 0;
         int rollOffset = 0;
         int rollPitch = 0;
+        bool usingExpPitch = false;
+        int exploitPitch = 0;
         bool rollAlt = false;
     } rageAntiAim;
 
@@ -333,6 +335,10 @@ public:
 
         KeyBind menuKey = KeyBind::INSERT;
         bool resolver{ false };
+        KeyBind forcePitch{ std::string("force pitch"), KeyMode::Off };
+        KeyBind forceRoll{ std::string("force roll"), KeyMode::Off };
+        int forcePitchAmount{ 89 };
+        int forceRollAmount{ 0 };
         bool antiAfkKick{ false };
         bool adBlock{ false };
         int forceRelayCluster{ 0 };

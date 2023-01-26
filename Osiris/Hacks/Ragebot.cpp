@@ -337,7 +337,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             clamped = true;
         }
         
-        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime()) {//delay
+        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() || activeWeapon->burstMode()) {//delay
             config->tickbase.readyFire = true;
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||

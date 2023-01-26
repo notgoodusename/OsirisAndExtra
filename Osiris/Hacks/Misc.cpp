@@ -1430,6 +1430,8 @@ const bool anyActiveKeybinds() noexcept
     const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
     const bool doubletap = config->tickbase.doubletap.canShowKeybind();
     const bool hideshots = config->tickbase.hideshots.canShowKeybind();
+    const bool forcePitch = config->misc.forcePitch.canShowKeybind();
+    
     const bool legitBot = config->legitbotKey.canShowKeybind();
     const bool triggerBot = config->triggerbotKey.canShowKeybind();
     const bool glow = config->glowKey.canShowKeybind();
@@ -1452,7 +1454,7 @@ const bool anyActiveKeybinds() noexcept
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
     return rageBot || minDamageOverride || fakeAngle || antiAimManualForward || antiAimManualBackward || antiAimManualRight  || antiAimManualLeft 
-        || doubletap || hideshots
+        || doubletap || hideshots || forcePitch
         || legitAntiAim || legitBot || triggerBot || chams || glow || esp
         || zoom || thirdperson || freeCam || blockbot || edgejump || minijump || jumpBug || edgebug || autoPixelSurf || slowwalk || fakeduck || autoPeek || prepareRevolver;
 }
@@ -1499,6 +1501,7 @@ void Misc::showKeybinds() noexcept
 
     config->tickbase.doubletap.showKeybind();
     config->tickbase.hideshots.showKeybind();
+    config->misc.forcePitch.showKeybind();
 
     if (config->legitAntiAim.enabled)
         config->legitAntiAim.invert.showKeybind();

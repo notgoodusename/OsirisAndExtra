@@ -147,9 +147,9 @@ struct Vector {
 
     Vector clamp() noexcept
     {
-        this->x = std::clamp(this->x, -89.f, 89.f);
+        this->x = std::clamp(this->x, -180.f, 180.f);
         this->y = std::clamp(this->y, -180.f, 180.f);
-        this->z = std::clamp(this->z, -90.f, 90.f);
+        this->z = std::clamp(this->z, -180.f, 180.f);
         return *this;
     }
 

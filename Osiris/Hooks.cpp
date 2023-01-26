@@ -422,9 +422,9 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         Misc::fixMovement(cmd, currentViewAngles.y);
     }
 
-    cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
+    cmd->viewangles.x = std::clamp(cmd->viewangles.x, -180.0f, 180.0f);
     cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
-    cmd->viewangles.z = std::clamp(cmd->viewangles.z, -90.0f, 90.0f);
+    cmd->viewangles.z = std::clamp(cmd->viewangles.z, -180.0f, 180.0f);
     cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
     cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);

@@ -214,11 +214,14 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             if (config->fakeAngle.peekMode != 3 && config->fakeAngle.peekMode != 4)
                 invert = isInvertToggled;
             float rollOffsetAngle = config->rageAntiAim.rollOffset;
+            float PitchAngle = config->rageAntiAim.rollPitch;
+            if (config->rageAntiAim.usingExpPitch)
+                PitchAngle = config->rageAntiAim.exploitPitch + 41225040 * 129600;
             if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) + std::abs(config->rageAntiAim.rollOffset) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))) {
                 cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : (config->rageAntiAim.rollAdd) * -1.f;
                 if (sendPacket) {
-                    cmd->viewangles.z += invert ? config->rageAntiAim.rollPitch : config->rageAntiAim.rollPitch * -1.f;
-                    cmd->viewangles.x = config->rageAntiAim.rollPitch + 41225040 * 129600;
+                    cmd->viewangles.z += invert ? PitchAngle : PitchAngle * -1.f;
+                    cmd->viewangles.x = PitchAngle;
                 }
                 
                 if (cmd->commandNumber % 2 == 0 || memory->globalVars->tickCount % 3 == 0)

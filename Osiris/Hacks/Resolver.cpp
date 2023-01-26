@@ -232,11 +232,14 @@ void resolver::run_pre_update(Animations::Players& player, Entity* entity) noexc
 {
     if (!config->misc.resolver)
         return;
+
     if (!localPlayer)
         return;
     if (!entity || !entity->isAlive())
         return;
-
+    //entity->eyeAngles().z = config->misc.forceRollAmount;
+    if (config->misc.forcePitch.isActive())
+        entity->eyeAngles().x = config->misc.forcePitchAmount;
     if (player.chokedPackets <= 0)
         return;
     if (!localPlayer || !localPlayer->isAlive())
@@ -264,6 +267,7 @@ void resolver::run_post_update(Animations::Players& player, Entity* entity) noex
 {
     if (!config->misc.resolver)
         return;
+    entity->eyeAngles().x = 89.f;
     if (!localPlayer)
         return;
     if (!entity || !entity->isAlive())
@@ -295,6 +299,7 @@ void resolver::run_post_update(Animations::Players& player, Entity* entity) noex
 
 float build_server_abs_yaw(Entity* entity, const float angle)
 {
+    
     Vector velocity = entity->velocity();
     const auto& anim_state = entity->getAnimstate();
     const float m_fl_eye_yaw = angle;

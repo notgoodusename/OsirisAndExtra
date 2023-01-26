@@ -511,6 +511,16 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::Checkbox("On shot disable choke ", &config->tickbase.onshotFl);
     if (config->tickbase.onshotFl)
         ImGui::SliderInt("ticks", &config->tickbase.onshotFlAmount, 1, 52, "%d");//since the largest backtrack amout is 400 ms and even on 128tick server is less than 52tick 
+    ImGui::Checkbox("Resolver", &config->misc.resolver);
+    ImGui::PushID("Force pitch");
+    ImGui::hotkey2("Force pitch", config->misc.forcePitch);
+    ImGui::SliderInt("Pitch angle", &config->misc.forcePitchAmount, -180, 180, "%d");
+    ImGui::PopID();
+    /*
+    ImGui::PushID("Force roll");
+    ImGui::hotkey2("Force roll", config->misc.forceRoll);
+    ImGui::SliderInt("Roll angle", &config->misc.forceRollAmount, -90, 90, "%d");
+    ImGui::PopID();*/
     //else
     //ImGui::Checkbox("On shot lby", &config->tickbase.onshotDesync);
     ImGui::Columns(1);
@@ -754,7 +764,12 @@ void GUI::renderFakeAngleWindow() noexcept
     if (config->rageAntiAim.roll) {
         ImGui::SliderInt("Roll add", &config->rageAntiAim.rollAdd, -90, 90, "%d");
         ImGui::SliderInt("Roll jitter", &config->rageAntiAim.rollOffset, -90, 90, "%d");
-        ImGui::SliderInt("Roll pitch", &config->rageAntiAim.rollPitch, -180, 180, "%d");
+
+        ImGui::Checkbox("Using exploit pitch", &config->rageAntiAim.usingExpPitch);
+        if (config->rageAntiAim.usingExpPitch)
+            ImGui::SliderInt("Exploit pitch", &config->rageAntiAim.exploitPitch, -180, 180, "%d");
+        else
+            ImGui::SliderInt("Roll pitch", &config->rageAntiAim.rollPitch, -180, 180, "%d");
         ImGui::Checkbox("Alternative roll", &config->rageAntiAim.rollAlt);
     }
         
@@ -1714,7 +1729,6 @@ void GUI::renderMiscWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 230.0f);
     hotkey3("Menu Key", config->misc.menuKey);
-    ImGui::Checkbox("Resolver", &config->misc.resolver);
     ImGui::Checkbox("Anti AFK kick", &config->misc.antiAfkKick);
     ImGui::Checkbox("Adblock", &config->misc.adBlock);
     ImGui::Combo("Force region", &config->misc.forceRelayCluster, "Off\0Australia\0Austria\0Brazil\0Chile\0Dubai\0France\0Germany\0Hong Kong\0India (Chennai)\0India (Mumbai)\0Japan\0Luxembourg\0Netherlands\0Peru\0Philipines\0Poland\0Singapore\0South Africa\0Spain\0Sweden\0UK\0USA (Atlanta)\0USA (Seattle)\0USA (Chicago)\0USA (Los Angeles)\0USA (Moses Lake)\0USA (Oklahoma)\0USA (Seattle)\0USA (Washington DC)\0");

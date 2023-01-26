@@ -1087,7 +1087,7 @@ void Visuals::drawHitboxMatrix(GameEvent* event) noexcept {
 
     if (!attacker) return;
 
-    if (localPlayer->getUserId() != attacker->getUserId() && localPlayer->getUserId() != userID->getUserId()) return;
+    if (localPlayer->getUserId() != attacker->getUserId() || localPlayer->getUserId() == userID->getUserId()) return;
 
     StudioHdr* hdr = interfaces->modelInfo->getStudioModel(userID->getModel());
     StudioHitboxSet* set = hdr->getHitboxSet(0);

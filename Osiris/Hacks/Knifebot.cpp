@@ -25,9 +25,9 @@ void knifeBotRage(UserCmd* cmd) noexcept
     if (activeWeapon->nextPrimaryAttack() > memory->globalVars->serverTime() && activeWeapon->nextSecondaryAttack() > memory->globalVars->serverTime())
         return;
 
-    const auto localPlayerOrigin = localPlayer->origin();
-    const auto localPlayerEyePosition = localPlayer->getEyePosition();
-    const auto aimPunch = localPlayer->getAimPunch();
+    const auto &localPlayerOrigin = localPlayer->origin();
+    const auto &localPlayerEyePosition = localPlayer->getEyePosition();
+    const auto &aimPunch = localPlayer->getAimPunch();
 
     auto bestDistance{ FLT_MAX };
     Entity* bestTarget{ };

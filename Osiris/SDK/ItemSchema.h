@@ -37,7 +37,7 @@ struct UtlMap {
         auto curr = root;
 
         while (curr != -1) {
-            const auto el = memory[curr];
+            const auto &el = memory[curr];
 
             if (el.key < key)
                 curr = el.right;

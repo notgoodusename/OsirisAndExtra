@@ -1,10 +1,13 @@
+#include <intrin.h>
+
 #include "../Memory.h"
 #include "../Interfaces.h"
+#include "../Hooks.h"
 
 #include "Animations.h"
 #include "Backtrack.h"
 #include "EnginePrediction.h"
-#include "Resolver.h"
+#include "resolver.h"
 
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/Cvar.h"
@@ -15,6 +18,7 @@
 #include "../SDK/MemAlloc.h"
 #include "../SDK/Input.h"
 #include "../SDK/Vector.h"
+#include "AntiAim.h"
 
 static std::array<Animations::Players, 65> players{};
 static std::array<matrix3x4, MAXSTUDIOBONES> fakematrix{};
@@ -109,7 +113,6 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
     viewangles = cmd->viewangles;
     sendPacket = _sendPacket;
     localPlayer->getAnimstate()->buttons = cmd->buttons;
-
     updatingLocal = true;
 
     // allow animations to be animated in the same frame
@@ -133,14 +136,13 @@ void Animations::update(UserCmd* cmd, bool& _sendPacket) noexcept
         footYaw = localPlayer->getAnimstate()->footYaw;
         poseParameters = localPlayer->poseParameters();
         gotMatrixReal = localPlayer->setupBones(realmatrix.data(), localPlayer->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
-        const auto origin = localPlayer->getRenderOrigin();
         if (gotMatrixReal)
         {
             for (auto& i : realmatrix)
             {
-                i[0][3] -= origin.x;
-                i[1][3] -= origin.y;
-                i[2][3] -= origin.z;
+                i[0][3] -= localPlayer->getRenderOrigin().x;
+                i[1][3] -= localPlayer->getRenderOrigin().y;
+                i[2][3] -= localPlayer->getRenderOrigin().z;
             }
         }
         localAngle = cmd->viewangles;
@@ -188,8 +190,8 @@ void Animations::fake() noexcept
         std::array<AnimationLayer, 13> layers;
 
         std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-        const auto backupAbs = localPlayer->getAbsAngle();
-        const auto backupPoses = localPlayer->poseParameters();
+        const auto backupAbs (localPlayer->getAbsAngle());
+        const auto &backupPoses = localPlayer->poseParameters();
 
         localPlayer->updateState(fakeAnimState, viewangles);
         if (fabsf(fakeAnimState->footYaw - footYaw) <= 5.f)
@@ -211,18 +213,17 @@ void Animations::fake() noexcept
         memory->setAbsAngle(localPlayer.get(), Vector{ 0, fakeAnimState->footYaw, 0 });
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         localPlayer->getAnimationLayer(ANIMATION_LAYER_LEAN)->weight = std::numeric_limits<float>::epsilon();
-        
+
         gotMatrix = localPlayer->setupBones(fakematrix.data(), localPlayer->getBoneCache().size, 0x7FF00, memory->globalVars->currenttime);
         gotMatrixFakelag = gotMatrix;
         if (gotMatrix)
         {
             std::copy(fakematrix.begin(), fakematrix.end(), fakelagmatrix.data());
-            const auto origin = localPlayer->getRenderOrigin();
             for (auto& i : fakematrix)
             {
-                i[0][3] -= origin.x;
-                i[1][3] -= origin.y;
-                i[2][3] -= origin.z;
+                i[0][3] -= localPlayer->getRenderOrigin().x;
+                i[1][3] -= localPlayer->getRenderOrigin().y;
+                i[2][3] -= localPlayer->getRenderOrigin().z;
             }
         }
 
@@ -423,7 +424,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
                 player.velocity.y = 0.f;
             }
 
-            Resolver::runPreUpdate(player, entity);
+            resolver::run_pre_update(player, entity);
 
             //Run animations
 
@@ -472,7 +473,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             }
             updatingEntity = false;
 
-            Resolver::runPostUpdate(player, entity);
+            resolver::run_post_update(player, entity);
 
             //Fix jump pose
             if (!(entity->flags() & 1) && !player.oldlayers.empty())// && entity->moveType() != MoveType::NOCLIP)
@@ -520,7 +521,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             }
         }
 
-        std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer)* entity->getAnimationLayersCount());
+        std::memcpy(entity->animOverlays(), &layers, sizeof(AnimationLayer) * entity->getAnimationLayersCount());
 
         //Setupbones
         if (runPostUpdate)

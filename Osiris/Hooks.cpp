@@ -350,7 +350,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         return false;
     }
 
-    Resolver::processMissedShots();
+    resolver::process_missed_shots();
 
     Tickbase::start(cmd);
 
@@ -547,7 +547,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Misc::disablePanoramablur();
         Misc::updateEventListeners();
         Visuals::updateEventListeners();
-        Resolver::updateEventListeners();
+        resolver::update_event_listeners();
         Visuals::transparentWorld();
     }
     if (interfaces->engine->isInGame()) {
@@ -1663,7 +1663,7 @@ void Hooks::uninstall() noexcept
 {
     Misc::updateEventListeners(true);
     Visuals::updateEventListeners(true);
-    Resolver::updateEventListeners(true);
+    resolver::update_event_listeners(true);
 
     if constexpr (std::is_same_v<HookType, MinHook>) {
         MH_DisableHook(MH_ALL_HOOKS);

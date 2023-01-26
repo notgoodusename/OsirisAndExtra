@@ -14,7 +14,7 @@ struct Vector;
 
 namespace Helpers
 {
-    void logConsole(std::string_view msg, const std::array<std::uint8_t, 4> color = { 255, 255, 255, 255 }) noexcept;
+    void logConsole(std::string_view msg, std::array<std::uint8_t, 4> color = { 255, 255, 255, 255 }) noexcept;
     float simpleSpline(float value) noexcept;
     float simpleSplineRemapVal(float val, float A, float B, float C, float D) noexcept;
     float simpleSplineRemapValClamped(float val, float A, float B, float C, float D) noexcept;
@@ -25,6 +25,7 @@ namespace Helpers
     float clampCycle(float clycle) noexcept;
     float approach(float target, float value, float speed) noexcept;
     float approachValueSmooth(float target, float value, float fraction) noexcept;
+    void angleVectors(Vector angles, Vector* forward, Vector* right, Vector* up);
     float angleDiff(float destAngle, float srcAngle) noexcept;
     Vector approach(Vector target, Vector value, float speed) noexcept;
     float angleNormalize(float angle) noexcept;
@@ -53,10 +54,10 @@ namespace Helpers
     constexpr int utf8SeqLen(char firstByte) noexcept
     {
         return (firstByte & 0x80) == 0x00 ? 1 :
-               (firstByte & 0xE0) == 0xC0 ? 2 :
-               (firstByte & 0xF0) == 0xE0 ? 3 :
-               (firstByte & 0xF8) == 0xF0 ? 4 :
-               -1;
+            (firstByte & 0xE0) == 0xC0 ? 2 :
+            (firstByte & 0xF0) == 0xE0 ? 3 :
+            (firstByte & 0xF8) == 0xF0 ? 4 :
+            -1;
     }
 
     constexpr auto utf8Substr(char* start, char* end, int n) noexcept

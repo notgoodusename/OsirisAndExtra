@@ -337,7 +337,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             clamped = true;
         }
         
-        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() ) {//delay
+        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime()) {//delay
             config->tickbase.readyFire = true;
             if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||
@@ -351,29 +351,29 @@ void Ragebot::run(UserCmd* cmd) noexcept
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 34 ||
                 getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 39) {
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount;
-                
+
             }
             else {
                 config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount + 1;
             }
             cmd->viewangles += angle;
+
+
+
+            if (!cfg[weaponIndex].silent)
+                interfaces->engine->setViewAngles(cmd->viewangles);
+
+            if (cfg[weaponIndex].autoShot && !clamped)
+                cmd->buttons |= UserCmd::IN_ATTACK;
         }
-            
-        
-        if (!cfg[weaponIndex].silent)
-            interfaces->engine->setViewAngles(cmd->viewangles);
-
-        if (cfg[weaponIndex].autoShot && !clamped)
-            cmd->buttons |= UserCmd::IN_ATTACK;
-
         if (clamped){
             cmd->buttons &= ~UserCmd::IN_ATTACK;
         }
-
+        
         if (cmd->buttons & UserCmd::IN_ATTACK)
         {
             cmd->tickCount = timeToTicks(bestSimulationTime + Backtrack::getLerp());
-            Resolver::saveRecord(bestIndex, bestSimulationTime);
+            resolver::save_record(bestIndex, bestSimulationTime);
         }
 
         if (clamped) lastAngles = cmd->viewangles;

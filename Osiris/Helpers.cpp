@@ -15,6 +15,7 @@
 
 #include "SDK/GlobalVars.h"
 #include "SDK/Engine.h"
+
 static auto rainbowColor(float time, float speed, float alpha) noexcept
 {
     constexpr float pi = std::numbers::pi_v<float>;
@@ -122,16 +123,49 @@ float Helpers::approachValueSmooth(float target, float value, float fraction) no
     return value + delta;
 }
 
+void Helpers::angleVectors(Vector angles, Vector* forward, Vector* right, Vector* up) {
+    float angle;
+    static float sr, sp, sy, cr, cp, cy, cpi = (M_PI * 2 / 360);
+
+    angle = angles.x * cpi;
+    sy = sin(angle);
+    cy = cos(angle);
+    angle = angles.y * cpi;
+    sp = sin(angle);
+    cp = cos(angle);
+    angle = angles.z * cpi;
+    sr = sin(angle);
+    cr = cos(angle);
+
+    if (forward) {
+        forward->y = (cp * cy);
+        forward->x = cp * sy;
+        forward->z = -sp;
+    }
+
+    if (right) {
+        right->y = (-1 * sr * sp * cy + -1 * cr * -sy);
+        right->x = (-1 * sr * sp * sy + -1 * cr * cy);
+        right->z = -1 * sr * cp;
+    }
+
+    if (up) {
+        up->y = (cr * sp * cy + -sr * -sy);
+        up->x = (cr * sp * sy + -sr * cy);
+        up->z = cr * cp;
+    }
+}
+
 float Helpers::angleDiff(float destAngle, float srcAngle) noexcept
 {
     float delta = std::fmodf(destAngle - srcAngle, 360.0f);
 
-    if (destAngle > srcAngle) 
+    if (destAngle > srcAngle)
     {
         if (delta >= 180)
             delta -= 360;
     }
-    else 
+    else
     {
         if (delta <= -180)
             delta += 360;
@@ -243,14 +277,14 @@ unsigned int Helpers::calculateColor(Color4 color) noexcept
 {
     color.color[3] *= alphaFactor;
 
-   // if (!config->ignoreFlashbang)
-        color.color[3] *= (255.0f - GameData::local().flashDuration) / 255.0f;
+    // if (!config->ignoreFlashbang)
+    color.color[3] *= (255.0f - GameData::local().flashDuration) / 255.0f;
     return ImGui::ColorConvertFloat4ToU32(color.rainbow ? rainbowColor(memory->globalVars->realtime, color.rainbowSpeed, color.color[3]) : color.color);
 }
 
 unsigned int Helpers::calculateColor(Color3 color) noexcept
 {
-    return ImGui::ColorConvertFloat4ToU32(color.rainbow ? rainbowColor(memory->globalVars->realtime, color.rainbowSpeed, 1.0f) : ImVec4{ color.color[0], color.color[1], color.color[2], 1.0f});
+    return ImGui::ColorConvertFloat4ToU32(color.rainbow ? rainbowColor(memory->globalVars->realtime, color.rainbowSpeed, 1.0f) : ImVec4{ color.color[0], color.color[1], color.color[2], 1.0f });
 }
 
 unsigned int Helpers::calculateColor(int r, int g, int b, int a) noexcept
@@ -326,8 +360,8 @@ std::wstring Helpers::toUpper(std::wstring str) noexcept
             return w;
         }
 
-        return std::towupper(w);
-    });
+    return std::towupper(w);
+        });
     return str;
 }
 

@@ -18,8 +18,7 @@
 
 #include <omp.h>
 #include <thread>
-
-int maxThreadNum (std::thread::hardware_concurrency());
+int maxThreadNum = (std::thread::hardware_concurrency());
 
 Vector AimbotFunction::calculateRelativeAngle(const Vector& source, const Vector& destination, const Vector& viewAngles) noexcept
 {

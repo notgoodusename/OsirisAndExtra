@@ -237,9 +237,7 @@ void resolver::run_pre_update(Animations::Players& player, Entity* entity) noexc
         return;
     if (!entity || !entity->isAlive())
         return;
-    if (config->misc.forceRoll.isActive())
-    entity->eyeAngles().z = config->misc.forceRollAmount;
-    if (config->misc.forcePitch.isActive())
+    if (config->misc.forcePitch.isActive() && !entity->shotsFired())
         entity->eyeAngles().x = config->misc.forcePitchAmount;
     if (player.chokedPackets <= 0)
         return;
@@ -272,8 +270,6 @@ void resolver::run_post_update(Animations::Players& player, Entity* entity) noex
         return;
     if (!entity || !entity->isAlive())
         return;
-    if (config->misc.forceRoll.isActive())
-    entity->eyeAngles().z = config->misc.forceRollAmount;
     if (config->misc.forcePitch.isActive() && !entity->shotsFired())
         entity->eyeAngles().x = config->misc.forcePitchAmount;
     if (player.chokedPackets <= 0)

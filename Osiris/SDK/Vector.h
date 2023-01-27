@@ -241,7 +241,26 @@ struct Vector {
             out->z = -std::sin(Helpers::deg2rad(angle.x));
         }
     }
+    static auto AngleVectors(const Vector& angle, Vector& forward, Vector& right, Vector& up) {
 
+
+        float sr = std::sin(Helpers::deg2rad(angle.z))
+            , sp = std::sin(Helpers::deg2rad(angle.x))
+            , sy = std::sin(Helpers::deg2rad(angle.y))
+            , cr = std::cos(Helpers::deg2rad(angle.z))
+            , cp = std::cos(Helpers::deg2rad(angle.x))
+            , cy = std::cos(Helpers::deg2rad(angle.y));
+
+        forward.x = (cp * cy);
+        forward.y = (cp * sy);
+        forward.z = (-sp);
+        right.x = (-sr * sp * cy + cr * sy);
+        right.y = (-sr * sp * sy - cr * cy);
+        right.z = (-sr * cp);
+        up.x = (cr * sp * cy + sr * sy);
+        up.y = (cr * sp * sy - sr * cy);
+        up.z = (cr * cp);
+    }
     static auto fromAngleAll(const Vector& angle, Vector* forward, Vector* right, Vector* up) noexcept
     {
         float sr = std::sin(Helpers::deg2rad(angle.z))

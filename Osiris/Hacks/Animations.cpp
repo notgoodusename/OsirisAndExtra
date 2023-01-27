@@ -293,7 +293,6 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             player.clear();
             continue;
         }
-
         if (entity->spawnTime() != player.spawnTime)
         {
             player.spawnTime = entity->spawnTime();

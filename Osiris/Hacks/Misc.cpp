@@ -106,9 +106,9 @@ void Misc::drawKeyDisplay(ImDrawList* drawList) noexcept
     std::string keys[3][2];
     if (config->misc.keyBoardDisplay.showKeyTiles)
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; ++i)
         {
-            for (int j = 0; j < 2; j++)
+            for (int j = 0; j < 2; )
             {
                 keys[i][j] = "_";
             }
@@ -134,9 +134,9 @@ void Misc::drawKeyDisplay(ImDrawList* drawList) noexcept
     };
 
     ImGui::PushFont(gui->getTahoma28Font());
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; ++i)
     {
-        for (int j = 0; j < 2; j++)
+        for (int j = 0; j < 2; ++j)
         {
             if (keys[i][j] == "")
                 continue;
@@ -607,7 +607,7 @@ void Misc::autoPixelSurf(UserCmd* cmd) noexcept
 
     bool detectedPixelSurf = false;
 
-    for (int i = 0; i < config->misc.autoPixelSurfPredAmnt; i++)
+    for (int i = 0; i < config->misc.autoPixelSurfPredAmnt; ++i)
     {
         auto backupButtons = cmd->buttons;
         cmd->buttons |= UserCmd::IN_DUCK;
@@ -694,7 +694,7 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
         cmd->sidemove = vecMoveLastStrafe.x;
         cmd->forwardmove = vecMoveLastStrafe.y;
 
-        for (int i = 0; i < config->misc.edgeBugPredAmnt; i++)
+        for (int i = 0; i < config->misc.edgeBugPredAmnt; ++i)
         {
             if (applyDuck)
                 cmd->buttons |= UserCmd::IN_DUCK;
@@ -927,7 +927,7 @@ void Misc::blockBot(UserCmd* cmd) noexcept
     float best = 1024.0f;
     if (!blockTargetHandle)
     {
-        for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
+        for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i)
         {
             Entity* entity = interfaces->entityList->getEntity(i);
 
@@ -2044,7 +2044,7 @@ void Misc::fixAnimationLOD(FrameStage stage) noexcept
     if (!localPlayer)
         return;
 
-    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
+    for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i) {
         Entity* entity = interfaces->entityList->getEntity(i);
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive())
             continue;
@@ -2273,13 +2273,13 @@ void Misc::autoBuy(GameEvent* event) noexcept
         if (config->misc.autoBuy.armor)
             cmd += "buy " + armor[config->misc.autoBuy.armor];
 
-        for (size_t i = 0; i < utility.size(); i++)
+        for (size_t i = 0; i < utility.size(); ++i)
         {
             if ((config->misc.autoBuy.utility & 1 << i) == 1 << i)
                 cmd += "buy " + utility[i];
         }
 
-        for (size_t i = 0; i < nades.size(); i++)
+        for (size_t i = 0; i < nades.size(); ++i)
         {
             if ((config->misc.autoBuy.grenades & 1 << i) == 1 << i)
                 cmd += "buy " + nades[i];

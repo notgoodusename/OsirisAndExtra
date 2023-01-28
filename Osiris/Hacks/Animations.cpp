@@ -191,7 +191,7 @@ void Animations::fake() noexcept
 
         std::memcpy(&layers, localPlayer->animOverlays(), sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
         const auto backupAbs (localPlayer->getAbsAngle());
-        const auto &backupPoses = localPlayer->poseParameters();
+        const auto backupPoses = localPlayer->poseParameters();
 
         localPlayer->updateState(fakeAnimState, viewangles);
         if (fabsf(fakeAnimState->footYaw - footYaw) <= 5.f)

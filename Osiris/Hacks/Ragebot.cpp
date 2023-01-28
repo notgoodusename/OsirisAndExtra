@@ -206,7 +206,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
 
     std::vector<Ragebot::Enemies> enemies;
-    const auto localPlayerOrigin{ localPlayer->getAbsOrigin() };
+    const auto &localPlayerOrigin{ localPlayer->getAbsOrigin() };
 
     for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i) {
         const auto player = Animations::getPlayer(i);
@@ -219,7 +219,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             continue;
 
         const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, player.matrix[8].origin(), cmd->viewangles + aimPunch) };
-        const auto origin{ entity->getAbsOrigin() };
+        const auto &origin{ entity->getAbsOrigin() };
         const auto fov{ angle.length2D() }; //fov
         const auto health{ entity->health() }; //health
         const auto distance{ localPlayerOrigin.distTo(origin) }; //distance

@@ -239,4 +239,5 @@ Memory::Memory() noexcept
 
     createSimpleThread = reinterpret_cast<decltype(createSimpleThread)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "CreateSimpleThread"));
     releaseThreadHandle = reinterpret_cast<decltype(releaseThreadHandle)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "ReleaseThreadHandle"));
+
 }

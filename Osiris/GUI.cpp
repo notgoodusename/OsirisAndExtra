@@ -521,6 +521,7 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::hotkey2("Force roll", config->misc.forceRoll);
     ImGui::SliderInt("Roll angle", &config->misc.forceRollAmount, -90, 90, "%d");
     ImGui::PopID();
+    ImGui::Text("Only working while target stand!!");
     //else
     //ImGui::Checkbox("On shot lby", &config->tickbase.onshotDesync);
     ImGui::Columns(1);

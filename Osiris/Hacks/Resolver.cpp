@@ -238,11 +238,11 @@ void resolver::run_pre_update(Animations::Players& player, Entity* entity) noexc
     if (!entity || !entity->isAlive())
         return;
     if (config->misc.forceRoll.isActive()) {
-        float addx = 15 * std::cos(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
-        float addy = 15 * std::sin(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
-        entity->origin().x += addx;
-        entity->origin().y += addy;
-        entity->eyeAnglesroll() = config->misc.forceRollAmount;
+        //float addx = 15 * std::cos(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
+        //float addy = 15 * std::sin(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
+        //entity->origin().x = entity->getAbsOrigin().x + addx;
+        //entity->origin().y = entity->getAbsOrigin().y + addy;
+        entity->eyeAnglesroll() = config->misc.forceRollAmount;//getRenderAngles
     }
     if (config->misc.forcePitch.isActive() && !entity->shotsFired())
         entity->eyeAngles().x = config->misc.forcePitchAmount;
@@ -277,6 +277,20 @@ void resolver::run_post_update(Animations::Players& player, Entity* entity) noex
         return;
     if (!entity || !entity->isAlive())
         return;
+    const auto anim_state = entity->getAnimstate();
+        if (config->misc.forceRoll.isActive()) {
+        float addx = -15 * std::cos(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
+        float addy = -15 * std::sin(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
+        if (!entity->getAnimstate()->rolled) {
+            entity->origin().x = entity->getAbsOrigin().x + addx;
+            entity->origin().y = entity->getAbsOrigin().y + addy;
+            entity->getAnimstate()->rolled = true;
+            entity->getAnimstate()->rolledPosition = entity->origin();
+        }
+        if (entity->origin() != entity->getAnimstate()->rolledPosition)
+            entity->getAnimstate()->rolled = false;
+        entity->eyeAnglesroll() = config->misc.forceRollAmount;//getRenderAngles
+    }
     if (config->misc.forcePitch.isActive() && !entity->shotsFired())
         entity->eyeAngles().x = config->misc.forcePitchAmount;
     if (player.chokedPackets <= 0)
@@ -288,7 +302,7 @@ void resolver::run_post_update(Animations::Players& player, Entity* entity) noex
         return;
 
     auto& [snapshot_player, model, eyePosition, bulletImpact, gotImpact, time, playerIndex, backtrackRecord] = snapshots.front();
-    const auto anim_state = entity->getAnimstate();
+
     setup_detect(player, entity);
     resolve_entity(player, entity);
     desync_angle = anim_state->footYaw;
@@ -301,14 +315,6 @@ void resolver::run_post_update(Animations::Players& player, Entity* entity) noex
         desync_angle = snapshot_player.workingangle;
         anim_state->footYaw = desync_angle;
     }
-    /*
-    if (config->misc.forceRoll.isActive()) {
-        float addx = 15 * std::cos(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
-        float addy = 15 * std::sin(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
-        entity->origin().x -= addx;
-        entity->origin().y -= addy;
-        entity->eyeAnglesroll() = 0;
-    }*/
 }
 
 float build_server_abs_yaw(Entity* entity, const float angle)

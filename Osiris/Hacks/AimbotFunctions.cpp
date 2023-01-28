@@ -547,10 +547,12 @@ bool AimbotFunction::hitChance(Entity* localPlayer, Entity* entity, StudioHitbox
     const auto range = activeWeapon->getWeaponData()->range;
     int i;
     bool plz_hit_my_ass = false;
+
 //#pragma omp parallel for num_threads(maxThreadNum)
     for (i = 0; i < maxSeed; ++i)//use openmp
     {
-        memory->randomSeed(i + 1 + omp_get_thread_num());
+        //memory->randomSeed(i + 1 + omp_get_thread_num());
+        memory->randomSeed(i+1);
         const float spreadX = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         const float spreadY = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         auto inaccuracy = weapInaccuracy * memory->randomFloat(0.f, 1.f);
@@ -598,10 +600,12 @@ bool AimbotFunction::relativeHitChance(Entity* localPlayer, Entity* entity, Stud
     const auto range = activeWeapon->getWeaponData()->range;
     int i;
     bool plz_hit_my_ass = false;
+
 //#pragma omp parallel for num_threads(maxThreadNum)
     for (i = 0; i < maxSeed; ++i)//use openmp
     {
-        memory->randomSeed(i + 1 + omp_get_thread_num());
+        //memory->randomSeed(i + 1 + omp_get_thread_num());
+        memory->randomSeed(i + 1);
         const float spreadX = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         const float spreadY = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         auto inaccuracy = weapInaccuracy * memory->randomFloat(0.f, 1.f);

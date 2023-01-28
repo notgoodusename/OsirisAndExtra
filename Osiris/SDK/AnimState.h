@@ -89,7 +89,6 @@ struct AnimState //This is the client one
 
 	float					eyeYaw; //120 = 0x78
 	float					eyePitch; //124 = 0x7C
-	float					eyeRoll; //124 = 0x7C
 	float					footYaw; //128 = 0x80
 	float					footYawLast; //132 = 0x84
 	float					moveYaw; //136 = 0x88
@@ -209,6 +208,8 @@ struct AnimState //This is the client one
 	bool deployRateLimiting;
 	bool jumping;
 	int buttons;
+	bool rolled;
+	Vector rolledPosition;
 
 	void setupVelocity() noexcept;
 	void setupMovement() noexcept;

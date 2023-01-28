@@ -663,6 +663,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Resolver", m.resolver);
     read(j, "Force pitch", m.forcePitch);
     read(j, "Force roll", m.forceRoll);
+    read(j, "Force pitch amount", m.forcePitchAmount);
+    read(j, "Force roll amount", m.forceRollAmount);
     read(j, "Anti AFK kick", m.antiAfkKick);
     read(j, "Adblock", m.adBlock);
     read(j, "Force relay", m.forceRelayCluster);
@@ -1330,6 +1332,8 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Resolver", resolver);
     WRITE("Force pitch", forcePitch);
     WRITE("Force roll", forceRoll);
+    WRITE("Force pitch amount", forcePitchAmount);
+    WRITE("Force roll amount", forceRollAmount);
 
     WRITE("Anti AFK kick", antiAfkKick);
     WRITE("Adblock", adBlock);

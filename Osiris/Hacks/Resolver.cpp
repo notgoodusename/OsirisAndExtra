@@ -279,8 +279,8 @@ void resolver::run_post_update(Animations::Players& player, Entity* entity) noex
         return;
     const auto anim_state = entity->getAnimstate();
         if (config->misc.forceRoll.isActive()) {
-        float addx = -15 * std::cos(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
-        float addy = -15 * std::sin(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
+        float addx = -18 * std::cos(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
+        float addy = -18 * std::sin(Helpers::deg2rad(entity->eyeAngles().y + config->misc.forceRollAmount));
         if (!entity->getAnimstate()->rolled) {
             entity->origin().x = entity->getAbsOrigin().x + addx;
             entity->origin().y = entity->getAbsOrigin().y + addy;

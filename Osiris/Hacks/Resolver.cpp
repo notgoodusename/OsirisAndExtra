@@ -37,7 +37,7 @@ void resolver::save_record(const int player_index, const float player_simulation
         return;
     }
 
-    for (int i = 0; i < static_cast<int>(player.backtrackRecords.size()); i++)
+    for (int i = 0; i < static_cast<int>(player.backtrackRecords.size()); ++i)
     {
         if (player.backtrackRecords.at(i).simulationTime >= player_simulation_time - 0.001f && player.backtrackRecords.at(i).simulationTime <= player_simulation_time + 0.001f)
         {

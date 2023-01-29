@@ -2359,20 +2359,20 @@ void GUI::renderGuiStyle() noexcept
     {
         Style->Colors[ImGuiCol_ChildBg] = ImColor(25, 30, 34);
 
-        ImGui::BeginChild("##Back", ImVec2{ 704, 434 }, false);
+        ImGui::BeginChild("##Back", ImVec2{ 784, 549 }, false);
         {
             ImGui::SetCursorPos(ImVec2{ 2, 2 });
 
             Style->Colors[ImGuiCol_ChildBg] = ImColor(19, 22, 27);
 
-            ImGui::BeginChild("##Main", ImVec2{ 700, 430 }, false);
+            ImGui::BeginChild("##Main", ImVec2{ 780, 545 }, false);
             {
-                ImGui::BeginChild("##UP", ImVec2{ 700, 45 }, false);
+                ImGui::BeginChild("##UP", ImVec2{ 780, 45 }, false);
                 {
                     ImGui::SetCursorPos(ImVec2{ 10, 6 });
                     ImGui::PushFont(fonts.tahoma34); ImGui::Text("Better Osiris"); ImGui::PopFont();
 
-                    float pos = 305;
+                    float pos = 385;
                     ImGui::SetCursorPos(ImVec2{ pos, 0 });
                     if (activeTab == 1) Active(); else Hovered();
                     if (ImGui::Button("Legitbot", ImVec2{ 75, 45 }))
@@ -2413,7 +2413,7 @@ void GUI::renderGuiStyle() noexcept
                 Style->Colors[ImGuiCol_Button] = ImColor(25, 30, 34);
                 Style->Colors[ImGuiCol_ButtonHovered] = ImColor(25, 30, 34);
                 Style->Colors[ImGuiCol_ButtonActive] = ImColor(19, 22, 27);
-                ImGui::BeginChild("##Childs", ImVec2{ 700, 365 }, false);
+                ImGui::BeginChild("##Childs", ImVec2{ 780, 500 }, false);
                 {
                     ImGui::SetCursorPos(ImVec2{ 15, 5 });
                     Style->ChildRounding = 0;
@@ -2458,7 +2458,7 @@ void GUI::renderGuiStyle() noexcept
                         ImGui::SetCursorPos(ImVec2{ 100, 5 });
                         Style->Colors[ImGuiCol_ChildBg] = ImColor(29, 34, 38);
                         Style->ChildRounding = 5;
-                        ImGui::BeginChild("##SubMain", ImVec2{ 590, 350 }, false);
+                        ImGui::BeginChild("##SubMain", ImVec2{ 675, 470 }, false);
                         {
                             ImGui::SetCursorPos(ImVec2{ 10, 10 });
                             switch (activeTab)
@@ -2567,10 +2567,10 @@ void GUI::renderGuiStyle() noexcept
                     }
                     ImGui::EndChild();
 
-                    ImGui::SetCursorPos(ImVec2{ 0, 410 });
+                    ImGui::SetCursorPos(ImVec2{ 0, 525 });
                     Style->Colors[ImGuiCol_ChildBg] = ImColor(45, 50, 54);
                     Style->ChildRounding = 0;
-                    ImGui::BeginChild("##Text", ImVec2{ 700, 20 }, false);
+                    ImGui::BeginChild("##Text", ImVec2{ 780, 20 }, false);
                     {
                         ImGui::SetCursorPos(ImVec2{ 2, 2 });
                         ImGui::Text("Better Osiris Made In https://github.com/notgoodusename/OsirisAndExtra");

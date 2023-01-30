@@ -8,6 +8,7 @@
 #include "Hacks/Misc.h"
 
 #include "InputUtil.h"
+#include "GUI.h"
 
 #include "SDK/Platform.h"
 
@@ -156,7 +157,7 @@ const char* KeyBind::toString() const noexcept
 
 bool KeyBind::isPressed() const noexcept
 {
-    if (Misc::isInChat())
+    if (Misc::isInChat() && !gui->isOpen())
         return false;
 
     if (keyCode == KeyCode::NONE)
@@ -176,7 +177,7 @@ bool KeyBind::isPressed() const noexcept
 
 bool KeyBind::isDown() const noexcept
 {
-    if (Misc::isInChat())
+    if (Misc::isInChat() && !gui->isOpen())
         return false;
 
     if (keyCode == KeyCode::NONE)

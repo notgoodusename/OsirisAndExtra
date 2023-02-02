@@ -208,6 +208,8 @@ struct AnimState //This is the client one
 	bool deployRateLimiting;
 	bool jumping;
 	int buttons;
+	bool rolled;
+	Vector rolledPosition;
 
 	void setupVelocity() noexcept;
 	void setupMovement() noexcept;

@@ -707,6 +707,7 @@ public:
     NETVAR(armor, "CCSPlayer", "m_ArmorValue", int)
     NETVAR(hasHeavyArmor, "CCSPlayer", "m_bHasHeavyArmor", bool)
     NETVAR(eyeAngles, "CCSPlayer", "m_angEyeAngles", Vector)
+    NETVAR_OFFSET(eyeAnglesroll, "CCSPlayer", "m_angEyeAngles",8, float)
     NETVAR(isScoped, "CCSPlayer", "m_bIsScoped", bool)
     NETVAR(isDefusing, "CCSPlayer", "m_bIsDefusing", bool)
     NETVAR(flashMaxAlpha, "CCSPlayer", "m_flFlashMaxAlpha", float)

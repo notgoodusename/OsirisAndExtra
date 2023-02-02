@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <Psapi.h>
 
+
 #include "imgui/imgui_impl_dx9.h"
 #include "imgui/imgui_impl_win32.h"
 
@@ -71,6 +72,11 @@
 #include "SDK/UserCmd.h"
 #include "SDK/ViewSetup.h"
 
+
+
+#include "Resources/michi.h"
+
+
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
     [[maybe_unused]] static const auto once = [](HWND window) noexcept {
@@ -92,13 +98,14 @@ static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lP
     ImGui_ImplWin32_WndProcHandler(window, msg, wParam, lParam);
 
     interfaces->inputSystem->enableInput(!gui->isOpen());
-
     return CallWindowProcW(hooks->originalWndProc, window, msg, wParam, lParam);
 }
-
+PDIRECT3DTEXTURE9 my_texture0;
 static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, const RECT* dest, HWND windowOverride, const RGNDATA* dirtyRegion) noexcept
 {
-    [[maybe_unused]] static bool imguiInit{ ImGui_ImplDX9_Init(device) };
+    [[maybe_unused]] static bool imguiInit{ ImGui_ImplDX9_Init(device) }; 
+
+    //D3DXCreateTextureFromFileInMemory(device, Resource::michi, sizeof(Resource::michi), &my_texture0);
 
     if (config->loadScheduledFonts())
         ImGui_ImplDX9_DestroyFontsTexture();
@@ -106,7 +113,7 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     ImGui_ImplDX9_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-
+    
     if (const auto& displaySize = ImGui::GetIO().DisplaySize; displaySize.x > 0.0f && displaySize.y > 0.0f) {
         StreamProofESP::render();
         GrenadePrediction::draw();
@@ -204,10 +211,10 @@ static int __fastcall sendDatagramHook(NetworkChannel* network, void* edx, void*
     if (!config->backtrack.fakeLatency || datagram || !interfaces->engine->isInGame())
         return original(network, datagram);
 
-    int instate = network->inReliableState;
-    int insequencenr = network->inSequenceNr;
+    const int instate = network->inReliableState;
+    const int insequencenr = network->inSequenceNr;
 
-    float delta = max(0.f, config->backtrack.fakeLatencyAmount / 1000.f);
+    const float delta = max(0.f, (config->backtrack.fakeLatencyAmount / 1000.f) - Backtrack::getLerp() - network->getLatency(0));
 
     Backtrack::addLatencyToNetwork(network, delta);
 
@@ -343,7 +350,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         return false;
     }
 
-    Resolver::processMissedShots();
+    resolver::process_missed_shots();
 
     Tickbase::start(cmd);
 
@@ -387,7 +394,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
 
     if (AntiAim::canRun(cmd))
     {
-        Fakelag::run(sendPacket);
+        Fakelag::run(cmd,sendPacket);
         AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
     }
 
@@ -397,7 +404,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::edgeBug(cmd, angOldViewPoint);
     Misc::runFreeCam(cmd, viewAngles);
     Misc::gatherDataOnTick(cmd);
-    Misc::moonwalk(cmd);
+    Misc::moonwalk(cmd, sendPacket);
 
     auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
     viewAnglesDelta.normalize();
@@ -415,9 +422,9 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         Misc::fixMovement(cmd, currentViewAngles.y);
     }
 
-    cmd->viewangles.x = std::clamp(cmd->viewangles.x, -89.0f, 89.0f);
+    cmd->viewangles.x = std::clamp(cmd->viewangles.x, -180.0f, 180.0f);
     cmd->viewangles.y = std::clamp(cmd->viewangles.y, -180.0f, 180.0f);
-    cmd->viewangles.z = 0.0f;
+    cmd->viewangles.z = std::clamp(cmd->viewangles.z, -180.0f, 180.0f);
     cmd->forwardmove = std::clamp(cmd->forwardmove, -450.0f, 450.0f);
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
     cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
@@ -540,7 +547,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Misc::disablePanoramablur();
         Misc::updateEventListeners();
         Visuals::updateEventListeners();
-        Resolver::updateEventListeners();
+        resolver::update_event_listeners();
         Visuals::transparentWorld();
     }
     if (interfaces->engine->isInGame()) {
@@ -1656,7 +1663,7 @@ void Hooks::uninstall() noexcept
 {
     Misc::updateEventListeners(true);
     Visuals::updateEventListeners(true);
-    Resolver::updateEventListeners(true);
+    resolver::update_event_listeners(true);
 
     if constexpr (std::is_same_v<HookType, MinHook>) {
         MH_DisableHook(MH_ALL_HOOKS);

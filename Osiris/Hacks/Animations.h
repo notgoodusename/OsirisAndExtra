@@ -73,8 +73,13 @@ namespace Animations
 		std::deque<Record> backtrackRecords;
 
 		std::array<matrix3x4, MAXSTUDIOBONES> matrix;
-		std::array<AnimationLayer, 13> layers { };
-		std::array<AnimationLayer, 13> oldlayers { };
+		std::array<AnimationLayer, 13> layers{ };
+		std::array<AnimationLayer, 13> oldlayers{ };
+		std::vector<float> blacklisted{};
+		float workingangle = 0.f;
+		bool extended{ false };
+		int side{};
+		bool shot{ false };
 
 		Vector mins{}, maxs{};
 		Vector origin{}, oldOrigin{}, absAngle{};
@@ -100,11 +105,13 @@ namespace Animations
 			simulationTime = -1.0f;
 			moveWeight = 0.0f;
 
+			extended = false;
 			duckAmount = 0.0f;
 			oldDuckAmount = 0.0f;
 
 			flags = 0;
 
+			side = -5;
 			origin = Vector{};
 			oldOrigin = Vector{};
 			absAngle = Vector{};
@@ -123,6 +130,8 @@ namespace Animations
 			layers = {};
 			chokedPackets = 0;
 			misses = 0;
+			blacklisted = { -1.f };
+			workingangle = 0;
 		}
 	};
 	Players getPlayer(int index) noexcept;

@@ -74,7 +74,7 @@ static std::uintptr_t findPattern(const char* moduleName, std::string_view patte
     }
 
     if(reportNotFound)
-        MessageBoxA(NULL, ("Failed to find pattern #" + std::to_string(id) + '!').c_str(), "Osiris", MB_OK | MB_ICONWARNING);
+        MessageBoxA(NULL, ("Failed to find pattern #" + std::to_string(id) + '!').c_str(), "Osility", MB_OK | MB_ICONWARNING);
     return 0;
 }
 
@@ -239,4 +239,5 @@ Memory::Memory() noexcept
 
     createSimpleThread = reinterpret_cast<decltype(createSimpleThread)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "CreateSimpleThread"));
     releaseThreadHandle = reinterpret_cast<decltype(releaseThreadHandle)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "ReleaseThreadHandle"));
+
 }

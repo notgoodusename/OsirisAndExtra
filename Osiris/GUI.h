@@ -32,13 +32,13 @@ private:
     void renderSkinChangerWindow() noexcept;
     void renderMiscWindow() noexcept;
     void renderConfigWindow() noexcept;
-
+    void michiget() noexcept;
     struct {
         ImFont* normal15px = nullptr;
         ImFont* tahoma28 = nullptr;
-        ImFont* tahoma34 = nullptr;
         ImFont* unicodeFont = nullptr;
     } fonts;
+
 
     float timeToNextConfigRefresh = 0.1f;
 };

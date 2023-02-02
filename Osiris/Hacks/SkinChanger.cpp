@@ -546,7 +546,41 @@ ImTextureID SkinChanger::getItemIconTexture(const std::string& iconpath) noexcep
 
     return iconTextures[iconpath].get();
 }
+ImTextureID SkinChanger::getPNGTexture(const std::string& PNGpath) noexcept
+{
+    if (PNGpath.empty())
+        return 0;
 
+    if (iconTextures[PNGpath].get())
+        return iconTextures[PNGpath].get();
+
+    if (iconTextures.size() >= 50)
+        iconTextures.erase(iconTextures.begin());
+
+    if (const auto handle = interfaces->baseFileSystem->open(("resource/flash/" + PNGpath + ".png").c_str(), "r", "GAME")) {
+        if (const auto size = interfaces->baseFileSystem->size(handle); size > 0) {
+            const auto buffer = std::make_unique<std::uint8_t[]>(size);
+            if (interfaces->baseFileSystem->read(buffer.get(), size, handle) > 0) {
+                int width, height;
+                stbi_set_flip_vertically_on_load_thread(false);
+
+                if (const auto data = stbi_load_from_memory((const stbi_uc*)buffer.get(), size, &width, &height, nullptr, STBI_rgb_alpha)) {
+                    iconTextures[PNGpath].init(width, height, data);
+                    stbi_image_free(data);
+                }
+                else {
+                    assert(false);
+                }
+            }
+        }
+        interfaces->baseFileSystem->close(handle);
+    }
+    else {
+        assert(false);
+    }
+
+    return iconTextures[PNGpath].get();
+}
 void SkinChanger::clearItemIconTextures() noexcept
 {
     iconTextures.clear();

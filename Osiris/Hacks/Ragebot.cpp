@@ -43,8 +43,7 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
     StudioHitboxSet* set = hdr->getHitboxSet(0);
     if (!set)
         return;
-
-    for (size_t i = 0; i < hitbox.size(); i++)
+    for (size_t i = 0; i < hitbox.size(); ++i)
     {
         if (!hitbox[i])
             continue;
@@ -52,7 +51,7 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
         StudioBbox* hitbox = set->getHitbox(i);
         if (!hitbox)
             continue;
-
+        
         for (auto& bonePosition : AimbotFunction::multiPoint(entity, record.matrix, hitbox, localPlayerEyePosition, i, multiPoint))
         {
             const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
@@ -65,33 +64,48 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
 
             float damage = AimbotFunction::getScanDamage(entity, bonePosition, activeWeapon->getWeaponData(), minDamage, cfg[weaponIndex].friendlyFire);
             damage = std::clamp(damage, 0.0f, (float)entity->maxHealth());
-            if (damage <= 0.f)
+            if (damage <= 0.05f)
                 continue;
 
             if (!entity->isVisible(bonePosition) && (cfg[weaponIndex].visibleOnly || !damage))
                 continue;
 
-            if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
-                cmd->buttons |= UserCmd::IN_ZOOM;
-
             if (cfg[weaponIndex].scopedOnly && activeWeapon->isSniperRifle() && !localPlayer->isScoped())
                 return;
 
-            if (cfg[weaponIndex].autoStop && localPlayer->flags() & 1 && !(cmd->buttons & UserCmd::IN_JUMP))
+            if (cfg[weaponIndex].autoStop && !(cmd->buttons & UserCmd::IN_JUMP))//&& localPlayer->flags() & 1
             {
+                const auto weaponData = activeWeapon->getWeaponData();
                 const auto velocity = EnginePrediction::getVelocity();
                 const auto speed = velocity.length2D();
-                if (speed >= 15.0f)
+                const auto speedcoeffi = 0.33f;
+                if (!cfg[weaponIndex].accuracyBoost == 0.f)
+                    const auto speedcoeffi = 1.f - cfg[weaponIndex].accuracyBoost;
+                Vector direction = velocity.toAngle();
+                direction.y = cmd->viewangles.y - direction.y;
+                const auto negatedDirection = Vector::fromAngle(direction) * speed * -1;
+                if (speed >= (localPlayer->isScoped() ? weaponData->maxSpeedAlt - 1 : weaponData->maxSpeed - 1 ) * speedcoeffi)
                 {
-                    Vector direction = velocity.toAngle();
-                    direction.y = cmd->viewangles.y - direction.y;
-
-                    const auto negatedDirection = Vector::fromAngle(direction) * -speed;
                     cmd->forwardmove = negatedDirection.x;
                     cmd->sidemove = negatedDirection.y;
+                    if (cfg[weaponIndex].duckStop)
+                        cmd->buttons |= UserCmd::IN_DUCK;
+                }
+                else 
+                {
+                    cmd->forwardmove = cmd->forwardmove * speedcoeffi;
+                    cmd->sidemove = cmd->sidemove * speedcoeffi;//slow?
+                    if (cfg[weaponIndex].duckStop)
+                        cmd->buttons &= ~UserCmd::IN_ATTACK;
+                    if (cfg[weaponIndex].fullStop) {
+                        cmd->forwardmove = 0;
+                        cmd->sidemove = 0;
+                    }
+                    cmd->upmove = 0;//jump/land/duck/unduck?
                 }
             }
-
+            if (cfg[weaponIndex].autoScope && activeWeapon->isSniperRifle() && !localPlayer->isScoped() && !activeWeapon->zoomLevel() && localPlayer->flags() & 1)
+                cmd->buttons |= UserCmd::IN_ZOOM;
             if (std::fabsf((float)target.health - damage) <= damageDiff)
             {
                 bestAngle = angle;
@@ -105,7 +119,14 @@ void runRagebot(UserCmd* cmd, Entity* entity, Animations::Players::Record record
 
     if (bestTarget.notNull())
     {
-        if (!AimbotFunction::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
+        if (cfg[weaponIndex].relativeHitchanceOn && !AimbotFunction::relativeHitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].relativeHitchance)) {
+            bestTarget = Vector{ };
+            bestAngle = Vector{ };
+            bestIndex = -1;
+            bestSimulationTime = 0;
+            damageDiff = FLT_MAX;
+        }
+        else if (!cfg[weaponIndex].relativeHitchanceOn && !AimbotFunction::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, bestAngle, cmd, cfg[weaponIndex].hitChance))
         {
             bestTarget = Vector{ };
             bestAngle = Vector{ };
@@ -185,7 +206,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
 
     std::vector<Ragebot::Enemies> enemies;
-    const auto localPlayerOrigin{ localPlayer->getAbsOrigin() };
+    const auto &localPlayerOrigin{ localPlayer->getAbsOrigin() };
+
     for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i) {
         const auto player = Animations::getPlayer(i);
         if (!player.gotMatrix)
@@ -197,7 +219,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             continue;
 
         const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, player.matrix[8].origin(), cmd->viewangles + aimPunch) };
-        const auto origin{ entity->getAbsOrigin() };
+        const auto &origin{ entity->getAbsOrigin() };
         const auto fov{ angle.length2D() }; //fov
         const auto health{ entity->health() }; //health
         const auto distance{ localPlayerOrigin.distTo(origin) }; //distance
@@ -226,7 +248,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
     frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
 
     auto multiPoint = cfg[weaponIndex].multiPoint;
-    if (cfg[weaponIndex].disableMultipointIfLowFPS && static_cast<int>(1 / frameRate) <= 60)
+    if (cfg[weaponIndex].disableMultipointIfLowFPS && static_cast<int>(1 / frameRate) <= 50)
         multiPoint = 0;
 
     for (const auto& target : enemies) 
@@ -309,26 +331,49 @@ void Ragebot::run(UserCmd* cmd) noexcept
         auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bestTarget, cmd->viewangles + aimPunch);
         bool clamped{ false };
 
-        if (std::abs(angle.x) > config->misc.maxAngleDelta || std::abs(angle.y) > config->misc.maxAngleDelta) {
+        if ((std::abs(angle.x) > config->misc.maxAngleDelta || std::abs(angle.y) > config->misc.maxAngleDelta)) {
             angle.x = std::clamp(angle.x, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
             angle.y = std::clamp(angle.y, -config->misc.maxAngleDelta, config->misc.maxAngleDelta);
             clamped = true;
         }
+        
+        if (activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime()) {//delay
+            config->tickbase.readyFire = true;
+            if (getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 9 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 10 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 11 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 12 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 13 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 14 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 29 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 32 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 33 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 34 ||
+                getWeaponIndex(activeWeapon->itemDefinitionIndex2()) != 39) {
+                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount;
 
-        cmd->viewangles += angle;
-        if (!cfg[weaponIndex].silent)
-            interfaces->engine->setViewAngles(cmd->viewangles);
+            }
+            else {
+                config->tickbase.lastFireShiftTick = memory->globalVars->tickCount + config->tickbase.onshotFlAmount + 1;
+            }
+            cmd->viewangles += angle;
 
-        if (cfg[weaponIndex].autoShot && activeWeapon->nextPrimaryAttack() <= memory->globalVars->serverTime() && !clamped)
-            cmd->buttons |= UserCmd::IN_ATTACK;
 
-        if (clamped)
+
+            if (!cfg[weaponIndex].silent)
+                interfaces->engine->setViewAngles(cmd->viewangles);
+
+            if (cfg[weaponIndex].autoShot && !clamped)
+                cmd->buttons |= UserCmd::IN_ATTACK;
+        }
+        if (clamped){
             cmd->buttons &= ~UserCmd::IN_ATTACK;
-
+        }
+        
         if (cmd->buttons & UserCmd::IN_ATTACK)
         {
             cmd->tickCount = timeToTicks(bestSimulationTime + Backtrack::getLerp());
-            Resolver::saveRecord(bestIndex, bestSimulationTime);
+            resolver::save_record(bestIndex, bestSimulationTime);
         }
 
         if (clamped) lastAngles = cmd->viewangles;

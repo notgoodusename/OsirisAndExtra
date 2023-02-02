@@ -145,7 +145,7 @@ void EnginePrediction::apply(FrameStage stage) noexcept
 
     const int tickbase = localPlayer->tickBase();
 
-    const auto netvars = netvarData.at(tickbase % 150);
+    const auto &netvars = netvarData.at(tickbase % 150);
 
     if (!&netvars)
         return;

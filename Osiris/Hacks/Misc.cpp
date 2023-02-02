@@ -106,9 +106,9 @@ void Misc::drawKeyDisplay(ImDrawList* drawList) noexcept
     std::string keys[3][2];
     if (config->misc.keyBoardDisplay.showKeyTiles)
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; ++i)
         {
-            for (int j = 0; j < 2; j++)
+            for (int j = 0; j < 2; )
             {
                 keys[i][j] = "_";
             }
@@ -134,9 +134,9 @@ void Misc::drawKeyDisplay(ImDrawList* drawList) noexcept
     };
 
     ImGui::PushFont(gui->getTahoma28Font());
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 3; ++i)
     {
-        for (int j = 0; j < 2; j++)
+        for (int j = 0; j < 2; ++j)
         {
             if (keys[i][j] == "")
                 continue;
@@ -345,12 +345,12 @@ public:
             //Certain characters are censured on printf
             if (jumps > 2)
                 memory->clientMode->getHudChat()->printf(0,
-                    " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
+                    " \x0C\u2022Osility\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%d\x01 Bhops | \x05%.0f\x01 Sync]",
                     color, jump.c_str(),
                     jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.jumps, jumpStatsCalculations.sync);
             else
                 memory->clientMode->getHudChat()->printf(0,
-                    " \x0C\u2022Osiris\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%.0f\x01 Sync]",
+                    " \x0C\u2022Osility\u2022\x01 %c%s: %.2f units \x01[\x05%d\x01 Strafes | \x05%.0f\x01 Pre | \x05%.0f\x01 Max | \x05%.1f\x01 Height | \x05%.0f\x01 Sync]",
                     color, jump.c_str(),
                     jumpStatsCalculations.units, jumpStatsCalculations.strafes, jumpStatsCalculations.pre, jumpStatsCalculations.maxVelocity, jumpStatsCalculations.maxHeight, jumpStatsCalculations.sync);
         }
@@ -607,7 +607,7 @@ void Misc::autoPixelSurf(UserCmd* cmd) noexcept
 
     bool detectedPixelSurf = false;
 
-    for (int i = 0; i < config->misc.autoPixelSurfPredAmnt; i++)
+    for (int i = 0; i < config->misc.autoPixelSurfPredAmnt; ++i)
     {
         auto backupButtons = cmd->buttons;
         cmd->buttons |= UserCmd::IN_DUCK;
@@ -694,7 +694,7 @@ void Misc::edgeBug(UserCmd* cmd, Vector& angView) noexcept
         cmd->sidemove = vecMoveLastStrafe.x;
         cmd->forwardmove = vecMoveLastStrafe.y;
 
-        for (int i = 0; i < config->misc.edgeBugPredAmnt; i++)
+        for (int i = 0; i < config->misc.edgeBugPredAmnt; ++i)
         {
             if (applyDuck)
                 cmd->buttons |= UserCmd::IN_DUCK;
@@ -927,7 +927,7 @@ void Misc::blockBot(UserCmd* cmd) noexcept
     float best = 1024.0f;
     if (!blockTargetHandle)
     {
-        for (int i = 1; i <= interfaces->engine->getMaxClients(); i++)
+        for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i)
         {
             Entity* entity = interfaces->entityList->getEntity(i);
 
@@ -1422,14 +1422,17 @@ const bool anyActiveKeybinds() noexcept
 {
     const bool rageBot = config->ragebotKey.canShowKeybind();
     const bool minDamageOverride = config->minDamageOverrideKey.canShowKeybind();
-    const bool fakeAngle = config->fakeAngle.enabled && config->fakeAngle.invert.canShowKeybind();
-    const bool antiAimManualForward = config->rageAntiAim.enabled && config->rageAntiAim.manualForward.canShowKeybind();
-    const bool antiAimManualBackward = config->rageAntiAim.enabled && config->rageAntiAim.manualBackward.canShowKeybind();
-    const bool antiAimManualRight = config->rageAntiAim.enabled && config->rageAntiAim.manualRight.canShowKeybind();
-    const bool antiAimManualLeft = config->rageAntiAim.enabled && config->rageAntiAim.manualLeft.canShowKeybind();
+    const bool fakeAngle = config->invert.canShowKeybind();
+    const bool antiAimManualForward =  config->manualForward.canShowKeybind();
+    const bool antiAimManualBackward =  config->manualBackward.canShowKeybind();
+    const bool antiAimManualRight =  config->manualRight.canShowKeybind();
+    const bool antiAimManualLeft =  config->manualLeft.canShowKeybind();
     const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
     const bool doubletap = config->tickbase.doubletap.canShowKeybind();
     const bool hideshots = config->tickbase.hideshots.canShowKeybind();
+    const bool forcePitch = config->misc.forcePitch.canShowKeybind();
+    const bool forceRoll = config->misc.forcePitch.canShowKeybind();
+    
     const bool legitBot = config->legitbotKey.canShowKeybind();
     const bool triggerBot = config->triggerbotKey.canShowKeybind();
     const bool glow = config->glowKey.canShowKeybind();
@@ -1452,7 +1455,7 @@ const bool anyActiveKeybinds() noexcept
     const bool prepareRevolver = config->misc.prepareRevolver && config->misc.prepareRevolverKey.canShowKeybind();
 
     return rageBot || minDamageOverride || fakeAngle || antiAimManualForward || antiAimManualBackward || antiAimManualRight  || antiAimManualLeft 
-        || doubletap || hideshots
+        || doubletap || hideshots || forcePitch || forceRoll
         || legitAntiAim || legitBot || triggerBot || chams || glow || esp
         || zoom || thirdperson || freeCam || blockbot || edgejump || minijump || jumpBug || edgebug || autoPixelSurf || slowwalk || fakeduck || autoPeek || prepareRevolver;
 }
@@ -1481,23 +1484,22 @@ void Misc::showKeybinds() noexcept
         windowFlags |= ImGuiWindowFlags_NoTitleBar;
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowTitleAlign, { 0.5f, 0.5f });
+    ImGui::SetNextWindowBgAlpha(0.65f);
     ImGui::Begin("Keybind list", nullptr, windowFlags);
     ImGui::PopStyleVar();
 
     config->ragebotKey.showKeybind();
     config->minDamageOverrideKey.showKeybind();
-    if (config->fakeAngle.enabled)
-        config->fakeAngle.invert.showKeybind();
-    if (config->rageAntiAim.enabled)
-    {
-        config->rageAntiAim.manualForward.showKeybind();
-        config->rageAntiAim.manualBackward.showKeybind();
-        config->rageAntiAim.manualRight.showKeybind();
-        config->rageAntiAim.manualLeft.showKeybind();
-    }
+    config->invert.showKeybind();
+    config->manualForward.showKeybind();
+    config->manualBackward.showKeybind();
+    config->manualRight.showKeybind();
+    config->manualLeft.showKeybind();
 
     config->tickbase.doubletap.showKeybind();
     config->tickbase.hideshots.showKeybind();
+    config->misc.forcePitch.showKeybind();
+    config->misc.forceRoll.showKeybind();
 
     if (config->legitAntiAim.enabled)
         config->legitAntiAim.invert.showKeybind();
@@ -1646,25 +1648,41 @@ void Misc::recoilCrosshair(ImDrawList* drawList) noexcept
 
 void Misc::watermark() noexcept
 {
+    static auto frameRate = 1.0f;
+    frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
+    srand(static_cast<unsigned int>(frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0));
+    int randomresult = (rand() % 15) + 1;
+    if (randomresult % 2 == 0)
+        config->misc.textoffset = randomresult * -0.1f;
+    else
+        config->misc.textoffset = randomresult * 0.1f;
     if (!config->misc.watermark.enabled)
         return;
+
 
     if (config->misc.watermark.pos != ImVec2{}) {
         ImGui::SetNextWindowPos(config->misc.watermark.pos);
         config->misc.watermark.pos = {};
     }
 
-    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar;
     if (!gui->isOpen())
         windowFlags |= ImGuiWindowFlags_NoInputs;
 
-    ImGui::SetNextWindowBgAlpha(0.3f);
+    ImGui::SetNextWindowBgAlpha(0.65f);
     ImGui::Begin("Watermark", nullptr, windowFlags);
+    ImGui::SetCursorPos(ImVec2{ 10 - config->misc.textoffset, 5 + config->misc.textoffset}); ImGui::TextColored(ImColor(70, 50, 240, 200), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+    ImGui::SetCursorPos(ImVec2{ 10 + config->misc.textoffset, 5 - config->misc.textoffset}); ImGui::TextColored(ImColor(235, 5, 85, 200), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
+    ImGui::SetCursorPos(ImVec2{ 10, 5 }); ImGui::TextColored(ImColor(245, 245, 245, 245), "OSILITY \u043e\u0441\u0438\u043b\u0438\u0442\u044c\'\u0438");
 
-    static auto frameRate = 1.0f;
-    frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
-
-    ImGui::Text("Osiris | %d fps | %d ms", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0, GameData::getNetOutgoingLatency());
+    ImGui::Text("f/s: %d", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0);
+    ImGui::SameLine();
+    ImGui::Text("latency: %d ms",GameData::getNetOutgoingLatency());
+    ImGui::SameLine();
+    const auto time = std::time(nullptr);
+    const auto localTime = std::localtime(&time);
+    ImGui::Text("time: % 02d:% 02d : % 02d", localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
+    
     ImGui::End();
 }
 
@@ -1737,7 +1755,7 @@ void Misc::fastStop(UserCmd* cmd) noexcept
     
     const auto velocity = localPlayer->velocity();
     const auto speed = velocity.length2D();
-    if (speed < 15.0f)
+    if (speed <= 15.0f)
         return;
     
     Vector direction = velocity.toAngle();
@@ -1771,6 +1789,7 @@ void Misc::drawBombTimer() noexcept
         ImGui::SetNextWindowSize({ windowWidth, 0 });
 
     ImGui::SetNextWindowSizeConstraints({ 0, -1 }, { FLT_MAX, -1 });
+    ImGui::SetNextWindowBgAlpha(0.65f);
     ImGui::Begin("Bomb Timer", nullptr, ImGuiWindowFlags_NoTitleBar | (gui->isOpen() ? 0 : ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration));
 
     std::ostringstream ss; ss << "Bomb on " << (!plantedC4.bombsite ? 'A' : 'B') << " : " << std::fixed << std::showpoint << std::setprecision(3) << (std::max)(plantedC4.blowTime - memory->globalVars->currenttime, 0.0f) << " s";
@@ -1835,6 +1854,7 @@ void Misc::hurtIndicator() noexcept
         ImGui::SetNextWindowSize({ windowWidth, 0 });
 
     ImGui::SetNextWindowSizeConstraints({ 0, -1 }, { FLT_MAX, -1 });
+    ImGui::SetNextWindowBgAlpha(0.65f);
     ImGui::Begin("Hurt Indicator", nullptr, ImGuiWindowFlags_NoTitleBar | (gui->isOpen() ? 0 : ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoDecoration));
 
     std::ostringstream ss; ss << "Slowed down " << static_cast<int>(local.velocityModifier * 100.f) << "%";
@@ -1991,8 +2011,10 @@ void Misc::killMessage(GameEvent& event) noexcept
     interfaces->engine->clientCmdUnrestricted(cmd.c_str());
 }
 
+
 void Misc::fixMovement(UserCmd* cmd, float yaw) noexcept
 {
+
     float oldYaw = yaw + (yaw < 0.0f ? 360.0f : 0.0f);
     float newYaw = cmd->viewangles.y + (cmd->viewangles.y < 0.0f ? 360.0f : 0.0f);
     float yawDelta = newYaw < oldYaw ? fabsf(newYaw - oldYaw) : 360.0f - fabsf(newYaw - oldYaw);
@@ -2018,7 +2040,7 @@ void Misc::fixAnimationLOD(FrameStage stage) noexcept
     if (!localPlayer)
         return;
 
-    for (int i = 1; i <= interfaces->engine->getMaxClients(); i++) {
+    for (int i = 1; i <= interfaces->engine->getMaxClients(); ++i) {
         Entity* entity = interfaces->entityList->getEntity(i);
         if (!entity || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive())
             continue;
@@ -2125,10 +2147,18 @@ void Misc::removeCrouchCooldown(UserCmd* cmd) noexcept
         cmd->buttons |= UserCmd::IN_BULLRUSH;
 }
 
-void Misc::moonwalk(UserCmd* cmd) noexcept
+void Misc::moonwalk(UserCmd* cmd,bool& sendPacket) noexcept
 {
+    const auto netChannel = interfaces->engine->getNetworkChannel();
+    if (!netChannel)
+        return;
     if (config->misc.moonwalk && localPlayer && localPlayer->moveType() != MoveType::LADDER)
-        cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
+        if (!config->misc.legbreak || !sendPacket)
+            cmd->buttons ^= UserCmd::IN_FORWARD | UserCmd::IN_BACK | UserCmd::IN_MOVELEFT | UserCmd::IN_MOVERIGHT;
+        else if (abs(cmd->forwardmove) > 3.f)
+            cmd->buttons |= UserCmd::IN_BACK;
+        else
+            return;
 }
 
 void Misc::playHitSound(GameEvent& event) noexcept
@@ -2239,13 +2269,13 @@ void Misc::autoBuy(GameEvent* event) noexcept
         if (config->misc.autoBuy.armor)
             cmd += "buy " + armor[config->misc.autoBuy.armor];
 
-        for (size_t i = 0; i < utility.size(); i++)
+        for (size_t i = 0; i < utility.size(); ++i)
         {
             if ((config->misc.autoBuy.utility & 1 << i) == 1 << i)
                 cmd += "buy " + utility[i];
         }
 
-        for (size_t i = 0; i < nades.size(); i++)
+        for (size_t i = 0; i < nades.size(); ++i)
         {
             if ((config->misc.autoBuy.grenades & 1 << i) == 1 << i)
                 cmd += "buy " + nades[i];
@@ -2501,7 +2531,7 @@ void Misc::voteRevealer(GameEvent& event) noexcept
     const auto isLocal = localPlayer && entity == localPlayer.get();
     const char color = votedYes ? '\x06' : '\x07';
 
-    memory->clientMode->getHudChat()->printf(0, " \x0C\u2022Osiris\u2022 %c%s\x01 voted %c%s\x01", isLocal ? '\x01' : color, isLocal ? "You" : entity->getPlayerName().c_str(), color, votedYes ? "Yes" : "No");
+    memory->clientMode->getHudChat()->printf(0, " \x0C\u2022Osility\u2022 %c%s\x01 voted %c%s\x01", isLocal ? '\x01' : color, isLocal ? "You" : entity->getPlayerName().c_str(), color, votedYes ? "Yes" : "No");
 }
 
 // ImGui::ShadeVertsLinearColorGradientKeepAlpha() modified to do interpolation in HSV

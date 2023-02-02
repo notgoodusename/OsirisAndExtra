@@ -199,9 +199,10 @@ void Visuals::visualizeSpread(ImDrawList* drawList) noexcept
 
     if (!local.exists || !local.alive || local.inaccuracy.null())
         return;
-
+    /*
     if (memory->input->isCameraInThirdPerson)
         return;
+        buggy but i need*/
 
     if (ImVec2 edge; Helpers::worldToScreen(local.inaccuracy, edge))
     {
@@ -1207,6 +1208,8 @@ void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
     if (!config->visuals.molotovPolygon.enabled)
         return;
 
+    
+    
     ImColor enemy = Helpers::calculateColor(config->visuals.molotovPolygon.enemy);
     ImColor team = Helpers::calculateColor(config->visuals.molotovPolygon.team);
     ImColor self = Helpers::calculateColor(config->visuals.molotovPolygon.self);

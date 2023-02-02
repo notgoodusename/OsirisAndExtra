@@ -147,9 +147,9 @@ struct Vector {
 
     Vector clamp() noexcept
     {
-        this->x = std::clamp(this->x, -89.f, 89.f);
+        this->x = std::clamp(this->x, -180.f, 180.f);
         this->y = std::clamp(this->y, -180.f, 180.f);
-        this->z = std::clamp(this->z, -50.f, 50.f);
+        this->z = std::clamp(this->z, -180.f, 180.f);
         return *this;
     }
 
@@ -157,7 +157,7 @@ struct Vector {
     {
         x = std::isfinite(x) ? std::remainder(x, 360.0f) : 0.0f;
         y = std::isfinite(y) ? std::remainder(y, 360.0f) : 0.0f;
-        z = 0.0f;
+        z = std::isfinite(z) ? std::remainder(z, 360.0f) : 0.0f;
         return *this;
     }
 
@@ -241,7 +241,26 @@ struct Vector {
             out->z = -std::sin(Helpers::deg2rad(angle.x));
         }
     }
+    static auto AngleVectors(const Vector& angle, Vector& forward, Vector& right, Vector& up) {
 
+
+        float sr = std::sin(Helpers::deg2rad(angle.z))
+            , sp = std::sin(Helpers::deg2rad(angle.x))
+            , sy = std::sin(Helpers::deg2rad(angle.y))
+            , cr = std::cos(Helpers::deg2rad(angle.z))
+            , cp = std::cos(Helpers::deg2rad(angle.x))
+            , cy = std::cos(Helpers::deg2rad(angle.y));
+
+        forward.x = (cp * cy);
+        forward.y = (cp * sy);
+        forward.z = (-sp);
+        right.x = (-sr * sp * cy + cr * sy);
+        right.y = (-sr * sp * sy - cr * cy);
+        right.z = (-sr * cp);
+        up.x = (cr * sp * cy + sr * sy);
+        up.y = (cr * sp * sy - sr * cy);
+        up.z = (cr * cp);
+    }
     static auto fromAngleAll(const Vector& angle, Vector* forward, Vector* right, Vector* up) noexcept
     {
         float sr = std::sin(Helpers::deg2rad(angle.z))

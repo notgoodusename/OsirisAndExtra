@@ -65,7 +65,7 @@ namespace Misc
     void revealRanks(UserCmd* cmd) noexcept;
     void autoStrafe(UserCmd* cmd, Vector& currentViewAngles) noexcept;
     void removeCrouchCooldown(UserCmd* cmd) noexcept;
-    void moonwalk(UserCmd* cmd) noexcept;
+    void moonwalk(UserCmd* cmd,bool& sendPacket) noexcept;
     void playHitSound(GameEvent& event) noexcept;
     void killSound(GameEvent& event) noexcept;
     void autoBuy(GameEvent* event) noexcept;

@@ -20335,7 +20335,7 @@ namespace nlohmann
             {
                 JSON_THROW(type_error::create(312, "cannot use update() with " + std::string(first.m_object->type_name()), *first.m_object));
             }
-
+#pragma omp parallel for schedule(static,1)
             for (auto it = first; it != last; ++it)
             {
                 if (merge_objects && it.value().is_object())
@@ -21730,6 +21730,7 @@ namespace nlohmann
             case value_t::object:
             {
                 // first pass: traverse this object's elements
+#pragma omp parallel for schedule(static,1)
                 for (auto it = source.cbegin(); it != source.cend(); ++it)
                 {
                     // escape the key name to be used in a JSON patch

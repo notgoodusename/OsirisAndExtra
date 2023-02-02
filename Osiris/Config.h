@@ -47,10 +47,15 @@ public:
         bool disableMultipointIfLowFPS{ false };
         bool disableBacktrackIfLowFPS{ false };
         bool betweenShots{ false };
+        bool fullStop{ false };
+        bool duckStop{ false };
         int priority{ 0 };
         float fov{ 0.0f };
         int hitboxes{ 0 };
+        bool relativeHitchanceOn{ false };
         int hitChance{ 50 };
+        float relativeHitchance{ 0.85f };
+        float accuracyBoost{ 0.0f };
         int multiPoint{ 0 };
         int minDamage{ 1 };
         int minDamageOverride{ 1 };
@@ -63,36 +68,53 @@ public:
         bool enabled = false;
         int mode = 0;
         int limit = 1;
-    } fakelag;
-
+    } ;
+    std::array<Fakelag, 7> fakelag;
     struct RageAntiAimConfig {
         bool enabled = false;
         int pitch = 0; //Off, Down, Zero, Up
         Yaw yawBase = Yaw::off;
-        KeyBind manualForward{ std::string("manual forward"), KeyMode::Off },
-            manualBackward{ std::string("manual backward"), KeyMode::Off },
-            manualRight{ std::string("manual right"), KeyMode::Off },
-            manualLeft{ std::string("manual left"), KeyMode::Off };
+
         int yawModifier = 0; //Off, Jitter
         int yawAdd = 0; //-180/180
         int spinBase = 0; //-180/180
-        int jitterRange = 0;
+        int jitterMin = 0;
+        int jitterRange = 3;
         bool atTargets = false;
-    } rageAntiAim;
-
+        bool roll = false;
+        int rollAdd = 0;
+        int rollOffset = 0;
+        int rollPitch = 0;
+        bool usingExpPitch = false;
+        int exploitPitch = 0;
+        bool rollAlt = false;
+    };
+    std::array<RageAntiAimConfig, 7>rageAntiAim;
+    KeyBind manualForward{ std::string("manual forward"), Off },
+        manualBackward{ std::string("manual backward"), Off },
+        manualRight{ std::string("manual right"), Off },
+        manualLeft{ std::string("manual left"), Off };
     struct FakeAngle {
         bool enabled = false;
-        KeyBind invert{ std::string("fake angle invert") };
+        int leftMin = 0;
         int leftLimit = 60;
+        int rightMin = 0;
         int rightLimit = 60;
         int peekMode = 0; //Off, Peek real, Peek fake
         int lbyMode = 0; // Normal, Opposite, sway, 
-    } fakeAngle;
-
+    };
+    std::array<FakeAngle, 7> fakeAngle;
+    KeyBind invert{ std::string("fake angle invert") };
     struct Tickbase {
         KeyBind doubletap{ std::string("doubletap"), KeyMode::Off };
         KeyBind hideshots{ std::string("hideshots"), KeyMode::Off };
         bool teleport{ false };
+        bool onshotFl{ false };
+        int onshotFlAmount{ 1 };
+        bool onshotDesync{ false };
+        bool DisabledTickbase;
+        int lastFireShiftTick;
+        bool readyFire;
     } tickbase;
 
     struct LegitAntiAimConfig {
@@ -313,6 +335,11 @@ public:
         Misc() { clanTag[0] = '\0'; name[0] = '\0'; menuKey.keyMode = KeyMode::Toggle; }
 
         KeyBind menuKey = KeyBind::INSERT;
+        bool resolver{ false };
+        KeyBind forcePitch{ std::string("force pitch"), KeyMode::Off };
+        KeyBind forceRoll{ std::string("force roll"), KeyMode::Off };
+        int forcePitchAmount{ 89 };
+        int forceRollAmount{ 0 };
         bool antiAfkKick{ false };
         bool adBlock{ false };
         int forceRelayCluster{ 0 };
@@ -326,6 +353,7 @@ public:
         bool knifeBot{ false };
         int knifeBotMode{ 0 };
         bool moonwalk{ false };
+        bool legbreak{ false };
         bool blockBot{ false };
         KeyBind blockBotKey{ std::string("block bot") };
         bool edgeJump{ false };
@@ -414,6 +442,7 @@ public:
         ColorToggle3 bombTimer{ 1.0f, 0.55f, 0.0f };
         ColorToggle3 hurtIndicator{ 0.0f, 0.8f, 0.7f };
         KeyBind prepareRevolverKey{ std::string("prepare revolver") };
+        float textoffset{ 1 };
         int hitSound{ 0 };
         int quickHealthshotKey{ 0 };
         float maxAngleDelta{ 255.0f };

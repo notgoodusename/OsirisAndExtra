@@ -16,6 +16,10 @@
 #include "../SDK/WeaponData.h"
 #include "../SDK/ModelInfo.h"
 
+#include <omp.h>
+#include <thread>
+int maxThreadNum = (std::thread::hardware_concurrency());
+
 Vector AimbotFunction::calculateRelativeAngle(const Vector& source, const Vector& destination, const Vector& viewAngles) noexcept
 {
     return ((destination - source).toAngle() - viewAngles).normalize();
@@ -311,8 +315,9 @@ bool intersectLineWithBb(Vector& start, Vector& end, Vector& min, Vector& max) n
     const float e[3] = { end.x, end.y, end.z };
     const float mi[3] = { min.x, min.y, min.z };
     const float ma[3] = { max.x, max.y, max.z };
-
-    for (auto i = 0; i < 6; i++) {
+    bool result = start_solid || (t1 < t2&& t1 >= 0.0f);
+#pragma omp parallel for num_threads(maxThreadNum)
+    for (auto i = 0; i < 6; ++i) {
         if (i >= 3) {
             const auto j = i - 3;
 
@@ -325,7 +330,7 @@ bool intersectLineWithBb(Vector& start, Vector& end, Vector& min, Vector& max) n
         }
 
         if (d1 > 0.0f && d2 > 0.0f)
-            return false;
+            result = false;
 
         if (d1 <= 0.0f && d2 <= 0.0f)
             continue;
@@ -348,8 +353,8 @@ bool intersectLineWithBb(Vector& start, Vector& end, Vector& min, Vector& max) n
                 t2 = f;
         }
     }
-
-    return start_solid || (t1 < t2&& t1 >= 0.0f);
+    
+    return result;
 }
 
 void inline sinCos(float radians, float* sine, float* cosine)
@@ -503,22 +508,19 @@ std::vector<Vector> AimbotFunction::multiPoint(Entity* entity, const matrix3x4 m
     Vector top = Vector{ 0, 0, 1 };
     Vector bottom = Vector{ 0, 0, -1 };
 
-    float multiPoint = (min(_multiPoint, 95)) * 0.01f;
-
+    float multiPoint = (min(_multiPoint, 94.5f)) * 0.01f;
     switch (_hitbox)
     {
     case Hitboxes::Head:
-        for (auto i = 0; i < 4; ++i)
+        for (int ihead = 0; ihead < 4; ++ihead)
             vecArray.emplace_back(center);
-
         vecArray[1] += top * (hitbox->capsuleRadius * multiPoint);
         vecArray[2] += right * (hitbox->capsuleRadius * multiPoint);
         vecArray[3] += left * (hitbox->capsuleRadius * multiPoint);
         break;
     default://rest
-        for (auto i = 0; i < 3; ++i)
+        for (int ibody = 0; ibody < 3; ++ibody)
             vecArray.emplace_back(center);
-
         vecArray[1] += right * (hitbox->capsuleRadius * multiPoint);
         vecArray[2] += left * (hitbox->capsuleRadius * multiPoint);
         break;
@@ -532,24 +534,28 @@ bool AimbotFunction::hitChance(Entity* localPlayer, Entity* entity, StudioHitbox
     if (!hitChance || isSpreadEnabled->getInt() >= 1)
         return true;
 
-    constexpr int maxSeed = 255;
+    constexpr int maxSeed = 255;//default is 255,if you wanna reduce calcu just made it less
 
     const Angle angles(destination + cmd->viewangles);
 
     int hits = 0;
-    const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) / 100.f));
+    const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * (static_cast<float>(hitChance) * 0.01f));
 
     const auto weapSpread = activeWeapon->getSpread();
     const auto weapInaccuracy = activeWeapon->getInaccuracy();
     const auto localEyePosition = localPlayer->getEyePosition();
     const auto range = activeWeapon->getWeaponData()->range;
+    int i;
+    bool plz_hit_my_ass = false;
 
-    for (int i = 0; i < maxSeed; i++)
+#pragma omp parallel for num_threads(maxThreadNum)
+    for (i = 0; i < maxSeed; ++i)//use openmp
     {
-        memory->randomSeed(i + 1);
+        memory->randomSeed(i + 1 + omp_get_thread_num());
         const float spreadX = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         const float spreadY = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
         auto inaccuracy = weapInaccuracy * memory->randomFloat(0.f, 1.f);
+        	if (inaccuracy == 0) inaccuracy = 0.0000001f;
         auto spread = weapSpread * memory->randomFloat(0.f, 1.f);
 
         Vector spreadView{ (cosf(spreadX) * inaccuracy) + (cosf(spreadY) * spread),
@@ -566,10 +572,61 @@ bool AimbotFunction::hitChance(Entity* localPlayer, Entity* entity, StudioHitbox
         }
 
         if (hits >= hitsNeed)
-            return true;
+            plz_hit_my_ass = true;
 
-        if ((maxSeed - i + hits) < hitsNeed)
-            return false;
+        /*if ((maxSeed - (i + omp_get_thread_num()) + hits) < hitsNeed)
+            plz_hit_my_ass = false;*/
     }
-    return false;
+    return plz_hit_my_ass;
+}
+
+
+bool AimbotFunction::relativeHitChance(Entity* localPlayer, Entity* entity, StudioHitboxSet* set, const matrix3x4 matrix[MAXSTUDIOBONES], Entity* activeWeapon, const Vector& destination, const UserCmd* cmd, const float relaHitChance) noexcept
+{
+    static auto isSpreadEnabled = interfaces->cvar->findVar("weapon_accuracy_nospread");
+    if (!relaHitChance || isSpreadEnabled->getInt() >= 1)
+        return true;
+
+    constexpr int maxSeed = 255;//default is 255,if you wanna reduce calcu just made it less
+
+    const Angle angles(destination + cmd->viewangles);
+
+    int hits = 0;
+    const int hitsNeed = static_cast<int>(static_cast<float>(maxSeed) * relaHitChance);
+    const auto weapSpread = activeWeapon->getSpread();
+    const auto weapInaccuracy = activeWeapon->getInaccuracy();
+    const auto localEyePosition = localPlayer->getEyePosition();
+    const auto range = activeWeapon->getWeaponData()->range;
+    int i;
+    bool plz_hit_my_ass = false;
+
+#pragma omp parallel for num_threads(maxThreadNum)
+    for (i = 0; i < maxSeed; ++i)//use openmp
+    {
+        memory->randomSeed(i + 1 + omp_get_thread_num());
+        const float spreadX = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
+        const float spreadY = memory->randomFloat(0.f, 2.f * static_cast<float>(M_PI));
+        auto inaccuracy = weapInaccuracy * memory->randomFloat(0.f, 1.f);
+        if (inaccuracy == 0) inaccuracy = 0.000001f;
+        auto spread = weapSpread * memory->randomFloat(0.f, 1.f);
+
+        Vector spreadView{ (cosf(spreadX) * inaccuracy) + (cosf(spreadY) * spread),
+                           (sinf(spreadX) * inaccuracy) + (sinf(spreadY) * spread) };
+        Vector direction{ (angles.forward + (angles.right * spreadView.x) + (angles.up * spreadView.y)) * range };
+
+        for (int hitbox = 0; hitbox < Hitboxes::Max; hitbox++)
+        {
+            if (hitboxIntersection(matrix, hitbox, set, localEyePosition, localEyePosition + direction))
+            {
+                hits++;
+                break;
+            }
+        }
+
+        if (hitsNeed *hits < (i + omp_get_thread_num()) *(1.f - inaccuracy))
+            plz_hit_my_ass = true;
+        /*if ((maxSeed - (i + omp_get_thread_num()) + hits) < hitsNeed * (1.f - inaccuracy))
+            plz_hit_my_ass = false;*/
+    }
+    return plz_hit_my_ass;
 }

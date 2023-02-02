@@ -56,7 +56,7 @@ Config::Config() noexcept
         CoTaskMemFree(pathToDocuments);
     }
 
-    path /= "Osiris";
+    path /= "Osility";
     listConfigs();
     misc.clanTag[0] = '\0';
     misc.name[0] = '\0';
@@ -272,12 +272,17 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Auto scope", r.autoScope);
     read(j, "Auto stop", r.autoStop);
     read(j, "Between shots", r.betweenShots);
+    read(j, "Full stop", r.fullStop);
+    read(j, "Duck stop", r.duckStop);
     read(j, "Disable multipoint if low fps", r.disableMultipointIfLowFPS);
     read(j, "Disable backtrack if low fps", r.disableBacktrackIfLowFPS);
     read(j, "Priority", r.priority);
     read(j, "Fov", r.fov);
-    read(j, "Hitboxes", r.hitboxes);
+    read(j, "Hitboxes", r.hitboxes); 
+    read(j, "Using relative hitchance", r.relativeHitchanceOn);
+    read(j, "Relative hitchance", r.relativeHitchance);
     read(j, "Hitchance", r.hitChance);
+    read(j, "Accuracy boost", r.accuracyBoost);
     read(j, "Multipoint", r.multiPoint);
     read(j, "Min damage", r.minDamage);
     read(j, "Min damage override", r.minDamageOverride);
@@ -309,22 +314,27 @@ static void from_json(const json& j, Config::RageAntiAimConfig& a)
     read(j, "Enabled", a.enabled);
     read(j, "Pitch", a.pitch);
     read(j, "Yaw base", reinterpret_cast<int&>(a.yawBase));
-    read(j, "Manual forward Key", a.manualForward);
-    read(j, "Manual backward Key", a.manualBackward);
-    read(j, "Manual right Key", a.manualRight);
-    read(j, "Manual left Key", a.manualLeft);
     read(j, "Yaw modifier", a.yawModifier);
     read(j, "Yaw add", a.yawAdd);
+    read(j, "Jitter min", a.jitterMin);
     read(j, "Jitter Range", a.jitterRange);
     read(j, "Spin base", a.spinBase);
     read(j, "At targets", a.atTargets);
+    read(j, "Roll", a.roll);
+    read(j, "Roll add", a.rollAdd); 
+    read(j, "Roll offset", a.rollOffset);
+    read(j, "Roll pitch", a.rollPitch);
+    read(j, "usingExpPitch", a.usingExpPitch);
+    read(j, "exploitPitch", a.exploitPitch);
+    read(j, "Roll alt", a.rollAlt);
 }
 
 static void from_json(const json& j, Config::FakeAngle& a)
 {
     read(j, "Enabled", a.enabled);
-    read(j, "Invert", a.invert);
+    read(j, "Left min", a.leftMin);
     read(j, "Left limit", a.leftLimit);
+    read(j, "Right min", a.rightMin);
     read(j, "Right limit", a.rightLimit);
     read(j, "Peek mode", a.peekMode);
     read(j, "Lby mode", a.lbyMode);
@@ -342,6 +352,10 @@ static void from_json(const json& j, Config::Tickbase& t)
     read(j, "Doubletap", t.doubletap);
     read(j, "Hideshots", t.hideshots);
     read(j, "Teleport", t.teleport);
+    read(j, "OnshotFl", t.onshotFl);
+    read(j, "OnshotFlAmount", t.onshotFlAmount);
+    read(j, "onshotDesync", t.onshotDesync);
+    
 }
 
 static void from_json(const json& j, Config::Backtrack& b)
@@ -641,6 +655,11 @@ static void from_json(const json& j, Config::Visuals::MolotovPolygon& mp)
 static void from_json(const json& j, Config::Misc& m)
 {
     read(j, "Menu key", m.menuKey);
+    read(j, "Resolver", m.resolver);
+    read(j, "Force pitch", m.forcePitch);
+    read(j, "Force roll", m.forceRoll);
+    read(j, "Force pitch amount", m.forcePitchAmount);
+    read(j, "Force roll amount", m.forceRollAmount);
     read(j, "Anti AFK kick", m.antiAfkKick);
     read(j, "Adblock", m.adBlock);
     read(j, "Force relay", m.forceRelayCluster);
@@ -652,7 +671,8 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Animated clan tag", m.animatedClanTag);
     read(j, "Fast duck", m.fastDuck);
     read(j, "Moonwalk", m.moonwalk);
-    read(j, "Knifebot", m.knifeBot);
+    read(j, "Legbreak", m.legbreak);
+    read(j, "Knifebot", m.knifeBot); 
     read(j, "Knifebot mode", m.knifeBotMode);
     read(j, "Block bot", m.blockBot);
     read(j, "Block bot Key", m.blockBotKey);
@@ -775,14 +795,20 @@ void Config::load(const char8_t* name, bool incremental) noexcept
     read(j, "Ragebot Key", ragebotKey);
     read(j, "Min damage override Key", minDamageOverrideKey);
 
+    read(j, "Invert", invert);
+    read(j, "Manual forward Key", manualForward);
+    read(j, "Manual backward Key", manualBackward);
+    read(j, "Manual right Key", manualRight);
+    read(j, "Manual left Key", manualLeft);
+
     read(j, "Triggerbot", triggerbot);
     read(j, "Triggerbot Key", triggerbotKey);
 
     read<value_t::object>(j, "Legit Anti aim", legitAntiAim);
-    read<value_t::object>(j, "Rage Anti aim", rageAntiAim);
+    read<value_t::array>(j, "Rage Anti aim", rageAntiAim);
     read(j, "Disable in freezetime", disableInFreezetime);
-    read<value_t::object>(j, "Fake angle", fakeAngle);
-    read<value_t::object>(j, "Fakelag", fakelag);
+    read<value_t::array>(j, "Fake angle", fakeAngle);
+    read<value_t::array>(j, "Fakelag", fakelag);
     read<value_t::object>(j, "Tickbase", tickbase);
     read<value_t::object>(j, "Backtrack", backtrack);
 
@@ -982,13 +1008,18 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Auto shot", autoShot);
     WRITE("Auto scope", autoScope);
     WRITE("Auto stop", autoStop);
+    WRITE("Full stop", fullStop);
+    WRITE("Duck stop", duckStop);
     WRITE("Between shots", betweenShots);
     WRITE("Disable multipoint if low fps", disableMultipointIfLowFPS);
     WRITE("Disable backtrack if low fps", disableMultipointIfLowFPS);
     WRITE("Priority", priority);
     WRITE("Fov", fov);
     WRITE("Hitboxes", hitboxes);
+    WRITE("Using relative hitchance", relativeHitchanceOn);
+    WRITE("Relative hitchance", relativeHitchance);
     WRITE("Hitchance", hitChance);
+    WRITE("Accuracy boost", accuracyBoost);
     WRITE("Multipoint", multiPoint);
     WRITE("Min damage", minDamage);
     WRITE("Min damage override", minDamageOverride);
@@ -1078,22 +1109,27 @@ static void to_json(json& j, const Config::RageAntiAimConfig& o, const Config::R
     WRITE("Enabled", enabled);
     WRITE("Pitch", pitch);
     WRITE_ENUM("Yaw base", yawBase);
-    to_json(j["Manual forward Key"], o.manualForward, KeyBind::NONE);
-    to_json(j["Manual backward Key"], o.manualBackward, KeyBind::NONE);
-    to_json(j["Manual right Key"], o.manualRight, KeyBind::NONE);
-    to_json(j["Manual left Key"], o.manualLeft, KeyBind::NONE);
     WRITE("Yaw modifier", yawModifier);
     WRITE("Yaw add", yawAdd);
+    WRITE("Jitter min", jitterMin);
     WRITE("Jitter Range", jitterRange);
     WRITE("Spin base", spinBase);
     WRITE("At targets", atTargets);
+    WRITE("Roll", roll);
+    WRITE("Roll add", rollAdd);
+    WRITE("Roll offset", rollOffset);
+    WRITE("Roll pitch", rollPitch);
+    WRITE("usingExpPitch", usingExpPitch);
+    WRITE("exploitPitch", exploitPitch);
+    WRITE("Roll alt", rollAlt);
 }
 
 static void to_json(json& j, const Config::FakeAngle& o, const Config::FakeAngle& dummy = {})
 {
     WRITE("Enabled", enabled);
-    WRITE("Invert", invert);
+    WRITE("Left min", leftMin);
     WRITE("Left limit", leftLimit);
+    WRITE("Right min", rightMin);
     WRITE("Right limit", rightLimit);
     WRITE("Peek mode", peekMode);
     WRITE("Lby mode", lbyMode);
@@ -1111,6 +1147,9 @@ static void to_json(json& j, const Config::Tickbase& o, const Config::Tickbase& 
     WRITE("Doubletap", doubletap);
     WRITE("Hideshots", hideshots);
     WRITE("Teleport", teleport);
+    WRITE("OnshotFl", onshotFl); 
+    WRITE("OnshotFlAmount", onshotFlAmount);
+    WRITE("onshotDesync", onshotDesync);
 }
 
 static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack& dummy = {})
@@ -1286,6 +1325,12 @@ static void to_json(json& j, const Config::Misc& o)
     const Config::Misc dummy;
 
     WRITE("Menu key", menuKey);
+    WRITE("Resolver", resolver);
+    WRITE("Force pitch", forcePitch);
+    WRITE("Force roll", forceRoll);
+    WRITE("Force pitch amount", forcePitchAmount);
+    WRITE("Force roll amount", forceRollAmount);
+
     WRITE("Anti AFK kick", antiAfkKick);
     WRITE("Adblock", adBlock);
     WRITE("Force relay", forceRelayCluster);
@@ -1300,6 +1345,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Animated clan tag", animatedClanTag);
     WRITE("Fast duck", fastDuck);
     WRITE("Moonwalk", moonwalk);
+    WRITE("Legbreak", legbreak);
     WRITE("Knifebot", knifeBot);
     WRITE("Knifebot mode", knifeBotMode);
     WRITE("Block bot", blockBot);
@@ -1528,6 +1574,11 @@ void Config::save(size_t id) const noexcept
 
         j["Legit Anti aim"] = legitAntiAim;
         j["Rage Anti aim"] = rageAntiAim;
+        to_json(j["Invert"], invert, KeyBind::NONE);
+        to_json(j["Manual forward Key"], manualForward, KeyBind::NONE);
+        to_json(j["Manual backward Key"], manualBackward, KeyBind::NONE);
+        to_json(j["Manual right Key"], manualRight, KeyBind::NONE);
+        to_json(j["Manual left Key"], manualLeft, KeyBind::NONE);
         j["Disable in freezetime"] = disableInFreezetime;
         j["Fake angle"] = fakeAngle;
         j["Fakelag"] = fakelag;

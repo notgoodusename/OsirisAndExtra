@@ -75,7 +75,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
         {
             if (Backtrack::valid(player.backtrackRecords.at(j).simulationTime))
             {
-                for (auto position : player.backtrackRecords.at(j).positions) {
+                for (auto& position : player.backtrackRecords.at(j).positions) {
                     auto angle = AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, position, cmd->viewangles + aimPunch);
                     auto fov = std::hypotf(angle.x, angle.y);
                     if (fov < bestFov) {

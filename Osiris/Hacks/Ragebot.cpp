@@ -229,7 +229,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
     frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
 
     auto multiPoint = cfg[weaponIndex].multiPoint;
-    if (cfg[weaponIndex].disableMultipointIfLowFPS && static_cast<int>(1 / frameRate) <= 60)
+    if (cfg[weaponIndex].disableMultipointIfLowFPS && static_cast<int>(1 / frameRate) <= 1 / memory->globalVars->intervalPerTick)
         multiPoint = 0;
 
     for (const auto& target : enemies) 
@@ -260,7 +260,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             }
             else
             {
-                if (cfg[weaponIndex].disableBacktrackIfLowFPS && static_cast<int>(1 / frameRate) <= 60)
+                if (cfg[weaponIndex].disableBacktrackIfLowFPS && static_cast<int>(1 / frameRate) <= 1 / memory->globalVars->intervalPerTick)
                     continue;
 
                 if (!config->backtrack.enabled)

@@ -394,7 +394,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
 
     if (AntiAim::canRun(cmd))
     {
-        Fakelag::run(sendPacket);
+        Fakelag::run(cmd,sendPacket);
         AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
     }
 

@@ -222,7 +222,7 @@ void Chams::renderPlayer(Entity* player) noexcept
 
 void Chams::renderFakelag(int health) noexcept
 {
-    if (!config->fakeAngle.enabled && !config->fakelag.enabled)
+    if (!config->fakeAngle[0].enabled && !config->fakeAngle[1].enabled && !config->fakeAngle[2].enabled && !config->fakeAngle[3].enabled && !config->fakeAngle[4].enabled && !config->fakeAngle[5].enabled && !config->fakeAngle[6].enabled && !config->fakelag[0].enabled && !config->fakelag[1].enabled && !config->fakelag[2].enabled && !config->fakelag[3].enabled && !config->fakelag[4].enabled && !config->fakelag[5].enabled && !config->fakelag[6].enabled)
         return;
 
     if (!localPlayer->isAlive())

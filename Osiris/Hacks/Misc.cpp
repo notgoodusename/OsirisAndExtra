@@ -1422,11 +1422,11 @@ const bool anyActiveKeybinds() noexcept
 {
     const bool rageBot = config->ragebotKey.canShowKeybind();
     const bool minDamageOverride = config->minDamageOverrideKey.canShowKeybind();
-    const bool fakeAngle = config->fakeAngle.enabled && config->fakeAngle.invert.canShowKeybind();
-    const bool antiAimManualForward = config->rageAntiAim.enabled && config->rageAntiAim.manualForward.canShowKeybind();
-    const bool antiAimManualBackward = config->rageAntiAim.enabled && config->rageAntiAim.manualBackward.canShowKeybind();
-    const bool antiAimManualRight = config->rageAntiAim.enabled && config->rageAntiAim.manualRight.canShowKeybind();
-    const bool antiAimManualLeft = config->rageAntiAim.enabled && config->rageAntiAim.manualLeft.canShowKeybind();
+    const bool fakeAngle = config->invert.canShowKeybind();
+    const bool antiAimManualForward =  config->manualForward.canShowKeybind();
+    const bool antiAimManualBackward =  config->manualBackward.canShowKeybind();
+    const bool antiAimManualRight =  config->manualRight.canShowKeybind();
+    const bool antiAimManualLeft =  config->manualLeft.canShowKeybind();
     const bool legitAntiAim = config->legitAntiAim.enabled && config->legitAntiAim.invert.canShowKeybind();
     const bool doubletap = config->tickbase.doubletap.canShowKeybind();
     const bool hideshots = config->tickbase.hideshots.canShowKeybind();
@@ -1490,15 +1490,11 @@ void Misc::showKeybinds() noexcept
 
     config->ragebotKey.showKeybind();
     config->minDamageOverrideKey.showKeybind();
-    if (config->fakeAngle.enabled)
-        config->fakeAngle.invert.showKeybind();
-    if (config->rageAntiAim.enabled)
-    {
-        config->rageAntiAim.manualForward.showKeybind();
-        config->rageAntiAim.manualBackward.showKeybind();
-        config->rageAntiAim.manualRight.showKeybind();
-        config->rageAntiAim.manualLeft.showKeybind();
-    }
+    config->invert.showKeybind();
+    config->manualForward.showKeybind();
+    config->manualBackward.showKeybind();
+    config->manualRight.showKeybind();
+    config->manualLeft.showKeybind();
 
     config->tickbase.doubletap.showKeybind();
     config->tickbase.hideshots.showKeybind();

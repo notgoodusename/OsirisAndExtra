@@ -2,6 +2,7 @@
 
 #include "AimbotFunctions.h"
 #include "AntiAim.h"
+#include "EnginePrediction.h"
 
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
@@ -76,9 +77,10 @@ bool autoDirection(Vector eyeAngle) noexcept
 
 void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
-    if (cmd->viewangles.x == currentViewAngles.x && config->rageAntiAim.enabled)
+    const auto cur_moving_flag{ get_moving_flag(cmd) };
+    if (cmd->viewangles.x == currentViewAngles.x && config->rageAntiAim[static_cast<int>(cur_moving_flag)].enabled)
     {
-        switch (config->rageAntiAim.pitch)
+        switch (config->rageAntiAim[static_cast<int>(cur_moving_flag)].pitch)
         {
         case 0: //None
             break;
@@ -97,15 +99,15 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
     }
     if (cmd->viewangles.y == currentViewAngles.y)
     {
-        if (config->rageAntiAim.yawBase != Yaw::off
-            && config->rageAntiAim.enabled)   //AntiAim
+        if (config->rageAntiAim[static_cast<int>(cur_moving_flag)].yawBase != Yaw::off
+            && config->rageAntiAim[static_cast<int>(cur_moving_flag)].enabled)   //AntiAim
         {
             float yaw = 0.f;
             static float staticYaw = 0.f;
             static bool flipJitter = false;
             if (sendPacket)
                 flipJitter ^= 1;
-            if (config->rageAntiAim.atTargets)
+            if (config->rageAntiAim[static_cast<int>(cur_moving_flag)].atTargets)
             {
                 Vector localPlayerEyePosition = localPlayer->getEyePosition();
                 const auto aimPunch = localPlayer->getAimPunch();
@@ -129,10 +131,10 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw = yawAngle;
             }
 
-            if (config->rageAntiAim.yawBase != Yaw::spin)
+            if (config->rageAntiAim[static_cast<int>(cur_moving_flag)].yawBase != Yaw::spin)
                 staticYaw = 1.f;
 
-            switch (config->rageAntiAim.yawBase)
+            switch (config->rageAntiAim[static_cast<int>(cur_moving_flag)].yawBase)
             {
             case Yaw::forward:
                 yaw += 0.f;
@@ -154,7 +156,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 else{
                     staticYaw = 1.f;
                     yaw = staticYaw;
-                    spinstopat = memory->globalVars->tickCount + config->rageAntiAim.spinBase;
+                    spinstopat = memory->globalVars->tickCount + config->rageAntiAim[static_cast<int>(cur_moving_flag)].spinBase;
                 }
                 
                 break;
@@ -162,10 +164,10 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 break;
             }
 
-            const bool forward = config->rageAntiAim.manualForward.isActive();
-            const bool back = config->rageAntiAim.manualBackward.isActive();
-            const bool right = config->rageAntiAim.manualRight.isActive();
-            const bool left = config->rageAntiAim.manualLeft.isActive();
+            const bool forward = config->manualForward.isActive();
+            const bool back = config->manualBackward.isActive();
+            const bool right = config->manualRight.isActive();
+            const bool left = config->manualLeft.isActive();
             const bool isManualSet = forward || back || right || left;
 
             if (back) {
@@ -193,34 +195,35 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw = 0.f;
             }
             memory->randomSeed(memory->globalVars->tickCount);
-            switch (config->rageAntiAim.yawModifier)
+            switch (config->rageAntiAim[static_cast<int>(cur_moving_flag)].yawModifier)
             {
             case 1: //Jitter
-                yaw -= flipJitter ? (memory->randomFloat(config->rageAntiAim.jitterMin, config->rageAntiAim.jitterRange)) : -(memory->randomFloat(config->rageAntiAim.jitterMin, config->rageAntiAim.jitterRange));
+                yaw -= flipJitter ? (memory->randomFloat(config->rageAntiAim[static_cast<int>(cur_moving_flag)].jitterMin, config->rageAntiAim[static_cast<int>(cur_moving_flag)].jitterRange)) : -(memory->randomFloat(config->rageAntiAim[static_cast<int>(cur_moving_flag)].jitterMin, config->rageAntiAim[static_cast<int>(cur_moving_flag)].jitterRange));
                 break;
             default:
                 break;
             }
 
             if (!isManualSet)
-                yaw += static_cast<float>(config->rageAntiAim.yawAdd);
+                yaw += static_cast<float>(config->rageAntiAim[static_cast<int>(cur_moving_flag)].yawAdd);
             cmd->viewangles.y += yaw;
         }
 
-        if (config->fakeAngle.enabled) //Fakeangle
+        if (config->fakeAngle[static_cast<int>(cur_moving_flag)].enabled) //Fakeangle
         {
-            bool isInvertToggled = config->fakeAngle.invert.isActive();
+            bool isInvertToggled = config->invert.isActive();
             static bool invert = true;
-            if (config->fakeAngle.peekMode != 3 && config->fakeAngle.peekMode != 4)
+            if (config->fakeAngle[static_cast<int>(cur_moving_flag)].peekMode != 3 && config->fakeAngle[static_cast<int>(cur_moving_flag)].peekMode != 4)
                 invert = isInvertToggled;
-            float rollOffsetAngle = config->rageAntiAim.rollOffset;
-            float PitchAngle = config->rageAntiAim.rollPitch;
-            if (config->rageAntiAim.usingExpPitch)
-                PitchAngle = config->rageAntiAim.exploitPitch + 41225040 * 129600;
-            if (config->rageAntiAim.roll && (std::abs(config->rageAntiAim.rollAdd) + std::abs(config->rageAntiAim.rollOffset) < 5 || !config->rageAntiAim.rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))) {
-                cmd->viewangles.z = invert ? config->rageAntiAim.rollAdd : (config->rageAntiAim.rollAdd) * -1.f;
+            float rollOffsetAngle = config->rageAntiAim[static_cast<int>(cur_moving_flag)].rollOffset;
+            float PitchAngle = config->rageAntiAim[static_cast<int>(cur_moving_flag)].rollPitch;
+            if (config->rageAntiAim[static_cast<int>(cur_moving_flag)].usingExpPitch)
+                PitchAngle = config->rageAntiAim[static_cast<int>(cur_moving_flag)].exploitPitch + 41225040 * 129600;
+            if (config->rageAntiAim[static_cast<int>(cur_moving_flag)].roll && (std::abs(config->rageAntiAim[static_cast<int>(cur_moving_flag)].rollAdd) + std::abs(config->rageAntiAim[static_cast<int>(cur_moving_flag)].rollOffset) < 5 || !config->rageAntiAim[static_cast<int>(cur_moving_flag)].rollAlt || !(cmd->buttons & UserCmd::IN_JUMP || localPlayer->velocity().length2D() > 50.f))) {
+                cmd->viewangles.z = invert ? config->rageAntiAim[static_cast<int>(cur_moving_flag)].rollAdd : (config->rageAntiAim[static_cast<int>(cur_moving_flag)].rollAdd) * -1.f;
                 if (sendPacket) {
                     cmd->viewangles.z += invert ? PitchAngle : PitchAngle * -1.f;
+                    if (PitchAngle != 0)
                     cmd->viewangles.x = PitchAngle;
                 }
                 
@@ -237,9 +240,9 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.lastFireShiftTick > memory->globalVars->tickCount)
                 return;
             memory->randomSeed(memory->globalVars->tickCount);
-            float leftDesyncAngle = memory->randomFloat(config->fakeAngle.leftMin, config->fakeAngle.leftLimit)* 2.f;
-            float rightDesyncAngle = memory->randomFloat(config->fakeAngle.rightMin, config->fakeAngle.rightLimit)* -2.f;
-            switch (config->fakeAngle.peekMode)
+            float leftDesyncAngle = memory->randomFloat(config->fakeAngle[static_cast<int>(cur_moving_flag)].leftMin, config->fakeAngle[static_cast<int>(cur_moving_flag)].leftLimit)* 2.f;
+            float rightDesyncAngle = memory->randomFloat(config->fakeAngle[static_cast<int>(cur_moving_flag)].rightMin, config->fakeAngle[static_cast<int>(cur_moving_flag)].rightLimit)* -2.f;
+            switch (config->fakeAngle[static_cast<int>(cur_moving_flag)].peekMode)
             {
             case 0:
                 break;
@@ -268,7 +271,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 break;
             }
 
-            switch (config->fakeAngle.lbyMode)
+            switch (config->fakeAngle[static_cast<int>(cur_moving_flag)].lbyMode)
             {
             case 0: // Normal(sidemove)
                 if (fabsf(cmd->sidemove) < 5.5f)
@@ -339,12 +342,12 @@ void AntiAim::legit(UserCmd* cmd, const Vector& previousViewAngles, const Vector
 void AntiAim::updateInput() noexcept
 {
     config->legitAntiAim.invert.handleToggle();
-    config->fakeAngle.invert.handleToggle();
+    config->invert.handleToggle();
 
-    config->rageAntiAim.manualForward.handleToggle();
-    config->rageAntiAim.manualBackward.handleToggle();
-    config->rageAntiAim.manualRight.handleToggle();
-    config->rageAntiAim.manualLeft.handleToggle();
+    config->manualForward.handleToggle();
+    config->manualBackward.handleToggle();
+    config->manualRight.handleToggle();
+    config->manualLeft.handleToggle();
 }
 
 void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
@@ -354,10 +357,10 @@ void AntiAim::run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& 
 
     if (localPlayer->moveType() == MoveType::LADDER || localPlayer->moveType() == MoveType::NOCLIP)
         return;
-
+    const auto cur_moving_flag{ get_moving_flag(cmd) };
     if (config->legitAntiAim.enabled)
         AntiAim::legit(cmd, previousViewAngles, currentViewAngles, sendPacket);
-    else if (config->rageAntiAim.enabled || config->fakeAngle.enabled)
+    else if (config->rageAntiAim[static_cast<int>(cur_moving_flag)].enabled || config->fakeAngle[static_cast<int>(cur_moving_flag)].enabled)
         AntiAim::rage(cmd, previousViewAngles, currentViewAngles, sendPacket);
 }
 
@@ -418,6 +421,7 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
 
     return true;
 }
+/*
 int* cur;
 bool AntiAim::extend_antiaim(UserCmd* cmd){
     int const insertion_counter = min(14 + 5, 61);
@@ -440,7 +444,7 @@ bool AntiAim::extend_antiaim(UserCmd* cmd){
         //only set the viewangle in the last command.
         if (*cur >= insertion_counter)
         {
-            memcpy(&cmd->viewangles.x, (void*)(config->rageAntiAim.rollPitch), sizeof(float) * 3);
+            memcpy(&cmd->viewangles.x, (void*)(config->rageAntiAim[static_cast<int>(cur_moving_flag)].rollPitch), sizeof(float) * 3);
             //cmd_set_move(cmd, movement_backup);
             return true;
         }
@@ -449,4 +453,22 @@ bool AntiAim::extend_antiaim(UserCmd* cmd){
     }
     lastCommand = cmd->commandNumber;
     return false;
+}*/
+AntiAim::moving_flag AntiAim::get_moving_flag(const UserCmd* cmd) noexcept
+{
+    if ((EnginePrediction::getFlags() & 3) == 2)
+        return latest_moving_flag = duck_jumping;
+    if (EnginePrediction::getFlags() & 2)
+        return latest_moving_flag = ducking;
+    if (!localPlayer->getAnimstate()->onGround)
+        return latest_moving_flag = jumping;
+    if (localPlayer->velocity().length2D() > 0.f)
+    {
+        if (config->misc.slowwalkKey.isActive())
+            return latest_moving_flag = slow_walking;
+        return latest_moving_flag = moving;
+    }
+    if (config->misc.fakeduckKey.isActive())
+        return latest_moving_flag = fake_ducking;
+    return latest_moving_flag = freestanding;
 }

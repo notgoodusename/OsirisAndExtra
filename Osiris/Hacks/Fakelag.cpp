@@ -7,17 +7,18 @@
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/Localplayer.h"
 #include "../SDK/Vector.h"
+#include "AntiAim.h"
 
-void Fakelag::run(bool& sendPacket) noexcept
+void Fakelag::run(const UserCmd* cmd, bool& sendPacket) noexcept
 {
     if (!localPlayer || !localPlayer->isAlive())
         return;
-
+    const auto cur_moving_flag{ AntiAim::get_moving_flag(cmd) };
     const auto netChannel = interfaces->engine->getNetworkChannel();
     if (!netChannel)
         return;
     srand(static_cast<unsigned int>(time(nullptr)));
-    auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle.enabled ? (rand() % 2 + 2) : 0;
+    auto chokedPackets = config->legitAntiAim.enabled || config->fakeAngle[static_cast<int>(cur_moving_flag)].enabled ? (rand() % 2 + 2) : 0;
     if (config->tickbase.DisabledTickbase && config->tickbase.onshotFl && config->tickbase.readyFire) {
         chokedPackets = -1;
         sendPacket = true;
@@ -31,21 +32,21 @@ void Fakelag::run(bool& sendPacket) noexcept
     }
 
 
-    if (config->fakelag.enabled)
+    if (config->fakelag[static_cast<int>(cur_moving_flag)].enabled)
     {
 
 
         const float speed = EnginePrediction::getVelocity().length2D() >= 15.0f ? EnginePrediction::getVelocity().length2D() : 0.0f;
-        switch (config->fakelag.mode) {
+        switch (config->fakelag[static_cast<int>(cur_moving_flag)].mode) {
         case 0: //Static
-            chokedPackets = config->fakelag.limit;
+            chokedPackets = config->fakelag[static_cast<int>(cur_moving_flag)].limit;
             break;
         case 1: //Adaptive
-            chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (speed * memory->globalVars->intervalPerTick))), 1, config->fakelag.limit);
+            chokedPackets = std::clamp(static_cast<int>(std::ceilf(64 / (speed * memory->globalVars->intervalPerTick))), 1, config->fakelag[static_cast<int>(cur_moving_flag)].limit);
             break;
         case 2: // Random
             srand(static_cast<unsigned int>(time(nullptr)));
-            chokedPackets = rand() % config->fakelag.limit + 1;
+            chokedPackets = rand() % config->fakelag[static_cast<int>(cur_moving_flag)].limit + 1;
             break;
         case 3:
             int i;

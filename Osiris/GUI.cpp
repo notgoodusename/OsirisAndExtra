@@ -683,11 +683,18 @@ void GUI::renderFakelagWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
-    ImGui::Checkbox("Enabled", &config->fakelag.enabled);
-    ImGui::Combo("Mode", &config->fakelag.mode, "Static\0Adaptative\0Random\0m1tZw tank\0");
+    static int current_category{};
+    ImGui::Combo("", &current_category, "Freestanding\0Moving\0Jumping\0Ducking\0Duck-jumping\0Slow-walking\0Fake-ducking\0");
+    if (current_category == 6){
+        ImGui::Text("You can not configure fakelag during fakeduck");
+        ImGui::Text("since it have to choke as much as possible");
+        return;
+    }
+    ImGui::Checkbox("Enabled", &config->fakelag[current_category].enabled);
+    ImGui::Combo("Mode", &config->fakelag[current_category].mode, "Static\0Adaptative\0Random\0m1tZw tank\0");
     ImGui::PushItemWidth(220.0f);
     ImGui::Text("Not recommend limit > 14");
-    ImGui::SliderInt("Limit", &config->fakelag.limit, 1, 21, "%d");
+    ImGui::SliderInt("Limit", &config->fakelag[current_category].limit, 1, 21, "%d");
     ImGui::PopItemWidth();
     ImGui::NextColumn();
     ImGui::Columns(1);
@@ -709,34 +716,36 @@ void GUI::renderRageAntiAimWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
-    ImGui::Checkbox("Enabled", &config->rageAntiAim.enabled);
+    static int current_category{};
+    ImGui::Combo("", &current_category, "Freestanding\0Moving\0Jumping\0Ducking\0Duck-jumping\0Slow-walking\0Fake-ducking\0");
+    ImGui::Checkbox("Enabled", &config->rageAntiAim[current_category].enabled);
     ImGui::Checkbox("Disable in freeztime", &config->disableInFreezetime);
-    ImGui::Combo("Pitch", &config->rageAntiAim.pitch, "Off\0Down\0Zero\0Up\0");
-    ImGui::Combo("Yaw base", reinterpret_cast<int*>(&config->rageAntiAim.yawBase), "Off\0Forward\0Backward\0Right\0Left\0Spin\0");
-    ImGui::Combo("Yaw modifier", reinterpret_cast<int*>(&config->rageAntiAim.yawModifier), "Off\0Jitter\0");
+    ImGui::Combo("Pitch", &config->rageAntiAim[current_category].pitch, "Off\0Down\0Zero\0Up\0");
+    ImGui::Combo("Yaw base", reinterpret_cast<int*>(&config->rageAntiAim[current_category].yawBase), "Off\0Forward\0Backward\0Right\0Left\0Spin\0");
+    ImGui::Combo("Yaw modifier", reinterpret_cast<int*>(&config->rageAntiAim[current_category].yawModifier), "Off\0Jitter\0");
     ImGui::PushItemWidth(220.0f);
-    ImGui::SliderInt("Yaw add", &config->rageAntiAim.yawAdd, -180, 180, "%d");
+    ImGui::SliderInt("Yaw add", &config->rageAntiAim[current_category].yawAdd, -180, 180, "%d");
     ImGui::PopItemWidth();
 
-    if (config->rageAntiAim.yawModifier == 1) //Jitter
+    if (config->rageAntiAim[current_category].yawModifier == 1) //Jitter
     { 
-        ImGui::SliderInt("Jitter yaw limit", &config->rageAntiAim.jitterRange, 0, 90, "%d");
-        ImGui::SliderInt("Jitter yaw min", &config->rageAntiAim.jitterMin, 0, config->rageAntiAim.jitterRange, "%d");
+        ImGui::SliderInt("Jitter yaw limit", &config->rageAntiAim[current_category].jitterRange, 0, 90, "%d");
+        ImGui::SliderInt("Jitter yaw min", &config->rageAntiAim[current_category].jitterMin, 0, config->rageAntiAim[current_category].jitterRange, "%d");
     }
 
-    if (config->rageAntiAim.yawBase == Yaw::spin)
+    if (config->rageAntiAim[current_category].yawBase == Yaw::spin)
     {
         ImGui::PushItemWidth(220.0f);
-        ImGui::SliderInt("Spin tick", &config->rageAntiAim.spinBase, 0, 1280, "%d");
+        ImGui::SliderInt("Spin tick", &config->rageAntiAim[current_category].spinBase, 0, 1280, "%d");
         ImGui::PopItemWidth();
     }
 
-    ImGui::Checkbox("At targets", &config->rageAntiAim.atTargets);
+    ImGui::Checkbox("At targets", &config->rageAntiAim[current_category].atTargets);
     
-    ImGui::hotkey2("Forward", config->rageAntiAim.manualForward, 60.f);
-    ImGui::hotkey2("Backward", config->rageAntiAim.manualBackward, 60.f);
-    ImGui::hotkey2("Right", config->rageAntiAim.manualRight, 60.f);
-    ImGui::hotkey2("Left", config->rageAntiAim.manualLeft, 60.f);
+    ImGui::hotkey2("Forward", config->manualForward, 60.f);
+    ImGui::hotkey2("Backward", config->manualBackward, 60.f);
+    ImGui::hotkey2("Right", config->manualRight, 60.f);
+    ImGui::hotkey2("Left", config->manualLeft, 60.f);
 
     ImGui::NextColumn();
     ImGui::Columns(1);
@@ -746,32 +755,34 @@ void GUI::renderFakeAngleWindow() noexcept
 {
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
-    ImGui::hotkey2("Invert Key", config->fakeAngle.invert, 80.0f);
-    ImGui::Checkbox("Enabled", &config->fakeAngle.enabled);
+    static int current_category{};
+    ImGui::Combo("", &current_category, "Freestanding\0Moving\0Jumping\0Ducking\0Duck-jumping\0Slow-walking\0Fake-ducking\0");
+    ImGui::hotkey2("Invert Key", config->invert, 80.0f);
+    ImGui::Checkbox("Enabled", &config->fakeAngle[current_category].enabled);
 
     ImGui::PushItemWidth(220.0f); 
-    ImGui::SliderInt("Left limit", &config->fakeAngle.leftLimit, 0, 60, "%d");
-    ImGui::SliderInt("Left min", &config->fakeAngle.leftMin, 0, config->fakeAngle.leftLimit - 1, "%d");
+    ImGui::SliderInt("Left limit", &config->fakeAngle[current_category].leftLimit, 0, 60, "%d");
+    ImGui::SliderInt("Left min", &config->fakeAngle[current_category].leftMin, 0, config->fakeAngle[current_category].leftLimit - 1, "%d");
     ImGui::PopItemWidth();
 
     ImGui::PushItemWidth(220.0f);
-    ImGui::SliderInt("Right limit", &config->fakeAngle.rightLimit, 0, 60, "%d");
-    ImGui::SliderInt("Right min", &config->fakeAngle.rightMin, 0, config->fakeAngle.rightLimit - 1, "%d");
+    ImGui::SliderInt("Right limit", &config->fakeAngle[current_category].rightLimit, 0, 60, "%d");
+    ImGui::SliderInt("Right min", &config->fakeAngle[current_category].rightMin, 0, config->fakeAngle[current_category].rightLimit - 1, "%d");
     ImGui::PopItemWidth();
 
-    ImGui::Combo("Mode", &config->fakeAngle.peekMode, "Off\0Peek real\0Peek fake\0Jitter\0Switch\0");
-    ImGui::Combo("Lby mode", &config->fakeAngle.lbyMode, "Normal\0Opposite\0Sway\0");
-    ImGui::Checkbox("Roll", &config->rageAntiAim.roll);
-    if (config->rageAntiAim.roll) {
-        ImGui::SliderInt("Roll add", &config->rageAntiAim.rollAdd, -90, 90, "%d");
-        ImGui::SliderInt("Roll jitter", &config->rageAntiAim.rollOffset, -90, 90, "%d");
+    ImGui::Combo("Mode", &config->fakeAngle[current_category].peekMode, "Off\0Peek real\0Peek fake\0Jitter\0Switch\0");
+    ImGui::Combo("Lby mode", &config->fakeAngle[current_category].lbyMode, "Normal\0Opposite\0Sway\0");
+    ImGui::Checkbox("Roll", &config->rageAntiAim[current_category].roll);
+    if (config->rageAntiAim[current_category].roll) {
+        ImGui::SliderInt("Roll add", &config->rageAntiAim[current_category].rollAdd, -90, 90, "%d");
+        ImGui::SliderInt("Roll jitter", &config->rageAntiAim[current_category].rollOffset, -90, 90, "%d");
 
-        ImGui::Checkbox("Using exploit pitch", &config->rageAntiAim.usingExpPitch);
-        if (config->rageAntiAim.usingExpPitch)
-            ImGui::SliderInt("Exploit pitch", &config->rageAntiAim.exploitPitch, -180, 180, "%d");
+        ImGui::Checkbox("Using exploit pitch", &config->rageAntiAim[current_category].usingExpPitch);
+        if (config->rageAntiAim[current_category].usingExpPitch)
+            ImGui::SliderInt("Exploit pitch", &config->rageAntiAim[current_category].exploitPitch, -180, 180, "%d");
         else
-            ImGui::SliderInt("Roll pitch", &config->rageAntiAim.rollPitch, -180, 180, "%d");
-        ImGui::Checkbox("Alternative roll", &config->rageAntiAim.rollAlt);
+            ImGui::SliderInt("Roll pitch", &config->rageAntiAim[current_category].rollPitch, -180, 180, "%d");
+        ImGui::Checkbox("Alternative roll", &config->rageAntiAim[current_category].rollAlt);
     }
         
     ImGui::NextColumn();

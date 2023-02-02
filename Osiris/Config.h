@@ -68,16 +68,13 @@ public:
         bool enabled = false;
         int mode = 0;
         int limit = 1;
-    } fakelag;
-
+    } ;
+    std::array<Fakelag, 7> fakelag;
     struct RageAntiAimConfig {
         bool enabled = false;
         int pitch = 0; //Off, Down, Zero, Up
         Yaw yawBase = Yaw::off;
-        KeyBind manualForward{ std::string("manual forward"), KeyMode::Off },
-            manualBackward{ std::string("manual backward"), KeyMode::Off },
-            manualRight{ std::string("manual right"), KeyMode::Off },
-            manualLeft{ std::string("manual left"), KeyMode::Off };
+
         int yawModifier = 0; //Off, Jitter
         int yawAdd = 0; //-180/180
         int spinBase = 0; //-180/180
@@ -91,19 +88,23 @@ public:
         bool usingExpPitch = false;
         int exploitPitch = 0;
         bool rollAlt = false;
-    } rageAntiAim;
-
+    };
+    std::array<RageAntiAimConfig, 7>rageAntiAim;
+    KeyBind manualForward{ std::string("manual forward"), Off },
+        manualBackward{ std::string("manual backward"), Off },
+        manualRight{ std::string("manual right"), Off },
+        manualLeft{ std::string("manual left"), Off };
     struct FakeAngle {
         bool enabled = false;
-        KeyBind invert{ std::string("fake angle invert") };
         int leftMin = 0;
         int leftLimit = 60;
         int rightMin = 0;
         int rightLimit = 60;
         int peekMode = 0; //Off, Peek real, Peek fake
         int lbyMode = 0; // Normal, Opposite, sway, 
-    } fakeAngle;
-
+    };
+    std::array<FakeAngle, 7> fakeAngle;
+    KeyBind invert{ std::string("fake angle invert") };
     struct Tickbase {
         KeyBind doubletap{ std::string("doubletap"), KeyMode::Off };
         KeyBind hideshots{ std::string("hideshots"), KeyMode::Off };

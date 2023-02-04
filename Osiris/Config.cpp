@@ -437,6 +437,9 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Far Z", v.farZ);
     read(j, "Flash reduction", v.flashReduction);
     read(j, "Skybox", v.skybox);
+    read<value_t::object>(j, "World", v.world);
+    read<value_t::object>(j, "Props", v.props);
+    read<value_t::object>(j, "Sky", v.sky);
     read<value_t::string>(j, "Custom skybox", v.customSkybox);
     read(j, "Deagle spinner", v.deagleSpinner);
     read(j, "Screen effect", v.screenEffect);
@@ -456,7 +459,6 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Molotov Polygon", v.molotovPolygon);
     read<value_t::object>(j, "Viewmodel", v.viewModel);
     read<value_t::object>(j, "Spread circle", v.spreadCircle);
-    read<value_t::object>(j, "Map color", v.mapColor);
     read(j, "Asus walls", v.asusWalls);
     read(j, "Asus props", v.asusProps);
     read(j, "Smoke timer", v.smokeTimer);
@@ -1423,6 +1425,9 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Far Z", farZ);
     WRITE("Flash reduction", flashReduction);
     WRITE("Skybox", skybox);
+    WRITE("World", world);
+    WRITE("Props", props);
+    WRITE("Sky", sky);
     WRITE("Custom skybox", customSkybox);
     WRITE("Deagle spinner", deagleSpinner);
     WRITE("Screen effect", screenEffect);
@@ -1443,7 +1448,6 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Molotov Polygon", molotovPolygon);
     WRITE("Viewmodel", viewModel);
     WRITE("Spread circle", spreadCircle);
-    WRITE("Map color", mapColor);
     WRITE("Asus walls", asusWalls);
     WRITE("Asus props", asusProps);
     WRITE("Smoke timer", smokeTimer);

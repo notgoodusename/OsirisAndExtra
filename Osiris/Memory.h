@@ -185,7 +185,6 @@ public:
     std::uintptr_t chokeLimit;
     std::string* relayCluster;
     std::uintptr_t unlockInventory;
-    std::uintptr_t getColorModulation;
     std::uintptr_t isUsingStaticPropDebugModes;
     std::uintptr_t traceFilterForHeadCollision;
     std::uintptr_t performScreenOverlay;

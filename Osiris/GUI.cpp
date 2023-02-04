@@ -739,6 +739,7 @@ void GUI::renderBacktrackWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->backtrack.enabled);
+    ImGui::Checkbox("Low Performance Mode", &config->optimizations.lowPerformanceModeBacktrack);
     ImGui::Checkbox("Ignore smoke", &config->backtrack.ignoreSmoke);
     ImGui::Checkbox("Ignore flash", &config->backtrack.ignoreFlash);
     ImGui::PushItemWidth(220.0f);

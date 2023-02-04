@@ -356,6 +356,8 @@ static void from_json(const json& j, Config::Backtrack& b)
 static void from_json(const json& j, Config::Optimizations& o)
 {
     read(j, "Low Performance Mode", o.lowPerformanceMode);
+    read(j, "Low Performance Mode Backtrack", o.lowPerformanceModeBacktrack);
+
 }
 
 static void from_json(const json& j, Config::Chams::Material& m)
@@ -1129,6 +1131,7 @@ static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack
 static void to_json(json& j, const Config::Optimizations& o, const Config::Optimizations& dummy = {})
 {
     WRITE("Low Performance Mode", lowPerformanceMode);
+    WRITE("Low Performance Mode Backtrack", lowPerformanceModeBacktrack);
 }
 
 static void to_json(json& j, const PurchaseList& o, const PurchaseList& dummy = {})

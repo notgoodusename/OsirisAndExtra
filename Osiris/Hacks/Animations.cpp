@@ -276,7 +276,7 @@ float getMaximumTicks() noexcept
 
 float getTimeLimit() noexcept
 {
-    if (!config->optimizations.lowPerformanceMode)
+    if (!config->optimizations.lowPerformanceModeBacktrack)
         return getMaximumTicks();
 
     static auto frameRate = 1.0f;

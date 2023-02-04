@@ -158,6 +158,7 @@ public:
 
     struct Optimizations {
         bool lowPerformanceMode{ false };
+        bool lowPerformanceModeBacktrack{ false };
     } optimizations;
 
     struct Chams {

@@ -1248,35 +1248,61 @@ static void __fastcall getColorModulationHook(void* thisPointer, void* edx, floa
 
     original(thisPointer, r, g, b);
 
-    if (!config->visuals.mapColor.enabled)
+    if (!config->visuals.world.enabled && !config->visuals.sky.enabled && !config->visuals.props.enabled)
         return;
 
-    const auto material = reinterpret_cast<Material*>(thisPointer);
-    if (!material)
+    const auto mat = reinterpret_cast<Material*>(thisPointer);
+    if (!mat || mat->isErrorMaterial() || mat->getReferenceCount() < 1)
         return;
 
-    const std::string_view textureGroup = material->getTextureGroupName();
-    if (!textureGroup.starts_with("World") && !textureGroup.starts_with("StaticProp"))
-        return;
-
-    const auto isProp = textureGroup.starts_with("StaticProp");
-    if (config->visuals.mapColor.rainbow)
+    if (config->visuals.world.enabled && std::strstr(mat->getTextureGroupName(), "World"))
     {
-        const auto [colorR, colorG, colorB] { rainbowColor(config->visuals.mapColor.rainbowSpeed) };
-        *r *= colorR;
-        *g *= colorG;
-        *b *= colorB;
+        if (config->visuals.world.rainbow)
+        {
+            const auto [colorR, colorG, colorB] { rainbowColor(config->visuals.world.rainbowSpeed) };
+            *r *= colorR;
+            *g *= colorG;
+            *b *= colorB;
+        }
+        else
+        {
+            *r *= config->visuals.world.color.at(0);
+            *g *= config->visuals.world.color.at(1);
+            *b *= config->visuals.world.color.at(2);
+        }
     }
-    else
+    else if (config->visuals.props.enabled && std::strstr(mat->getTextureGroupName(), "StaticProp"))
     {
-        *r *= config->visuals.mapColor.color.at(0);
-        *g *= config->visuals.mapColor.color.at(1);
-        *b *= config->visuals.mapColor.color.at(2);
+        if (config->visuals.props.rainbow)
+        {
+            const auto [colorR, colorG, colorB] { rainbowColor(config->visuals.props.rainbowSpeed) };
+            *r *= colorR;
+            *g *= colorG;
+            *b *= colorB;
+        }
+        else
+        {
+            *r *= config->visuals.props.color.at(0);
+            *g *= config->visuals.props.color.at(1);
+            *b *= config->visuals.props.color.at(2);
+        }
     }
-
-    isProp ? *r *= 0.5f : *r *= 0.23f;
-    isProp ? *g *= 0.5f : *g *= 0.23f;
-    isProp ? *b *= 0.5f : *b *= 0.23f;
+    else if (config->visuals.sky.enabled && std::strstr(mat->getTextureGroupName(), "SkyBox"))
+    {
+        if (config->visuals.sky.rainbow)
+        {
+            const auto [colorR, colorG, colorB] { rainbowColor(config->visuals.sky.rainbowSpeed) };
+            *r *= colorR;
+            *g *= colorG;
+            *b *= colorB;
+        }
+        else
+        {
+            *r *= config->visuals.sky.color.at(0);
+            *g *= config->visuals.sky.color.at(1);
+            *b *= config->visuals.sky.color.at(2);
+        }
+    }
 }
 
 static void __fastcall updateFlashBangEffectHook(void* thisPointer, void* edx) noexcept
@@ -1394,7 +1420,7 @@ static bool __stdcall isDepthOfFieldEnabledHook() noexcept
 
 static bool __fastcall isUsingStaticPropDebugModesHook(void* thisPointer, void* edx) noexcept
 {
-    return config->visuals.mapColor.enabled || config->visuals.asusProps != 100;
+    return config->visuals.props.enabled || config->visuals.asusProps != 100;
 }
 
 static char __fastcall newFunctionClientBypass(void* thisPointer, void* edx, const char* moduleName) noexcept

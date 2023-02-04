@@ -69,6 +69,12 @@ namespace Helpers
     std::wstring toWideString(const std::string& str) noexcept;
     std::wstring toUpper(std::wstring str) noexcept;
 
+    std::array<float, 3U> rgbToHsv(float r, float g, float b) noexcept;
+    std::array<float, 3U> hsvToRgb(float h, float s, float v) noexcept;
+
+    std::array<float, 3U> rainbowColor(float speed) noexcept;
+    std::array<float, 4U> rainbowColor(float speed, float alpha) noexcept;
+    
     bool decodeVFONT(std::vector<char>& buffer) noexcept;
     std::vector<char> loadBinaryFile(const std::string& path) noexcept;
 

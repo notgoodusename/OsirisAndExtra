@@ -407,6 +407,35 @@ void Visuals::playerModel(FrameStage stage) noexcept
     }
 }
 
+void Visuals::colorWorld() noexcept
+{
+    if (!config->visuals.world.enabled && !config->visuals.sky.enabled && !config->visuals.props.enabled)
+        return;
+
+    for (short h = interfaces->materialSystem->firstMaterial(); h != interfaces->materialSystem->invalidMaterial(); h = interfaces->materialSystem->nextMaterial(h))
+    {
+        const auto mat = interfaces->materialSystem->getMaterial(h);
+
+        if (!mat || mat->isErrorMaterial() || mat->getReferenceCount() < 1)
+            continue;
+
+        if (config->visuals.world.enabled && std::strstr(mat->getTextureGroupName(), "World"))
+        {
+            mat->colorModulate(config->visuals.world.color[0], config->visuals.world.color[1], config->visuals.world.color[2]);
+            mat->setMaterialVarFlag(MaterialVarFlag::NO_DRAW, !config->visuals.world.color[3]);
+        }
+        else if (config->visuals.props.enabled && std::strstr(mat->getTextureGroupName(), "StaticProp"))
+        {
+            mat->colorModulate(config->visuals.props.color[0], config->visuals.props.color[1], config->visuals.props.color[2]);
+            mat->setMaterialVarFlag(MaterialVarFlag::NO_DRAW, !config->visuals.props.color[3]);
+        }
+        else if (config->visuals.sky.enabled && std::strstr(mat->getTextureGroupName(), "SkyBox"))
+        {
+            mat->colorModulate(config->visuals.sky.color);
+        }
+    }
+}
+
 void Visuals::modifySmoke(FrameStage stage) noexcept
 {
     if (stage != FrameStage::RENDER_START && stage != FrameStage::RENDER_END)

@@ -272,13 +272,12 @@ static void from_json(const json& j, Config::Ragebot& r)
     read(j, "Auto scope", r.autoScope);
     read(j, "Auto stop", r.autoStop);
     read(j, "Between shots", r.betweenShots);
-    read(j, "Disable multipoint if low fps", r.disableMultipointIfLowFPS);
-    read(j, "Disable backtrack if low fps", r.disableBacktrackIfLowFPS);
     read(j, "Priority", r.priority);
     read(j, "Fov", r.fov);
     read(j, "Hitboxes", r.hitboxes);
     read(j, "Hitchance", r.hitChance);
-    read(j, "Multipoint", r.multiPoint);
+    read(j, "Head Multipoint", r.headMultiPoint);
+    read(j, "Body Multipoint", r.bodyMultiPoint);
     read(j, "Min damage", r.minDamage);
     read(j, "Min damage override", r.minDamageOverride);
 }
@@ -352,6 +351,11 @@ static void from_json(const json& j, Config::Backtrack& b)
     read(j, "Time limit", b.timeLimit);
     read(j, "Fake Latency", b.fakeLatency);
     read(j, "Fake Latency Amount", b.fakeLatencyAmount);
+}
+
+static void from_json(const json& j, Config::Optimizations& o)
+{
+    read(j, "Low Performance Mode", o.lowPerformanceMode);
 }
 
 static void from_json(const json& j, Config::Chams::Material& m)
@@ -983,13 +987,12 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
     WRITE("Auto scope", autoScope);
     WRITE("Auto stop", autoStop);
     WRITE("Between shots", betweenShots);
-    WRITE("Disable multipoint if low fps", disableMultipointIfLowFPS);
-    WRITE("Disable backtrack if low fps", disableMultipointIfLowFPS);
     WRITE("Priority", priority);
     WRITE("Fov", fov);
     WRITE("Hitboxes", hitboxes);
     WRITE("Hitchance", hitChance);
-    WRITE("Multipoint", multiPoint);
+    WRITE("Head Multipoint", headMultiPoint);
+    WRITE("Body Multipoint", bodyMultiPoint);
     WRITE("Min damage", minDamage);
     WRITE("Min damage override", minDamageOverride);
 }
@@ -1121,6 +1124,11 @@ static void to_json(json& j, const Config::Backtrack& o, const Config::Backtrack
     WRITE("Time limit", timeLimit);
     WRITE("Fake Latency", fakeLatency);
     WRITE("Fake Latency Amount", fakeLatencyAmount);
+}
+
+static void to_json(json& j, const Config::Optimizations& o, const Config::Optimizations& dummy = {})
+{
+    WRITE("Low Performance Mode", lowPerformanceMode);
 }
 
 static void to_json(json& j, const PurchaseList& o, const PurchaseList& dummy = {})

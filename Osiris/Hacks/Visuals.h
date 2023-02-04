@@ -20,6 +20,7 @@ namespace Visuals
     void drawAimbotFov(ImDrawList* drawList) noexcept;
     void fullBright() noexcept;
     void playerModel(FrameStage stage) noexcept;
+    void colorWorld() noexcept;
     void modifySmoke(FrameStage stage) noexcept;
     void modifyMolotov(FrameStage stage) noexcept;
     void thirdperson() noexcept;

@@ -485,7 +485,7 @@ std::vector<Vector> AimbotFunction::multiPoint(Entity* entity, const matrix3x4 m
 
     std::vector<Vector> vecArray;
 
-    if (_headMultiPoint <= 0 && _hitbox == 1 || _bodyMultiPoint <= 0 && _hitbox != 1)
+    if (_headMultiPoint <= 0 && _hitbox == 0 || _bodyMultiPoint <= 0 && _hitbox != 0)
     {
         vecArray.emplace_back(center);
         return vecArray;

@@ -271,26 +271,19 @@ float getExtraTicks() noexcept
 
 float getMaximumTicks() noexcept
 {
-    return static_cast<float>(config->backtrack.timeLimit) / 1000.f + getExtraTicks();
-}
-
-float getTimeLimit() noexcept
-{
-    if (!config->optimizations.lowPerformanceModeBacktrack)
-        return getMaximumTicks();
-
     static auto frameRate = 1.0f;
     frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
-    // linear scaling 0 - getMaximumTicks() based on how high our fps is compared to the server's tickrate
-    return std::fmaxf(0.f, std::fminf((static_cast<int>(1 / frameRate) - (1 / memory->globalVars->intervalPerTick)) / (1 / memory->globalVars->intervalPerTick) * getMaximumTicks(), getMaximumTicks()));
+
+    if (static_cast<int>(1 / frameRate) <= 1 / memory->globalVars->intervalPerTick)
+        return 0.f;
+
+    return static_cast<float>(config->backtrack.timeLimit) / 1000.f + getExtraTicks();
 }
 
 void Animations::handlePlayers(FrameStage stage) noexcept
 {
+    const float timeLimit = getMaximumTicks();
     static auto gravity = interfaces->cvar->findVar("sv_gravity");
-
-    if (timeToTicks(getTimeLimit()) < 1)
-        return;
 
     if (stage != FrameStage::NET_UPDATE_END)
         return;
@@ -584,7 +577,7 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
             player.backtrackRecords.push_front(record);
 
-            while (player.backtrackRecords.size() > 3 && player.backtrackRecords.size() > static_cast<size_t>(timeToTicks(getTimeLimit())))
+            while (player.backtrackRecords.size() > 3 && player.backtrackRecords.size() > static_cast<size_t>(timeToTicks(timeLimit)))
                 player.backtrackRecords.pop_back();
 
             if (auto invalid = std::find_if(std::cbegin(player.backtrackRecords), std::cend(player.backtrackRecords), [](const Players::Record& rec) { return !Backtrack::valid(rec.simulationTime); }); invalid != std::cend(player.backtrackRecords))

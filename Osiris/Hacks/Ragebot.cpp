@@ -177,8 +177,8 @@ void Ragebot::run(UserCmd* cmd) noexcept
     hitbox[Hitboxes::Belly] = (cfg[weaponIndex].hitboxes & 1 << 2) == 1 << 2;
     hitbox[Hitboxes::Pelvis] = (cfg[weaponIndex].hitboxes & 1 << 2) == 1 << 2;
 
-    // Limbs will only be scanned when we can afford it
-    if (static_cast<int>(1 / frameRate) > 1 / memory->globalVars->intervalPerTick || !config->optimizations.lowPerformanceMode) {
+    // Limbs will only be scanned when we can afford it, unless they are the only selected hitboxes
+   if (static_cast<int>(1 / frameRate) > 1 / memory->globalVars->intervalPerTick && !((cfg[weaponIndex].hitboxes & 1 << 2) == (cfg[weaponIndex].hitboxes & 1 << 0) == (cfg[weaponIndex].hitboxes & 1 << 1) == 0) || !config->optimizations.lowPerformanceMode) {
         // Arms
         hitbox[Hitboxes::RightUpperArm] = (cfg[weaponIndex].hitboxes & 1 << 3) == 1 << 3;
         hitbox[Hitboxes::RightForearm] = (cfg[weaponIndex].hitboxes & 1 << 3) == 1 << 3;

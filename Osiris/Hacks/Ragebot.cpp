@@ -266,7 +266,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
             }
             else
             {
-                if (!config->backtrack.enabled)
+                if (!config->backtrack.enabled || static_cast<int>(1 / frameRate) <= 1 / memory->globalVars->intervalPerTick && config->optimizations.lowPerformanceModeBacktrack)
                     continue;
 
                 const auto records = Animations::getBacktrackRecords(entity->index());

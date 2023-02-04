@@ -206,7 +206,6 @@ Memory::Memory() noexcept
     chokeLimit = findPattern(ENGINE_DLL, "\xB8????\x3B\xF0\x0F\x4F\xF0\x89\x5D\xFC") + 1;
     relayCluster = *reinterpret_cast<std::string**>(findPattern(STEAMNETWORKINGSOCKETS_DLL, "\xB8????\xB9????\x0F\x43") + 1);
     unlockInventory = findPattern(CLIENT_DLL, "\x84\xC0\x75\x05\xB0\x01\x5F");
-    getColorModulation = findPattern(MATERIALSYSTEM_DLL, "\x55\x8B\xEC\x83\xEC?\x56\x8B\xF1\x8A\x46");
     isUsingStaticPropDebugModes = relativeToAbsolute<decltype(isUsingStaticPropDebugModes)>(findPattern(ENGINE_DLL, "\xE8????\x84\xC0\x8B\x45\x08") + 1);
     traceFilterForHeadCollision = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\x75\x0C\x57\x8B\xF9\xF7\xC6????");
     performScreenOverlay = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\xA1????\x53\x56\x8B\xD9");

@@ -251,6 +251,9 @@ public:
         int farZ{ 0 };
         int flashReduction{ 0 };
         int skybox{ 0 };
+        ColorToggle3 world;
+        ColorToggle3 props;
+        ColorToggle3 sky;
         std::string customSkybox;
         bool deagleSpinner{ false };
         struct MotionBlur
@@ -294,7 +297,6 @@ public:
             float roll { 0.0f };
         } viewModel;
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
-        ColorToggle3 mapColor;
         int asusWalls = 100;
         int asusProps = 100;
         bool smokeTimer{ false };

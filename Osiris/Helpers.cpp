@@ -16,6 +16,71 @@
 #include "SDK/GlobalVars.h"
 #include "SDK/Engine.h"
 
+std::array<float, 3U> Helpers::rgbToHsv(float r, float g, float b) noexcept
+{
+    r = std::clamp(r, 0.0f, 1.0f);
+    g = std::clamp(g, 0.0f, 1.0f);
+    b = std::clamp(b, 0.0f, 1.0f);
+    const auto max = std::max({ r, g, b });
+    const auto min = std::min({ r, g, b });
+    const auto delta = max - min;
+
+    float hue = 0.0f, sat = 0.0f;
+
+    if (delta)
+    {
+        if (max == r)
+            hue = std::fmodf((g - b) / delta, 6.0f) / 6.0f;
+        else if (max == g)
+            hue = ((b - r) / delta + 2.0f) / 6.0f;
+        else if (max == b)
+            hue = ((r - g) / delta + 4.0f) / 6.0f;
+    }
+
+    if (max)
+        sat = delta / max;
+
+    return { hue, sat, max };
+}
+
+std::array<float, 3U> Helpers::hsvToRgb(float h, float s, float v) noexcept
+{
+    h = h < 0.0f ? std::fmodf(h, 1.0f) + 1.0f : std::fmodf(h, 1.0f);
+    s = std::clamp(s, 0.0f, 1.0f);
+    v = std::clamp(v, 0.0f, 1.0f);
+    const auto c = s * v;
+    const auto x = c * (1.0f - std::fabsf(std::fmodf(h * 6.0f, 2.0f) - 1.0f));
+    const auto m = v - c;
+
+    float r = 0.0f, g = 0.0f, b = 0.0f;
+
+    if (0.0f <= h && h < 1.0f / 6.0f)
+        r = c, g = x;
+    else if (1.0f / 6.0f <= h && h < 1.0f / 3.0f)
+        r = x, g = c;
+    else if (1.0f / 3.0f <= h && h < 0.5f)
+        g = c, b = x;
+    else if (0.5f <= h && h < 1.0f / 3.0f * 2.0f)
+        g = x, b = c;
+    else if (1.0f / 3.0f * 2.0f <= h && h < 1.0f / 6.0f * 5.0f)
+        r = x, b = c;
+    else if (1.0f / 6.0f * 5.0f <= h && h < 1.0f)
+        r = c, b = x;
+
+    return { r + m, g + m, b + m };
+}
+
+std::array<float, 3U> Helpers::rainbowColor(float speed) noexcept
+{
+    return hsvToRgb(speed * memory->globalVars->realtime * 0.1f, 1.0f, 1.0f);
+}
+
+std::array<float, 4U> Helpers::rainbowColor(float speed, float alpha) noexcept
+{
+    auto&& [r, g, b] = hsvToRgb(speed * memory->globalVars->realtime * 0.1f, 1.0f, 1.0f);
+    return { r, g, b, alpha };
+}
+
 static auto rainbowColor(float time, float speed, float alpha) noexcept
 {
     constexpr float pi = std::numbers::pi_v<float>;
@@ -242,16 +307,16 @@ static float alphaFactor = 1.0f;
 
 unsigned int Helpers::calculateColor(Color4 color) noexcept
 {
-    color.color[3] *= alphaFactor;
-
-   // if (!config->ignoreFlashbang)
-        color.color[3] *= (255.0f - GameData::local().flashDuration) / 255.0f;
-    return ImGui::ColorConvertFloat4ToU32(color.rainbow ? rainbowColor(memory->globalVars->realtime, color.rainbowSpeed, color.color[3]) : color.color);
+    color.color[3] *= (255.0f - GameData::local().flashDuration) / 255.0f;
+    color.color[3] *= std::clamp(alphaFactor, 0.0f, 1.0f);
+    auto&& [r, g, b, a] = color.rainbow ? rainbowColor(color.rainbowSpeed, color.color[3]) : color.color;
+    return ImGui::ColorConvertFloat4ToU32({ r, g, b, a });
 }
 
 unsigned int Helpers::calculateColor(Color3 color) noexcept
 {
-    return ImGui::ColorConvertFloat4ToU32(color.rainbow ? rainbowColor(memory->globalVars->realtime, color.rainbowSpeed, 1.0f) : ImVec4{ color.color[0], color.color[1], color.color[2], 1.0f});
+    auto&& [r, g, b] = color.rainbow ? rainbowColor(color.rainbowSpeed) : color.color;
+    return ImGui::ColorConvertFloat4ToU32({ r, g, b, 1.0f });
 }
 
 unsigned int Helpers::calculateColor(int r, int g, int b, int a) noexcept

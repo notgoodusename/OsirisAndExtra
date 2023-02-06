@@ -108,7 +108,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             float yaw = 0.f;
             static float staticYaw = 0.f;
             static bool flipJitter = false;
-            if (sendPacket)
+            if (sendPacket && !AntiAim::getDidShoot())
                 flipJitter ^= 1;
             if (config->rageAntiAim.atTargets)
             {

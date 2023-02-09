@@ -13,4 +13,11 @@ namespace AntiAim
     void run(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept;
     void updateInput() noexcept;
     bool canRun(UserCmd* cmd) noexcept;
+
+    float getLastShotTime();
+    bool getIsShooting();
+    bool getDidShoot();
+    void setLastShotTime(float shotTime);
+    void setIsShooting(bool shooting);
+    void setDidShoot(bool shot);
 }

@@ -324,8 +324,8 @@ void GUI::renderLegitbotWindow() noexcept
 
 void GUI::renderRagebotWindow() noexcept
 {
-    static const char* hitboxes[]{ "Head","Chest","Stomach","Arms","Legs" };
-    static bool hitbox[ARRAYSIZE(hitboxes)] = { false, false, false, false, false };
+    static const char* hitboxes[]{ "Head","Chest","Stomach","Arms","Legs", "Feet" };
+    static bool hitbox[ARRAYSIZE(hitboxes)] = { false, false, false, false, false, false };
     static std::string previewvalue = "";
     bool once = false;
 
@@ -430,6 +430,7 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::Checkbox("Enabled", &config->ragebot[currentWeapon].enabled);
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 220.0f);
+    ImGui::Checkbox("Low Performance Mode", &config->optimizations.lowPerformanceMode);
     ImGui::Checkbox("Aimlock", &config->ragebot[currentWeapon].aimlock);
     ImGui::Checkbox("Silent", &config->ragebot[currentWeapon].silent);
     ImGui::Checkbox("Friendly fire", &config->ragebot[currentWeapon].friendlyFire);
@@ -442,8 +443,6 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::Checkbox("Auto stop", &config->ragebot[currentWeapon].autoStop);
     ImGui::SameLine();
     ImGui::Checkbox("Between shots", &config->ragebot[currentWeapon].betweenShots);
-    ImGui::Checkbox("Disable multipoint if low fps", &config->ragebot[currentWeapon].disableMultipointIfLowFPS);
-    ImGui::Checkbox("Disable backtrack if low fps", &config->ragebot[currentWeapon].disableBacktrackIfLowFPS);
     ImGui::Combo("Priority", &config->ragebot[currentWeapon].priority, "Health\0Distance\0Fov\0");
 
     for (size_t i = 0; i < ARRAYSIZE(hitbox); i++)
@@ -481,7 +480,8 @@ void GUI::renderRagebotWindow() noexcept
     ImGui::PushItemWidth(240.0f);
     ImGui::SliderFloat("Fov", &config->ragebot[currentWeapon].fov, 0.0f, 255.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderInt("Hitchance", &config->ragebot[currentWeapon].hitChance, 0, 100, "%d");
-    ImGui::SliderInt("Multipoint", &config->ragebot[currentWeapon].multiPoint, 0, 100, "%d");
+    ImGui::SliderInt("Head Multipoint", &config->ragebot[currentWeapon].headMultiPoint, 0, 100, "%d");
+    ImGui::SliderInt("Body Multipoint", &config->ragebot[currentWeapon].bodyMultiPoint, 0, 100, "%d");
     ImGui::SliderInt("Min damage", &config->ragebot[currentWeapon].minDamage, 0, 101, "%d");
     config->ragebot[currentWeapon].minDamage = std::clamp(config->ragebot[currentWeapon].minDamage, 0, 250);
     ImGui::PushID("Min damage override Key");
@@ -739,6 +739,7 @@ void GUI::renderBacktrackWindow() noexcept
     ImGui::Columns(2, nullptr, false);
     ImGui::SetColumnOffset(1, 300.f);
     ImGui::Checkbox("Enabled", &config->backtrack.enabled);
+    ImGui::Checkbox("Low Performance Mode", &config->optimizations.lowPerformanceModeBacktrack);
     ImGui::Checkbox("Ignore smoke", &config->backtrack.ignoreSmoke);
     ImGui::Checkbox("Ignore flash", &config->backtrack.ignoreFlash);
     ImGui::PushItemWidth(220.0f);

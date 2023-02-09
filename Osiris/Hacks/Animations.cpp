@@ -269,10 +269,22 @@ float getExtraTicks() noexcept
     return static_cast<float>(config->backtrack.fakeLatencyAmount) / 1000.f;
 }
 
+float getMaximumTicks() noexcept
+{
+    static auto frameRate = 1.0f;
+    frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
+
+    if (static_cast<int>(1 / frameRate) <= 1 / memory->globalVars->intervalPerTick && config->optimizations.lowPerformanceModeBacktrack)
+        return 0.f;
+
+    return static_cast<float>(config->backtrack.timeLimit) / 1000.f + getExtraTicks();
+}
+
 void Animations::handlePlayers(FrameStage stage) noexcept
 {
+    const float timeLimit = getMaximumTicks();
     static auto gravity = interfaces->cvar->findVar("sv_gravity");
-    const float timeLimit = static_cast<float>(config->backtrack.timeLimit) / 1000.f + getExtraTicks();
+
     if (stage != FrameStage::NET_UPDATE_END)
         return;
 

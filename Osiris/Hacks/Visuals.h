@@ -43,6 +43,7 @@ namespace Visuals
     void bulletTracer(GameEvent& event) noexcept;
     void drawBulletImpacts() noexcept;
     void bulletImpact(GameEvent& event) noexcept;
+    void drawHitboxMatrix(GameEvent* event = nullptr) noexcept;
     void drawMolotovHull(ImDrawList* drawList) noexcept;
     void drawSmokeHull(ImDrawList* drawList) noexcept;
     void drawMolotovPolygon(ImDrawList* drawList) noexcept;

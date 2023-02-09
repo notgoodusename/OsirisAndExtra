@@ -35,6 +35,7 @@ EventListener::EventListener() noexcept
 
     interfaces->gameEventManager->addListener(this, "player_death");
     interfaces->gameEventManager->addListener(this, "vote_cast");
+    interfaces->gameEventManager->addListener(this, "player_footstep");
 
     if (const auto desc = memory->getEventDescriptor(interfaces->gameEventManager, "player_death", nullptr))
         std::swap(desc->listeners[0], desc->listeners[desc->listeners.size - 1]);
@@ -97,6 +98,9 @@ void EventListener::fireGameEvent(GameEvent* event)
         break;
     case fnv::hash("inferno_expire"):
         Visuals::molotovExtinguishEvent(event);
+        break;
+    case fnv::hash("player_footstep"):
+        Visuals::footstepESP(event);
         break;
     }
 }

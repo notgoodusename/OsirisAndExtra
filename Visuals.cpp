@@ -3,6 +3,8 @@
 #include <string.h>
 #include <deque>
 #include <sys/stat.h>
+#include <math.h>
+#include <iostream>
 
 #include "../imgui/imgui.h"
 #define IMGUI_DEFINE_MATH_OPERATORS
@@ -32,6 +34,7 @@
 #include "../SDK/Vector.h"
 #include "../SDK/ViewRenderBeams.h"
 #include "../SDK/ViewSetup.h"
+#include "../SDK/math/math.hpp"
 
 void Visuals::shadowChanger() noexcept
 {
@@ -327,11 +330,7 @@ void Visuals::playerModel(FrameStage stage) noexcept
         "models/player/custom_player/legacy/tm_jumpsuit_varianta.mdl",
         "models/player/custom_player/legacy/tm_jumpsuit_variantb.mdl",
         "models/player/custom_player/legacy/tm_jumpsuit_variantc.mdl",
-        "models/player/custom_player/legacy/ctm_gign.mdl",
-        "models/player/custom_player/legacy/ctm_gign_varianta.mdl",
-        "models/player/custom_player/legacy/ctm_gign_variantb.mdl",
-        "models/player/custom_player/legacy/ctm_gign_variantc.mdl",
-        "models/player/custom_player/legacy/ctm_gign_variantd.mdl",
+
         "models/player/custom_player/legacy/tm_phoenix_varianti.mdl",
         "models/player/custom_player/legacy/ctm_st6_variantj.mdl",
         "models/player/custom_player/legacy/ctm_st6_variantl.mdl",
@@ -452,6 +451,61 @@ void Visuals::modifyMolotov(FrameStage stage) noexcept
 
 void Visuals::thirdperson() noexcept
 {
+    //static auto amount = 0.0f;
+    //static auto in_thirdperson = false;
+
+    //if (!in_thirdperson && memory->input->isCameraInThirdPerson)
+    //{
+    //    in_thirdperson = true;
+    //    amount = (float)config->visuals.thirdpersonDistance / 2.0f;
+    //}
+    //else if (in_thirdperson && !memory->input->isCameraInThirdPerson)
+    //    in_thirdperson = false;
+
+    //if (localPlayer->isAlive() && memory->input->isCameraInThirdPerson)
+    //{
+    //    if (amount > 0.0f)
+    //        amount -= memory->globalVars->frametime * 400.0f;
+
+    //    auto distance = config->visuals.thirdpersonDistance - max(amount, 0.0f);
+
+    //    Vector angles;
+    //    interfaces->engine->getViewAngles(angles);
+
+    //    Vector inverse_angles;
+    //    interfaces->engine->getViewAngles(inverse_angles);
+
+    //    Vector forward, right, up;
+    //    math::angle_vectors(inverse_angles, &forward, &right, &up);
+
+    //    
+    //    Trace* trace;
+    //    Entity* ent;
+    //    QAngle qang;
+
+    //    const auto eyePos = ent->getEyePosition();
+    //    auto eye_pos = config->misc.fakeduckKey.isActive() ? eyePos : eyePos;
+    //    auto offset = eye_pos + forward * -distance + right + up;
+
+    //    angles.z = distance * trace->fraction;
+
+    //    memory->input->isCameraInThirdPerson = true;
+    //    memory->input->cameraOffset = angles;
+    //}
+    //else if (memory->input->isCameraInThirdPerson)
+    //{
+    //    memory->input->isCameraInThirdPerson = false;
+    //}
+
+    //static auto requires_reset = false;
+
+    //if (localPlayer->isAlive())
+    //{
+    //    requires_reset = false;
+    //    return;
+    //}
+
+
     if (!config->visuals.thirdperson && !config->visuals.freeCam && !memory->input->isCameraInThirdPerson)
         return;
 
@@ -461,8 +515,11 @@ void Visuals::thirdperson() noexcept
     static auto distVar = interfaces->cvar->findVar("cam_idealdist");
     static auto curDist = 0.0f;
 
+    
+
     memory->input->isCameraInThirdPerson = freeCamming || thirdPerson;
     if (!freeCamming && thirdPerson)
+        //curDist = Helpers::approachAngle(static_cast<float>(config->visuals.thirdpersonDistance), curDist, memory->globalVars->frametime * 7.0f);
         curDist = Helpers::approachValueSmooth(static_cast<float>(config->visuals.thirdpersonDistance), curDist, memory->globalVars->frametime * 7.0f);
     if (freeCamming || !thirdPerson)
         curDist = 0.0f;
@@ -884,15 +941,49 @@ void Visuals::skybox(FrameStage stage) noexcept
     if (stage != FrameStage::RENDER_START && stage != FrameStage::RENDER_END)
         return;
 
-    if (stage == FrameStage::RENDER_START && config->visuals.skybox > 0 && static_cast<std::size_t>(config->visuals.skybox) < skyboxList.size() - 1) {
+    if (stage == FrameStage::RENDER_START && config->visuals.skybox > 0 && static_cast<std::size_t>(config->visuals.skybox) < skyboxList.size()) {
         memory->loadSky(skyboxList[config->visuals.skybox]);
-    } else if (config->visuals.skybox == 26 && stage == FrameStage::RENDER_START) {
-        memory->loadSky(config->visuals.customSkybox.c_str());
     } else {
         static const auto sv_skyname = interfaces->cvar->findVar("sv_skyname");
         memory->loadSky(sv_skyname->string);
     }
 }
+
+void Visuals::doBloomEffects() noexcept
+{
+    if (!localPlayer)
+        return;
+
+    for (int i = 0; i < 2048; i++)
+    {
+        Entity* ent = interfaces->entityList->getEntity(i);
+
+        if (!ent)
+            continue;
+
+        if (!std::string(ent->getClientClass()->networkName).ends_with("TonemapController"))
+            continue;
+
+        bool enabled = config->visuals.customPostProcessing.enabled;
+        ent->useCustomAutoExposureMax() = enabled;
+        ent->useCustomAutoExposureMin() = enabled;
+        ent->useCustomBloomScale() = enabled;
+
+        if (!enabled)
+            return;
+
+        float worldExposure = config->visuals.customPostProcessing.worldExposure;
+        ent->customAutoExposureMin() = worldExposure;
+        ent->customAutoExposureMax() = worldExposure;
+
+        float bloomScale = config->visuals.customPostProcessing.bloomScale;
+        ent->customBloomScale() = bloomScale;
+
+        ConVar* modelAmbientMin = interfaces->cvar->findVar("r_modelAmbientMin");
+        modelAmbientMin->setValue(config->visuals.customPostProcessing.modelAmbient);
+    }
+}
+
 struct shotRecords
 {
     shotRecords(Vector eyePosition, float time) noexcept
@@ -946,59 +1037,6 @@ void Visuals::updateShots(UserCmd* cmd) noexcept
         shotRecord.pop_front();
 }
 
-void Visuals::footstepESP(GameEvent* event) noexcept
-{
-    if (!config->visuals.footsteps.footstepBeams.enabled)
-        return;
-
-    const auto entity = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(event->getInt("userid")));
-
-    if (!entity || !localPlayer.get() || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get()))
-        return;
-
-    if (entity->getAbsOrigin() == localPlayer.get()->getAbsOrigin()) // fix for weird bug
-        return;
-
-    /*
-    @note: gr1ndy - other sprites that you can use:
-    "sprites/physbeam",
-    "sprites/purplelaser1",
-    "sprites/white.vmt", <-- draws behind the wall
-    */
-    
-    const auto modelIndex = interfaces->modelInfo->getModelIndex("sprites/purplelaser1.vmt");
-
-    BeamInfo info;
-
-    info.type = TE_BEAMRINGPOINT;
-    info.modelName = "sprites/purplelaser1.vmt";
-    info.modelIndex = modelIndex;
-    info.haloIndex = -1;
-    info.haloScale = 0.0f;
-    info.life = 2.0f;
-    info.width = static_cast<float>(config->visuals.footsteps.footstepBeamThickness);
-    info.fadeLength = 0.0f;
-    info.amplitude = 0.0f;
-    info.red = config->visuals.footsteps.footstepBeams.color[0] * 255;
-    info.green = config->visuals.footsteps.footstepBeams.color[1] * 255;
-    info.blue = config->visuals.footsteps.footstepBeams.color[2] * 255;
-    info.brightness = 255;
-    info.speed = 0.0f;
-    info.startFrame = 0;
-    info.frameRate = 60.0f;
-    info.segments = 1;
-    info.flags = FBEAM_FADEOUT;
-    info.ringCenter = entity->getAbsOrigin() + Vector(0.0f, 0.0f, 5.0f);
-    info.ringStartRadius = 0.0f;
-    info.ringEndRadius = static_cast<float>(config->visuals.footsteps.footstepBeamRadius);
-    info.renderable = true;
-
-    const auto beamDraw = memory->viewRenderBeams->createBeamRingPoints(info);
-
-    if (beamDraw)
-        memory->viewRenderBeams->drawBeam(beamDraw);
-}
-
 void Visuals::bulletTracer(GameEvent& event) noexcept
 {
     if (!config->visuals.bulletTracers.enabled)
@@ -1044,18 +1082,6 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         beamInfo.start = shotRecord.front().eyePosition;
         beamInfo.end = end;
 
-        /*
-        @note: gr1ndy - other sprites that you can use:
-        "sprites/blueglow1",
-        "sprites/bubble",
-        "sprites/glow01",
-        "sprites/physbeam",
-        "sprites/purpleglow1",
-        "sprites/purplelaser1",
-        "sprites/radio",
-        "sprites/white",
-        */
-        
         beamInfo.modelName = "sprites/purplelaser1.vmt";
         beamInfo.modelIndex = -1;
         beamInfo.haloName = nullptr;
@@ -1066,23 +1092,28 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         beamInfo.blue = 255.0f * config->visuals.bulletTracers.color[2];
         beamInfo.brightness = 255.0f * config->visuals.bulletTracers.color[3];
 
-        beamInfo.type = TE_BEAMPOINTS;
-        //beamInfo.life = 0.0f;
+        beamInfo.type = 0;
+        beamInfo.life = 0.0f;
         beamInfo.amplitude = 0.0f;
         beamInfo.segments = -1;
         beamInfo.renderable = true;
-        beamInfo.speed = 0.0f;
+        beamInfo.speed = 0.2f;
         beamInfo.startFrame = 0;
         beamInfo.frameRate = 0.0f;
-        beamInfo.width = 2.0f;
-        beamInfo.endWidth = 2.0f;
-        //beamInfo.flags = 0x40;
-        beamInfo.fadeLength = 20.0f;
+        beamInfo.width = 3.0f;
+        beamInfo.endWidth = 3.0f;
+        beamInfo.flags = 0x40;
+        beamInfo.fadeLength = 0.0f;
 
         if (const auto beam = memory->viewRenderBeams->createBeamPoints(beamInfo)) {
-            //constexpr auto FBEAM_FOREVER = 0x4000;
-            beam->flags = FBEAM_FADEOUT | FBEAM_HALOBEAM;
-            beam->die = memory->globalVars->currenttime + 2.0f;
+            constexpr auto FBEAM_FOREVER = 0x4000;
+            beam->flags &= ~FBEAM_FOREVER;
+            //beam->die = static_cast<int>(Helpers::lerp(fabsf(memory->globalVars->currenttime + 4.0f) / FLT_EPSILON, 0.0f, 255.0f));
+            beam->die = memory->globalVars->currenttime + 4.0f;
+            // 
+            // static_cast<int>(Helpers::lerp
+            // (fabsf(lastHitTime + config->visuals.hitMarkerTime - memory->globalVars->realtime)
+            // / config->visuals.hitMarkerTime + FLT_EPSILON, 0.0f, 255.0f)));
         }
         shotRecord.front().gotImpact = true;
     }
@@ -1221,107 +1252,6 @@ void Visuals::drawSmokeHull(ImDrawList* drawList) noexcept
 
         std::sort(screenPoints.begin() + 1, screenPoints.begin() + count, [&](const auto& a, const auto& b) { return orientation(screenPoints[0], a, b) > 0.0f; });
         drawList->AddConvexPolyFilled(screenPoints.data(), count, color);
-    }
-}
-
-
-// Used to sort Vectors in ccw order about a pivot.
-static float ccw(const Vector& a, const Vector& b, const Vector& c) {
-    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-}
-
-struct ccwSorter {
-    const Vector& pivot;
-
-    ccwSorter(const Vector& inPivot) : pivot(inPivot) { }
-
-    bool operator()(const Vector& a, const Vector& b) {
-        return ccw(pivot, a, b) < 0;
-    }
-};
-
-static bool isLeftOf(const Vector& a, const Vector& b) {
-    return (a.x < b.x || (a.x == b.x && a.y < b.y));
-}
-
-static std::vector<Vector> gift_wrapping(std::vector<Vector> v) {
-    std::vector<Vector> hull;
-
-    // There must be at least 3 points
-    if (v.size() < 3)
-        return hull;
-
-    // Move the leftmost Vector to the beginning of our vector.
-    // It will be the first Vector in our convext hull.
-    std::swap(v[0], *min_element(v.begin(), v.end(), isLeftOf));
-
-    // Repeatedly find the first ccw Vector from our last hull Vector
-    // and put it at the front of our array. 
-    // Stop when we see our first Vector again.
-    do {
-        hull.push_back(v[0]);
-        std::swap(v[0], *min_element(v.begin() + 1, v.end(), ccwSorter(v[0])));
-    } while (v[0].x != hull[0].x && v[0].y != hull[0].y);
-
-    return hull;
-}
-
-
-void Visuals::drawMolotovPolygon(ImDrawList* drawList) noexcept
-{
-    if (!config->visuals.molotovPolygon.enabled)
-        return;
-
-    ImColor enemy = Helpers::calculateColor(config->visuals.molotovPolygon.enemy);
-    ImColor team = Helpers::calculateColor(config->visuals.molotovPolygon.team);
-    ImColor self = Helpers::calculateColor(config->visuals.molotovPolygon.self);
-
-    constexpr float pi = std::numbers::pi_v<float>;
-
-    GameData::Lock lock;
-
-    /* add the inferno position with largest possible inferno width so it's showing accurate radius. */
-    auto flameCircumference = [](std::vector<Vector> points)
-    {
-        std::vector<Vector> new_points;
-
-        for (size_t i = 0; i < points.size(); ++i)
-        {
-            const auto& pos = points[i];
-
-            for (int j = 0; j <= 3; j++)
-            {
-                float p = j * (360.0f / 4.0f) * (pi / 200.0f);
-                new_points.emplace_back(pos + Vector(std::cos(p) * 60.f, std::sin(p) * 60.f, 0.f));
-            }
-        }
-
-        return new_points;
-    };
-
-    for (const auto& molotov : GameData::infernos()) 
-    {
-        const auto color = !molotov.owner || molotov.owner->isOtherEnemy(localPlayer.get()) ? enemy :
-            molotov.owner->index() != localPlayer->index() ? team : self;
-
-        /* we only wanted to draw the points on the edge, use giftwrap algorithm. */
-        std::vector<Vector> giftWrapped = gift_wrapping(flameCircumference(molotov.points));
-
-        /* transforms world position to screen position. */
-        std::vector<ImVec2> points;
-
-        for (size_t i = 0; i < giftWrapped.size(); ++i)
-        {
-            const auto& pos = giftWrapped[i];
-
-            auto screen_pos = ImVec2();
-            if (!Helpers::worldToScreen(pos, screen_pos))
-                continue;
-
-            points.emplace_back(ImVec2(screen_pos.x, screen_pos.y));
-        }
-
-        drawList->AddConvexPolyFilled(points.data(), points.size(), color);
     }
 }
 

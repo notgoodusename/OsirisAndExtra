@@ -251,10 +251,6 @@ public:
         int farZ{ 0 };
         int flashReduction{ 0 };
         int skybox{ 0 };
-        ColorToggle3 world;
-        ColorToggle3 props;
-        ColorToggle3 sky;
-        std::string customSkybox;
         bool deagleSpinner{ false };
         struct MotionBlur
         {
@@ -266,12 +262,6 @@ public:
             float rotationIntensity{ 1.0f };
             float strength{ 1.0f };
         } motionBlur;
-        
-        struct FootstepESP {
-            ColorToggle footstepBeams{ 0.2f, 0.5f, 1.f, 1.0f };
-            int footstepBeamRadius = 0;
-            int footstepBeamThickness = 0;
-        } footsteps;
         int screenEffect{ 0 };
         int hitEffect{ 0 };
         float hitEffectTime{ 0.6f };
@@ -286,13 +276,6 @@ public:
         BulletTracers bulletTracers;
         ColorToggle molotovHull{ 1.0f, 0.27f, 0.0f, 0.3f };
         ColorToggle smokeHull{ 0.5f, 0.5f, 0.5f, 0.3f };
-        struct MolotovPolygon
-        {
-            bool enabled{ false };
-            Color4 enemy{ 1.f, 0.27f, 0.f, 0.3f };
-            Color4 team{ 0.37f, 1.f, 0.37f, 0.3f };
-            Color4 self{ 1.f, 0.09f, 0.96f, 0.3f };
-        } molotovPolygon;
         struct Viewmodel
         {
             bool enabled { false };
@@ -303,6 +286,7 @@ public:
             float roll { 0.0f };
         } viewModel;
         ColorToggleOutline spreadCircle { 1.0f, 1.0f, 1.0f, 0.25f };
+        ColorToggle3 mapColor;
         int asusWalls = 100;
         int asusProps = 100;
         bool smokeTimer{ false };
@@ -313,6 +297,13 @@ public:
         Color4 molotovTimerBG{ 1.0f, 1.0f, 1.0f, 0.5f };
         Color4 molotovTimerTimer{ 0.0f, 0.0f, 1.0f, 1.0f };
         Color4 molotovTimerText{ 0.0f, 0.0f, 0.0f, 1.0f };
+
+        struct CustomPostProcessing {
+            bool  enabled = false;
+            float worldExposure = 0.0f;
+            float modelAmbient = 0.0f;
+            float bloomScale = 0.0f;
+        } customPostProcessing;
     } visuals;
 
     std::array<item_setting, 36> skinChanger;
@@ -376,7 +367,6 @@ public:
         bool oppositeHandKnife = false;
         bool svPureBypass{ true };
         bool inventoryUnlocker{ false };
-        bool unhideConvars{ false };
         KillfeedChanger killfeedChanger;
         PreserveKillfeed preserveKillfeed;
         char clanTag[16];

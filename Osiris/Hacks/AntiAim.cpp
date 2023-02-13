@@ -2,6 +2,7 @@
 
 #include "AimbotFunctions.h"
 #include "AntiAim.h"
+#include "Tickbase.h"
 
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
@@ -76,7 +77,7 @@ bool autoDirection(Vector eyeAngle) noexcept
 
 void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
-    if (cmd->viewangles.x == currentViewAngles.x && config->rageAntiAim.enabled)
+    if ((cmd->viewangles.x == currentViewAngles.x || Tickbase::isShifting()) && config->rageAntiAim.enabled)
     {
         switch (config->rageAntiAim.pitch)
         {
@@ -95,7 +96,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             break;
         }
     }
-    if (cmd->viewangles.y == currentViewAngles.y)
+    if (cmd->viewangles.y == currentViewAngles.y || Tickbase::isShifting())
     {
         if (config->rageAntiAim.yawBase != Yaw::off
             && config->rageAntiAim.enabled)   //AntiAim
@@ -277,7 +278,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
 
 void AntiAim::legit(UserCmd* cmd, const Vector& previousViewAngles, const Vector& currentViewAngles, bool& sendPacket) noexcept
 {
-    if (cmd->viewangles.y == currentViewAngles.y) 
+    if (cmd->viewangles.y == currentViewAngles.y && !Tickbase::isShifting()) 
     {
         bool invert = config->legitAntiAim.invert.isActive();
         float desyncAngle = localPlayer->getMaxDesyncAngle() * 2.f;

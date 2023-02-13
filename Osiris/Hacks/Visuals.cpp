@@ -1329,15 +1329,34 @@ void Visuals::updateEventListeners(bool forceRemove) noexcept
         }
     };
 
-    static ImpactEventListener listener;
-    static bool listenerRegistered = false;
+    class FootstepEventListener : public GameEventListener {
+    public:
+        void fireGameEvent(GameEvent* event) {
+            footstepESP(event);
+        }
+    };
 
-    if ((config->visuals.bulletImpacts.enabled || config->visuals.bulletTracers.enabled) && !listenerRegistered) {
-        interfaces->gameEventManager->addListener(&listener, "bullet_impact");
-        listenerRegistered = true;
-    } else if (((!config->visuals.bulletImpacts.enabled && !config->visuals.bulletTracers.enabled) || forceRemove) && listenerRegistered) {
-        interfaces->gameEventManager->removeListener(&listener);
-        listenerRegistered = false;
+    static ImpactEventListener impactListener;
+    static bool impactListenerRegistered = false;
+
+    if ((config->visuals.bulletImpacts.enabled || config->visuals.bulletTracers.enabled) && !impactListenerRegistered) {
+        interfaces->gameEventManager->addListener(&impactListener, "bullet_impact");
+        impactListenerRegistered = true;
+    } else if (((!config->visuals.bulletImpacts.enabled && !config->visuals.bulletTracers.enabled) || forceRemove) && impactListenerRegistered) {
+        interfaces->gameEventManager->removeListener(&impactListener);
+        impactListenerRegistered = false;
+    }
+
+    static FootstepEventListener footstepListener;
+    static bool footstepListenerRegistered = false;
+
+    if (config->visuals.footsteps.footstepBeams.enabled && !footstepListenerRegistered) {
+        interfaces->gameEventManager->addListener(&footstepListener, "player_footstep");
+        footstepListenerRegistered = true;
+    }
+    else if (((!config->visuals.footsteps.footstepBeams.enabled) || forceRemove) && footstepListenerRegistered) {
+        interfaces->gameEventManager->removeListener(&footstepListener);
+        footstepListenerRegistered = false;
     }
 }
 

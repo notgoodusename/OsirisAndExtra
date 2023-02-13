@@ -266,6 +266,12 @@ public:
             float rotationIntensity{ 1.0f };
             float strength{ 1.0f };
         } motionBlur;
+        
+        struct FootstepESP {
+            ColorToggle footstepBeams{ 0.2f, 0.5f, 1.f, 1.0f };
+            int footstepBeamRadius = 0;
+            int footstepBeamThickness = 0;
+        } footsteps;
         int screenEffect{ 0 };
         int hitEffect{ 0 };
         float hitEffectTime{ 0.6f };

@@ -948,6 +948,59 @@ void Visuals::updateShots(UserCmd* cmd) noexcept
         shotRecord.pop_front();
 }
 
+void Visuals::footstepESP(GameEvent* event) noexcept
+{
+    if (!config->visuals.footsteps.footstepBeams.enabled)
+        return;
+
+    const auto entity = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(event->getInt("userid")));
+
+    if (!entity || !localPlayer.get() || entity == localPlayer.get() || entity->isDormant() || !entity->isAlive() || !entity->isOtherEnemy(localPlayer.get()))
+        return;
+
+    if (entity->getAbsOrigin() == localPlayer.get()->getAbsOrigin()) // fix for weird bug
+        return;
+
+    /*
+    @note: gr1ndy - other sprites that you can use:
+    "sprites/physbeam",
+    "sprites/purplelaser1",
+    "sprites/white.vmt", <-- draws behind the wall
+    */
+    
+    const auto modelIndex = interfaces->modelInfo->getModelIndex("sprites/purplelaser1.vmt");
+
+    BeamInfo info;
+
+    info.type = TE_BEAMRINGPOINT;
+    info.modelName = "sprites/purplelaser1.vmt";
+    info.modelIndex = modelIndex;
+    info.haloIndex = -1;
+    info.haloScale = 0.0f;
+    info.life = 2.0f;
+    info.width = static_cast<float>(config->visuals.footsteps.footstepBeamThickness);
+    info.fadeLength = 0.0f;
+    info.amplitude = 0.0f;
+    info.red = config->visuals.footsteps.footstepBeams.color[0] * 255;
+    info.green = config->visuals.footsteps.footstepBeams.color[1] * 255;
+    info.blue = config->visuals.footsteps.footstepBeams.color[2] * 255;
+    info.brightness = 255;
+    info.speed = 0.0f;
+    info.startFrame = 0;
+    info.frameRate = 60.0f;
+    info.segments = 1;
+    info.flags = FBEAM_FADEOUT;
+    info.ringCenter = entity->getAbsOrigin() + Vector(0.0f, 0.0f, 5.0f);
+    info.ringStartRadius = 0.0f;
+    info.ringEndRadius = static_cast<float>(config->visuals.footsteps.footstepBeamRadius);
+    info.renderable = true;
+
+    const auto beamDraw = memory->viewRenderBeams->createBeamRingPoints(info);
+
+    if (beamDraw)
+        memory->viewRenderBeams->drawBeam(beamDraw);
+}
+
 void Visuals::bulletTracer(GameEvent& event) noexcept
 {
     if (!config->visuals.bulletTracers.enabled)
@@ -993,7 +1046,19 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         beamInfo.start = shotRecord.front().eyePosition;
         beamInfo.end = end;
 
-        beamInfo.modelName = "sprites/physbeam.vmt";
+        /*
+        @note: gr1ndy - other sprites that you can use:
+        "sprites/blueglow1",
+        "sprites/bubble",
+        "sprites/glow01",
+        "sprites/physbeam",
+        "sprites/purpleglow1",
+        "sprites/purplelaser1",
+        "sprites/radio",
+        "sprites/white",
+        */
+        
+        beamInfo.modelName = "sprites/purplelaser1.vmt";
         beamInfo.modelIndex = -1;
         beamInfo.haloName = nullptr;
         beamInfo.haloIndex = -1;
@@ -1003,22 +1068,22 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         beamInfo.blue = 255.0f * config->visuals.bulletTracers.color[2];
         beamInfo.brightness = 255.0f * config->visuals.bulletTracers.color[3];
 
-        beamInfo.type = 0;
-        beamInfo.life = 0.0f;
+        beamInfo.type = TE_BEAMPOINTS;
+        //beamInfo.life = 0.0f;
         beamInfo.amplitude = 0.0f;
         beamInfo.segments = -1;
         beamInfo.renderable = true;
-        beamInfo.speed = 0.2f;
+        beamInfo.speed = 0.0f;
         beamInfo.startFrame = 0;
         beamInfo.frameRate = 0.0f;
         beamInfo.width = 2.0f;
         beamInfo.endWidth = 2.0f;
-        beamInfo.flags = 0x40;
+        //beamInfo.flags = 0x40;
         beamInfo.fadeLength = 20.0f;
 
         if (const auto beam = memory->viewRenderBeams->createBeamPoints(beamInfo)) {
-            constexpr auto FBEAM_FOREVER = 0x4000;
-            beam->flags &= ~FBEAM_FOREVER;
+            //constexpr auto FBEAM_FOREVER = 0x4000;
+            beam->flags = FBEAM_FADEOUT | FBEAM_HALOBEAM;
             beam->die = memory->globalVars->currenttime + 2.0f;
         }
         shotRecord.front().gotImpact = true;
@@ -1336,15 +1401,34 @@ void Visuals::updateEventListeners(bool forceRemove) noexcept
         }
     };
 
-    static ImpactEventListener listener;
-    static bool listenerRegistered = false;
+    class FootstepEventListener : public GameEventListener {
+    public:
+        void fireGameEvent(GameEvent* event) {
+            footstepESP(event);
+        }
+    };
 
-    if ((config->visuals.bulletImpacts.enabled || config->visuals.bulletTracers.enabled) && !listenerRegistered) {
-        interfaces->gameEventManager->addListener(&listener, "bullet_impact");
-        listenerRegistered = true;
-    } else if (((!config->visuals.bulletImpacts.enabled && !config->visuals.bulletTracers.enabled) || forceRemove) && listenerRegistered) {
-        interfaces->gameEventManager->removeListener(&listener);
-        listenerRegistered = false;
+    static ImpactEventListener impactListener;
+    static bool impactListenerRegistered = false;
+
+    if ((config->visuals.bulletImpacts.enabled || config->visuals.bulletTracers.enabled) && !impactListenerRegistered) {
+        interfaces->gameEventManager->addListener(&impactListener, "bullet_impact");
+        impactListenerRegistered = true;
+    } else if (((!config->visuals.bulletImpacts.enabled && !config->visuals.bulletTracers.enabled) || forceRemove) && impactListenerRegistered) {
+        interfaces->gameEventManager->removeListener(&impactListener);
+        impactListenerRegistered = false;
+    }
+
+    static FootstepEventListener footstepListener;
+    static bool footstepListenerRegistered = false;
+
+    if (config->visuals.footsteps.footstepBeams.enabled && !footstepListenerRegistered) {
+        interfaces->gameEventManager->addListener(&footstepListener, "player_footstep");
+        footstepListenerRegistered = true;
+    }
+    else if (((!config->visuals.footsteps.footstepBeams.enabled) || forceRemove) && footstepListenerRegistered) {
+        interfaces->gameEventManager->removeListener(&footstepListener);
+        footstepListenerRegistered = false;
     }
 }
 

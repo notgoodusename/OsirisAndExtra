@@ -399,6 +399,13 @@ static void from_json(const json& j, Config::StreamProofESP& e)
     read(j, "Other Entities", e.otherEntities);
 }
 
+static void from_json(const json& j, Config::Visuals::FootstepESP& ft)
+{
+    read<value_t::object>(j, "Enabled", ft.footstepBeams);
+    read(j, "Thickness", ft.footstepBeamThickness);
+    read(j, "Radius", ft.footstepBeamRadius);
+}
+
 static void from_json(const json& j, Config::Visuals& v)
 {
     read(j, "Disable post-processing", v.disablePostProcessing);
@@ -1245,6 +1252,13 @@ static void to_json(json& j, const Config::Misc::Logger& o, const Config::Misc::
 {
     WRITE("Modes", modes);
     WRITE("Events", events);
+}
+
+static void to_json(json& j, const Config::Visuals::FootstepESP& o, const Config::Visuals::FootstepESP& dummy)
+{
+    WRITE("Enabled", footstepBeams);
+    WRITE("Thickness", footstepBeamThickness);
+    WRITE("Radius", footstepBeamRadius);
 }
 
 static void to_json(json& j, const Config::Visuals::MotionBlur& o, const Config::Visuals::MotionBlur& dummy)

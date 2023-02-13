@@ -1198,6 +1198,10 @@ void GUI::renderStreamProofESPWindow() noexcept
             }
 
             ImGui::PopID();
+            
+            ImGuiCustom::colorPicker("Footsteps", config->visuals.footsteps.footstepBeams);
+            ImGui::SliderInt("Thickness", &config->visuals.footsteps.footstepBeamThickness, 0, 30, "Thickness: %d%%");
+            ImGui::SliderInt("Radius", &config->visuals.footsteps.footstepBeamRadius, 0, 230, "Radius: %d%%");
 
             ImGuiCustom::colorPicker("Line of sight", playerConfig.lineOfSight);
 

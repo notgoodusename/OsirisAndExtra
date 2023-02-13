@@ -267,7 +267,7 @@ void Chams::renderDesync(int health) noexcept
 
 void Chams::renderWeapons() noexcept
 {
-    if (!localPlayer || !localPlayer->isAlive() || localPlayer->isScoped())
+    if (!localPlayer || !localPlayer->isAlive())
         return;
 
     applyChams(config->chams["Weapons"].materials, localPlayer->health());

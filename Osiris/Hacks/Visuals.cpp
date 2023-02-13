@@ -13,6 +13,8 @@
 #include "../Helpers.h"
 
 #include "AimbotFunctions.h"
+#include "Animations.h"
+#include "Backtrack.h"
 #include "Visuals.h"
 
 #include "../SDK/ConVar.h"
@@ -1066,6 +1068,70 @@ void Visuals::bulletImpact(GameEvent& event) noexcept
 
     Vector endPos = Vector{ event.getFloat("x"), event.getFloat("y"), event.getFloat("z") };
     positions.push_front(endPos);
+}
+
+void Visuals::drawHitboxMatrix(GameEvent* event) noexcept {
+
+    if (!config->visuals.onHitHitbox.color.enabled) return;
+
+    if (config->visuals.onHitHitbox.duration <= 0.f) return;
+
+    if (!event) return;
+
+    if (!localPlayer) return;
+
+    const auto userID = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(event->getInt("userid")));
+    const auto attacker = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(event->getInt("attacker")));
+
+    if (!userID) return;
+
+    if (!attacker) return;
+
+    if (localPlayer->getUserId() != attacker->getUserId() || localPlayer->getUserId() == userID->getUserId()) return;
+
+    StudioHdr* hdr = interfaces->modelInfo->getStudioModel(userID->getModel());
+    StudioHitboxSet* set = hdr->getHitboxSet(0);
+
+    auto records = Animations::getBacktrackRecords(userID->index());
+    const matrix3x4* matrix = userID->getBoneCache().memory;
+    auto bestFov{ 255.f };
+
+    if (records && !records->empty()) {
+        for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
+        {
+            if (Backtrack::valid(records->at(i).simulationTime))
+            {
+                for (auto position : records->at(i).positions) {
+                    auto angle = AimbotFunction::calculateRelativeAngle(localPlayer->getEyePosition(), position, interfaces->engine->getViewAngles());
+                    auto fov = std::hypotf(angle.x, angle.y);
+                    if (fov < bestFov) {
+                        bestFov = fov;
+                        matrix = records->at(i).matrix;
+                    }
+                }
+            }
+        }
+
+    }
+
+    const int r = static_cast<int>(config->visuals.onHitHitbox.color.color[0] * 255.f);
+    const int g = static_cast<int>(config->visuals.onHitHitbox.color.color[1] * 255.f);
+    const int b = static_cast<int>(config->visuals.onHitHitbox.color.color[2] * 255.f);
+    const int a = static_cast<int>(config->visuals.onHitHitbox.color.color[3] * 255.f);
+    const float d = config->visuals.onHitHitbox.duration;
+
+    for (int i = 0; i < set->numHitboxes; i++) {
+        StudioBbox* hitbox = set->getHitbox(i);
+
+        if (!hitbox)
+            continue;
+
+        Vector vMin = hitbox->bbMin.transform(matrix[hitbox->bone]);
+        Vector vMax = hitbox->bbMax.transform(matrix[hitbox->bone]);
+        float size = hitbox->capsuleRadius;
+
+        interfaces->debugOverlay->capsuleOverlay(vMin, vMax, size <= 0 ? 3.f : hitbox->capsuleRadius, r, g, b, a, d, 0, 1);
+    }
 }
 
 void Visuals::drawMolotovHull(ImDrawList* drawList) noexcept

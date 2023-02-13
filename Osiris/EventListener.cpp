@@ -74,6 +74,7 @@ void EventListener::fireGameEvent(GameEvent* event)
         Misc::playHitSound(*event);
         Visuals::hitEffect(event);
         Visuals::hitMarker(event);
+        Visuals::drawHitboxMatrix(event);
         Logger::getEvent(event);
         Resolver::getEvent(event);
         break;

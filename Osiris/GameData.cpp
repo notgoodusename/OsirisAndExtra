@@ -553,9 +553,11 @@ void PlayerData::update(Entity* entity) noexcept
     if (!studioModel)
         return;
 
-    matrix3x4 boneMatrices[MAXSTUDIOBONES];
-    if (!entity->unfixedSetupBones(boneMatrices, MAXSTUDIOBONES, BONE_USED_BY_HITBOX, memory->globalVars->currenttime))
+    if (!entity->getBoneCache().memory)
         return;
+
+    matrix3x4 boneMatrices[MAXSTUDIOBONES];
+    memcpy(boneMatrices, entity->getBoneCache().memory, std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
 
     bones.clear();
     bones.reserve(20);

@@ -71,6 +71,7 @@ public:
     VIRTUAL_METHOD(bool, isHLTV, 93, (), (this))
     VIRTUAL_METHOD(void, clientCmdUnrestricted, 114, (const char* cmd, bool fromConsoleOrKeybind = false), (this, cmd, fromConsoleOrKeybind))
     VIRTUAL_METHOD_V(const SteamAPIContext*, getSteamAPIContext, 185, (), (this))
+    VIRTUAL_METHOD(bool, isVoiceRecording, 224, (), (this))
 
     auto getViewAngles() noexcept
     {

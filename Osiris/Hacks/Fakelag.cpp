@@ -35,6 +35,9 @@ void Fakelag::run(bool& sendPacket) noexcept
         }
     }
 
+    if (interfaces->engine->isVoiceRecording())
+        chokedPackets = min(3, config->fakelag.limit);
+
     chokedPackets = std::clamp(chokedPackets, 0, maxUserCmdProcessTicks - Tickbase::getTargetTickShift());
 
     sendPacket = netChannel->chokedPackets >= chokedPackets;

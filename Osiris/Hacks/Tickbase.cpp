@@ -69,10 +69,7 @@ void Tickbase::end(UserCmd* cmd) noexcept
     }
 
     if (cmd->buttons & UserCmd::IN_ATTACK)
-    {
-        realTime = memory->globalVars->realtime;
-        shift(cmd, targetTickShift);
-    }
+       shift(cmd, targetTickShift);
 }
 
 bool Tickbase::shift(UserCmd* cmd, int shiftAmount, bool forceShift) noexcept

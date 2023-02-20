@@ -307,6 +307,10 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         Misc::autoPixelSurf(cmd);
         Misc::miniJump(cmd);
         Misc::edgejump(cmd);
+
+        if (AntiAim::canRun(cmd))
+            AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
+
         Misc::autoStrafe(cmd, currentViewAngles);
         Misc::jumpBug(cmd);
 

@@ -1672,6 +1672,11 @@ void Misc::watermark() noexcept
 
     //set window size
     ImGui::SetNextWindowSize(ImVec2(calcText.x + 10, calcText.y * 2 - 6));
+    
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground;
+
+    if (!gui->isOpen())
+        windowFlags |= ImGuiWindowFlags_NoInputs;
 
     ImGui::Begin("##WIM", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground);
     {

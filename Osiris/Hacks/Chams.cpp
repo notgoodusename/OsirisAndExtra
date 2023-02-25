@@ -199,14 +199,14 @@ void Chams::renderPlayer(Entity* player) noexcept
 
                 for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
                 {
-                    if (Backtrack::valid(records->at(i).simulationTime))
+                    if (Backtrack::valid(records->at(i).simulationTime) && records->at(lastTick).origin != player->origin())
                     {
                         lastTick = i;
                         break;
                     }
                 }
 
-                if (lastTick != -1 && records->at(lastTick).origin != player->origin())
+                if (lastTick != -1)
                 {
                     if (!appliedChams)
                         hooks->modelRender.callOriginal<void, 21>(ctx, state, info, customBoneToWorld);

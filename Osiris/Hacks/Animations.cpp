@@ -549,9 +549,6 @@ void Animations::handlePlayers(FrameStage stage) noexcept
             if (!player.backtrackRecords.empty() && (player.backtrackRecords.front().simulationTime == entity->simulationTime()))
                 continue;
 
-            if (!Backtrack::valid(player.simulationTime))
-                continue;
-
             Players::Record record{ };
             record.origin = player.origin;
             record.absAngle = player.absAngle;
@@ -567,9 +564,6 @@ void Animations::handlePlayers(FrameStage stage) noexcept
 
             while (player.backtrackRecords.size() > 3 && player.backtrackRecords.size() > static_cast<size_t>(timeToTicks(timeLimit)))
                 player.backtrackRecords.pop_back();
-
-            if (auto invalid = std::find_if(std::cbegin(player.backtrackRecords), std::cend(player.backtrackRecords), [](const Players::Record& rec) { return !Backtrack::valid(rec.simulationTime); }); invalid != std::cend(player.backtrackRecords))
-                player.backtrackRecords.erase(invalid, std::cend(player.backtrackRecords));
         }
     }
 }

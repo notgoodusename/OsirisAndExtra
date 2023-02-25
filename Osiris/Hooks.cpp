@@ -207,7 +207,7 @@ static int __fastcall sendDatagramHook(NetworkChannel* network, void* edx, void*
     const int instate = network->inReliableState;
     const int insequencenr = network->inSequenceNr;
 
-    const float delta = max(0.f, (config->backtrack.fakeLatencyAmount / 1000.f) - Backtrack::getLerp() - network->getLatency(0));
+    const float delta = max(0.f, (config->backtrack.fakeLatencyAmount / 1000.f));
 
     Backtrack::addLatencyToNetwork(network, delta);
 

@@ -197,7 +197,7 @@ void Chams::renderPlayer(Entity* player) noexcept
             {
                 int lastTick = -1;
 
-                for (int i = static_cast<int>(records->size() - 1); i >= 0; i--)
+                for (int i = static_cast<int>(records->size() - 1U); i >= 0; i--)
                 {
                     if (Backtrack::valid(records->at(i).simulationTime) && records->at(i).origin != player->origin())
                     {

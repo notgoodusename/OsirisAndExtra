@@ -71,7 +71,7 @@ void Backtrack::run(UserCmd* cmd) noexcept
         if (player.backtrackRecords.empty() || (!config->backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(localPlayer->getEyePosition(), entity->getAbsOrigin(), 1)))
             continue;
 
-        for (int j = static_cast<int>(player.backtrackRecords.size() - 1); j >= 0; j--)
+        for (int j = static_cast<int>(player.backtrackRecords.size() - 1U); j >= 0; j--)
         {
             if (Backtrack::valid(player.backtrackRecords.at(j).simulationTime))
             {
@@ -151,9 +151,9 @@ bool Backtrack::valid(float simtime) noexcept
     if (simtime < deadTime)
         return false;
 
-    const auto extraTickbaseDelta = (Tickbase::getTargetTickShift() >= timeToTicks(0.2f) && Tickbase::canShift(Tickbase::getTargetTickShift())) ? ticksToTime(Tickbase::getTargetTickShift()) : 0.0f;
-    const auto delta = std::clamp(network->getLatency(0) + network->getLatency(1) + getLerp(), 0.f, cvars.maxUnlag->getFloat()) - (memory->globalVars->serverTime() - simtime) + extraTickbaseDelta;
-    return std::abs(delta) <= 0.2f + extraTickbaseDelta;
+    const auto extraTickbaseDelta = Tickbase::canShift(Tickbase::getTargetTickShift()) ? ticksToTime(Tickbase::getTargetTickShift()) : 0.0f;
+    const auto delta = std::clamp(network->getLatency(0) + network->getLatency(1) + getLerp(), 0.f, cvars.maxUnlag->getFloat()) - (memory->globalVars->serverTime() - extraTickbaseDelta - simtime);
+    return std::abs(delta) <= 0.2f;
 }
 
 void Backtrack::init() noexcept

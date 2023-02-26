@@ -461,7 +461,7 @@ bool AimbotFunction::hitboxIntersection(const matrix3x4 matrix[MAXSTUDIOBONES], 
     return false;
 }
 
-std::vector<Vector> AimbotFunction::multiPoint(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _multiPoint)
+std::vector<Vector> AimbotFunction::multiPoint(Entity* entity, const matrix3x4 matrix[MAXSTUDIOBONES], StudioBbox* hitbox, Vector localEyePos, int _hitbox, int _headMultiPoint, int _bodyMultiPoint)
 {
     auto VectorTransformWrapper = [](const Vector& in1, const matrix3x4 in2, Vector& out)
     {
@@ -485,7 +485,7 @@ std::vector<Vector> AimbotFunction::multiPoint(Entity* entity, const matrix3x4 m
 
     std::vector<Vector> vecArray;
 
-    if (_multiPoint <= 0)
+    if (_headMultiPoint <= 0 && _hitbox == 0 || _bodyMultiPoint <= 0 && _hitbox != 0)
     {
         vecArray.emplace_back(center);
         return vecArray;
@@ -503,24 +503,37 @@ std::vector<Vector> AimbotFunction::multiPoint(Entity* entity, const matrix3x4 m
     Vector top = Vector{ 0, 0, 1 };
     Vector bottom = Vector{ 0, 0, -1 };
 
-    float multiPoint = (min(_multiPoint, 95)) * 0.01f;
-
+    float headMultiPoint = (min(_headMultiPoint, 95)) * 0.01f;
+    float bodyMultiPoint = (min(_bodyMultiPoint, 95)) * 0.01f;
+    static auto frameRate = 1.0f;
+    frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
+    // linear scaling 0 - 15 based on how low our fps is compared to the server's tickrate
+    int toOptimize = std::clamp((int)(15 * ((static_cast<int>(1 / frameRate)) <= (1 / memory->globalVars->intervalPerTick)) + 15 * (1 - ((static_cast<int>(1 / frameRate)) - (1 / memory->globalVars->intervalPerTick)) / (1 / memory->globalVars->intervalPerTick)) * ((static_cast<int>(1 / frameRate)) < 2 * (1 / memory->globalVars->intervalPerTick))), 0, 15);
     switch (_hitbox)
     {
     case Hitboxes::Head:
         for (auto i = 0; i < 4; ++i)
             vecArray.emplace_back(center);
 
-        vecArray[1] += top * (hitbox->capsuleRadius * multiPoint);
-        vecArray[2] += right * (hitbox->capsuleRadius * multiPoint);
-        vecArray[3] += left * (hitbox->capsuleRadius * multiPoint);
+        vecArray[1] += top * (hitbox->capsuleRadius * headMultiPoint);
+        vecArray[2] += right * (hitbox->capsuleRadius * headMultiPoint);
+        vecArray[3] += left * (hitbox->capsuleRadius * headMultiPoint);
         break;
-    default://rest
-        for (auto i = 0; i < 3; ++i)
+    case Hitboxes::Neck: // this hitbox is never scanned
+        vecArray.emplace_back(center);
+        break;
+    default:
+        // is optimization disabled || is the hitbox not on the optimization list
+        if (!config->optimizations.lowPerformanceMode || toOptimize < _hitbox + 1) {
+            for (auto i = 0; i < 3; ++i)
+                vecArray.emplace_back(center);
+
+            vecArray[1] += right * (hitbox->capsuleRadius * bodyMultiPoint);
+            vecArray[2] += left * (hitbox->capsuleRadius * bodyMultiPoint);
+        }
+        else
             vecArray.emplace_back(center);
 
-        vecArray[1] += right * (hitbox->capsuleRadius * multiPoint);
-        vecArray[2] += left * (hitbox->capsuleRadius * multiPoint);
         break;
     }
     return vecArray;

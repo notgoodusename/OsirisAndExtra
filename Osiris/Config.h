@@ -44,14 +44,13 @@ public:
         bool autoShot{ false };
         bool autoScope{ false };
         bool autoStop{ false };
-        bool disableMultipointIfLowFPS{ false };
-        bool disableBacktrackIfLowFPS{ false };
         bool betweenShots{ false };
         int priority{ 0 };
         float fov{ 0.0f };
         int hitboxes{ 0 };
         int hitChance{ 50 };
-        int multiPoint{ 0 };
+        int headMultiPoint{ 0 };
+        int bodyMultiPoint{ 0 };
         int minDamage{ 1 };
         int minDamageOverride{ 1 };
     };
@@ -156,6 +155,11 @@ public:
         bool fakeLatency = false;
         int fakeLatencyAmount = 200;
     } backtrack;
+
+    struct Optimizations {
+        bool lowPerformanceMode{ false };
+        bool lowPerformanceModeBacktrack{ false };
+    } optimizations;
 
     struct Chams {
         struct Material : Color4 {

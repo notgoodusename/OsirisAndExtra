@@ -116,9 +116,6 @@ void Backtrack::updateIncomingSequences() noexcept
 {
     static int lastIncomingSequenceNumber = 0;
 
-    if (!config->backtrack.fakeLatency)
-        return;
-
     if (!localPlayer)
         return;
 

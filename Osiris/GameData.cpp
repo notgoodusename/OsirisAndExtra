@@ -538,10 +538,112 @@ void PlayerData::update(Entity* entity) noexcept
 
     if (const auto weapon = entity->getActiveWeapon()) {
         audible = audible || isEntityAudible(weapon->index());
-        if (const auto weaponInfo = weapon->getWeaponData())
-            activeWeapon = interfaces->localize->findAsUTF8(weaponInfo->name);
-    }
+        theName = [](WeaponId weaponId) {
+            switch (weaponId)
+            {
+            default: return "All";
 
+            case WeaponId::Glock:     return   "E";
+            case WeaponId::Hkp2000:   return   "D";
+            case WeaponId::Usp_s:     return   "G";
+            case WeaponId::Elite:     return   "B";
+            case WeaponId::P250:      return   "F";
+            case WeaponId::Tec9:      return   "H";
+            case WeaponId::Fiveseven: return   "C";
+            case WeaponId::Cz75a:     return   "I";
+            case WeaponId::Deagle:    return   "A";
+            case WeaponId::Revolver:  return   "J";
+
+            case WeaponId::Mac10: return   "K";
+            case WeaponId::Mp9:   return   "O";
+            case WeaponId::Mp7:   return   "N";
+            case WeaponId::Mp5sd: return   "L";
+            case WeaponId::Ump45: return   "L";
+            case WeaponId::P90:   return   "P";
+            case WeaponId::Bizon: return   "M";
+
+            case WeaponId::GalilAr: return "Q";
+            case WeaponId::Famas: return   "R";
+            case WeaponId::Ak47: return    "W";
+            case WeaponId::M4A1: return    "S";
+            case WeaponId::M4a1_s: return  "T";
+            case WeaponId::Sg553: return   "V";
+            case WeaponId::Aug: return     "U";
+
+            case WeaponId::Ssg08:  return   "a        ";
+            case WeaponId::Awp:    return   "Z        ";
+            case WeaponId::G3SG1:  return   "X      ";
+            case WeaponId::Scar20: return   "Y      ";
+
+            case WeaponId::Nova:     return   "e    ";
+            case WeaponId::Xm1014:   return   "b    ";
+            case WeaponId::Sawedoff: return   "c    ";
+            case WeaponId::Mag7:     return   "d    ";
+
+            case WeaponId::M249:  return   "g";
+            case WeaponId::Negev: return   "f";
+
+            case WeaponId::Flashbang:    return   "i";
+            case WeaponId::HeGrenade:    return   "j";
+            case WeaponId::SmokeGrenade: return   "k";
+            case WeaponId::Molotov:      return   "l";
+            case WeaponId::Decoy:        return   "m";
+            case WeaponId::IncGrenade:   return   "l";
+            case WeaponId::TaGrenade:    return   "TA Grenade";
+            case WeaponId::Firebomb:     return   "Fire Bomb";
+            case WeaponId::Diversion:    return   "Diversion";
+            case WeaponId::FragGrenade:  return   "Frag Grenade";
+            case WeaponId::Snowball:     return   "Snowball";
+
+            case WeaponId::Axe:     return   "Axe";
+            case WeaponId::Hammer:  return   "Hammer";
+            case WeaponId::Spanner: return   "Wrench";
+
+            case WeaponId::C4:           return   "o";
+            case WeaponId::Healthshot:   return   "Healthshot";
+            case WeaponId::BumpMine:     return   "Bump Mine";
+            case WeaponId::ZoneRepulsor: return   "Zone Repulsor";
+            case WeaponId::Shield:       return   "Shield";
+
+            case WeaponId::Bayonet:       return   "1   ";
+            case WeaponId::Flip:          return   "2   ";
+            case WeaponId::Gut:           return   "3   ";
+            case WeaponId::Karambit:      return   "4   ";
+            case WeaponId::M9Bayonet:     return   "5   ";
+            case WeaponId::Huntsman:      return   "6   ";
+            case WeaponId::Bowie:         return   "7   ";
+            case WeaponId::Butterfly:     return   "8   ";
+            case WeaponId::Daggers:       return   "9   ";
+            case WeaponId::Falchion:      return   "10   ";
+            case WeaponId::ClassicKnife:  return   "1   ";
+            case WeaponId::Knife:         return   "1   ";
+            case WeaponId::KnifeT:        return   "1   ";
+            case WeaponId::GhostKnife:    return   "1   ";
+            case WeaponId::GoldenKnife:   return   "1   ";
+            case WeaponId::NomadKnife:    return   "1   ";
+            case WeaponId::SkeletonKnife: return   "1   ";
+            case WeaponId::SurvivalKnife: return   "1   ";
+            case WeaponId::Ursus:         return   "1   ";
+            case WeaponId::Stiletto:      return   "1   ";
+            case WeaponId::Talon:         return   "1   ";
+            case WeaponId::Paracord:      return   "1   ";
+            case WeaponId::Navaja:        return   "1   ";
+
+            case WeaponId::Taser:         return "h";
+            }
+        }(weapon->itemDefinitionIndex2());
+
+
+        activeWeaponIcon = interfaces->localize->findAsUTF8(theName);
+       
+        const auto weaponInfo = weapon->getWeaponData();
+        ammoInClip = weapon->clip();
+        MaxAmmo = weaponInfo->maxClip;
+        if (const auto weaponInfo2 = weapon->getWeaponData()) {
+            activeWeapon = interfaces->localize->findAsUTF8(weaponInfo2->name);
+        }
+
+    }
     if (!alive || !inViewFrustum)
         return;
 

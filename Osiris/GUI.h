@@ -13,6 +13,15 @@ public:
     ImFont* getUnicodeFont() const noexcept;
     void handleToggle() noexcept;
     bool isOpen() noexcept { return open; }
+    struct {
+        ImFont* normal15px = nullptr;
+        ImFont* tahoma28 = nullptr;
+        ImFont* tahoma34 = nullptr;
+        ImFont* unicodeFont = nullptr;
+        ImFont* gunicons_small = nullptr;
+
+    } fonts;
+
 private:
     bool open = true;
 
@@ -33,12 +42,6 @@ private:
     void renderMiscWindow() noexcept;
     void renderConfigWindow() noexcept;
 
-    struct {
-        ImFont* normal15px = nullptr;
-        ImFont* tahoma28 = nullptr;
-        ImFont* tahoma34 = nullptr;
-        ImFont* unicodeFont = nullptr;
-    } fonts;
 
     float timeToNextConfigRefresh = 0.1f;
 };

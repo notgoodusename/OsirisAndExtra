@@ -17,6 +17,7 @@
 
 #include <limits>
 #include <tuple>
+#include "../GUI.h"
 
 static constexpr auto operator-(float sub, const std::array<float, 3>& a) noexcept
 {
@@ -64,7 +65,31 @@ public:
         return valid;
     }
 };
+struct FontPushIcon {
+    FontPushIcon(const std::string& name, float distance)
+    {
 
+        if (const auto it = config->getFonts().find(name); it != config->getFonts().end()) {
+            distance *= GameData::local().fov / 90.0f;
+
+            ImGui::PushFont([](const Config::Font& font, float dist) {
+                if (dist <= 400.0f)
+                return font.tiny;
+            if (dist <= 1000.0f)
+                return font.tiny;
+            return font.tiny;
+                }(it->second, distance));
+        }
+        else {
+            ImGui::PushFont(nullptr);
+        }
+    }
+
+    ~FontPushIcon()
+    {
+        ImGui::PopFont();
+    }
+};
 static ImDrawList* drawList;
 
 static void addLineWithShadow(const ImVec2& p1, const ImVec2& p2, ImU32 col) noexcept
@@ -266,6 +291,22 @@ struct FontPush {
         ImGui::PopFont();
     }
 };
+static ImVec2 renderIconSmall(float distance, float cullDistance, const Color4& textCfg, const char* text, const ImVec2& pos, bool centered = true, bool adjustHeight = true) noexcept
+{
+    if (cullDistance && Helpers::units2meters(distance) > cullDistance)
+        return { };
+
+    const auto textSize = ImGui::CalcTextSize(text);
+
+    const auto horizontalOffset = centered ? textSize.x / 2 : 0.0f;
+    const auto verticalOffset = adjustHeight ? textSize.y : 0.0f;
+
+    const auto color = Helpers::calculateColor(textCfg);
+    drawList->AddText(gui->fonts.gunicons_small, 12, { pos.x - horizontalOffset + 1.0f, pos.y - verticalOffset + 1.0f }, color & IM_COL32_A_MASK, text);
+    drawList->AddText(gui->fonts.gunicons_small, 12, { pos.x - horizontalOffset, pos.y - verticalOffset }, color, text);
+
+    return textSize;
+}
 
 static void drawHealthBar(const HealthBar& config, const ImVec2& pos, float height, int health) noexcept
 {
@@ -343,6 +384,22 @@ static void renderPlayerBox(const PlayerData& playerData, const Player& config) 
     if (config.weapon.enabled && !playerData.activeWeapon.empty()) {
         const auto weaponTextSize = renderText(playerData.distanceToLocal, config.textCullDistance, config.weapon, playerData.activeWeapon.c_str(), { (bbox.min.x + bbox.max.x) / 2, bbox.max.y + 1 }, true, false);
         offsetMaxs.y += weaponTextSize.y + 2.0f;
+    }
+    if (config.weaponIcon.enabled && !playerData.activeWeapon.empty()) {
+        FontPushIcon font{ config.font.name, playerData.distanceToLocal };
+
+        if(config.weapon.enabled)
+        {
+            const auto weaponTextSize = renderIconSmall(playerData.distanceToLocal, config.textCullDistance, config.weaponIcon, playerData.activeWeaponIcon.c_str(), { (bbox.min.x + bbox.max.x) / 2, bbox.max.y + 15 }, true, false);
+            offsetMaxs.y += weaponTextSize.y + 2.0f;
+        }
+        else
+        {
+            {
+                const auto weaponTextSize = renderIconSmall(playerData.distanceToLocal, config.textCullDistance, config.weaponIcon, playerData.activeWeaponIcon.c_str(), { (bbox.min.x + bbox.max.x) / 2, bbox.max.y + 1 }, true, false);
+                offsetMaxs.y += weaponTextSize.y + 2.0f;
+            }
+        }
     }
 
     drawSnapline(config.snapline, bbox.min + offsetMins, bbox.max + offsetMaxs);

@@ -106,6 +106,8 @@ struct Player : Shared {
     }
 
     ColorToggle weapon;
+    ColorToggle weaponIcon;
+
     ColorToggle flashDuration;
     bool audibleOnly = false;
     bool spottedOnly = false;

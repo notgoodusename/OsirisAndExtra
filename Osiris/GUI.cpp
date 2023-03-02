@@ -20,7 +20,7 @@
 #include "Hacks/SkinChanger.h"
 #include "Hacks/Sound.h"
 #include "Hacks/Visuals.h"
-
+#include "fonts.h"
 #include "GUI.h"
 #include "Config.h"
 #include "Helpers.h"
@@ -74,6 +74,9 @@ GUI::GUI() noexcept
 
         fonts.tahoma34 = io.Fonts->AddFontFromFileTTF((path / "tahoma.ttf").string().c_str(), 34.0f, &cfg, Helpers::getFontGlyphRanges());
         if (!fonts.tahoma34)
+            io.Fonts->AddFontDefault(&cfg);
+        fonts.gunicons_small = io.Fonts->AddFontFromMemoryTTF(weapons_font, sizeof(weapons_font), 12.f, &cfg, Helpers::getFontGlyphRanges());
+        if (!fonts.gunicons_small)
             io.Fonts->AddFontDefault(&cfg);
 
         fonts.tahoma28 = io.Fonts->AddFontFromFileTTF((path / "tahomabd.ttf").string().c_str(), 28.0f, &cfg, Helpers::getFontGlyphRanges());
@@ -1152,6 +1155,8 @@ void GUI::renderStreamProofESPWindow() noexcept
             auto& playerConfig = getConfigPlayer(currentCategory, currentItem);
 
             ImGuiCustom::colorPicker("Weapon", playerConfig.weapon);
+            ImGuiCustom::colorPicker("WeaponIcon", playerConfig.weaponIcon);
+
             ImGuiCustom::colorPicker("Flash Duration", playerConfig.flashDuration);
             ImGui::SameLine(spacing);
             ImGuiCustom::colorPicker("Skeleton", playerConfig.skeleton);

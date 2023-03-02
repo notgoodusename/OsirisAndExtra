@@ -132,6 +132,7 @@ struct PlayerData : BaseData {
     ImTextureID getAvatarTexture() const noexcept;
     ImTextureID getRankTexture() const noexcept;
     float fadingAlpha() const noexcept;
+    const char* theName = "All";
 
     bool dormant;
     bool enemy = false;
@@ -157,6 +158,10 @@ struct PlayerData : BaseData {
     Vector origin;
     Vector lookingAt;
     std::string activeWeapon;
+    int ammoInClip;
+    int MaxAmmo;
+    std::string activeWeaponIcon;
+
     std::vector<std::pair<Vector, Vector>> bones;
     int skillgroup;
     bool hasBomb;

@@ -103,15 +103,15 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             || !entity->isOtherEnemy(localPlayer.get()) && !cfg.friendlyFire || entity->gunGameImmunity())
             continue;
 
-        const auto player = Animations::getPlayer(i);
+        auto player = Animations::getPlayer(i);
         if (!player.gotMatrix)
             continue;
 
-        auto backupBoneCache = entity->getBoneCache().memory;
-        auto backupMins = entity->getCollideable()->obbMins();
-        auto backupMaxs = entity->getCollideable()->obbMaxs();
-        auto backupOrigin = entity->getAbsOrigin();
-        auto backupAbsAngle = entity->getAbsAngle();
+        matrix3x4* backupBoneCache = entity->getBoneCache().memory;
+        Vector backupMins = entity->getCollideable()->obbMins();
+        Vector backupMaxs = entity->getCollideable()->obbMaxs();
+        Vector backupOrigin = entity->getAbsOrigin();
+        Vector backupAbsAngle = entity->getAbsAngle();
 
         memcpy(entity->getBoneCache().memory, player.matrix.data(), std::clamp(entity->getBoneCache().size, 0, MAXSTUDIOBONES) * sizeof(matrix3x4));
         memory->setAbsOrigin(entity, player.origin);
@@ -177,7 +177,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
         if (!config->backtrack.enabled)
             continue;
 
-        const auto records = Animations::getBacktrackRecords(entity->index());
+        auto records = Animations::getBacktrackRecords(entity->index());
         if (!records || records->empty())
             continue;
 
@@ -190,7 +190,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
                 continue;
 
             const auto angle = AimbotFunction::calculateRelativeAngle(startPos, records->at(i).origin, cmd->viewangles + aimPunch);
-            const  auto fov = std::hypotf(angle.x, angle.y);
+            const auto fov = std::hypotf(angle.x, angle.y);
             if (fov < bestFov) {
                 bestFov = fov;
                 bestTick = i;
@@ -200,7 +200,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
         if (bestTick <= -1)
             continue;
 
-        const auto record = records->at(bestTick);
+        auto record = records->at(bestTick);
 
         backupBoneCache = entity->getBoneCache().memory;
         backupMins = entity->getCollideable()->obbMins();

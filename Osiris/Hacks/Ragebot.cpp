@@ -230,15 +230,15 @@ void Ragebot::run(UserCmd* cmd) noexcept
 
     for (const auto& target : enemies) 
     {
-        const auto entity{ interfaces->entityList->getEntity(target.id) };
-        const auto player = Animations::getPlayer(target.id);
-        const int minDamage = std::clamp(std::clamp(config->minDamageOverrideKey.isActive() ? cfg[weaponIndex].minDamageOverride : cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
+        auto entity{ interfaces->entityList->getEntity(target.id) };
+        auto player = Animations::getPlayer(target.id);
+        int minDamage = std::clamp(std::clamp(config->minDamageOverrideKey.isActive() ? cfg[weaponIndex].minDamageOverride : cfg[weaponIndex].minDamage, 0, target.health), 0, activeWeapon->getWeaponData()->damage);
 
-        const auto& backupBoneCache = entity->getBoneCache().memory;
-        const auto& backupMins = entity->getCollideable()->obbMins();
-        const auto& backupMaxs = entity->getCollideable()->obbMaxs();
-        const auto& backupOrigin = entity->getAbsOrigin();
-        const auto& backupAbsAngle = entity->getAbsAngle();
+        matrix3x4* backupBoneCache = entity->getBoneCache().memory;
+        Vector backupMins = entity->getCollideable()->obbMins();
+        Vector backupMaxs = entity->getCollideable()->obbMaxs();
+        Vector backupOrigin = entity->getAbsOrigin();
+        Vector backupAbsAngle = entity->getAbsAngle();
 
         for (int cycle = 0; cycle < 2; cycle++)
         {

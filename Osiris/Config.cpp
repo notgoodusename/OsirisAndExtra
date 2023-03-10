@@ -406,6 +406,14 @@ static void from_json(const json& j, Config::Visuals::FootstepESP& ft)
     read(j, "Radius", ft.footstepBeamRadius);
 }
 
+static void from_json(const json& j, Config::Visuals::CustomPostProcessing& c)
+{
+    read(j, "Enabled", c.enabled);
+    read(j, "World exposure", c.worldExposure);
+    read(j, "Model ambient", c.modelAmbient);
+    read(j, "Bloom scale", c.bloomScale);
+}
+
 static void from_json(const json& j, Config::Visuals& v)
 {
     read(j, "Disable post-processing", v.disablePostProcessing);
@@ -478,6 +486,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Molotov timer TIMER", v.molotovTimerTimer);
     read<value_t::object>(j, "Molotov timer TEXT", v.molotovTimerText);
     read<value_t::object>(j, "Footstep", v.footsteps);
+    read<value_t::object>(j, "Custom post-processing", v.customPostProcessing);
 }
 
 static void from_json(const json& j, sticker_setting& s)
@@ -1413,6 +1422,14 @@ static void to_json(json& j, const Config::Misc& o)
         j["Name"] = o.name;
 }
 
+static void to_json(json& j, const Config::Visuals::CustomPostProcessing& o, const Config::Visuals::CustomPostProcessing& dummy)
+{
+    WRITE("Enabled", enabled);
+    WRITE("World exposure", worldExposure);
+    WRITE("Model ambient", modelAmbient);
+    WRITE("Bloom scale", bloomScale);
+}
+
 static void to_json(json& j, const Config::Visuals& o)
 {
     const Config::Visuals dummy;
@@ -1488,6 +1505,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Molotov timer TIMER", molotovTimerTimer);
     WRITE("Molotov timer TEXT", molotovTimerText);
     WRITE("Footstep", footsteps);
+    WRITE("Custom post-processing", customPostProcessing);
 }
 
 static void to_json(json& j, const ImVec4& o)

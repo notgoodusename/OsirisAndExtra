@@ -1,4 +1,5 @@
 #include <array>
+#include <iostream>
 #include <cstring>
 #include <string.h>
 #include <deque>
@@ -946,6 +947,38 @@ void Visuals::updateShots(UserCmd* cmd) noexcept
 
     while (!shotRecord.empty() && fabsf(shotRecord.front().time - memory->globalVars->serverTime()) > 1.0f)
         shotRecord.pop_front();
+}
+
+void Visuals::doBloomEffects() noexcept
+{
+    if (!config->visuals.customPostProcessing.enabled)
+        return;
+
+    if (!localPlayer)
+        return;
+
+    for (int i = 0; i < 2048; i++)
+    {
+        Entity* ent = interfaces->entityList->getEntity(i);
+
+        if (!ent)
+            continue;
+
+        if (!std::string(ent->getClientClass()->networkName).ends_with("TonemapController"))
+            continue;
+
+        ent->customBloomScale() = true;
+        ent->customBloomScale() = config->visuals.customPostProcessing.bloomScale * 0.01f;
+
+        ent->customAutoExposureMin() = true;
+        ent->customAutoExposureMin() = config->visuals.customPostProcessing.worldExposure * 0.001f;
+
+        ent->customAutoExposureMax() = true;
+        ent->customAutoExposureMax() = config->visuals.customPostProcessing.worldExposure * 0.001f;
+
+        ConVar* modelAmbientMin = interfaces->cvar->findVar("r_modelAmbientMin");
+        modelAmbientMin->setValue(config->visuals.customPostProcessing.modelAmbient);
+    }
 }
 
 void Visuals::footstepESP(GameEvent* event) noexcept

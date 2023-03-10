@@ -1261,6 +1261,19 @@ void GUI::renderVisualsWindow() noexcept
         ImGui::SetTooltip("file must be in csgo/models/ directory and must start with models/...");
     ImGui::Checkbox("Disable post-processing", &config->visuals.disablePostProcessing);
     ImGui::Checkbox("Disable jiggle bones", &config->visuals.disableJiggleBones);
+    ImGui::Checkbox("Custom post-processing", &config->visuals.customPostProcessing.enabled);
+    ImGui::SameLine();
+    bool ppPopup = ImGui::Button("...");
+
+    if (ppPopup)
+        ImGui::OpenPopup("##pppopup");
+
+    if (ImGui::BeginPopup("##pppopup")) {
+        ImGui::SliderFloat("Bloom", &config->visuals.customPostProcessing.bloomScale, 0.0f, 750.f, "%.3f", ImGuiSliderFlags_Logarithmic);
+        ImGui::SliderFloat("Exposure", &config->visuals.customPostProcessing.worldExposure, 0.0f, 2000.f, "%.3f", ImGuiSliderFlags_Logarithmic);
+        ImGui::SliderFloat("Ambient", &config->visuals.customPostProcessing.modelAmbient, 0.0f, 1500.f, "%.3f", ImGuiSliderFlags_Logarithmic);
+        ImGui::EndPopup();
+    }
     ImGui::Checkbox("Inverse ragdoll gravity", &config->visuals.inverseRagdollGravity);
     ImGui::Checkbox("Keep FOV during scope", &config->visuals.keepFov);
     ImGui::Checkbox("No fog", &config->visuals.noFog);

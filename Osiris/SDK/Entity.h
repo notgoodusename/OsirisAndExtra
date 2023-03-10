@@ -773,6 +773,13 @@ public:
 
     NETVAR(thrower, "CBaseGrenade", "m_hThrower", int)
         
+    NETVAR(useCustomAutoExposureMin, "CEnvTonemapController", "m_bUseCustomAutoExposureMin", bool)
+    NETVAR(useCustomAutoExposureMax, "CEnvTonemapController", "m_bUseCustomAutoExposureMax", bool)
+    NETVAR(useCustomBloomScale, "CEnvTonemapController", "m_bUseCustomBloomScale", bool)
+    NETVAR(customAutoExposureMin, "CEnvTonemapController", "m_flCustomAutoExposureMin", float)
+    NETVAR(customAutoExposureMax, "CEnvTonemapController", "m_flCustomAutoExposureMax", float)
+    NETVAR(customBloomScale, "CEnvTonemapController", "m_flCustomBloomScale", float)
+        
     NETVAR(mapHasBombTarget, "CCSGameRulesProxy", "m_bMapHasBombTarget", bool)
     NETVAR(freezePeriod, "CCSGameRulesProxy", "m_bFreezePeriod", bool)
     NETVAR(isValveDS, "CCSGameRulesProxy", "m_bIsValveDS", bool)

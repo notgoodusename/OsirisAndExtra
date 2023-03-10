@@ -546,6 +546,7 @@ static void __stdcall frameStageNotify(FrameStage stage) noexcept
         Visuals::updateEventListeners();
         Resolver::updateEventListeners();
         Visuals::transparentWorld();
+        Visuals::doBloomEffects();
     }
     if (interfaces->engine->isInGame()) {
         Visuals::drawBulletImpacts();

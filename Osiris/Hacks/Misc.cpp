@@ -1776,6 +1776,61 @@ void Misc::drawBombTimer() noexcept
     std::ostringstream ss; ss << "Bomb on " << (!plantedC4.bombsite ? 'A' : 'B') << " : " << std::fixed << std::showpoint << std::setprecision(3) << (std::max)(plantedC4.blowTime - memory->globalVars->currenttime, 0.0f) << " s";
 
     ImGui::textUnformattedCentered(ss.str().c_str());
+    
+    bool drawDamage = true;
+
+    auto targetEntity = localPlayer && !localPlayer->isAlive() ? localPlayer->getObserverTarget() : localPlayer.get();
+    auto bombEntity = interfaces->entityList->getEntityFromHandle(plantedC4.bombHandle);
+
+    if (!bombEntity || bombEntity->isDormant() || bombEntity->getClientClass()->classId != ClassId::PlantedC4)
+        drawDamage = false;
+
+    if (!targetEntity || targetEntity->isDormant())
+        drawDamage = false;
+
+    constexpr float bombDamage = 500.f;
+    constexpr float bombRadius = bombDamage * 3.5f;
+    constexpr float sigma = bombRadius / 3.0f;
+
+    constexpr float armorRatio = 0.5f;
+    constexpr float armorBonus = 0.5f;
+
+    if (drawDamage) {
+        const float armorValue = static_cast<float>(targetEntity->armor());
+        const int health = targetEntity->health();
+
+        float finalBombDamage = 0.f;
+        float distanceToLocalPlayer = (bombEntity->origin() - targetEntity->origin()).length();
+        float gaussianFalloff = exp(-distanceToLocalPlayer * distanceToLocalPlayer / (2.0f * sigma * sigma));
+
+        finalBombDamage = bombDamage * gaussianFalloff;
+
+        if (armorValue > 0) {
+            float newRatio = finalBombDamage * armorRatio;
+            float armor = (finalBombDamage - newRatio) * armorBonus;
+
+            if (armor > armorValue) {
+                armor = armorValue * (1.f / armorBonus);
+                newRatio = finalBombDamage - armor;
+            }
+            finalBombDamage = newRatio;
+        }
+
+        int displayBombDamage = static_cast<int>(floor(finalBombDamage));
+
+        if (health <= (truncf(finalBombDamage * 10) / 10)) {
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+            ImGui::textUnformattedCentered("Lethal");
+            ImGui::PopStyleColor();
+        }
+        else {
+            std::ostringstream text; text << "Damage: " << std::clamp(displayBombDamage, 0, health - 1);
+            const auto color = Helpers::healthColor(std::clamp(1.f - (finalBombDamage / static_cast<float>(health)), 0.0f, 1.0f));
+            ImGui::PushStyleColor(ImGuiCol_Text, color);
+            ImGui::textUnformattedCentered(text.str().c_str());
+            ImGui::PopStyleColor();
+        }
+    }
 
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, Helpers::calculateColor(config->misc.bombTimer));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4{ 0.2f, 0.2f, 0.2f, 1.0f });

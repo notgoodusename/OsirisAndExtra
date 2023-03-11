@@ -1777,7 +1777,7 @@ void Misc::drawBombTimer() noexcept
 
     ImGui::textUnformattedCentered(ss.str().c_str());
     
-    bool drawDamage = true; //we want to draw the progress bar even if we cant do the damage
+    bool drawDamage = true;
 
     auto targetEntity = localPlayer && !localPlayer->isAlive() ? localPlayer->getObserverTarget() : localPlayer.get();
     auto bombEntity = interfaces->entityList->getEntityFromHandle(plantedC4.bombHandle);
@@ -1789,7 +1789,7 @@ void Misc::drawBombTimer() noexcept
         drawDamage = false;
 
     constexpr float bombDamage = 500.f;
-    constexpr float bombRadius = bombDamage * 3.5f; //wont work with some maps because of this i guess
+    constexpr float bombRadius = bombDamage * 3.5f;
     constexpr float sigma = bombRadius / 3.0f;
 
     constexpr float armorRatio = 0.5f;

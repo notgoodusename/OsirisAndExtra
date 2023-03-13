@@ -1068,22 +1068,22 @@ void Visuals::bulletTracer(GameEvent& event) noexcept
         beamInfo.blue = 255.0f * config->visuals.bulletTracers.color[2];
         beamInfo.brightness = 255.0f * config->visuals.bulletTracers.color[3];
 
-        beamInfo.type = TE_BEAMPOINTS;
-        //beamInfo.life = 0.0f;
+        beamInfo.type = 0;
+        beamInfo.life = 0.0f;
         beamInfo.amplitude = 0.0f;
         beamInfo.segments = -1;
         beamInfo.renderable = true;
-        beamInfo.speed = 0.0f;
+        beamInfo.speed = 0.2f;
         beamInfo.startFrame = 0;
         beamInfo.frameRate = 0.0f;
-        beamInfo.width = 2.0f;
-        beamInfo.endWidth = 2.0f;
-        //beamInfo.flags = 0x40;
+        beamInfo.width = 3.5f;
+        beamInfo.endWidth = 3.5f;
+        beamInfo.flags = 0x40 | FBEAM_NOTILE | FBEAM_ONLYNOISEONCE;
         beamInfo.fadeLength = 20.0f;
 
         if (const auto beam = memory->viewRenderBeams->createBeamPoints(beamInfo)) {
-            //constexpr auto FBEAM_FOREVER = 0x4000;
-            beam->flags = FBEAM_FADEOUT | FBEAM_HALOBEAM;
+            constexpr auto FBEAM_FOREVER = 0x4000;
+            beam->flags &= ~FBEAM_FOREVER;
             beam->die = memory->globalVars->currenttime + 2.0f;
         }
         shotRecord.front().gotImpact = true;

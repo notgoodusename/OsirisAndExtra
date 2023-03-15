@@ -1779,7 +1779,7 @@ void Misc::drawBombTimer() noexcept
     
     bool drawDamage = true;
 
-    auto targetEntity = localPlayer && !localPlayer->isAlive() ? localPlayer->getObserverTarget() : localPlayer.get();
+    auto targetEntity = (localPlayer || !localPlayer->isAlive()) ? localPlayer->getObserverTarget() : localPlayer.get();
     auto bombEntity = interfaces->entityList->getEntityFromHandle(plantedC4.bombHandle);
 
     if (!bombEntity || bombEntity->isDormant() || bombEntity->getClientClass()->classId != ClassId::PlantedC4)

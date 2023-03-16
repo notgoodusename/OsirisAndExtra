@@ -1753,8 +1753,10 @@ void Misc::drawBombTimer() noexcept
     if (!config->misc.bombTimer.enabled)
         return;
 
+    if (!localPlayer)
+        return;
+
     GameData::Lock lock;
-    
     const auto& plantedC4 = GameData::plantedC4();
     if (plantedC4.blowTime == 0.0f && !gui->isOpen())
         return;
@@ -1779,7 +1781,7 @@ void Misc::drawBombTimer() noexcept
     
     bool drawDamage = true;
 
-    auto targetEntity = (localPlayer || !localPlayer->isAlive()) ? localPlayer->getObserverTarget() : localPlayer.get();
+    auto targetEntity = !localPlayer->isAlive() ? localPlayer->getObserverTarget() : localPlayer.get();
     auto bombEntity = interfaces->entityList->getEntityFromHandle(plantedC4.bombHandle);
 
     if (!bombEntity || bombEntity->isDormant() || bombEntity->getClientClass()->classId != ClassId::PlantedC4)

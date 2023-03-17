@@ -569,6 +569,10 @@ static void from_json(const json& j, Config::Misc::KeyBoardDisplay& kbd)
 static void from_json(const json& j, Config::Misc::Watermark& o)
 {
     read(j, "Enabled", o.enabled);
+    read(j, "Cheat", o.cheat);
+    read(j, "Fps", o.fps);
+    read(j, "Latency", o.latency);
+    read(j, "Time", o.time);
     read<value_t::object>(j, "Pos", o.pos);
 }
 
@@ -1215,7 +1219,10 @@ static void to_json(json& j, const Config::Misc::KeyBoardDisplay& o, const Confi
 static void to_json(json& j, const Config::Misc::Watermark& o, const Config::Misc::Watermark& dummy = {})
 {
     WRITE("Enabled", enabled);
-
+    WRITE("Cheat", cheat);
+    WRITE("Fps", fps);
+    WRITE("Latency", latency);
+    WRITE("Time", time);
     if (const auto window = ImGui::FindWindowByName("Watermark")) {
         j["Pos"] = window->Pos;
     }

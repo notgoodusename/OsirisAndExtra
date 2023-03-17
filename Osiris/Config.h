@@ -419,6 +419,10 @@ public:
 
         struct Watermark {
             bool enabled = false;
+            bool cheat = true;
+            bool fps = true;
+            bool latency = true;
+            bool time = true;
             ImVec2 pos;
         };
         Watermark watermark;

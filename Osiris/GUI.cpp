@@ -1869,6 +1869,19 @@ void GUI::renderMiscWindow() noexcept
     ImGui::PopID();
 
     ImGui::Checkbox("Watermark", &config->misc.watermark.enabled);
+    ImGui::SameLine();
+
+    ImGui::PushID("Watermark");
+    if (ImGui::Button("..."))
+        ImGui::OpenPopup("");
+
+    if (ImGui::BeginPopup("")) {
+        ImGui::Checkbox("Cheat", &config->misc.watermark.cheat);
+        ImGui::Checkbox("Fps", &config->misc.watermark.fps);
+        ImGui::Checkbox("Latency", &config->misc.watermark.latency);
+        ImGui::Checkbox("Time", &config->misc.watermark.time);
+        ImGui::EndPopup();
+    }
     ImGuiCustom::colorPicker("Offscreen Enemies", config->misc.offscreenEnemies, &config->misc.offscreenEnemies.enabled);
     ImGui::SameLine();
     ImGui::PushID("Offscreen Enemies");

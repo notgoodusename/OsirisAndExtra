@@ -420,6 +420,7 @@ public:
         struct Watermark {
             bool enabled = false;
             bool cheat = true;
+            bool user = true;
             bool fps = true;
             bool latency = true;
             bool time = true;

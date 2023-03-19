@@ -1661,6 +1661,8 @@ void Misc::watermark() noexcept
     ImGui::SetNextWindowBgAlpha(0.3f);
     ImGui::Begin("Watermark", nullptr, windowFlags);
 
+    char* username = getenv("username");
+
     static auto frameRate = 1.0f;
     frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
 
@@ -1674,6 +1676,13 @@ void Misc::watermark() noexcept
     //cheat
     if (config->misc.watermark.cheat)
         ImGui::Text("Osiris");
+    ImGui::SameLine();
+    if (config->misc.watermark.cheat && (config->misc.watermark.user || config->misc.watermark.fps || config->misc.watermark.latency || config->misc.watermark.time))
+        ImGui::Text("|");
+    ImGui::SameLine();
+    //username
+    if (config->misc.watermark.user)
+        ImGui::Text(username);
     ImGui::SameLine();
     if (config->misc.watermark.cheat && (config->misc.watermark.fps || config->misc.watermark.latency || config->misc.watermark.time))
         ImGui::Text("|");

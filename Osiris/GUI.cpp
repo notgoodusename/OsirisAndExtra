@@ -1877,6 +1877,7 @@ void GUI::renderMiscWindow() noexcept
 
     if (ImGui::BeginPopup("")) {
         ImGui::Checkbox("Cheat", &config->misc.watermark.cheat);
+        ImGui::Checkbox("User", &config->misc.watermark.user);
         ImGui::Checkbox("Fps", &config->misc.watermark.fps);
         ImGui::Checkbox("Latency", &config->misc.watermark.latency);
         ImGui::Checkbox("Time", &config->misc.watermark.time);

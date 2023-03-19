@@ -1677,32 +1677,32 @@ void Misc::watermark() noexcept
     if (config->misc.watermark.cheat)
         ImGui::Text("Osiris");
     ImGui::SameLine();
-    if (config->misc.watermark.cheat && (config->misc.watermark.user || config->misc.watermark.fps || config->misc.watermark.latency || config->misc.watermark.time))
+    if (config->misc.watermark.cheat && (config->misc.watermark.user || config->misc.watermark.fps || config->misc.watermark.latency || config->misc.watermark.wtime))
         ImGui::Text("|");
     ImGui::SameLine();
     //username
     if (config->misc.watermark.user)
         ImGui::Text(username);
     ImGui::SameLine();
-    if (config->misc.watermark.cheat && (config->misc.watermark.fps || config->misc.watermark.latency || config->misc.watermark.time))
+    if (config->misc.watermark.user && (config->misc.watermark.fps || config->misc.watermark.latency || config->misc.watermark.wtime))
         ImGui::Text("|");
     ImGui::SameLine();
     //fps
     if (config->misc.watermark.fps)
         ImGui::Text("%d fps", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0);
     ImGui::SameLine();
-    if (config->misc.watermark.fps && (config->misc.watermark.latency || config->misc.watermark.time))
+    if (config->misc.watermark.fps && (config->misc.watermark.latency || config->misc.watermark.wtime))
         ImGui::Text("|");
     ImGui::SameLine();
     //latency
     if (config->misc.watermark.latency)
         ImGui::Text("%d ms", GameData::getNetOutgoingLatency());
     ImGui::SameLine();
-    if (config->misc.watermark.latency && config->misc.watermark.time)
+    if (config->misc.watermark.latency && config->misc.watermark.wtime)
         ImGui::Text("|");
     ImGui::SameLine();
     //time
-    if (config->misc.watermark.time)
+    if (config->misc.watermark.wtime)
         ImGui::Text("%02d:%02d:%02d", localTime->tm_hour, localTime->tm_min, localTime->tm_sec);
     ImGui::End();
 }

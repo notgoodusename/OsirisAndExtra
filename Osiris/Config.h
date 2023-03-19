@@ -423,7 +423,7 @@ public:
             bool user = true;
             bool fps = true;
             bool latency = true;
-            bool time = true;
+            bool wtime = true;
             ImVec2 pos;
         };
         Watermark watermark;

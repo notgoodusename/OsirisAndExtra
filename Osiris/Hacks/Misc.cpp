@@ -1670,24 +1670,39 @@ void Misc::watermark() noexcept
 
 void Misc::prepareRevolver(UserCmd* cmd) noexcept
 {
-    constexpr float revolverPrepareTime{ 0.234375f };
-
-    static float readyTime;
     if (!config->misc.prepareRevolver || !config->misc.prepareRevolverKey.isActive())
         return;
 
     if (!localPlayer)
         return;
 
-    const auto activeWeapon = localPlayer->getActiveWeapon();
-    if (activeWeapon && activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver) {
-        if (!readyTime) 
-            readyTime = memory->globalVars->serverTime() + revolverPrepareTime;
-        const auto ticksToReady = timeToTicks(readyTime - memory->globalVars->serverTime() - interfaces->engine->getNetworkChannel()->getLatency(0));
-        if (ticksToReady > 0 && ticksToReady <= timeToTicks(revolverPrepareTime))
-            cmd->buttons |= UserCmd::IN_ATTACK;
-        else
-            readyTime = 0.0f;
+    if (cmd->buttons & UserCmd::IN_ATTACK)
+        return;
+    
+    constexpr float revolverPrepareTime{ 0.234375f };
+
+   	if (auto activeWeapon = localPlayer->getActiveWeapon(); activeWeapon && activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver)
+    {
+        const auto time = memory->globalVars->serverTime();
+
+		if (localPlayer->nextAttack() > time)
+			return;
+
+		cmd->buttons &= ~UserCmd::IN_ATTACK2;
+
+		static auto readyTime = time + revolverPrepareTime;
+		if (activeWeapon->nextPrimaryAttack() <= time)
+        {
+            if (readyTime <= time)
+			{
+				if (activeWeapon->nextSecondaryAttack() <= time)
+					readyTime = time + revolverPrepareTime;
+				else
+					cmd->buttons |= UserCmd::IN_ATTACK2
+            } else
+				cmd->buttons |= UserCmd::IN_ATTACK;
+            } else
+			readyTime = time + revolverPrepareTime;
     }
 }
 

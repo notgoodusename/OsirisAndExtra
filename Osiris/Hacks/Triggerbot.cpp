@@ -13,8 +13,6 @@
 #include "../SDK/WeaponData.h"
 #include "../SDK/WeaponId.h"
 
-static bool keyPressed;
-
 void Triggerbot::run(UserCmd* cmd) noexcept
 {
     if (!config->triggerbotKey.isActive())

@@ -1698,7 +1698,7 @@ void Misc::prepareRevolver(UserCmd* cmd) noexcept
 				if (activeWeapon->nextSecondaryAttack() <= time)
 					readyTime = time + revolverPrepareTime;
 				else
-					cmd->buttons |= UserCmd::IN_ATTACK2
+					cmd->buttons |= UserCmd::IN_ATTACK2;
             } else
 				cmd->buttons |= UserCmd::IN_ATTACK;
             } else

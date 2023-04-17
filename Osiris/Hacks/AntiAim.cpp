@@ -376,9 +376,6 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
             return false;
     }
 
-    if (activeWeapon->itemDefinitionIndex2() == WeaponId::Revolver && activeWeapon->readyTime() <= memory->globalVars->serverTime() && cmd->buttons & (UserCmd::IN_ATTACK | UserCmd::IN_ATTACK2))
-        return false;
-
     const auto weaponIndex = getWeaponIndex(activeWeapon->itemDefinitionIndex2());
     if (!weaponIndex)
         return true;

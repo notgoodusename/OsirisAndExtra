@@ -247,7 +247,7 @@ void Visuals::drawAimbotFov(ImDrawList* drawList) noexcept
 
     const auto& cfg = config->legitbot;
 
-    auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
+    auto weaponClass = getWeaponClass1(activeWeapon->itemDefinitionIndex2());
     if (!cfg[weaponIndex].enabled)
         weaponIndex = weaponClass;
 

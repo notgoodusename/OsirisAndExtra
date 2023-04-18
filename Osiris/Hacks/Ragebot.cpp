@@ -136,7 +136,7 @@ void Ragebot::run(UserCmd* cmd) noexcept
     if (!weaponIndex)
         return;
 
-    auto weaponClass = getWeaponClass(activeWeapon->itemDefinitionIndex2());
+    auto weaponClass = getWeaponClass2(activeWeapon->itemDefinitionIndex2());
     if (!cfg[weaponIndex].enabled)
         weaponIndex = weaponClass;
 

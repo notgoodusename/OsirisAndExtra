@@ -202,7 +202,7 @@ constexpr int getWeaponIndex(WeaponId weaponId) noexcept
     }
 }
 
-constexpr int getWeaponClass(WeaponId weaponId) noexcept
+constexpr int getWeaponClass1(WeaponId weaponId) noexcept
 {
     switch (weaponId) {
     default: return 0;
@@ -218,12 +218,19 @@ constexpr int getWeaponClass(WeaponId weaponId) noexcept
     case WeaponId::Deagle:
     case WeaponId::Revolver: return 35;
 
-    case WeaponId::Nova:
-    case WeaponId::Xm1014:
-    case WeaponId::Sawedoff:
-    case WeaponId::Mag7:
-    case WeaponId::M249:
-    case WeaponId::Negev: return 36;
+    case WeaponId::GalilAr:
+    case WeaponId::Famas:
+    case WeaponId::Ak47:
+    case WeaponId::M4A1:
+    case WeaponId::M4a1_s:
+    case WeaponId::Sg553:
+    case WeaponId::Aug:
+    case WeaponId::G3SG1:
+    case WeaponId::Scar20: return 36;
+
+    case WeaponId::Awp: return 37;
+
+    case WeaponId::Ssg08: return 38;
 
     case WeaponId::Mac10:
     case WeaponId::Mp9:
@@ -231,18 +238,32 @@ constexpr int getWeaponClass(WeaponId weaponId) noexcept
     case WeaponId::Mp5sd:
     case WeaponId::Ump45:
     case WeaponId::P90:
-    case WeaponId::Bizon: return 37;
+    case WeaponId::Bizon: return 39;
+    }
+}
 
-    case WeaponId::GalilAr:
-    case WeaponId::Famas:
-    case WeaponId::Ak47:
-    case WeaponId::M4A1:
-    case WeaponId::M4a1_s:
-    case WeaponId::Ssg08:
-    case WeaponId::Sg553:
-    case WeaponId::Aug:
-    case WeaponId::Awp:
+constexpr int getWeaponClass2(WeaponId weaponId) noexcept
+{
+    switch (weaponId) {
+    default: return 0;
+
+    case WeaponId::Glock:
+    case WeaponId::Hkp2000:
+    case WeaponId::Usp_s:
+    case WeaponId::Elite:
+    case WeaponId::P250:
+    case WeaponId::Tec9:
+    case WeaponId::Fiveseven:
+    case WeaponId::Cz75a: return 35;
+
+    case WeaponId::Deagle:
+    case WeaponId::Revolver: return 36;
+
+    case WeaponId::Ssg08: return 37;
+
+    case WeaponId::Awp: return 38;
+
     case WeaponId::G3SG1:
-    case WeaponId::Scar20: return 38;
+    case WeaponId::Scar20: return 39;
     }
 }

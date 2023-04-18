@@ -174,90 +174,32 @@ void GUI::renderLegitbotWindow() noexcept
     static int currentCategory{ 0 };
     ImGui::PushItemWidth(110.0f);
     ImGui::PushID(0);
-    ImGui::Combo("", &currentCategory, "All\0Pistols\0Heavy\0SMG\0Rifles\0");
+    ImGui::Combo("", &currentCategory, "All\0Pistol\0Rifle\0AWP\0Scout\0SMG");
     ImGui::PopID();
-    ImGui::SameLine();
     static int currentWeapon{ 0 };
     ImGui::PushID(1);
 
     switch (currentCategory) {
     case 0:
         currentWeapon = 0;
-        ImGui::NewLine();
         break;
-    case 1: {
-        static int currentPistol{ 0 };
-        static constexpr const char* pistols[]{ "All", "Glock-18", "P2000", "USP-S", "Dual Berettas", "P250", "Tec-9", "Five-Seven", "CZ-75", "Desert Eagle", "Revolver" };
-
-        ImGui::Combo("", &currentPistol, [](void* data, int idx, const char** out_text) {
-            if (config->legitbot[idx ? idx : 35].enabled) {
-                static std::string name;
-                name = pistols[idx];
-                *out_text = name.append(" *").c_str();
-            } else {
-                *out_text = pistols[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(pistols));
-
-        currentWeapon = currentPistol ? currentPistol : 35;
+    case 1:
+        currentWeapon = 35;
+        break;
+    case 2:
+        currentWeapon = 36;
+        break;
+    case 3:
+        currentWeapon = 37;
+        break;
+    case 4:
+        currentWeapon = 38;
+        break;
+    case 5:
+        currentWeapon = 39;
         break;
     }
-    case 2: {
-        static int currentHeavy{ 0 };
-        static constexpr const char* heavies[]{ "All", "Nova", "XM1014", "Sawed-off", "MAG-7", "M249", "Negev" };
-
-        ImGui::Combo("", &currentHeavy, [](void* data, int idx, const char** out_text) {
-            if (config->legitbot[idx ? idx + 10 : 36].enabled) {
-                static std::string name;
-                name = heavies[idx];
-                *out_text = name.append(" *").c_str();
-            } else {
-                *out_text = heavies[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(heavies));
-
-        currentWeapon = currentHeavy ? currentHeavy + 10 : 36;
-        break;
-    }
-    case 3: {
-        static int currentSmg{ 0 };
-        static constexpr const char* smgs[]{ "All", "Mac-10", "MP9", "MP7", "MP5-SD", "UMP-45", "P90", "PP-Bizon" };
-
-        ImGui::Combo("", &currentSmg, [](void* data, int idx, const char** out_text) {
-            if (config->legitbot[idx ? idx + 16 : 37].enabled) {
-                static std::string name;
-                name = smgs[idx];
-                *out_text = name.append(" *").c_str();
-            } else {
-                *out_text = smgs[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(smgs));
-
-        currentWeapon = currentSmg ? currentSmg + 16 : 37;
-        break;
-    }
-    case 4: {
-        static int currentRifle{ 0 };
-        static constexpr const char* rifles[]{ "All", "Galil AR", "Famas", "AK-47", "M4A4", "M4A1-S", "SSG-08", "SG-553", "AUG", "AWP", "G3SG1", "SCAR-20" };
-
-        ImGui::Combo("", &currentRifle, [](void* data, int idx, const char** out_text) {
-            if (config->legitbot[idx ? idx + 23 : 38].enabled) {
-                static std::string name;
-                name = rifles[idx];
-                *out_text = name.append(" *").c_str();
-            } else {
-                *out_text = rifles[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(rifles));
-
-        currentWeapon = currentRifle ? currentRifle + 23 : 38;
-        break;
-    }
-    }
+    
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::Checkbox("Enabled", &config->legitbot[currentWeapon].enabled);
@@ -337,94 +279,32 @@ void GUI::renderRagebotWindow() noexcept
     static int currentCategory{ 0 };
     ImGui::PushItemWidth(110.0f);
     ImGui::PushID(0);
-    ImGui::Combo("", &currentCategory, "All\0Pistols\0Heavy\0SMG\0Rifles\0");
+    ImGui::Combo("", &currentCategory, "All\0Pistol\0Heavy Pistol\0Scout\0AWP\0Auto");
     ImGui::PopID();
-    ImGui::SameLine();
     static int currentWeapon{ 0 };
     ImGui::PushID(1);
 
     switch (currentCategory) {
     case 0:
         currentWeapon = 0;
-        ImGui::NewLine();
         break;
-    case 1: {
-        static int currentPistol{ 0 };
-        static constexpr const char* pistols[]{ "All", "Glock-18", "P2000", "USP-S", "Dual Berettas", "P250", "Tec-9", "Five-Seven", "CZ-75", "Desert Eagle", "Revolver" };
-
-        ImGui::Combo("", &currentPistol, [](void* data, int idx, const char** out_text) {
-            if (config->ragebot[idx ? idx : 35].enabled) {
-                static std::string name;
-                name = pistols[idx];
-                *out_text = name.append(" *").c_str();
-            }
-            else {
-                *out_text = pistols[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(pistols));
-
-        currentWeapon = currentPistol ? currentPistol : 35;
+    case 1:
+        currentWeapon = 35;
+        break;
+    case 2:
+        currentWeapon = 36;
+        break;
+    case 3:
+        currentWeapon = 37;
+        break;
+    case 4:
+        currentWeapon = 38;
+        break;
+    case 5:
+        currentWeapon = 39;
         break;
     }
-    case 2: {
-        static int currentHeavy{ 0 };
-        static constexpr const char* heavies[]{ "All", "Nova", "XM1014", "Sawed-off", "MAG-7", "M249", "Negev" };
-
-        ImGui::Combo("", &currentHeavy, [](void* data, int idx, const char** out_text) {
-            if (config->ragebot[idx ? idx + 10 : 36].enabled) {
-                static std::string name;
-                name = heavies[idx];
-                *out_text = name.append(" *").c_str();
-            }
-            else {
-                *out_text = heavies[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(heavies));
-
-        currentWeapon = currentHeavy ? currentHeavy + 10 : 36;
-        break;
-    }
-    case 3: {
-        static int currentSmg{ 0 };
-        static constexpr const char* smgs[]{ "All", "Mac-10", "MP9", "MP7", "MP5-SD", "UMP-45", "P90", "PP-Bizon" };
-
-        ImGui::Combo("", &currentSmg, [](void* data, int idx, const char** out_text) {
-            if (config->ragebot[idx ? idx + 16 : 37].enabled) {
-                static std::string name;
-                name = smgs[idx];
-                *out_text = name.append(" *").c_str();
-            }
-            else {
-                *out_text = smgs[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(smgs));
-
-        currentWeapon = currentSmg ? currentSmg + 16 : 37;
-        break;
-    }
-    case 4: {
-        static int currentRifle{ 0 };
-        static constexpr const char* rifles[]{ "All", "Galil AR", "Famas", "AK-47", "M4A4", "M4A1-S", "SSG-08", "SG-553", "AUG", "AWP", "G3SG1", "SCAR-20" };
-
-        ImGui::Combo("", &currentRifle, [](void* data, int idx, const char** out_text) {
-            if (config->ragebot[idx ? idx + 23 : 38].enabled) {
-                static std::string name;
-                name = rifles[idx];
-                *out_text = name.append(" *").c_str();
-            }
-            else {
-                *out_text = rifles[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(rifles));
-
-        currentWeapon = currentRifle ? currentRifle + 23 : 38;
-        break;
-    }
-    }
+   
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::Checkbox("Enabled", &config->ragebot[currentWeapon].enabled);
@@ -516,94 +396,32 @@ void GUI::renderTriggerbotWindow() noexcept
     static int currentCategory{ 0 };
     ImGui::PushItemWidth(110.0f);
     ImGui::PushID(0);
-    ImGui::Combo("", &currentCategory, "All\0Pistols\0Heavy\0SMG\0Rifles\0Zeus x27\0");
+    ImGui::Combo("", &currentCategory, "All\0Pistol\0Rifle\0AWP\0Scout\0SMG");
     ImGui::PopID();
-    ImGui::SameLine();
     static int currentWeapon{ 0 };
     ImGui::PushID(1);
-    switch (currentCategory) {
+  
+      switch (currentCategory) {
     case 0:
         currentWeapon = 0;
-        ImGui::NewLine();
+        break;
+    case 1:
+        currentWeapon = 35;
+        break;
+    case 2:
+        currentWeapon = 36;
+        break;
+    case 3:
+        currentWeapon = 37;
+        break;
+    case 4:
+        currentWeapon = 38;
         break;
     case 5:
         currentWeapon = 39;
-        ImGui::NewLine();
-        break;
-
-    case 1: {
-        static int currentPistol{ 0 };
-        static constexpr const char* pistols[]{ "All", "Glock-18", "P2000", "USP-S", "Dual Berettas", "P250", "Tec-9", "Five-Seven", "CZ-75", "Desert Eagle", "Revolver" };
-
-        ImGui::Combo("", &currentPistol, [](void* data, int idx, const char** out_text) {
-            if (config->triggerbot[idx ? idx : 35].enabled) {
-                static std::string name;
-                name = pistols[idx];
-                *out_text = name.append(" *").c_str();
-            } else {
-                *out_text = pistols[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(pistols));
-
-        currentWeapon = currentPistol ? currentPistol : 35;
         break;
     }
-    case 2: {
-        static int currentHeavy{ 0 };
-        static constexpr const char* heavies[]{ "All", "Nova", "XM1014", "Sawed-off", "MAG-7", "M249", "Negev" };
-
-        ImGui::Combo("", &currentHeavy, [](void* data, int idx, const char** out_text) {
-            if (config->triggerbot[idx ? idx + 10 : 36].enabled) {
-                static std::string name;
-                name = heavies[idx];
-                *out_text = name.append(" *").c_str();
-            } else {
-                *out_text = heavies[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(heavies));
-
-        currentWeapon = currentHeavy ? currentHeavy + 10 : 36;
-        break;
-    }
-    case 3: {
-        static int currentSmg{ 0 };
-        static constexpr const char* smgs[]{ "All", "Mac-10", "MP9", "MP7", "MP5-SD", "UMP-45", "P90", "PP-Bizon" };
-
-        ImGui::Combo("", &currentSmg, [](void* data, int idx, const char** out_text) {
-            if (config->triggerbot[idx ? idx + 16 : 37].enabled) {
-                static std::string name;
-                name = smgs[idx];
-                *out_text = name.append(" *").c_str();
-            } else {
-                *out_text = smgs[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(smgs));
-
-        currentWeapon = currentSmg ? currentSmg + 16 : 37;
-        break;
-    }
-    case 4: {
-        static int currentRifle{ 0 };
-        static constexpr const char* rifles[]{ "All", "Galil AR", "Famas", "AK-47", "M4A4", "M4A1-S", "SSG-08", "SG-553", "AUG", "AWP", "G3SG1", "SCAR-20" };
-
-        ImGui::Combo("", &currentRifle, [](void* data, int idx, const char** out_text) {
-            if (config->triggerbot[idx ? idx + 23 : 38].enabled) {
-                static std::string name;
-                name = rifles[idx];
-                *out_text = name.append(" *").c_str();
-            } else {
-                *out_text = rifles[idx];
-            }
-            return true;
-            }, nullptr, IM_ARRAYSIZE(rifles));
-
-        currentWeapon = currentRifle ? currentRifle + 23 : 38;
-        break;
-    }
-    }
+    
     ImGui::PopID();
     ImGui::SameLine();
     ImGui::Checkbox("Enabled", &config->triggerbot[currentWeapon].enabled);

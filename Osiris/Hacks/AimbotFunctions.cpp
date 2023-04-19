@@ -433,6 +433,9 @@ bool AimbotFunction::hitboxIntersection(const matrix3x4 matrix[MAXSTUDIOBONES], 
     if (!hitbox)
         return false;
 
+    if (hitbox->capsuleRadius == -1.f)
+        return false;
+
     Vector mins, maxs;
     const auto isCapsule = hitbox->capsuleRadius != -1.f;
     if (isCapsule)

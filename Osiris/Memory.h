@@ -132,6 +132,8 @@ public:
     void* setupVelocityAddress;
     void* accumulateLayersAddress;
 
+    int* smokeCount;
+
     std::uintptr_t buildTransformations;
     std::uintptr_t doExtraBoneProcessing;
     std::uintptr_t standardBlendingRules;

@@ -225,6 +225,7 @@ public:
         bool noWeapons{ false };
         bool noSmoke{ false };
         bool wireframeSmoke{ false };
+        bool smokeCircle{ false };
         bool noMolotov{ false };
         bool wireframeMolotov{ false };
         bool noBlur{ false };

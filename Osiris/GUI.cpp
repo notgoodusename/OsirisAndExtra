@@ -1298,6 +1298,7 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::Checkbox("No sleeves", &config->visuals.noSleeves);
     ImGui::Checkbox("No weapons", &config->visuals.noWeapons);
     ImGui::Checkbox("No smoke", &config->visuals.noSmoke);
+    ImGui::Checkbox("Smoke Circle", &config->visuals.smokeCircle);
     ImGui::SameLine();
     ImGui::Checkbox("Wireframe smoke", &config->visuals.wireframeSmoke);
     ImGui::Checkbox("No molotov", &config->visuals.noMolotov);

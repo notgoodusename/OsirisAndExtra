@@ -421,6 +421,13 @@ void Visuals::modifySmoke(FrameStage stage) noexcept
         "particle/vistasmokev1/vistasmokev1_smokegrenade"
     };
 
+    if (config->visuals.smokeCircle) {
+        *memory->smokeCount = 0;
+        const auto material = interfaces->materialSystem->findMaterial("particle/vistasmokev1/vistasmokev1_smokegrenade");
+        material->setMaterialVarFlag(MaterialVarFlag::NO_DRAW, stage == FrameStage::RENDER_START);
+        return;
+    }
+
     for (const auto mat : smokeMaterials) {
         const auto material = interfaces->materialSystem->findMaterial(mat);
         material->setMaterialVarFlag(MaterialVarFlag::NO_DRAW, stage == FrameStage::RENDER_START && config->visuals.noSmoke);

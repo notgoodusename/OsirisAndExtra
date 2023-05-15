@@ -160,6 +160,8 @@ Memory::Memory() noexcept
 
     checkForSequenceChange = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x57\x85");
 
+    particleCollection = relativeToAbsolute<decltype(particleCollection)>(findPattern(CLIENT_DLL, "\xE8????\x8B\x0E\x83\xC1\x10") + 1);
+
     sendDatagram = findPattern(ENGINE_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8????\xE8????\x56\x57\x8B\xF9\x89\x7C\x24\x14");
 
     modifyEyePosition = relativeToAbsolute<decltype(modifyEyePosition)>(findPattern(CLIENT_DLL, "\xE8????\x8B\x06\x8B\xCE\xFF\x90????\x85\xC0\x74\x50") + 1);

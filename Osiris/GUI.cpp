@@ -1407,6 +1407,8 @@ void GUI::renderVisualsWindow() noexcept
     ImGuiCustom::colorPicker("World color", config->visuals.world);
     ImGuiCustom::colorPicker("Props color", config->visuals.props);
     ImGuiCustom::colorPicker("Sky color", config->visuals.sky);
+    ImGuiCustom::colorPicker("Molotov Color", config->visuals.molotovColor);
+    ImGuiCustom::colorPicker("Smoke Color", config->visuals.smokeColor);
     ImGui::PushID(13);
     ImGui::SliderInt("", &config->visuals.asusWalls, 0, 100, "Asus walls: %d");
     ImGui::PopID();

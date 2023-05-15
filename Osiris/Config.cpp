@@ -477,6 +477,8 @@ static void from_json(const json& j, Config::Visuals& v)
     read<value_t::object>(j, "Molotov timer BG", v.molotovTimerBG);
     read<value_t::object>(j, "Molotov timer TIMER", v.molotovTimerTimer);
     read<value_t::object>(j, "Molotov timer TEXT", v.molotovTimerText);
+    read<value_t::object>(j, "Smoke Color", v.smokeColor);
+    read<value_t::object>(j, "Molotov Color", v.molotovColor);
     read<value_t::object>(j, "Footstep", v.footsteps);
 }
 
@@ -1487,6 +1489,8 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Molotov timer BG", molotovTimerBG);
     WRITE("Molotov timer TIMER", molotovTimerTimer);
     WRITE("Molotov timer TEXT", molotovTimerText);
+    WRITE("Smoke Color", smokeColor);
+    WRITE("Molotov Color", molotovColor);
     WRITE("Footstep", footsteps);
 }
 

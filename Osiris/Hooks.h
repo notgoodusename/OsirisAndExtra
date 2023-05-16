@@ -83,6 +83,7 @@ public:
     HookType surface;
     HookType viewRender;
     HookType svCheats;
+    HookType particleCollectionSimulate;
 private:
     HMODULE moduleHandle;
     HWND window;

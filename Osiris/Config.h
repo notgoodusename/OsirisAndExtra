@@ -255,6 +255,8 @@ public:
         ColorToggle3 world;
         ColorToggle3 props;
         ColorToggle3 sky;
+        ColorToggle molotovColor{ 1.0f, 0.27f, 0.0f, 0.5f };
+        ColorToggle smokeColor{ .75f, .75f, .75f, 0.5f };
         std::string customSkybox;
         bool deagleSpinner{ false };
         struct MotionBlur

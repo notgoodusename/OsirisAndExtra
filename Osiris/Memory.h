@@ -176,6 +176,8 @@ public:
 
     std::uintptr_t setupBones;
 
+    std::uintptr_t particleCollection;
+
     void(__stdcall* restoreEntityToPredictedFrame)(int, int);
     void(__thiscall* markSurroundingBoundsDirty)(void*);
     bool(__thiscall* isBreakableEntity)(void*);

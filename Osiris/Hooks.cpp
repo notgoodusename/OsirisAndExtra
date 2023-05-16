@@ -70,6 +70,7 @@
 #include "SDK/Surface.h"
 #include "SDK/UserCmd.h"
 #include "SDK/ViewSetup.h"
+#include "SDK/ParticleCollection.h"
 
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
@@ -1246,6 +1247,96 @@ static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
     Tickbase::resetTickshift();
 }
 
+static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPointer) {
+
+    constexpr float pi = std::numbers::pi_v<float>;
+
+    static auto original = hooks->particleCollectionSimulate.getOriginal<bool>();
+
+    original(thisPointer);
+
+    if (!interfaces->engine->isConnected())
+        return;
+
+    ParticleCollection* rootCollection = thisPointer;
+    while (rootCollection->parent)
+        rootCollection = rootCollection->parent;
+
+    const char* rootName = rootCollection->def.object->name.buffer;
+
+    //printf(std::string(rootName).append("\n").c_str()); //prints existing particles
+
+    switch (fnv::hash(rootName))
+    {
+        case fnv::hash("molotov_groundfire"):
+        case fnv::hash("molotov_groundfire_00MEDIUM"):
+        case fnv::hash("molotov_groundfire_00HIGH"):
+        case fnv::hash("molotov_groundfire_fallback"):
+        case fnv::hash("molotov_groundfire_fallback2"):
+        case fnv::hash("molotov_explosion"):
+        case fnv::hash("explosion_molotov_air"):
+        case fnv::hash("extinguish_fire"):
+        case fnv::hash("weapon_molotov_held"):
+        case fnv::hash("weapon_molotov_fp"):
+        case fnv::hash("weapon_molotov_thrown"):
+        case fnv::hash("incgrenade_thrown_trail"):
+            switch (fnv::hash(thisPointer->def.object->name.buffer))
+            {
+            case fnv::hash("explosion_molotov_air_smoke"):
+            case fnv::hash("molotov_smoking_ground_child01"):
+            case fnv::hash("molotov_smoking_ground_child02"):
+            case fnv::hash("molotov_smoking_ground_child02_cheapo"):
+            case fnv::hash("molotov_smoking_ground_child03"):
+            case fnv::hash("molotov_smoking_ground_child03_cheapo"):
+            case fnv::hash("molotov_smoke_screen"):
+                break;
+            default:
+                if (config->visuals.molotovColor.enabled) {
+
+                    for (int i = 0; i < thisPointer->activeParticles; i++) {
+                        float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
+                        if (config->visuals.molotovColor.rainbow) {
+                            color[0] = std::sin(config->visuals.molotovColor.rainbowSpeed * memory->globalVars->realtime) * 0.5f + 0.5f;
+                            color[4] = std::sin(config->visuals.molotovColor.rainbowSpeed * memory->globalVars->realtime + 2 * pi / 3) * 0.5f + 0.5f;
+                            color[8] = std::sin(config->visuals.molotovColor.rainbowSpeed * memory->globalVars->realtime + 4 * pi / 3) * 0.5f + 0.5f;
+                        }
+                        else {
+                            color[0] = config->visuals.molotovColor.color[0];
+                            color[4] = config->visuals.molotovColor.color[1];
+                            color[8] = config->visuals.molotovColor.color[2];
+                        }
+                        float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
+                        *alpha = config->visuals.molotovColor.color[3];
+                    }
+
+                }
+                break;
+            }
+            break;
+        case fnv::hash("explosion_smokegrenade_fallback"): {
+            if (config->visuals.smokeColor.enabled) {
+
+                for (int i = 0; i < thisPointer->activeParticles; i++) {
+                    float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
+                    if (config->visuals.smokeColor.rainbow) {
+                        color[0] = std::sin(config->visuals.smokeColor.rainbowSpeed * memory->globalVars->realtime) * 0.5f + 0.5f;
+                        color[4] = std::sin(config->visuals.smokeColor.rainbowSpeed * memory->globalVars->realtime + 2 * pi / 3) * 0.5f + 0.5f;
+                        color[8] = std::sin(config->visuals.smokeColor.rainbowSpeed * memory->globalVars->realtime + 4 * pi / 3) * 0.5f + 0.5f;
+                    }
+                    else {
+                        color[0] = config->visuals.smokeColor.color[0];
+                        color[4] = config->visuals.smokeColor.color[1];
+                        color[8] = config->visuals.smokeColor.color[2];
+                    }
+                    float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
+                    *alpha = config->visuals.smokeColor.color[3];
+                }
+
+            }
+        }
+    }
+}
+
 static void __fastcall getColorModulationHook(void* thisPointer, void* edx, float* r, float* g, float* b) noexcept
 {
     static auto original = hooks->getColorModulation.getOriginal<void>(r, g, b);
@@ -1596,6 +1687,7 @@ void Hooks::install() noexcept
     getClientModelRenderable.detour(memory->getClientModelRenderable, getClientModelRenderableHook);
     physicsSimulate.detour(memory->physicsSimulate, physicsSimulateHook);
     updateFlashBangEffect.detour(memory->updateFlashBangEffect, updateFlashBangEffectHook);
+    particleCollectionSimulate.detour(memory->particleCollection, particleCollectionSimulateHook);
     //postNetworkDataReceived.detour(memory->postNetworkDataReceived, postNetworkDataReceivedHook);
 
     bspQuery.init(interfaces->engine->getBSPTreeQuery());

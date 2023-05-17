@@ -275,6 +275,7 @@ public:
             int footstepBeamRadius = 0;
             int footstepBeamThickness = 0;
         } footsteps;
+        float thirdpersonTransparency = 0.f;
         int screenEffect{ 0 };
         int hitEffect{ 0 };
         float hitEffectTime{ 0.6f };

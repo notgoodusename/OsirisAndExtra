@@ -1405,6 +1405,7 @@ void GUI::renderVisualsWindow() noexcept
         if (ImGui::IsItemHovered())
             ImGui::SetTooltip("skybox files must be put in csgo/materials/skybox/ ");
     }
+    ImGuiCustom::colorPicker("Console color", config->visuals.console);
     ImGuiCustom::colorPicker("World color", config->visuals.world);
     ImGuiCustom::colorPicker("Props color", config->visuals.props);
     ImGuiCustom::colorPicker("Sky color", config->visuals.sky);

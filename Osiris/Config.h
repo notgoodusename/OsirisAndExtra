@@ -321,6 +321,7 @@ public:
         Color4 molotovTimerBG{ 1.0f, 1.0f, 1.0f, 0.5f };
         Color4 molotovTimerTimer{ 0.0f, 0.0f, 1.0f, 1.0f };
         Color4 molotovTimerText{ 0.0f, 0.0f, 0.0f, 1.0f };
+        ColorToggle console{ 1.0f, 1.0f, 1.0f, 1.0f };
     } visuals;
 
     std::array<item_setting, 36> skinChanger;

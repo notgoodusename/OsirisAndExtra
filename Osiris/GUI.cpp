@@ -1381,9 +1381,6 @@ void GUI::renderVisualsWindow() noexcept
     ImGui::PushID(0);
     ImGui::SliderInt("", &config->visuals.thirdpersonDistance, 0, 1000, "Thirdperson distance: %d");
     ImGui::PopID();
-    ImGui::PushID("Thirdperson Transparency");
-    ImGui::SliderFloat("", &config->visuals.thirdpersonTransparency, 0.0f, 100.0f, "Scope Transparency: %2.f%");
-    ImGui::PopID();
     ImGui::Checkbox("Freecam", &config->visuals.freeCam);
     ImGui::SameLine();
     ImGui::PushID("Freecam Key");

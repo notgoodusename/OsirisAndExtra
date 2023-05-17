@@ -434,6 +434,7 @@ static void from_json(const json& j, Config::Visuals& v)
     read(j, "Full bright", v.fullBright);
     read(j, "Zoom", v.zoom);
     read(j, "Zoom key", v.zoomKey);
+    read(j, "Thirdperson Transparency", v.thirdpersonTransparency);
     read(j, "Thirdperson", v.thirdperson);
     read(j, "Thirdperson key", v.thirdpersonKey);
     read(j, "Thirdperson distance", v.thirdpersonDistance);
@@ -1446,6 +1447,7 @@ static void to_json(json& j, const Config::Visuals& o)
     WRITE("Full bright", fullBright);
     WRITE("Zoom", zoom);
     WRITE("Zoom key", zoomKey);
+    WRITE("Thirdperson Transparency", thirdpersonTransparency);
     WRITE("Thirdperson", thirdperson);
     WRITE("Thirdperson key", thirdpersonKey);
     WRITE("Thirdperson distance", thirdpersonDistance);

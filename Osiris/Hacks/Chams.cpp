@@ -16,6 +16,7 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/Material.h"
 #include "../SDK/MaterialSystem.h"
+#include "../SDK/RenderView.h"
 #include "../SDK/StudioRender.h"
 #include "../SDK/KeyValues.h"
 
@@ -184,6 +185,8 @@ void Chams::renderPlayer(Entity* player) noexcept
     } else if (player->isDefusing() && std::any_of(config->chams["Defusing"].materials.cbegin(), config->chams["Defusing"].materials.cend(), [](const Config::Chams::Material& mat) { return mat.enabled; })) {
         applyChams(config->chams["Defusing"].materials, health);
     } else if (player == localPlayer.get()) {
+        if (localPlayer->isScoped())
+            interfaces->renderView->setBlend((100.f - config->visuals.thirdpersonTransparency) / 100.f);
         applyChams(config->chams["Local player"].materials, health);
         renderDesync(health);
         renderFakelag(health);

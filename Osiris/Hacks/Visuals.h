@@ -31,7 +31,6 @@ namespace Visuals
     void applyZoom(FrameStage stage) noexcept;
     void applyScreenEffects() noexcept;
     void hitEffect(GameEvent* event = nullptr) noexcept;
-    void colorConsole(int reset = 0) noexcept;
     void transparentWorld(int resetType = -1) noexcept;
     void hitMarker(GameEvent* event, ImDrawList* drawList = nullptr) noexcept;
     void motionBlur(ViewSetup* setup) noexcept;

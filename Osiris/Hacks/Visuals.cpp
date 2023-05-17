@@ -640,55 +640,6 @@ void Visuals::hitEffect(GameEvent* event) noexcept
     }
 }
 
-void Visuals::colorConsole(int reset) noexcept
-{
-
-    static Material* material[5];
-    if (!material[0] || !material[1] || !material[2] || !material[3] || !material[4]) {
-        for (short h = interfaces->materialSystem->firstMaterial(); h != interfaces->materialSystem->invalidMaterial(); h = interfaces->materialSystem->nextMaterial(h)) {
-            const auto mat = interfaces->materialSystem->getMaterial(h);
-
-            if (!mat)
-                continue;
-
-            if (strstr(mat->getName(), "vgui_white"))
-                material[0] = mat;
-            else if (strstr(mat->getName(), "800corner1"))
-                material[1] = mat;
-            else if (strstr(mat->getName(), "800corner2"))
-                material[2] = mat;
-            else if (strstr(mat->getName(), "800corner3"))
-                material[3] = mat;
-            else if (strstr(mat->getName(), "800corner4"))
-                material[4] = mat;
-        }
-    }
-    else {
-        for (unsigned int num = 0; num < 5; num++) {
-            if (reset == 1)
-            {
-                material[num]->colorModulate(1.f, 1.f, 1.f);
-                material[num]->alphaModulate(1.f);
-                continue;
-            }
-            if (!config->visuals.console.enabled || !interfaces->engine->isConsoleVisible()) {
-                material[num]->colorModulate(1.f, 1.f, 1.f);
-                material[num]->alphaModulate(1.f);
-                continue;
-            }
-
-            if (config->visuals.console.rainbow) {
-                material[num]->colorModulate(rainbowColor(config->visuals.console.rainbowSpeed));
-                material[num]->alphaModulate(config->visuals.console.color[3]);
-            }
-            else {
-                material[num]->colorModulate(config->visuals.console.color[0], config->visuals.console.color[1], config->visuals.console.color[2]);
-                material[num]->alphaModulate(config->visuals.console.color[3]);
-            }
-        }
-    }
-}
-
 void Visuals::transparentWorld(int resetType) noexcept
 {
     static int asus[2] = { -1, -1 };
@@ -1499,7 +1450,6 @@ void Visuals::reset(int resetType) noexcept
 {
     shotRecord.clear();
     Visuals::transparentWorld(resetType);
-    Visuals::colorConsole(resetType);
     if (resetType == 1)
     {
         //Reset convars

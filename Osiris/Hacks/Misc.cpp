@@ -1470,77 +1470,275 @@ void Misc::showKeybinds() noexcept
         config->misc.keybindList.pos = {};
     }
 
-    ImGui::SetNextWindowSize({ 250.f, 0.f }, ImGuiCond_Once);
-    ImGui::SetNextWindowSizeConstraints({ 250.f, 0.f }, { 250.f, FLT_MAX });
+    auto drawlist = ImGui::GetForegroundDrawList();
 
-    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse;
+    // calc text size
+    ImVec2 calckey = ImGui::CalcTextSize("keybinds");
+
+    //set window size
+    ImGui::SetNextWindowSize(ImVec2(calckey.x + 100, calckey.y * 2 - 6));
+
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground;
+
     if (!gui->isOpen())
         windowFlags |= ImGuiWindowFlags_NoInputs;
 
-    if (config->misc.keybindList.noTitleBar)
-        windowFlags |= ImGuiWindowFlags_NoTitleBar;
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowTitleAlign, { 0.5f, 0.5f });
-    ImGui::Begin("Keybind list", nullptr, windowFlags);
-    ImGui::PopStyleVar();
-
-    config->ragebotKey.showKeybind();
-    config->minDamageOverrideKey.showKeybind();
-    if (config->fakeAngle.enabled)
-        config->fakeAngle.invert.showKeybind();
-    if (config->rageAntiAim.enabled)
+    ImGui::Begin("##KEY", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground);
     {
-        config->rageAntiAim.manualForward.showKeybind();
-        config->rageAntiAim.manualBackward.showKeybind();
-        config->rageAntiAim.manualRight.showKeybind();
-        config->rageAntiAim.manualLeft.showKeybind();
+        // get window pos
+        auto pkey = ImGui::GetWindowPos();
+
+        // set keybinds color
+        auto bg_clrkey =
+            ImColor(0, 0, 0, 150),
+            line_clrkey = ImColor(53, 105, 189, 255),
+            text_clrkey = ImColor(255, 255, 255, 255),
+            glow_clr_firstkey = ImColor(53, 105, 189, 125),
+            glow_clr_secondkey = ImColor(53, 105, 189, 0);
+
+        // draw bg
+        drawlist->AddRectFilled(pkey, ImVec2(pkey.x + calckey.x + 100, pkey.y + calckey.y * 2 - 6), bg_clrkey);
+
+        // draw line
+        drawlist->AddRectFilled(pkey, ImVec2(pkey.x + calckey.x + 100, pkey.y + 2), line_clrkey);
+
+        // draw text
+        drawlist->AddText(ImVec2(pkey.x + 50, pkey.y + calckey.y / 2 - 2), text_clrkey, "keybinds");
+
+        // draw glow
+        drawlist->AddRectFilledMultiColor(pkey, ImVec2(pkey.x + calckey.x + 100, pkey.y + calckey.y), glow_clr_firstkey, glow_clr_firstkey, glow_clr_secondkey, glow_clr_secondkey);
+
+        
+
+        const bool dt = config->tickbase.doubletap.isActive();
+        const bool hs = config->tickbase.hideshots.isActive();
+
+        const bool dmg = config->minDamageOverrideKey.isActive();
+
+        const bool invertaa = config->fakeAngle.invert.isActive();
+
+        const bool aaup = config->rageAntiAim.manualForward.isActive();
+        const bool aadown = config->rageAntiAim.manualBackward.isActive();
+        const bool aaleft = config->rageAntiAim.manualLeft.isActive();
+        const bool aaright = config->rageAntiAim.manualRight.isActive();
+
+        const bool legitinvertaa = config->legitAntiAim.invert.isActive();
+        const bool legitkey = config->legitbotKey.isActive();
+        const bool triggerbot = config->triggerbotKey.isActive();
+
+        const bool zoom = config->visuals.zoomKey.isActive();
+        const bool thirdperson = config->visuals.thirdpersonKey.isActive();
+        const bool freeCam = config->visuals.freeCamKey.isActive();
+
+        const bool blockbott = config->misc.blockBotKey.isActive();
+        const bool edgejumpp = config->misc.edgeJumpKey.isActive();
+        const bool minijumpp = config->misc.miniJumpKey.isActive();
+        const bool jumpbugg = config->misc.jumpBugKey.isActive();
+        const bool edgebugg = config->misc.edgeBugKey.isActive();
+        const bool autopixell = config->misc.autoPixelSurfKey.isActive();
+
+        const bool slowwalk = config->misc.slowwalkKey.isActive();
+        const bool fakeduckk = config->misc.fakeduckKey.isActive();
+        const bool autopeekp = config->misc.autoPeekKey.isActive();
+        const bool prepareRevolverr = config->misc.prepareRevolverKey.isActive();
+
+        int offset = 1;
+
+        //draw keybinds
+
+        if (dt)
+        {
+            drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "doubletap");
+            drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+            offset = offset + 2;
+        }
+
+        if (hs)
+        {
+            drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "hideshots");
+            drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+            offset = offset + 2;
+        }
+
+        if (dmg)
+        {
+            drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "dmg override");
+            drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+            offset = offset + 2;
+        }
+
+
+
+        if (config->rageAntiAim.enabled) {
+            if (aaup)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "manual forward");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+
+            if (aadown)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "manual backward");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+
+            if (aaleft)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "manual left");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+
+            if (aaright)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "manual right");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->legitAntiAim.enabled) {
+            if (legitinvertaa)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "legit aa invert");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+
+        if (config->visuals.zoom) {
+            if (zoom)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "zoom");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->visuals.thirdperson) {
+            if (thirdperson)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "thirdperson");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->visuals.freeCam) {
+            if (freeCam)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "free cam");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.blockBot) {
+            if (blockbott)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "block bot");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.edgeJump) {
+            if (edgejumpp)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "edge jump");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.miniJump) {
+            if (minijumpp)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "mini jump");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.jumpBug) {
+            if (jumpbugg)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "jump bug");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.edgeBug) {
+            if (edgebugg)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "edge bug");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.autoPixelSurf) {
+            if (autopeekp)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "auto pixel");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.slowwalk) {
+            if (slowwalk)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "slow walk");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.fakeduck) {
+            if (fakeduckk)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "fake duck");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
+        if (config->misc.autoPeek.enabled) {
+            if (autopeekp)
+            {
+                drawlist->AddText(ImVec2(pkey.x + 2, pkey.y + calckey.y + 10 * offset), text_clrkey, "auto peek");
+                drawlist->AddText(ImVec2(pkey.x + 122, pkey.y + calckey.y + 10 * offset), text_clrkey, "[on]");
+
+                offset = offset + 2;
+            }
+        }
+
     }
-
-    config->tickbase.doubletap.showKeybind();
-    config->tickbase.hideshots.showKeybind();
-
-    if (config->legitAntiAim.enabled)
-        config->legitAntiAim.invert.showKeybind();
-
-    config->legitbotKey.showKeybind();
-    config->triggerbotKey.showKeybind();
-    config->chamsKey.showKeybind();
-    config->glowKey.showKeybind();
-    config->streamProofESP.key.showKeybind();
-
-    if (config->visuals.zoom)
-        config->visuals.zoomKey.showKeybind();
-    if (config->visuals.thirdperson)
-        config->visuals.thirdpersonKey.showKeybind();
-    if (config->visuals.freeCam)
-        config->visuals.freeCamKey.showKeybind();
-
-    if (config->misc.blockBot)
-        config->misc.blockBotKey.showKeybind();
-    if (config->misc.edgeJump)
-        config->misc.edgeJumpKey.showKeybind();
-    if (config->misc.miniJump)
-        config->misc.miniJumpKey.showKeybind();
-    if (config->misc.jumpBug)
-        config->misc.jumpBugKey.showKeybind();
-    if (config->misc.edgeBug)
-        config->misc.edgeBugKey.showKeybind();
-    if (config->misc.autoPixelSurf)
-        config->misc.autoPixelSurfKey.showKeybind();
-    if (config->misc.jumpBug)
-        config->misc.jumpBugKey.showKeybind();
-    if (config->misc.slowwalk)
-        config->misc.slowwalkKey.showKeybind();
-    if (config->misc.fakeduck)
-        config->misc.fakeduckKey.showKeybind();
-    if (config->misc.autoPeek.enabled)
-        config->misc.autoPeekKey.showKeybind();
-    if (config->misc.prepareRevolver)
-        config->misc.prepareRevolverKey.showKeybind();
-
     ImGui::End();
 }
-
 void Misc::spectatorList() noexcept
 {
     if (!config->misc.spectatorList.enabled)

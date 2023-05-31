@@ -55,7 +55,7 @@ void runRagebot(UserCmd* cmd, Entity* entity, matrix3x4* matrix, Ragebot::Enemie
 
         for (auto& bonePosition : AimbotFunction::multiPoint(entity, matrix, hitbox, localPlayerEyePosition, i, multiPoint))
         {
-            const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
+            const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles - aimPunch) };
             const auto fov{ angle.length2D() };
             if (fov > cfg[weaponIndex].fov)
                 continue;

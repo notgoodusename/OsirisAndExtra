@@ -96,7 +96,7 @@ void knifeBotRage(UserCmd* cmd) noexcept
     if (!bestTarget || bestDistance > 75.0f)
         return;
 
-    const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bestTarget->getBonePosition(7), cmd->viewangles + aimPunch) };
+    const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bestTarget->getBonePosition(7), cmd->viewangles - aimPunch) };
     const bool firstSwing = (localPlayer->nextPrimaryAttack() + 0.4) < memory->globalVars->serverTime();
 
     bool backStab = false;

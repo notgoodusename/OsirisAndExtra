@@ -144,7 +144,7 @@ void Legitbot::run(UserCmd* cmd) noexcept
 
                 for (auto& bonePosition : AimbotFunction::multiPoint(entity, player.matrix.data(), hitbox, localPlayerEyePosition, j, 0))
                 {
-                    const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles + aimPunch) };
+                    const auto angle{ AimbotFunction::calculateRelativeAngle(localPlayerEyePosition, bonePosition, cmd->viewangles - aimPunch) };
                     const auto fov{ angle.length2D() };
                     if (fov > bestFov)
                         continue;

@@ -2561,6 +2561,38 @@ void Misc::voteRevealer(GameEvent& event) noexcept
     memory->clientMode->getHudChat()->printf(0, " \x0C\u2022Osiris\u2022 %c%s\x01 voted %c%s\x01", isLocal ? '\x01' : color, isLocal ? "You" : entity->getPlayerName().c_str(), color, votedYes ? "Yes" : "No");
 }
 
+void Misc::chatRevealer(GameEvent& event, GameEvent* events) noexcept
+{
+
+    if (!config->misc.chatReveavler)
+        return;
+
+    std::string output = "\x1\u2022BLACKHOLE\u2022\x8";
+
+    const auto entity = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(events->getInt("userid")));
+    const auto team = entity->team();
+    const char* text = event.getString("text");
+    const char* last_location = entity->lastPlaceName();
+    const std::string name = entity->getPlayerName();
+    const bool ALIVE = entity->isAlive();
+    if (team == localPlayer->team())
+        return;
+    if (!ALIVE)
+        output += "*DEAD* ";
+    switch (team)
+    {
+    case Team::TT:
+        output += "(Terrorist) ";
+        break;
+    case Team::CT:
+        output += "(Counter-Terrorist) ";
+        break;
+    }
+    output = output + name + " @ " + last_location + " : " + text;
+    memory->clientMode->getHudChat()->printf(0, output.c_str());
+
+}
+
 // ImGui::ShadeVertsLinearColorGradientKeepAlpha() modified to do interpolation in HSV
 static void shadeVertsHSVColorGradientKeepAlpha(ImDrawList* draw_list, int vert_start_idx, int vert_end_idx, ImVec2 gradient_p0, ImVec2 gradient_p1, ImU32 col0, ImU32 col1)
 {

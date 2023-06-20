@@ -710,6 +710,7 @@ static void from_json(const json& j, Config::Misc& m)
     read(j, "Reveal money", m.revealMoney);
     read(j, "Reveal suspect", m.revealSuspect);
     read(j, "Reveal votes", m.revealVotes);
+    read(j, "Chat reveavler", m.chatReveavler);
     read<value_t::object>(j, "Spectator list", m.spectatorList);
     read<value_t::object>(j, "Keybind list", m.keybindList);
     read<value_t::object>(j, "Player list", m.playerList);
@@ -1371,6 +1372,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Reveal money", revealMoney);
     WRITE("Reveal suspect", revealSuspect);
     WRITE("Reveal votes", revealVotes);
+    WRITE("Chat reveavler", chatReveavler);
     WRITE("Spectator list", spectatorList);
     WRITE("Keybind list", keybindList);
     WRITE("Player list", playerList);

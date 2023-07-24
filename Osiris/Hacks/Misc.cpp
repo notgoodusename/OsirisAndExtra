@@ -31,6 +31,7 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/Panorama.h"
+#include "../SDK/PlayerResource.h"
 #include "../SDK/Prediction.h"
 #include "../SDK/Surface.h"
 #include "../SDK/UserCmd.h"
@@ -2563,34 +2564,40 @@ void Misc::voteRevealer(GameEvent& event) noexcept
 
 void Misc::chatRevealer(GameEvent& event, GameEvent* events) noexcept
 {
-
-    if (!config->misc.chatReveavler)
+    if (!config->misc.chatRevealer)
         return;
 
-    std::string output = "\x1\u2022BLACKHOLE\u2022\x8";
+    if (!localPlayer)
+        return;
 
     const auto entity = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(events->getInt("userid")));
-    const auto team = entity->team();
-    const char* text = event.getString("text");
-    const char* last_location = entity->lastPlaceName();
-    const std::string name = entity->getPlayerName();
-    const bool ALIVE = entity->isAlive();
-    if (team == localPlayer->team())
+    if (!entity)
         return;
-    if (!ALIVE)
-        output += "*DEAD* ";
-    switch (team)
-    {
-    case Team::TT:
-        output += "(Terrorist) ";
-        break;
-    case Team::CT:
-        output += "(Counter-Terrorist) ";
-        break;
-    }
-    output = output + name + " @ " + last_location + " : " + text;
-    memory->clientMode->getHudChat()->printf(0, output.c_str());
 
+    std::string output = "\x0C\u2022Osiris\u2022\x01 ";
+
+    auto team = entity->getTeamNumber();
+    bool isAlive = entity->isAlive();
+    bool dormant = entity->isDormant();
+    if (dormant) {
+        if (const auto pr = *memory->playerResource) 
+            isAlive = pr->getIPlayerResource()->isAlive(entity->index());
+    }
+
+    const char* text = event.getString("text");
+    const char* lastLocation = entity->lastPlaceName();
+    const std::string name = entity->getPlayerName();
+
+    if (team == localPlayer->getTeamNumber())
+        return;
+
+    if (!isAlive)
+        output += "*DEAD* ";
+
+    team == Team::TT ? output += "(Terrorist) " : output += "(Counter-Terrorist) ";
+
+    output = output + name + " @ " + lastLocation + " : " + text;
+    memory->clientMode->getHudChat()->printf(0, output.c_str());
 }
 
 // ImGui::ShadeVertsLinearColorGradientKeepAlpha() modified to do interpolation in HSV

@@ -374,7 +374,7 @@ public:
         bool revealMoney{ false };
         bool revealSuspect{ false };
         bool revealVotes{ false };
-        bool chatReveavler{ false };
+        bool chatRevealer{ false };
         bool disableModelOcclusion{ false };
         bool nameStealer{ false };
         bool disablePanoramablur{ false };

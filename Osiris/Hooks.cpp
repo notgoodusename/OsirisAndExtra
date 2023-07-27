@@ -339,6 +339,12 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
         cmd->upmove = std::clamp(cmd->upmove, -320.0f, 320.0f);
 
+        cmd->viewanglesBackup.x = cmd->viewangles.x;
+        cmd->viewanglesBackup.y = cmd->viewangles.y;
+        cmd->viewanglesBackup.z = cmd->viewangles.z;
+
+        cmd->buttonsBackup = cmd->buttons;
+
         if (localPlayer && localPlayer->isAlive())
             memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
         Misc::gatherDataOnTick(cmd);

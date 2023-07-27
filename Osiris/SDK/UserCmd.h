@@ -23,6 +23,8 @@ struct UserCmd {
         CRC32_ProcessBuffer(&crc, &randomSeed, sizeof(randomSeed));
         CRC32_ProcessBuffer(&crc, &mousedx, sizeof(mousedx));
         CRC32_ProcessBuffer(&crc, &mousedy, sizeof(mousedy));
+        CRC32_ProcessBuffer(&crc, &viewanglesBackup, sizeof(viewanglesBackup));
+        CRC32_ProcessBuffer(&crc, &buttonsBackup, sizeof(buttonsBackup));
 
         CRC32_Final(&crc);
         return crc;
@@ -59,7 +61,9 @@ struct UserCmd {
     short mousedx;
     short mousedy;
     bool hasbeenpredicted;
-    PAD(24)
+    Vector viewanglesBackup;
+    int buttonsBackup;
+    PAD(8)
 };
 
 struct VerifiedUserCmd

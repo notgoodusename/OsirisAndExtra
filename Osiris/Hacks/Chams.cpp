@@ -34,6 +34,14 @@ static Material* glow;
 static Material* pearlescent;
 static Material* metallic;
 
+static Material* smoke;
+static Material* smoke2;
+static Material* water;
+static Material* melt;
+static Material* leaves;
+static Material* lines;
+static Material* snowflakes;
+
 static constexpr auto dispatchMaterial(int id) noexcept
 {
     switch (id) {
@@ -51,6 +59,12 @@ static constexpr auto dispatchMaterial(int id) noexcept
     case 10: return glow;
     case 11: return pearlescent;
     case 12: return metallic;
+    case 13: return smoke;
+    case 14: return smoke2;
+    case 15: return water;
+    case 16: return leaves;
+    case 17: return lines;
+    case 18: return snowflakes;
     }
 }
 
@@ -62,6 +76,12 @@ static void initializeMaterials() noexcept
     glow = interfaces->materialSystem->createMaterial("glow", KeyValues::fromString("VertexLitGeneric", "$additive 1 $envmap models/effects/cube_white $envmapfresnel 1 $alpha .8"));
     pearlescent = interfaces->materialSystem->createMaterial("pearlescent", KeyValues::fromString("VertexLitGeneric", "$basetexture vgui/white_additive $ambientonly 1 $phong 1 $pearlescent 3 $basemapalphaphongmask 1"));
     metallic = interfaces->materialSystem->createMaterial("metallic", KeyValues::fromString("VertexLitGeneric", "$basetexture white $ignorez 0 $envmap env_cubemap $normalmapalphaenvmapmask 1 $envmapcontrast 1 $nofog 1 $model 1 $nocull 0 $selfillum 1 $halfambert 1 $znearer 0 $flat 1"));
+    smoke = interfaces->materialSystem->createMaterial("smoke", KeyValues::fromString("VertexLitGeneric", "$basetexture models/weapons/customization/paints/anodized_multi/smoke $nofog 1 $envmap env_cubemap $envmaptint [1 1 1] $phong 1 $basemapalphaphongmask 1 $phongboost 0 $rimlight 1 $phongtint [1 1 1] $rimlightexponent 9999999 $rimlightboost 0 $selfillum 1 $ignorez 0 proxies { texturescroll { texturescrollvar $basetexturetransform texturescrollrate 0.025 } }"));
+    smoke2 = interfaces->materialSystem->createMaterial("smoke2", KeyValues::fromString("VertexLitGeneric", "$basetexture models/weapons/customization/paints/anodized_multi/smoke2 $ambientonly 1 $phong 1 $pearlescent 3 $basemapalphaphongmask 1 proxies { texturescroll { texturescrollvar $basetexturetransform texturescrollrate 0.025 } }"));
+    water = interfaces->materialSystem->createMaterial("water", KeyValues::fromString("Refract", "$model 1 $refractamount 2.0 $dudvmap dev/water_dudv $normalmap dev/water_normal $surfaceprop water Proxies {  AnimatedTexture  { animatedtexturevar $normalmap animatedtextureframenumvar $bumpframe animatedtextureframerate 30.00  }  TextureScroll  { texturescrollvar $bumptransform texturescrollrate .05 texturescrollangle 45.00  }}"));
+    leaves = interfaces->materialSystem->createMaterial("leaves", KeyValues::fromString("VertexLitGeneric", "$basetexture models/props_foliage/urban_tree03_branches $translucent 1"));
+    lines = interfaces->materialSystem->createMaterial("lines", KeyValues::fromString("VertexLitGeneric", "$basetexture models/inventory_items/music_kit/darude_01/mp3_detail $additive 1 proxies { texturescroll { texturescrollvar $basetexturetransform texturescrollrate 0.25 texturescrollangle 90 } }"));
+    snowflakes = interfaces->materialSystem->createMaterial("snowflakes", KeyValues::fromString("VertexLitGeneric", "$basetexture dev/snowfield $additive 1 proxies { texturescroll { texturescrollvar $basetexturetransform texturescrollrate 0.1 } }"));
 
     {
         const auto kv = KeyValues::fromString("VertexLitGeneric", "$envmap editor/cube_vertigo $envmapcontrast 1 $basetexture dev/zone_warning proxies { texturescroll { texturescrollvar $basetexturetransform texturescrollrate 0.6 texturescrollangle 90 } }");

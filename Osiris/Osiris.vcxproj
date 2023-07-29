@@ -78,10 +78,14 @@
     <ClCompile Include="Memory.cpp" />
     <ClCompile Include="SDK\AnimState.cpp" />
     <ClCompile Include="SDK\BitBuffer.cpp" />
+    <ClCompile Include="SDK\BoneMergeCache.cpp" />
+    <ClCompile Include="SDK\BoneSetup.cpp" />
+    <ClCompile Include="SDK\CBoneSetup.cpp" />
     <ClCompile Include="SDK\checksum_crc.cpp" />
     <ClCompile Include="SDK\EngineTrace.cpp" />
     <ClCompile Include="SDK\Entity.cpp" />
     <ClCompile Include="SDK\GlobalVars.cpp" />
+    <ClCompile Include="SDK\IKContext.cpp" />
     <ClCompile Include="SDK\KeyValues.cpp" />
     <ClCompile Include="SDK\PredictionCopy.cpp" />
     <ClCompile Include="SDK\Utils.cpp" />
@@ -141,6 +145,9 @@
     <ClInclude Include="SDK\Angle.h" />
     <ClInclude Include="SDK\AnimState.h" />
     <ClInclude Include="SDK\BitBuffer.h" />
+    <ClInclude Include="SDK\BoneMergeCache.h" />
+    <ClInclude Include="SDK\BoneSetup.h" />
+    <ClInclude Include="SDK\CBoneSetup.h" />
     <ClInclude Include="SDK\checksum_crc.h" />
     <ClInclude Include="SDK\Client.h" />
     <ClInclude Include="SDK\ClientMode.h" />
@@ -176,6 +183,7 @@
     <ClInclude Include="SDK\GlobalVars.h" />
     <ClInclude Include="SDK\GlowObjectManager.h" />
     <ClInclude Include="SDK\Datamap.h" />
+    <ClInclude Include="SDK\IKContext.h" />
     <ClInclude Include="SDK\Input.h" />
     <ClInclude Include="SDK\InputSystem.h" />
     <ClInclude Include="SDK\ItemSchema.h" />
@@ -202,6 +210,7 @@
     <ClInclude Include="SDK\PlayerResource.h" />
     <ClInclude Include="SDK\Prediction.h" />
     <ClInclude Include="SDK\PredictionCopy.h" />
+    <ClInclude Include="SDK\Quaternion.h" />
     <ClInclude Include="SDK\Recv.h" />
     <ClInclude Include="SDK\RenderContext.h" />
     <ClInclude Include="SDK\RenderView.h" />

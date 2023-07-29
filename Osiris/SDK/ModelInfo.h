@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include "Pad.h"
+#include "Quaternion.h"
 #include "Vector.h"
 #include "VirtualMethod.h"
 
@@ -84,15 +85,32 @@ struct StudioHitboxSet {
     }
 };
 
+constexpr auto MAXSTUDIOPOSEPARAM = 24;
 constexpr auto MAXSTUDIOBONES = 256;
 constexpr auto BONE_USED_BY_HITBOX = 0x100;
 
 struct StudioBone {
     int nameIndex;
     int	parent;
-    PAD(152)
-    int flags;
-    PAD(52)
+    
+    int boneController[6];
+    Vector pos;
+    Quaternion quat;
+    Vector rot;
+
+    Vector posScale;
+    Vector rotScale;
+    
+    matrix3x4 poseToBone;
+    Quaternion alignment;
+    int flags; //160
+
+    int procIndex;
+    int physicsBone;
+    int surfacePropIndex;
+    int contents;
+    int surfacePropLookup;
+    PAD(28)
 
     const char* getName() const noexcept
     {

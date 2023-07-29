@@ -16,6 +16,7 @@ class GameEventManager;
 class Input;
 class ItemSystem;
 class KeyValues;
+class matrix3x4;
 class MemAlloc;
 class MoveHelper;
 class MoveData;
@@ -35,7 +36,9 @@ struct CStudioHdr;
 struct GlobalVars;
 struct GlowObjectManager;
 struct PanoramaEventRegistration;
+struct Quaternion;
 struct Trace;
+struct StudioSeqdesc;
 struct Vector;
 
 class Memory {
@@ -218,6 +221,72 @@ public:
     int(__cdecl* findLoggingChannel)(const char* name);
     int(__cdecl* logDirect)(int id, int severity, const std::array<std::uint8_t, 4> color, const char* msg);
 
+    //IKContext
+    void* (__fastcall* ikContextConstruct)(void*);
+    // client.dll - \x53\x8B\xD9\xF6\xC3\x03\x74\x0B\xFF\x15\xCC\xCC\xCC\xCC\x84\xC0\x74\x01\xCC\xC7\x83\xF0\x0F\x00\x00\x00\x00\x00\x00
+
+    void (__fastcall* ikContextDeconstructor)(void*);
+    //"\x56\x8B\xF1\x57\x8D\x8E\x10"
+
+    void(__thiscall* ikContextInit)(void*, const CStudioHdr*, const Vector&, const Vector&, float, int, int);
+    // client.dll - \x55\x8B\xEC\x83\xEC\x08\x8B\x45\x08\x56\x57\x8B\xF9\x8D
+
+    void(__thiscall* ikContextUpdateTargets)(void*, Vector*, Quaternion*, matrix3x4*, void*);
+    // client.dll - \x55\x8B\xEC\x83\xE4\xF0\x81\xEC\x18\x01\x00\x00\x33\xD2
+
+    void(__thiscall* ikContextSolveDependencies)(void*, Vector*, Quaternion*, matrix3x4*, void*);
+    // client.dll -> "\x55\x8B\xEC\x83\xE4\xF0\x81?????\x8B?????\x56\x57\x89" 
+
+    void(__thiscall* ikContextAddDependencies)(void*, StudioSeqdesc&, int, float, const float[], float);
+    //client.dll - "\x55\x8B\xEC\x81\xEC\xBC\x00\x00\x00\x53\x56\x57\x8B\xF9"
+
+    void(__thiscall* ikContextCopyTo)(void*, void*, const unsigned short*);
+    // client.dll - \x55\x8B\xEC\x83\xEC\x24\x8B\x45\x08\x57
+
+
+
+    ///BoneMergeCache
+    void(__thiscall* boneMergeCacheInit)(void*, void*);
+    //client.dll - \x56\x8B\xF1\x0F\x57\xC0\xC7\x86\x80\x00\x00\x00\x00\x00\x00\x00
+
+    void(__thiscall* boneMergeCacheUpdateCache)(void*);
+    //client.dll - "\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\x8B\xF9\x8B\x37"
+
+    void(__thiscall* boneMergeCacheMergeMatchingBones)(void*, int);
+    //client.dll - "\x55\x8B\xEC\x53\x56\x57\x8B\xF1\xE8\xCC\xCC\xCC\xCC\x83\x7E\x10\x00"
+
+    void(__thiscall* boneMergeCacheMergeMatchingPoseParams)(void*);
+    //client.dll - "\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x8B\xF1\x57\x89\x75\xF8\xE8"
+
+    bool(__thiscall* boneMergeCacheGetAimEntOrigin)(void*, Vector*, Vector*);
+    //client.dll - "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x60\x56\x57\x8B\xF9"
+
+    bool(__thiscall* boneMergeCacheGetRootBone)(void*, matrix3x4&);
+    //client.dll - "\x55\x8B\xEC\x56\x8B\xF1\xE8\xCC\xCC\xCC\xCC\x83\x7E\x10\x00"
+
+
+
+    ///CBoneSetup
+    void(__thiscall* boneSetupAccumulatePose)(void*, Vector*, Quaternion*, int, float, float, float, void*);
+    // client.dll - "\x55\x8B\xEC\x83\xE4\xF0\xB8\x38\x11\x00\x00"
+
+    void(__thiscall* boneSetupCalcAutoplaySequences)(void*, Vector*, Vector*, float, void*);
+    //client.dll - "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\x8B\x7D\x10"
+
+    void(__thiscall* boneSetupCalcBoneAdj)(void*, const CStudioHdr*, Vector*, Vector*, const float*, int);
+    //client.dll - "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\x90\x00\x00\x00\x8B\xC1"
+    
+
+
+
+    int(__thiscall* CStudioHdrLookupSequence)(void*, const char*); 
+    //client.dll - "\x55\x8B\xEC\x83\xEC\x10\x53\x8B\x5D\x08\x56\x57\x8B\xF9\x85"
+
+    int(__thiscall* getNumSeq)(void*);
+    //client.dll - "\x8B\x41\x04\x85\xC0\x75\x09\x8B\x01\x8B\x80\xBC"
+
+     
+    
     void*(__cdecl* createSimpleThread)(void*, void*, unsigned long); // HANDLE(__cdecl* createSimpleThread)(LPVOID, LPVOID, SIZE_T);
     int(__cdecl* releaseThreadHandle)(void*); // int(__cdecl* releaseThreadHandle)(HANDLE);
 

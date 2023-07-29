@@ -30,7 +30,10 @@
 #include "WeaponData.h"
 #include "WeaponId.h"
 
+
 struct AnimState;
+class BoneMergeCache;
+class IKContext;
 
 struct AnimationLayer
 {
@@ -145,6 +148,8 @@ public:
         VIRTUAL_METHOD(bool, isAlive, 156, (), (this))
         VIRTUAL_METHOD(bool, isPlayer, 158, (), (this))
         VIRTUAL_METHOD(bool, isWeapon, 166, (), (this))
+        VIRTUAL_METHOD(void, updateIKLocks, 192, (float currentTime), (this, currentTime))
+        VIRTUAL_METHOD(void, calculateIKLocks, 193, (float currentTime), (this, currentTime))
         VIRTUAL_METHOD(void, setSequence, 219, (int sequence), (this, sequence))
         VIRTUAL_METHOD(void, studioFrameAdvance, 220, (), (this))
         VIRTUAL_METHOD(float, getLayerSequenceCycleRate, 223, (AnimationLayer* layer, int sequence), (this, layer, sequence))
@@ -318,6 +323,13 @@ public:
         return *reinterpret_cast<std::add_pointer_t<std::array<float, 24>>>(reinterpret_cast<uintptr_t>(this) + m_flPoseParameter);
     }
 
+
+    std::array<float, 4>& encodedController() noexcept
+    {
+        static auto m_flEncodedController = Netvars::get(fnv::hash("CBaseAnimating->m_flEncodedController"));
+        return *reinterpret_cast<std::add_pointer_t<std::array<float, 4>>>(reinterpret_cast<uintptr_t>(this) + m_flEncodedController);
+    }
+
     void createState(AnimState* state) noexcept
     {
         static auto createAnimState = reinterpret_cast<void(__thiscall*)(AnimState*, Entity*)>(memory->createState);
@@ -387,6 +399,16 @@ public:
     CommandContext* getCommandContext() noexcept
     {
         return reinterpret_cast<CommandContext*>(reinterpret_cast<uintptr_t>(this) + 0x350C);
+    }
+
+    IKContext*& IK() noexcept
+    {
+        return *reinterpret_cast<IKContext**>(reinterpret_cast<uintptr_t>(this) + 0x2670);
+    }
+
+    BoneMergeCache*& boneMergeCache() noexcept
+    {
+        return *reinterpret_cast<BoneMergeCache**>(reinterpret_cast<uintptr_t>(this) + 0x2910);
     }
 
     UtlVector<matrix3x4>& getBoneCache()
@@ -674,6 +696,7 @@ public:
     NETVAR(body, "CBaseAnimating", "m_nBody", int)
     NETVAR(clientSideAnimation, "CBaseAnimating", "m_bClientSideAnimation", bool)
     NETVAR(hitboxSet, "CBaseAnimating", "m_nHitboxSet", int)
+    NETVAR(cycle, "CBaseAnimating", "m_flCycle", float)
     NETVAR(sequence, "CBaseAnimating", "m_nSequence", int)
 
     NETVAR(modelIndex, "CBaseEntity", "m_nModelIndex", unsigned)

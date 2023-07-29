@@ -241,6 +241,28 @@ Memory::Memory() noexcept
     logDirect = reinterpret_cast<decltype(logDirect)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "LoggingSystem_LogDirect"));
     getGameModeNameFn = findPattern(CLIENT_DLL, "\x55\x8B\xEC\x8B\x0D????\x53\x57\x8B\x01");
 
+    ikContextConstruct = reinterpret_cast<decltype(ikContextConstruct)>(findPattern(CLIENT_DLL, "\x53\x8B\xD9\xF6\xC3\x03\x74\x0B\xFF\x15????\x84\xC0\x74\x01\xCC\xC7\x83\xF0"));
+    ikContextDeconstructor = reinterpret_cast<decltype(ikContextDeconstructor)>(findPattern(CLIENT_DLL, "\x56\x8B\xF1\x57\x8D\x8E\x10"));
+    ikContextInit = reinterpret_cast<decltype(ikContextInit)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x08\x8B\x45\x08\x56\x57\x8B\xF9\x8D"));
+    ikContextUpdateTargets = reinterpret_cast<decltype(ikContextUpdateTargets)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\x81\xEC\x18\x01\x00\x00\x33\xD2"));
+    ikContextSolveDependencies = reinterpret_cast<decltype(ikContextSolveDependencies)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\x81?????\x8B?????\x56\x57\x89"));
+    ikContextAddDependencies = reinterpret_cast<decltype(ikContextAddDependencies)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x81\xEC\xBC\x00\x00\x00\x53\x56\x57\x8B\xF9"));
+    ikContextCopyTo = reinterpret_cast<decltype(ikContextCopyTo)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x24\x8B\x45\x08\x57"));
+
+    boneMergeCacheInit = reinterpret_cast<decltype(boneMergeCacheInit)>(findPattern(CLIENT_DLL, "\x56\x8B\xF1\x0F\x57\xC0\xC7\x86\x80\x00\x00\x00\x00\x00\x00\x00"));
+    boneMergeCacheUpdateCache = reinterpret_cast<decltype(boneMergeCacheUpdateCache)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\x8B\xF9\x8B\x37"));
+    boneMergeCacheMergeMatchingBones = reinterpret_cast<decltype(boneMergeCacheMergeMatchingBones)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x53\x56\x57\x8B\xF1\xE8????\x83"));
+    boneMergeCacheMergeMatchingPoseParams = reinterpret_cast<decltype(boneMergeCacheMergeMatchingPoseParams)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x0C\x53\x56\x8B\xF1\x57\x89\x75\xF8\xE8"));
+    boneMergeCacheGetAimEntOrigin = reinterpret_cast<decltype(boneMergeCacheGetAimEntOrigin)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x60\x56\x57\x8B\xF9"));
+    boneMergeCacheGetRootBone = reinterpret_cast<decltype(boneMergeCacheGetRootBone)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x56\x8B\xF1\xE8????\x83"));
+
+    boneSetupAccumulatePose = reinterpret_cast<decltype(boneSetupAccumulatePose)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF0\xB8\x38\x11\x00\x00"));
+    boneSetupCalcAutoplaySequences = reinterpret_cast<decltype(boneSetupCalcAutoplaySequences)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\x8B\x7D\x10"));
+    boneSetupCalcBoneAdj = reinterpret_cast<decltype(boneSetupCalcBoneAdj)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\x90\x00\x00\x00\x8B\xC1"));
+
+    CStudioHdrLookupSequence = reinterpret_cast<decltype(CStudioHdrLookupSequence)>(findPattern(CLIENT_DLL, "\x55\x8B\xEC\x83\xEC\x10\x53\x8B\x5D\x08\x56\x57\x8B\xF9\x85"));
+    getNumSeq = reinterpret_cast<decltype(getNumSeq)>(findPattern(CLIENT_DLL, "\x8B\x41\x04\x85\xC0\x75\x09\x8B\x01\x8B\x80\xBC"));
+
     createSimpleThread = reinterpret_cast<decltype(createSimpleThread)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "CreateSimpleThread"));
     releaseThreadHandle = reinterpret_cast<decltype(releaseThreadHandle)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "ReleaseThreadHandle"));
 }

@@ -41,6 +41,7 @@
 #include "Hacks/Triggerbot.h"
 #include "Hacks/Visuals.h"
 
+#include "SDK/BoneSetup.h"
 #include "SDK/ClassId.h"
 #include "SDK/Client.h"
 #include "SDK/ClientState.h"
@@ -1018,7 +1019,7 @@ static void __fastcall setupAliveloopHook(void* thisPointer, void* edx) noexcept
     animState->setupAliveLoop();
 }
 
-static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* boneToWorldOut , int maxBones, int boneMask, float currentTime) noexcept
+static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* boneToWorldOut, int maxBones, int boneMask, float currentTime) noexcept
 {
     static auto original = hooks->setupBones.getOriginal<bool>(boneToWorldOut, boneMask, maxBones, currentTime);
 
@@ -1026,6 +1027,9 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
     if (!entity || !localPlayer || localPlayer.get() != entity || interfaces->engine->isHLTV())
         return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
+
+    if (!entity->getModelPtr())
+        return false;
 
     if (!memory->input->isCameraInThirdPerson)
     {
@@ -1052,7 +1056,7 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
         localPlayer->poseParameters() = poseParameters;
         std::memcpy(localPlayer->animOverlays(), &layers, sizeof(AnimationLayer) * localPlayer->getAnimationLayersCount());
-        
+
         if (boneToWorldOut)
         {
             auto renderOrigin = entity->getRenderOrigin();
@@ -1075,7 +1079,10 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
         return true;
     }
     else
-        return original(thisPointer, boneToWorldOut, maxBones, boneMask, currentTime);
+    {
+        BoneSetup::build(entity, boneToWorldOut, maxBones, boneMask);
+        return true;
+    }
 }
 
 static void __cdecl clSendMoveHook() noexcept

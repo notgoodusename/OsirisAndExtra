@@ -32,6 +32,8 @@ namespace Helpers
     float remapValClamped(float val, float A, float B, float C, float D) noexcept;
     float normalizeYaw(float yaw) noexcept;
 
+    void sinCos(float radians, float* sine, float* cosine) noexcept;
+
     bool worldToScreen(const Vector& in, ImVec2& out, bool floor = false) noexcept;
 
     unsigned int calculateColor(Color4 color) noexcept;

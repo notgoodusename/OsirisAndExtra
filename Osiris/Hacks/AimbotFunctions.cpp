@@ -352,12 +352,6 @@ bool intersectLineWithBb(Vector& start, Vector& end, Vector& min, Vector& max) n
     return start_solid || (t1 < t2&& t1 >= 0.0f);
 }
 
-void inline sinCos(float radians, float* sine, float* cosine)
-{
-    *sine = sin(radians);
-    *cosine = cos(radians);
-}
-
 Vector vectorRotate(Vector& in1, Vector& in2) noexcept
 {
     auto vector_rotate = [](const Vector& in1, const matrix3x4& in2)
@@ -368,11 +362,10 @@ Vector vectorRotate(Vector& in1, Vector& in2) noexcept
     {
         float sr, sp, sy, cr, cp, cy;
 
-        sinCos(Helpers::deg2rad(angles[1]), &sy, &cy);
-        sinCos(Helpers::deg2rad(angles[0]), &sp, &cp);
-        sinCos(Helpers::deg2rad(angles[2]), &sr, &cr);
+        Helpers::sinCos(Helpers::deg2rad(angles[1]), &sy, &cy);
+        Helpers::sinCos(Helpers::deg2rad(angles[0]), &sp, &cp);
+        Helpers::sinCos(Helpers::deg2rad(angles[2]), &sr, &cr);
 
-        // matrix = (YAW * PITCH) * ROLL
         matrix[0][0] = cp * cy;
         matrix[1][0] = cp * sy;
         matrix[2][0] = -sp;

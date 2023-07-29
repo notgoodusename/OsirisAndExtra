@@ -287,6 +287,12 @@ float Helpers::normalizeYaw(float yaw) noexcept
     return yaw;
 }
 
+void Helpers::sinCos(float radians, float* sine, float* cosine) noexcept
+{
+    *sine = sin(radians);
+    *cosine = cos(radians);
+}
+
 bool Helpers::worldToScreen(const Vector& in, ImVec2& out, bool floor) noexcept
 {
     const auto& matrix = GameData::toScreenMatrix();

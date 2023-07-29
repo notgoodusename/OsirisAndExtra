@@ -15,8 +15,8 @@ namespace Netvars
 #define PNETVAR_OFFSET(funcname, class_name, var_name, offset, type) \
 [[nodiscard]] auto funcname() noexcept \
 { \
-    constexpr auto hash = fnv::hash(class_name "->" var_name); \
-    return reinterpret_cast<std::add_pointer_t<type>>(std::uintptr_t(this) + Netvars::get(hash) + offset); \
+    static const auto netvarOffset = Netvars::get(fnv::hash(class_name "->" var_name)); \
+    return reinterpret_cast<std::add_pointer_t<type>>(std::uintptr_t(this) + netvarOffset + offset); \
 }
 
 #define PNETVAR(funcname, class_name, var_name, type) \
@@ -25,8 +25,8 @@ namespace Netvars
 #define NETVAR_OFFSET(funcname, class_name, var_name, offset, type) \
 [[nodiscard]] std::add_lvalue_reference_t<type> funcname() noexcept \
 { \
-    constexpr auto hash = fnv::hash(class_name "->" var_name); \
-    return *reinterpret_cast<std::add_pointer_t<type>>(std::uintptr_t(this) + Netvars::get(hash) + offset); \
+    static const auto netvarOffset = Netvars::get(fnv::hash(class_name "->" var_name)); \
+    return *reinterpret_cast<std::add_pointer_t<type>>(std::uintptr_t(this) + netvarOffset + offset); \
 }
 
 #define NETVAR(funcname, class_name, var_name, type) \

@@ -673,5 +673,8 @@
     <ClInclude Include="SDK\BitBuffer.h">
       <Filter>SDK</Filter>
     </ClInclude>
+    <ClInclude Include="SDK\ParticleCollection.h">
+      <Filter>SDK</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

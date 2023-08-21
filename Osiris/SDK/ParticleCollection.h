@@ -33,7 +33,7 @@ struct ParticleAttributeAddressTable {
 	float* attributes[MAX_PARTICLE_ATTRIBUTES];
 	size_t floatStrides[MAX_PARTICLE_ATTRIBUTES];
 
-	FORCEINLINE float* FloatAttributePtr(int attribute, int particleNumber) const {
+	__forceinline float* FloatAttributePtr(int attribute, int particleNumber) const {
 		int block_ofs = particleNumber / 4;
 		return attributes[attribute] +
 			floatStrides[attribute] * block_ofs +

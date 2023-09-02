@@ -76,6 +76,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
         // Head
         hitbox[Hitboxes::Head] = (cfg.hitboxes & 1 << 0) == 1 << 0;
         // Chest
+        hitbox[Hitboxes::Neck] = (cfg.hitboxes & 1 << 0) == 1 << 1;
         hitbox[Hitboxes::UpperChest] = (cfg.hitboxes & 1 << 1) == 1 << 1;
         hitbox[Hitboxes::Thorax] = (cfg.hitboxes & 1 << 1) == 1 << 1;
         hitbox[Hitboxes::LowerChest] = (cfg.hitboxes & 1 << 1) == 1 << 1;
@@ -142,6 +143,10 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             if (!hitbox[j])
                 continue;
 
+            StudioBbox* hitbox = set->getHitbox(j);
+            if (!hitbox)
+                continue;
+
             if (AimbotFunction::hitboxIntersection(player.matrix.data(), j, set, startPos, endPos))
             {
                 Trace trace;
@@ -157,11 +162,23 @@ void Triggerbot::run(UserCmd* cmd) noexcept
                 if (float armorRatio{ weaponData->armorRatio / 2.0f }; activeWeapon->itemDefinitionIndex2() != WeaponId::Taser && HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet(), trace.entity->armor(), trace.entity->hasHeavyArmor()))
                     AimbotFunction::calculateArmorDamage(armorRatio, trace.entity->armor(), trace.entity->hasHeavyArmor(), damage);
 
+                const auto destination = AimbotFunction::calculateRelativeAngle(startPos, trace.endpos, cmd->viewangles + aimPunch);
+
                 if (damage >= (cfg.killshot ? trace.entity->health() : cfg.minDamage) && 
-                    AimbotFunction::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, AimbotFunction::calculateRelativeAngle(startPos, trace.endpos, cmd->viewangles + aimPunch), cmd, cfg.hitChance))
+                    AimbotFunction::hitChance(localPlayer.get(), entity, set, player.matrix.data(), activeWeapon, destination, cmd, cfg.hitChance))
                 {
                     cmd->buttons |= UserCmd::IN_ATTACK;
                     cmd->tickCount = timeToTicks(player.simulationTime + Backtrack::getLerp());
+
+                    if (cfg.magnet)
+                    {
+                        const auto centerHitbox = AimbotFunction::getCenterOfHitbox(player.matrix.data(), hitbox);
+                        const auto angle = AimbotFunction::calculateRelativeAngle(startPos, centerHitbox, cmd->viewangles + aimPunch);
+
+                        cmd->viewangles += angle;
+                        interfaces->engine->setViewAngles(cmd->viewangles);
+                    }
+
                     lastTime = 0.0f;
                     lastContact = now;
                 }
@@ -237,6 +254,10 @@ void Triggerbot::run(UserCmd* cmd) noexcept
             if (!hitbox[j])
                 continue;
 
+            StudioBbox* hitbox = set->getHitbox(j);
+            if (!hitbox)
+                continue;
+
             if (AimbotFunction::hitboxIntersection(record.matrix, j, set, startPos, endPos))
             {
                 Trace trace;
@@ -252,11 +273,23 @@ void Triggerbot::run(UserCmd* cmd) noexcept
                 if (float armorRatio{ weaponData->armorRatio / 2.0f }; activeWeapon->itemDefinitionIndex2() != WeaponId::Taser && HitGroup::isArmored(trace.hitgroup, trace.entity->hasHelmet(), trace.entity->armor(), trace.entity->hasHeavyArmor()))
                     AimbotFunction::calculateArmorDamage(armorRatio, trace.entity->armor(), trace.entity->hasHeavyArmor(), damage);
 
+                const auto destination = AimbotFunction::calculateRelativeAngle(startPos, trace.endpos, cmd->viewangles + aimPunch);
+
                 if (damage >= (cfg.killshot ? trace.entity->health() : cfg.minDamage) &&
-                    AimbotFunction::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, AimbotFunction::calculateRelativeAngle(startPos, trace.endpos, cmd->viewangles + aimPunch), cmd, cfg.hitChance))
+                    AimbotFunction::hitChance(localPlayer.get(), entity, set, record.matrix, activeWeapon, destination, cmd, cfg.hitChance))
                 {
                     cmd->buttons |= UserCmd::IN_ATTACK;
                     cmd->tickCount = timeToTicks(record.simulationTime + Backtrack::getLerp());
+
+                    if (cfg.magnet)
+                    {
+                        const auto centerHitbox = AimbotFunction::getCenterOfHitbox(player.matrix.data(), hitbox);
+                        const auto angle = AimbotFunction::calculateRelativeAngle(startPos, centerHitbox, cmd->viewangles + aimPunch);
+
+                        cmd->viewangles += angle;
+                        interfaces->engine->setViewAngles(cmd->viewangles);
+                    }
+
                     lastTime = 0.0f;
                     lastContact = now;
                 }

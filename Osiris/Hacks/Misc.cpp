@@ -60,10 +60,12 @@ std::string currentBackKey = "";
 std::string currentRightKey = "";
 std::string currentLeftKey = "";
 int currentButtons = 0;
+Vector viewAngles{ };
 
 void Misc::gatherDataOnTick(UserCmd* cmd) noexcept
 {
     currentButtons = cmd->buttons;
+    viewAngles = cmd->viewangles;
 }
 
 void Misc::handleKeyEvent(int keynum, const char* currentBinding) noexcept
@@ -1643,6 +1645,36 @@ void Misc::recoilCrosshair(ImDrawList* drawList) noexcept
 
     if (ImVec2 pos; Helpers::worldToScreen(localPlayerData.aimPunch, pos))
         drawCrosshair(drawList, pos, Helpers::calculateColor(config->misc.recoilCrosshair));
+}
+
+static void drawGapLine(ImDrawList* drawList, const ImVec2& pos, ImU32 color) noexcept
+{
+    // left
+    drawList->AddRectFilled(ImVec2{ pos.x - 21, pos.y - 1 }, ImVec2{ pos.x - 4, pos.y + 2 }, color & IM_COL32_A_MASK);
+    drawList->AddRectFilled(ImVec2{ pos.x - 20, pos.y }, ImVec2{ pos.x - 5, pos.y + 1 }, color);
+
+    // right
+    drawList->AddRectFilled(ImVec2{ pos.x + 5, pos.y - 1 }, ImVec2{ pos.x + 22, pos.y + 2 }, color & IM_COL32_A_MASK);
+    drawList->AddRectFilled(ImVec2{ pos.x + 6, pos.y }, ImVec2{ pos.x + 21, pos.y + 1 }, color);
+}
+
+void Misc::headshotLine(ImDrawList* drawList) noexcept
+{
+    if (!config->misc.headshotLine.enabled)
+        return;
+
+    if (!localPlayer || !localPlayer->isAlive())
+        return;
+
+    if (memory->input->isCameraInThirdPerson)
+        return;
+
+    const auto& displaySize = ImGui::GetIO().DisplaySize;
+    ImVec2 pos;
+    pos.x = displaySize.x / 2.0f;
+    pos.y = displaySize.y / 2.0f - displaySize.y / (2.0f * std::sin((config->visuals.fov + 90.0f) / 2.0f * M_PI / 180.0f) / std::sin(90.0f * M_PI / 180.0f)) * std::sin(viewAngles.x * M_PI / 180.0f) / std::sin(90.0f * M_PI / 180.0f);//I know that in mathematical theory, I can directly replace something with std::tan, but according to my test, such a calculation method causes it to deviate A LOT from the correct position sometimes, I am not major in computer science so I can only explain it in this way
+    const auto color = Helpers::calculateColor(config->misc.headshotLine);
+    drawGapLine(drawList, pos, color);
 }
 
 void Misc::watermark() noexcept

@@ -50,25 +50,17 @@ struct UtlStringSimple {
 };
 
 class ParticleSystemDefinition {
-	PAD(308);
-public:
+	PAD(308)
 	UtlStringSimple name;
 };
 
 class ParticleCollection {
-	PAD(48);//0
-public:
-	int activeParticles;//48
-private:
-	PAD(12);//52
-public:
-	UtlReference<ParticleSystemDefinition> def;//64
-private:
-	PAD(60);//80
-public:
-	ParticleCollection* parent;//136
-private:
-	PAD(84);//140
-public:
-	ParticleAttributeAddressTable particleAttributes;//224
+	PAD(48)
+	int activeParticles;
+	PAD(12)
+	UtlReference<ParticleSystemDefinition> def;
+	PAD(60)
+	ParticleCollection* parent;
+	PAD(84)
+	ParticleAttributeAddressTable particleAttributes;
 };

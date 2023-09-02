@@ -674,7 +674,6 @@
       <Filter>SDK</Filter>
     </ClInclude>
     <ClInclude Include="SDK\ParticleCollection.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

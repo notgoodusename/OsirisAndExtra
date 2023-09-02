@@ -286,6 +286,7 @@ static void from_json(const json& j, Config::Ragebot& r)
 static void from_json(const json& j, Config::Triggerbot& t)
 {
     read(j, "Enabled", t.enabled);
+    read(j, "Magnet", t.magnet);
     read(j, "Friendly fire", t.friendlyFire);
     read(j, "Scoped only", t.scopedOnly);
     read(j, "Ignore flash", t.ignoreFlash);
@@ -701,7 +702,8 @@ static void from_json(const json& j, Config::Misc& m)
     read<value_t::object>(j, "Auto peek", m.autoPeek);
     read(j, "Auto peek key", m.autoPeekKey);
     read<value_t::object>(j, "Noscope crosshair", m.noscopeCrosshair);
-    read<value_t::object>(j, "Recoil crosshair", m.recoilCrosshair);
+    read<value_t::object>(j, "Recoil crosshair", m.recoilCrosshair); 
+    read<value_t::object>(j, "Headshot line", m.headshotLine);
     read(j, "Auto pistol", m.autoPistol);
     read(j, "Auto reload", m.autoReload);
     read(j, "Auto accept", m.autoAccept);
@@ -1020,6 +1022,7 @@ static void to_json(json& j, const Config::Ragebot& o, const Config::Ragebot& du
 static void to_json(json& j, const Config::Triggerbot& o, const Config::Triggerbot& dummy = {})
 {
     WRITE("Enabled", enabled);
+    WRITE("Magnet", magnet);
     WRITE("Friendly fire", friendlyFire);
     WRITE("Scoped only", scopedOnly);
     WRITE("Ignore flash", ignoreFlash);
@@ -1364,6 +1367,7 @@ static void to_json(json& j, const Config::Misc& o)
     WRITE("Auto peek key", autoPeekKey);
     WRITE("Noscope crosshair", noscopeCrosshair);
     WRITE("Recoil crosshair", recoilCrosshair);
+    WRITE("Headshot line", headshotLine);
     WRITE("Auto pistol", autoPistol);
     WRITE("Auto reload", autoReload);
     WRITE("Auto accept", autoAccept);

@@ -394,7 +394,8 @@ public:
         char clanTag[16];
         char name[16];
         ColorToggleThickness noscopeCrosshair;
-        ColorToggleThickness recoilCrosshair;
+        ColorToggleThickness recoilCrosshair; 
+        ColorToggleThickness headshotLine;
         ColorToggleThickness nadeDamagePredict;
         Color4 nadeTrailPredict;
         Color4 nadeCirclePredict{ 0.f, 0.5f, 1.f, 1.f };

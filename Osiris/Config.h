@@ -135,6 +135,7 @@ public:
 
     struct Triggerbot {
         bool enabled = false;
+        bool magnet = false;
         bool friendlyFire = false;
         bool scopedOnly = true;
         bool ignoreFlash = false;

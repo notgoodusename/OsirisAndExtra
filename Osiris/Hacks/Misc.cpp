@@ -1679,25 +1679,72 @@ void Misc::headshotLine(ImDrawList* drawList) noexcept
 
 void Misc::watermark() noexcept
 {
-    if (!config->misc.watermark.enabled)
+     if (!config->misc.watermark.enabled)
         return;
 
-    if (config->misc.watermark.pos != ImVec2{}) {
-        ImGui::SetNextWindowPos(config->misc.watermark.pos);
-        config->misc.watermark.pos = {};
-    }
+    auto draw_list = ImGui::GetForegroundDrawList();
 
-    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize;
+    std::string cheatname, username, build, time;
+
+    char* user = getenv("username");
+
+    cheatname = "osiris ";
+    //time = memory->globalVars->realtime; // find out a way to get and display the local time
+
+    username = user; 
+#if DEBUG
+    build = "[beta]";
+#endif
+    build = "[release]";
+
+    // watermark text
+    auto text = std::string(cheatname + build + " | " + username).c_str();
+
+    // calc text size
+    ImVec2 calcText = ImGui::CalcTextSize(text);
+
+    //set window size
+    ImGui::SetNextWindowSize(ImVec2(calcText.x + 10, calcText.y * 2 - 6));
+    
+    ImGuiWindowFlags windowFlags = ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground;
+
     if (!gui->isOpen())
         windowFlags |= ImGuiWindowFlags_NoInputs;
 
-    ImGui::SetNextWindowBgAlpha(0.3f);
-    ImGui::Begin("Watermark", nullptr, windowFlags);
+    ImGui::Begin("##WIM", NULL, ImGuiWindowFlags_::ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_::ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_::ImGuiWindowFlags_NoBackground);
+    {
+        // get window pos
+        auto p = ImGui::GetWindowPos();
 
-    static auto frameRate = 1.0f;
-    frameRate = 0.9f * frameRate + 0.1f * memory->globalVars->absoluteFrameTime;
+        // set watermark color
+        auto bg_clr =
+            ImColor(0, 0, 0, 150),
+            line_clr = ImColor(53, 105, 189, 255),
+            text_clr = ImColor(255, 255, 255, 255),
+            glow_clr_first = ImColor(53, 105, 189, 125),
+            glow_clr_second = ImColor(53, 105, 189, 0);
 
-    ImGui::Text("Osiris | %d fps | %d ms", frameRate != 0.0f ? static_cast<int>(1 / frameRate) : 0, GameData::getNetOutgoingLatency());
+        // draw bg
+        draw_list->AddRectFilled(p, ImVec2(p.x + calcText.x + 10, p.y + calcText.y * 2 - 6), bg_clr);
+
+        // draw line
+        draw_list->AddRectFilled(p, ImVec2(p.x + calcText.x + 10, p.y + 2), line_clr);
+
+        // draw text
+        draw_list->AddText(
+            ImVec2(p.x + 5, p.y + calcText.y / 2 - 2),
+            text_clr,
+            text
+        );
+
+        // draw glow
+        draw_list->AddRectFilledMultiColor(p, ImVec2(p.x + calcText.x + 10, p.y + calcText.y),
+            glow_clr_first,
+            glow_clr_first,
+            glow_clr_second,
+            glow_clr_second)
+            ;    
+    }
     ImGui::End();
 }
 

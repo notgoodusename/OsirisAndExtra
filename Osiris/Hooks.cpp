@@ -316,6 +316,17 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         Misc::autoStrafe(cmd, currentViewAngles);
         Misc::jumpBug(cmd);
 
+        if (AntiAim::canRun(cmd))
+        {
+            AntiAim::setIsShooting(false);
+            AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
+        }
+        else
+        {
+            AntiAim::setLastShotTime(memory->globalVars->realtime);
+            AntiAim::setIsShooting(true);
+        }
+
         //Clamp angles and fix movement
         auto viewAnglesDelta{ cmd->viewangles - previousViewAngles };
         viewAnglesDelta.normalize();
@@ -352,6 +363,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
         Misc::jumpStats(cmd);
         Animations::update(cmd, sendPacket);
         Animations::fake();
+        AntiAim::setDidShoot(AntiAim::getIsShooting());
         return false;
     }
 
@@ -399,8 +411,14 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
 
     if (AntiAim::canRun(cmd))
     {
+        AntiAim::setIsShooting(false);
         Fakelag::run(sendPacket);
         AntiAim::run(cmd, previousViewAngles, currentViewAngles, sendPacket);
+    }
+    else
+    {
+        AntiAim::setLastShotTime(memory->globalVars->realtime);
+        AntiAim::setIsShooting(true);
     }
 
     Misc::fakeDuck(cmd, sendPacket);
@@ -443,6 +461,7 @@ static bool __stdcall createMove(float inputSampleTime, UserCmd* cmd, bool& send
     Misc::jumpStats(cmd);
     Animations::update(cmd, sendPacket);
     Animations::fake();
+    AntiAim::setDidShoot(AntiAim::getIsShooting());
     return false;
 }
 

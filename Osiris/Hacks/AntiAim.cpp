@@ -10,6 +10,10 @@
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
 
+static bool isShooting{ false };
+static bool didShoot{ false };
+static float lastShotTime{ 0.f };
+
 bool updateLby(bool update = false) noexcept
 {
     static float timer = 0.f;
@@ -104,7 +108,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
             float yaw = 0.f;
             static float staticYaw = 0.f;
             static bool flipJitter = false;
-            if (sendPacket)
+            if (sendPacket && !AntiAim::getDidShoot())
                 flipJitter ^= 1;
             if (config->rageAntiAim.atTargets)
             {
@@ -198,7 +202,7 @@ void AntiAim::rage(UserCmd* cmd, const Vector& previousViewAngles, const Vector&
                 yaw += static_cast<float>(config->rageAntiAim.yawAdd);
             cmd->viewangles.y += yaw;
         }
-        if (config->fakeAngle.enabled) //Fakeangle
+        if (config->fakeAngle.enabled && !Tickbase::isShifting()) //Fakeangle
         {
             if (const auto gameRules = (*memory->gameRules); gameRules)
                 if (getGameMode() != GameMode::Competitive && gameRules->isValveDS())
@@ -384,4 +388,34 @@ bool AntiAim::canRun(UserCmd* cmd) noexcept
         return true;
 
     return true;
+}
+
+float AntiAim::getLastShotTime()
+{
+    return lastShotTime;
+}
+
+bool AntiAim::getIsShooting()
+{
+    return isShooting;
+}
+
+bool AntiAim::getDidShoot()
+{
+    return didShoot;
+}
+
+void AntiAim::setLastShotTime(float shotTime)
+{
+    lastShotTime = shotTime;
+}
+
+void AntiAim::setIsShooting(bool shooting)
+{
+    isShooting = shooting;
+}
+
+void AntiAim::setDidShoot(bool shot)
+{
+    didShoot = shot;
 }

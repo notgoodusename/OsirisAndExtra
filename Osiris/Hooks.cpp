@@ -1269,9 +1269,6 @@ static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
 }
 
 static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPointer) {
-
-    constexpr float pi = std::numbers::pi_v<float>;
-
     static auto original = hooks->particleCollectionSimulate.getOriginal<bool>();
 
     original(thisPointer);
@@ -1284,8 +1281,6 @@ static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPo
         rootCollection = rootCollection->parent;
 
     const char* rootName = rootCollection->def.object->name.buffer;
-
-    //printf(std::string(rootName).append("\n").c_str()); //prints existing particles
 
     switch (fnv::hash(rootName))
     {
@@ -1352,7 +1347,6 @@ static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPo
                     float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
                     *alpha = config->visuals.smokeColor.color[3];
                 }
-
             }
         }
     }

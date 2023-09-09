@@ -1269,6 +1269,8 @@ static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
 }
 
 static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPointer) {
+    constexpr float pi = std::numbers::pi_v<float>;
+
     static auto original = hooks->particleCollectionSimulate.getOriginal<bool>();
 
     original(thisPointer);
@@ -1313,8 +1315,8 @@ static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPo
                         float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
                         if (config->visuals.molotovColor.rainbow) {
                             color[0] = std::sin(config->visuals.molotovColor.rainbowSpeed * memory->globalVars->realtime) * 0.5f + 0.5f;
-                            color[4] = std::sin(config->visuals.molotovColor.rainbowSpeed * memory->globalVars->realtime + 2 * IM_PI / 3) * 0.5f + 0.5f;
-                            color[8] = std::sin(config->visuals.molotovColor.rainbowSpeed * memory->globalVars->realtime + 4 * IM_PI / 3) * 0.5f + 0.5f;
+                            color[4] = std::sin(config->visuals.molotovColor.rainbowSpeed * memory->globalVars->realtime + 2 * pi / 3) * 0.5f + 0.5f;
+                            color[8] = std::sin(config->visuals.molotovColor.rainbowSpeed * memory->globalVars->realtime + 4 * pi / 3) * 0.5f + 0.5f;
                         }
                         else {
                             color[0] = config->visuals.molotovColor.color[0];
@@ -1336,8 +1338,8 @@ static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPo
                     float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
                     if (config->visuals.smokeColor.rainbow) {
                         color[0] = std::sin(config->visuals.smokeColor.rainbowSpeed * memory->globalVars->realtime) * 0.5f + 0.5f;
-                        color[4] = std::sin(config->visuals.smokeColor.rainbowSpeed * memory->globalVars->realtime + 2 * IM_PI / 3) * 0.5f + 0.5f;
-                        color[8] = std::sin(config->visuals.smokeColor.rainbowSpeed * memory->globalVars->realtime + 4 * IM_PI / 3) * 0.5f + 0.5f;
+                        color[4] = std::sin(config->visuals.smokeColor.rainbowSpeed * memory->globalVars->realtime + 2 * pi / 3) * 0.5f + 0.5f;
+                        color[8] = std::sin(config->visuals.smokeColor.rainbowSpeed * memory->globalVars->realtime + 4 * pi / 3) * 0.5f + 0.5f;
                     }
                     else {
                         color[0] = config->visuals.smokeColor.color[0];

@@ -1672,7 +1672,7 @@ void Misc::headshotLine(ImDrawList* drawList) noexcept
     const auto& displaySize = ImGui::GetIO().DisplaySize;
     ImVec2 pos;
     pos.x = displaySize.x / 2.0f;
-    pos.y = displaySize.y / 2.0f - displaySize.y / (2.0f * std::sin((config->visuals.fov + 90.0f) / 2.0f * M_PI / 180.0f) / std::sin(90.0f * M_PI / 180.0f)) * std::sin(viewAngles.x * M_PI / 180.0f) / std::sin(90.0f * M_PI / 180.0f);//I know that in mathematical theory, I can directly replace something with std::tan, but according to my test, such a calculation method causes it to deviate A LOT from the correct position sometimes, I am not major in computer science so I can only explain it in this way
+    pos.y = displaySize.y / 2.0f - displaySize.y / (2.0f * std::sinf((config->visuals.fov + 90.0f) / 2.0f * IM_PI / 180.0f) / std::sin(90.0f * IM_PI / 180.0f)) * std::sinf(viewAngles.x * IM_PI / 180.0f) / std::sinf(90.0f * IM_PI / 180.0f);//I know that in mathematical theory, I can directly replace something with std::tan, but according to my test, such a calculation method causes it to deviate A LOT from the correct position sometimes, I am not major in computer science so I can only explain it in this way
     const auto color = Helpers::calculateColor(config->misc.headshotLine);
     drawGapLine(drawList, pos, color);
 }

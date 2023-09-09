@@ -26,8 +26,6 @@ public:
     void install() noexcept;
     void uninstall() noexcept;
 
-    std::add_pointer_t<int __fastcall(SoundInfo&)> originalDispatchSound;
-
     MinHook buildTransformations;
     MinHook doExtraBoneProcessing;
     MinHook shouldSkipAnimationFrame;

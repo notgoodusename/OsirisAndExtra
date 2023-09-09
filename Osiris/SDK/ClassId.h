@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../Interfaces.h"
 #include "Server.h"
 
 enum class ClassId {

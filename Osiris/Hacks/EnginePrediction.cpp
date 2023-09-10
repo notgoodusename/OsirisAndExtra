@@ -1,4 +1,5 @@
 #include "../Interfaces.h"
+#include "../CSGOUtils.h"
 #include "../Memory.h"
 
 #include "EnginePrediction.h"
@@ -32,9 +33,9 @@ void EnginePrediction::update() noexcept
     if (!localPlayer || !localPlayer->isAlive())
         return;
 
-    const auto deltaTick = memory->clientState->deltaTick;
-    const auto start = memory->clientState->lastCommandAck;
-    const auto stop = memory->clientState->lastOutgoingCommand + memory->clientState->chokedCommands;
+    const auto deltaTick = CSGOUtils::getClientState()->deltaTick;
+    const auto start = CSGOUtils::getClientState()->lastCommandAttack;
+    const auto stop = CSGOUtils::getClientState()->lastOutgoingCommand + CSGOUtils::getClientState()->chokedCommands;
     interfaces->prediction->update(deltaTick, deltaTick > 0, start, stop);
 }
 

@@ -21,8 +21,7 @@
 
 #include "../SDK/Client.h"
 #include "../SDK/ClientClass.h"
-#include "../SDK/ConVar.h"
-#include "../SDK/Cvar.h"
+#include "../SDK/ClientState.h"
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"
@@ -34,6 +33,8 @@
 #include "../SDK/ModelInfo.h"
 #include "../SDK/Platform.h"
 #include "../SDK/WeaponId.h"
+
+#include "../CSGOUtils.h"
 
 /* This file is part of nSkinz by namazso, licensed under the MIT license:
 *
@@ -370,7 +371,7 @@ void SkinChanger::run(FrameStage stage) noexcept
 
 void SkinChanger::scheduleHudUpdate() noexcept
 {
-    interfaces->cvar->findVar("cl_fullupdate")->changeCallback();
+    CSGOUtils::getClientState()->forceFullUpdate();
     hudUpdateRequired = true;
 }
 

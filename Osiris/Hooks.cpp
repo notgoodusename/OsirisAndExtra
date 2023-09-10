@@ -18,6 +18,7 @@
 #include "GUI.h"
 #include "Hooks.h"
 #include "Interfaces.h"
+#include "CSGOUtils.h"
 #include "Logger.h"
 #include "Memory.h"
 
@@ -70,6 +71,8 @@
 #include "SDK/Surface.h"
 #include "SDK/UserCmd.h"
 #include "SDK/ViewSetup.h"
+#include "SDK/UtlRbTree.h"
+#include "SDK/SplitScreen.h"
 #include "SDK/ParticleCollection.h"
 
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
@@ -228,20 +231,39 @@ static void __fastcall packetStart(void* thisPointer, void* edx, int incomingSeq
     return hooks->clientState.callOriginal<void, 5>(incomingSequence, outgoingAcknowledged);
 }
 
+static void __fastcall packetEnd() noexcept
+{
+    const auto soundMessages = memory->soundMessages;
+    if (soundMessages->numElements > 0) {
+        for (int i = 0; i <= soundMessages->lastAlloc; ++i) {
+            if (!soundMessages->isIndexUsed(i))
+                continue;
+
+            auto& soundInfo = soundMessages->memory[i].element;
+            if (const char* soundName = interfaces->soundEmitter->getSoundName(soundInfo.soundIndex)) {
+                Sound::modulateSound(soundName, soundInfo.entityIndex, soundInfo.volume);
+                soundInfo.volume = std::clamp(soundInfo.volume, 0.0f, 1.0f);
+            }
+        }
+    }
+
+    hooks->clientState.callOriginal<void, 6>();
+}
+
 static void __fastcall processPacket(void* thisPointer, void* edx, void* packet, bool header) noexcept
 {
     static auto original = hooks->clientState.getOriginal<void>(packet, header);
-    if (!memory->clientState->netChannel)
+    if (!CSGOUtils::getClientState()->netChannel)
         return original(thisPointer, packet, header);
 
     original(thisPointer, packet, header);
 
-    for (auto it{ memory->clientState->pEvents }; it != nullptr; it = it->m_next) {
-        if (!it->class_id)
+    for (auto it{ CSGOUtils::getClientState()->events }; it != nullptr; it = it->next) {
+        if (!it->classID)
             continue;
 
         // set all delays to instant.
-        it->fire_delay = 0.f;
+        it->fireDelay = 0.f;
     }
 
     interfaces->engine->fireEvents();
@@ -688,15 +710,6 @@ static int __stdcall listLeavesInBox(const Vector& mins, const Vector& maxs, uns
     return hooks->bspQuery.callOriginal<int, 6>(std::cref(mins), std::cref(maxs), list, listMax);
 }
 
-static int __fastcall dispatchSound(SoundInfo& soundInfo) noexcept
-{
-    if (const char* soundName = interfaces->soundEmitter->getSoundName(soundInfo.soundIndex)) {
-        Sound::modulateSound(soundName, soundInfo.entityIndex, soundInfo.volume);
-        soundInfo.volume = std::clamp(soundInfo.volume, 0.0f, 1.0f);
-    }
-    return hooks->originalDispatchSound(soundInfo);
-}
-
 static void __stdcall render2dEffectsPreHud(void* viewSetup) noexcept
 {
     Visuals::applyScreenEffects();
@@ -1087,8 +1100,8 @@ static bool __fastcall setupBonesHook(void* thisPointer, void* edx, matrix3x4* b
 
 static void __cdecl clSendMoveHook() noexcept
 {
-    int nextCommandNr = memory->clientState->lastOutgoingCommand + memory->clientState->chokedCommands + 1;
-    int chokedCommands = memory->clientState->chokedCommands;
+    int nextCommandNr = CSGOUtils::getClientState()->lastOutgoingCommand + CSGOUtils::getClientState()->chokedCommands + 1;
+    int chokedCommands = CSGOUtils::getClientState()->chokedCommands;
 
     byte data[4000 /* MAX_CMD_BUFFER */];
     clMsgMove moveMsg;
@@ -1117,7 +1130,7 @@ static void __cdecl clSendMoveHook() noexcept
 
         moveMsg.setData(moveMsg.dataOut.getData(), moveMsg.dataOut.getNumBytesWritten());
 
-        memory->clientState->netChannel->sendNetMsg(reinterpret_cast<void*>(&moveMsg));
+        CSGOUtils::getClientState()->netChannel->sendNetMsg(reinterpret_cast<void*>(&moveMsg));
     }
 }
 
@@ -1176,7 +1189,7 @@ static void writeUsercmd(bufferWrite* buffer, UserCmd* toCmd, UserCmd* fromCmd) 
 
 static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, int slot, bufferWrite* buffer, int from, int to, bool newCmd) noexcept
 {
-    static auto original = hooks->client.getOriginal<bool, 24, int, bufferWrite*, int, int, bool>(slot, buffer, from, to, newCmd);
+    static auto original = hooks->client.getOriginal<bool, 24>(slot, buffer, from, to, newCmd);
 
     if (Tickbase::getTickshift() <= 0 || config->tickbase.teleport)
         return original(thisPointer, slot, buffer, from, to, newCmd);
@@ -1188,7 +1201,7 @@ static bool __fastcall writeUsercmdDeltaToBuffer(void* thisPointer, void* edx, i
     int* newCommandsPointer = reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(buffer) - 0x2C);
 
     const int newCommands = *newCommandsPointer;
-    const int nextCommand = memory->clientState->chokedCommands + memory->clientState->lastOutgoingCommand + 1;
+    const int nextCommand = CSGOUtils::getClientState()->chokedCommands + CSGOUtils::getClientState()->lastOutgoingCommand + 1;
 
     *backupCommandsPointer = 0;
 
@@ -1256,7 +1269,6 @@ static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
 }
 
 static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPointer) {
-
     constexpr float pi = std::numbers::pi_v<float>;
 
     static auto original = hooks->particleCollectionSimulate.getOriginal<bool>();
@@ -1271,8 +1283,6 @@ static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPo
         rootCollection = rootCollection->parent;
 
     const char* rootName = rootCollection->def.object->name.buffer;
-
-    //printf(std::string(rootName).append("\n").c_str()); //prints existing particles
 
     switch (fnv::hash(rootName))
     {
@@ -1339,7 +1349,6 @@ static void __fastcall particleCollectionSimulateHook(ParticleCollection* thisPo
                     float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
                     *alpha = config->visuals.smokeColor.color[3];
                 }
-
             }
         }
     }
@@ -1716,8 +1725,9 @@ void Hooks::install() noexcept
     clientMode.hookAt(44, doPostScreenEffects);
     clientMode.hookAt(58, updateColorCorrectionWeights);
 
-    clientState.init((ClientState*)(uint32_t(memory->clientState) + 0x8));
+    clientState.init(&memory->splitScreen->splitScreenPlayers[0]->client);
     clientState.hookAt(5, packetStart);
+    clientState.hookAt(6, packetEnd);
     clientState.hookAt(39, processPacket);
 
     engine.init(interfaces->engine);
@@ -1751,12 +1761,6 @@ void Hooks::install() noexcept
     viewRender.init(memory->viewRender);
     viewRender.hookAt(39, render2dEffectsPreHud);
     viewRender.hookAt(41, renderSmokeOverlay);
-
-    if (DWORD oldProtection; VirtualProtect(memory->dispatchSound, 4, PAGE_EXECUTE_READWRITE, &oldProtection)) {
-        originalDispatchSound = decltype(originalDispatchSound)(uintptr_t(memory->dispatchSound + 1) + *memory->dispatchSound);
-        *memory->dispatchSound = uintptr_t(&dispatchSound) - uintptr_t(memory->dispatchSound + 1);
-        VirtualProtect(memory->dispatchSound, 4, oldProtection, nullptr);
-    }
 
     bspQuery.hookAt(6, listLeavesInBox);
     surface.hookAt(67, lockCursor);
@@ -1814,11 +1818,6 @@ void Hooks::uninstall() noexcept
     SetWindowLongPtrW(window, GWLP_WNDPROC, LONG_PTR(originalWndProc));
     **reinterpret_cast<void***>(memory->present) = originalPresent;
     **reinterpret_cast<void***>(memory->reset) = originalReset;
-
-    if (DWORD oldProtection; VirtualProtect(memory->dispatchSound, 4, PAGE_EXECUTE_READWRITE, &oldProtection)) {
-        *memory->dispatchSound = uintptr_t(originalDispatchSound) - uintptr_t(memory->dispatchSound + 1);
-        VirtualProtect(memory->dispatchSound, 4, oldProtection, nullptr);
-    }
 
     if (HANDLE thread = CreateThread(nullptr, 0, LPTHREAD_START_ROUTINE(unload), moduleHandle, 0, nullptr))
         CloseHandle(thread);

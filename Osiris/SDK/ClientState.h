@@ -7,11 +7,11 @@
 
 class EventInfo {
 public:
-	enum {
-		EVENT_INDEX_BITS = 8,
-		EVENT_DATA_LEN_BITS = 11,
-		MAX_EVENT_DATA = 192,  // ( 1<<8 bits == 256, but only using 192 below )
-	};
+    enum {
+        EVENT_INDEX_BITS = 8,
+        EVENT_DATA_LEN_BITS = 11,
+	MAX_EVENT_DATA = 192,  // ( 1<<8 bits == 256, but only using 192 below )
+    };
     short classID;
     float fireDelay;
     const void* sendTable;
@@ -26,7 +26,7 @@ public:
 class ClientState
 {
 public:
-    void ForceFullUpdate()
+    void forceFullUpdate()
     {
         deltaTick = -1;
     }

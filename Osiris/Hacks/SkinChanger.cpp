@@ -21,8 +21,7 @@
 
 #include "../SDK/Client.h"
 #include "../SDK/ClientClass.h"
-#include "../SDK/ConVar.h"
-#include "../SDK/Cvar.h"
+#include "../SDK/ClientState.h"
 #include "../SDK/Engine.h"
 #include "../SDK/Entity.h"
 #include "../SDK/EntityList.h"

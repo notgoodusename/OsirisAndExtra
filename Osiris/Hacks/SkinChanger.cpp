@@ -35,6 +35,8 @@
 #include "../SDK/Platform.h"
 #include "../SDK/WeaponId.h"
 
+#include "../CSGOUtils.h"
+
 /* This file is part of nSkinz by namazso, licensed under the MIT license:
 *
 * MIT License
@@ -370,7 +372,7 @@ void SkinChanger::run(FrameStage stage) noexcept
 
 void SkinChanger::scheduleHudUpdate() noexcept
 {
-    interfaces->cvar->findVar("cl_fullupdate")->changeCallback();
+    CSGOUtils::getClientState()->forceFullUpdate();
     hudUpdateRequired = true;
 }
 
